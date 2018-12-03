@@ -14,7 +14,7 @@ namespace StockManagementSystem.Models
 
         public ApplicationDbContext(IConfigurationRoot configuration)
         {
-            _configuration = configuration;
+            _configuration = (IConfigurationRoot)configuration;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

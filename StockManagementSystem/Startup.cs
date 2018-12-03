@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Models;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using StockManagementSystem.Services;
 
 namespace StockManagementSystem
 {
@@ -37,30 +38,56 @@ namespace StockManagementSystem
         public void ConfigureServices(IServiceCollection services)
         {
             //Add framework services
-            services.AddSingleton<IConfiguration>(Configuration);
-
+            services.AddSingleton<IConfigurationRoot>(provider => Configuration);
             services.AddApplicationInsightsTelemetry(Configuration);
 
             services.AddEntityFrameworkSqlServer()
                 .AddDbContext<ApplicationDbContext>((options) =>
                         options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>(
-                o =>
-                {
-                    // configure identity options
-                    o.Password.RequireDigit = false;
-                    o.Password.RequireLowercase = false;
-                    o.Password.RequireUppercase = false;
-                    o.Password.RequireNonAlphanumeric = false;
-                    o.Password.RequiredLength = 6;
-                })
+            services.AddIdentity<ApplicationUser, IdentityRole>()              
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 6;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.Cookie.Expiration = TimeSpan.FromDays(150);
+                // If the LoginPath isn't set, ASP.NET Core defaults 
+                // the path to /Account/Login.
+                options.LoginPath = "/Account/Login";
+                // If the AccessDeniedPath isn't set, ASP.NET Core defaults 
+                // the path to /Account/AccessDenied.
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
 
             services.AddMvc();
             services.AddMemoryCache();
             services.AddSession();
+
+            // Add application services.
+            services.AddTransient<IEmailSender, AuthMessageSender>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
