@@ -397,11 +397,10 @@ a {
 @media (max-width: 991px) {
     .content-header > .breadcrumb {
         position: relative;
+        float: right;
         margin-top: 5px;
         top: 0;
-        right: 0;
-        float: none;
-        background: #d2d6de;
+        /*background: #d2d6de;*/
         padding-left: 10px;
     }
 
@@ -676,8 +675,8 @@ a {
         }
 
         .sidebar-mini.sidebar-collapse .sidebar-menu > li > .treeview-menu {
-            padding-top: 5px;
-            padding-bottom: 5px;
+            padding-top: 15px;
+            padding-bottom: 15px;
             border-bottom-right-radius: 4px;
         }
 
@@ -3634,7 +3633,7 @@ table.text-center th {
     list-style: none;
     padding: 0;
     margin: 0;
-    padding-left: 5px;
+    padding-left: 15px;
 }
 
     .treeview-menu .treeview-menu {
@@ -3646,7 +3645,7 @@ table.text-center th {
     }
 
         .treeview-menu > li > a {
-            padding: 5px 5px 5px 15px;
+            padding: 15px 5px 15px 15px;
             display: block;
             font-size: 14px;
         }

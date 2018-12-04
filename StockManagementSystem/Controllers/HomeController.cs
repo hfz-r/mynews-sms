@@ -9,31 +9,48 @@ using StockManagementSystem.Models;
 
 namespace StockManagementSystem.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class HomeController : Controller
     {
+
         public IActionResult Index()
         {
-            return View();
+            return View("Dashboard");
         }
 
-        public IActionResult About()
+        public IActionResult Dashboard()
         {
-            ViewData["Message"] = "Your application description page.";
-
             return View();
         }
 
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
+        [AllowAnonymous]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
+        
+        //public IActionResult Index()
+        //{
+        //    return View();
+        //}
+
+        //public IActionResult About()
+        //{
+        //    ViewData["Message"] = "Your application description page.";
+
+        //    return View();
+        //}
+
+        //public IActionResult Contact()
+        //{
+        //    ViewData["Message"] = "Your contact page.";
+
+        //    return View();
+        //}
+
+        //public IActionResult Error()
+        //{
+        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        //}
     }
 }

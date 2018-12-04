@@ -1,0 +1,33 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+            <a class="dropdown -toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <li class="dropdown-header">My Account</li>
+                <li><a asp-controller="Manage" asp-action="Index" title="Manage">Profile</a></li>
+                <li>
+                    <form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm">
+                        <button type="submit" class="btn btn-link">Log off</button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+        @if (User.IsInRole(Roles.Admin))
+        {
+            <li>
+                <a href="@Url.Action("Index", "Admin")" data-toggle="tooltip" data-placement="bottom" title="Admin Area"><i class="glyphicon glyphicon-cog"></i></a>
+            </li>
+        }
+    </ul>
+}
+@*else
+{
+    <ul class="sidebar-menu">
+        <li><a asp-controller="Account" asp-action="Login">Login</a></li>
+    </ul>
+}*@
