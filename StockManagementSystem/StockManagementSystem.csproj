@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20181205083516_AddDeviceTable.cs" />
+    <Compile Remove="Migrations\20181205083516_AddDeviceTable.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Views\Home\Index.cshtml" />
     <Content Remove="web.config" />
   </ItemGroup>
@@ -20,6 +25,12 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\lib\jquery-ui-1.12.1\jquery-ui-1.12.1\external\jquery\jquery.js" />
+    <None Include="wwwroot\lib\jquery-ui-1.12.1\jquery-ui-1.12.1\jquery-ui.js" />
+    <None Include="wwwroot\lib\jquery-ui-1.12.1\jquery-ui-1.12.1\jquery-ui.min.js" />
   </ItemGroup>
 
 </Project>

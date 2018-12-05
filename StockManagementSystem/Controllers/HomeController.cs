@@ -29,6 +29,11 @@ namespace StockManagementSystem.Controllers
             return View();
         }
         
+        public IActionResult PanelServerComponent()
+        {
+            return ViewComponent("PanelServerComponent");
+        }
+
         //public IActionResult Index()
         //{
         //    return View();
