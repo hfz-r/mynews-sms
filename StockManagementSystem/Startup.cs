@@ -9,6 +9,7 @@ using StockManagementSystem.Models;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using StockManagementSystem.Services;
+using StockManagementSystem.Extensions;
 
 namespace StockManagementSystem
 {
@@ -88,6 +89,8 @@ namespace StockManagementSystem
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
+
+            services.AddStartupTime();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -117,7 +120,7 @@ namespace StockManagementSystem
 
                 // For more details on creating database during deployment see http://go.microsoft.com/fwlink/?LinkID=615859
             }
-
+            
             app.UseStaticFiles();
 
             app.UseAuthentication();
@@ -131,6 +134,8 @@ namespace StockManagementSystem
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseStartupTime();
         }
     }
 }

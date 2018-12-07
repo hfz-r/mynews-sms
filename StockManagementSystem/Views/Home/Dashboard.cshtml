@@ -8,111 +8,36 @@
 
 <div class="content-wrapper">
     <section class="content-header">
+        <h1 class="fa fa-dashboard">&nbsp;Dashboard</h1>
         <ol class="breadcrumb">
             <li class="#"><a href="@Url.Action("Index", "Home")"><i class="glyphicon glyphicon-home"></i></a></li>
-            <li class="active"><a href="@Url.Action("Dashboard", "Home")">Dashboard</a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("Dashboard", "Home")">Dashboard</a></li>
         </ol>
     </section>
-
-        @*<div class="dashboard-panel-container">
-                <div id="server" class="dashboard-panel col-sm-6 col-md-4">
-                    @Component.Invoke("PanelServerComponent")
+    <!-- Main content -->
+    <section class="content">
+        <!-- Panels -->
+        <div class="box box-default box">          
+            <div class=" box-body">
+                <div class="dashboard-panel-container">
+                    <div id="server" class="dashboard-panel col-sm-6 col-md-4">
+                        @await Component.InvokeAsync("PanelServerComponent")
+                    </div>
                 </div>
-                <div id="device-usage" class="dashboard-panel col-sm-6 col-md-4">
-                    @Component.Invoke("PanelDeviceUsageComponent")
-                </div>
-                <div id="device-status" class="dashboard-panel col-sm-6 col-md-4">
-                    @Component.Invoke("PanelDeviceStatusComponent")
-                </div>
-                <div id="system" class="dashboard-panel col-sm-6 col-md-4">
-                    @Component.Invoke("PanelSystemComponent")
-                </div>
-                <div id="license" class="dashboard-panel col-sm-6 col-md-4">
-                    @Component.Invoke("PanelLicenseComponent")
-                </div>
-                <div id="activity" class="dashboard-panel col-sm-6 col-md-4">
-                    @Component.Invoke("PanelActivityComponent")
-                </div>
-            </div>*@
+            </div>
+        </div>
+    </section>
 </div>
 
-@*@section scripts{
-        <script src="~/lib/jqplot/jquery.jqplot.min.js"></script>
-        <script src="~/lib/jqplot/plugins/jqplot.highlighter.min.js"></script>
-        <script src="~/lib/jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
-        <script src="~/lib/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
-        <script src="~/lib/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
-        <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
-        <script src="~/lib/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
-        <script type="text/javascript">
-            $('.dashboard-panel-container').sortable({ tolerance: 'pointer' });
-            $(".dashboard-panel-container").disableSelection();
-            var chart;
-            function initChart() {
-                var datas = [];
-                for (var i = 0; i < data.length ; i += 1) {
-                    var arr = [];
-                    arr.push(labels[i], Number(data[i]));
-                    datas.push(arr);
-                }
-                if (datas.length == 0) {
-                    datas.push([null]);
-                }
-                chart = $.jqplot('usage-chart', [datas], {
-                    grid: { background: '#fff', shadow: false },
-                    seriesColors: ['#0275d8'],
-                    axes: {
-                        labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                        xaxis: {
-                            renderer: $.jqplot.CategoryAxisRenderer,
-                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                            drawMajorGridlines: false
-                        },
-                        yaxis: {
-                            label: "Print Job",
-                            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-                            drawMajorGridlines: false
-                        }
-                    },
-                    highlighter: {
-                        show: labels.length > 0,
-                        tooltipAxes: 'y'
-                    }
-                });
-            };
+@section scripts{
+    <script src="~/lib/jquery-ui-1.12.1/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+        $('.dashboard-panel-container').sortable({ tolerance: 'pointer' });
+        $(".dashboard-panel-container").disableSelection();
 
-            $(window).resize(function (e) {
-                if (chart != null) {
-                    chart.replot();
-                }
-            });
+        $(document).on('click', '#btn-refresh-server', function (e) {
+            $('#server').load('@Url.Action("PanelServerComponent", "Home")');
+        });
 
-            initChart();
-
-            $(document).on('click', '#btn-refresh-server', function (e) {
-                $('#server').load('@Url.Action("PanelServerComponent", "Home")');
-            });
-
-            $(document).on('click', '#btn-refresh-device-usage', function (e) {
-                $('#device-usage').load('@Url.Action("PanelDeviceUsageComponent", "Home")', function () {
-                    initChart();
-                });
-            });
-
-            $(document).on('click', '#btn-refresh-device-status', function (e) {
-                $('#device-status').load('@Url.Action("PanelDeviceStatusComponent", "Home")');
-            });
-
-            $(document).on('click', '#btn-refresh-system', function (e) {
-                $('#system').load('@Url.Action("PanelSystemComponent", "Home")');
-            });
-
-            $(document).on('click', '#btn-refresh-license', function (e) {
-                $('#license').load('@Url.Action("PanelLicenseComponent", "Home")');
-            });
-
-            $(document).on('click', '#btn-refresh-activity', function (e) {
-                $('#activity').load('@Url.Action("PanelActivityComponent", "Home")');
-            });
-        </script>
-    }*@
+    </script>
+}
