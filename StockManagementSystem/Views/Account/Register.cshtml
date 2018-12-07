@@ -1,77 +1,77 @@
-﻿@using System.Collections.Generic
-@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Http.Authentication
-
+﻿@model StockManagementSystem.ViewModels.Account.RegisterViewModel 
 @{
     ViewData["Title"] = "Register";
 }
 
-<!-- Register form -->
-<div class="col-lg-8" id="Register">
-    <div class="form-group-sm">
-        <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" role="form">
-            <div class=".imgcontainer" align="center">
+@*<div class="row" style="height: 100%; width: 100%;">*@
+    <div class="col-sm-6 col-sm-offset-2">
+        <form asp-controller="Account" asp-action="Register" method="post" class="form-horizontal" role="form">
+            <div align="center" style="height: 130px">
                 <img src="~/images/MainMenu_Logo.png" alt="Logo">
             </div>
-            <div class="login-box-body">
-                <h4>Create a new account.</h4>
-                <hr />
-                @*<div asp-validation-summary="ValidationSummary.All" class="text-danger"></div>*@
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Name <span class="fa fa-user" aria-hidden="true"></span></label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" title="username" placeholder="username" />
-                        @*<input asp-for="Username" class="form-control" placeholder="username" />*@
-                        @*<span asp-validation-for="UserName" class="text-danger"></span>*@
+            <div class="panel panel-default" style="width: 510px;">
+                <div class="panel-heading">Create a new account</div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label asp-for="UserName" class="col-sm-4 control-label"></label>
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                                <input asp-for="UserName" class="form-control" />
+                            </div>
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Email Address <span class="fa fa-envelope-o" aria-hidden="true"></span></label>
-                    <div class="col-sm-6">
-                        <input type="Email" class="form-control" placeholder="abc@gmail.com" />
-                        @*<input asp-for="Email" class="form-control" placeholder="abc@gmail.com" />*@
-                        @*<span asp-validation-for="Email" class="text-danger"></span>*@
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Password <span class="fa fa-key" aria-hidden="true"></span></label>
-                    @*<label asp-for="Password" class="control-label col-sm-4"><span class="fa fa-key" aria-hidden="true"></span></label>*@
-                    <div class="col-sm-6">
-                        <input type="password" class="form-control" placeholder="Password" />
-                        @*<input asp-for="Password" class="form-control" />
-                            <span asp-validation-for="Password" class="text-danger"></span>*@
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="control-label col-sm-4">ConfirmPassword <span class="fa fa-key" aria-hidden="true"></span></label>
-                    @*<label asp-for="ConfirmPassword" class="control-label col-sm-3">ConfirmPassword <span class="fa fa-key" aria-hidden="true"></span></label>*@
-                    <div class="col-sm-6">
-                        <input type="password" class="form-control" placeholder="ConfirmPassword" />
-                        @*<input asp-for="ConfirmPassword" class="form-control" />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>*@
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-4">
-                        <div class="col-sm-3">
+                    <div class="form-group">
+                        <label asp-for="Email" class="col-md-4 control-label"></label>
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
+                                <input asp-for="Email" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        </div>
+                    <div class="form-group">
+                        <label asp-for="Password" class="col-md-4 control-label"></label>
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input asp-for="Password" class="form-control" />
+                            </div>
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+                        </div>
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="col-md-4 control-label"></label>
+                        <div class="col-md-7">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                                <input asp-for="ConfirmPassword" class="form-control" />
+                            </div>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                        </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-4 col-md-5">
                             <button type="submit" class="btn btn-primary">
                                 <span class="fa fa-user-o"> Register</span>
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-offset-4">
-                        <div class="col-sm-5">
-                            <a asp-action="Login">Back To Login Page</a>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4">
+                            <div class="col-sm-6">
+                                <a asp-action="Login">Back To Login Page</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-</div>
-<!--End register form -->
+@*</div>*@
+
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
