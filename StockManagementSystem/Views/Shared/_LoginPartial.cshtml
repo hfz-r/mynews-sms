@@ -4,30 +4,49 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-            <a class="dropdown -toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@User.Identity.Name <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-                <li class="dropdown-header">My Account</li>
-                <li><a asp-controller="Manage" asp-action="Index" title="Manage">Profile</a></li>
-                <li>
-                    <form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm">
-                        <button type="submit" class="btn btn-link">Log off</button>
-                    </form>
-                </li>
-            </ul>
-        </li>
+    <!-- AdminLTE layout-->
+    <!-- Navbar Right Menu -->
+    <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+            <!-- User Account: style can be found in dropdown.less -->
+            <li class="dropdown user user-menu">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    @*<img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image">*@
+                    <span class="hidden-xs">@User.Identity.Name</span>
+                </a>
+                <ul class="dropdown-menu">
+                    <!-- User image -->
+                    <li class="user-header">
+                        @*<img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">*@
+                        <p>
+                            <span>@User.Identity.Name</span>
+                        </p>
+                    </li>
+                    <!-- Menu Footer-->
+                    <li class="user-footer">
+                        <div class="pull-left">
+                            <a asp-controller="Manage" asp-action="Index" title="Manage" class="btn btn-default btn-flat">Profile</a>
+                        </div>
+                        <div class="pull-right">
+                            <form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm">
+                                <button type="submit" class="btn btn-default btn-flat">Log out</button>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
         @if (User.IsInRole(Roles.Admin))
         {
             <li>
                 <a href="@Url.Action("Index", "Admin")" data-toggle="tooltip" data-placement="bottom" title="Admin Area"><i class="glyphicon glyphicon-cog"></i></a>
             </li>
         }
-    </ul>
 }
-@*else
+else
 {
-    <ul class="sidebar-menu">
-        <li><a asp-controller="Account" asp-action="Login">Login</a></li>
-    </ul>
-}*@
+    @*<ul class="sidebar-menu">
+              <li><a asp-controller="Account" asp-action="Login">Login</a></li>
+     </ul>*@
+}

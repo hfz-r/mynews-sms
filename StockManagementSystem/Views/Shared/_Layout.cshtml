@@ -24,127 +24,127 @@
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
-        <div class="wrapper">
-            <!-- Main Header -->
-            <header class="main-header">
-                <!-- Logo -->
-                <a href="index2.html" class="logo">
-                    <!-- mini logo for sidebar mini 50x50 pixels -->
-                    <span class="logo-mini"><img src="~/images/logo.png" alt="home" height="35" width="38" /></span>
-                    <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg"><img src="~/images/MainMenu_Logo.png" alt="home" height="40" width="105" /></span>
+    <div class="wrapper">
+        <!-- Main Header -->
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="index2.html" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini"><img src="~/images/logo.png" alt="home" height="35" width="38" /></span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg"><img src="~/images/MainMenu_Logo.png" alt="home" height="40" width="105" /></span>
+            </a>
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                @await Html.PartialAsync("_LoginPartial")
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
                 </a>
-                <!-- Header Navbar -->
-                <nav class="navbar navbar-static-top" role="navigation">
-                    <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-                        <span class="sr-only">Toggle navigation</span>
-                    </a>
-                </nav>
-            </header>
-            <!-- Left side column. contains the logo and sidebar -->
-            <aside class="main-sidebar">
-                <!-- sidebar: style can be found in sidebar.less -->
-                <section class="sidebar">
-                    <!-- Sidebar user panel (optional) -->
-                    <div class="user-panel">
+            </nav>
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+                @*<div class="user-panel">
                         <div class="pull-left image">
                             <img src="/images/user2-160x160.jpg" class="img-circle" alt="User Image">
                         </div>
                         <div class="pull-left info">
                             <p>Alexander Pierce</p>
-                            <!-- Status -->
+
                             <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                         </div>
-                    </div>                   
-                    <!-- Sidebar Menu -->
-                    @await Html.PartialAsync("_LoginPartial")
-                    <ul class="sidebar-menu">
-                        @RenderSection("navigations", required: false)
-                    </ul>
-                    <!-- /.sidebar-menu -->
-                </section>
-                <!-- /.sidebar -->
-            </aside>
-            <!-- Content Wrapper. Contains page content -->
-            <div class="content-wrapper">
-                <!-- Content Header (Page header) -->
-                <section class="content-header">
-                    @RenderBody()                                
-                </section>
-                <!-- Main content -->
-                <section class="content container-fluid">
-                    <!--------------------------
-                    | Your Page Content Here |
-                    -------------------------->
-                </section>
-                <!-- /.content -->
-            </div>
-            <!-- /.content-wrapper -->
-            <!-- Main Footer -->
-            <footer class="main-footer text-center">
-                <strong>Copyright &copy; 2018 <a href="https://www.b-excelle.com">B Excelle</a>.</strong> All rights reserved.
-            </footer>            
+                    </div>*@
+                <!-- Sidebar Menu -->
+                <ul class="sidebar-menu">
+                    @RenderSection("navigations", required: false)
+                </ul>
+                <!-- /.sidebar-menu -->
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                @RenderBody()
+            </section>
+            <!-- Main content -->
+            <section class="content container-fluid">
+                <!--------------------------
+                | Your Page Content Here |
+                -------------------------->
+            </section>
+            <!-- /.content -->
         </div>
+        <!-- /.content-wrapper -->
+        <!-- Main Footer -->
+        <footer class="main-footer text-center">
+            <strong>Copyright &copy; 2018 <a href="https://www.b-excelle.com">B Excelle</a>.</strong> All rights reserved.
+        </footer>
+    </div>
 
-        <!-- jQuery 3 -->
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <!-- Bootstrap 3.3.7 -->
-        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-        <!-- Slimscroll -->
-        <script src="~/lib/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-        <!-- FastClick -->
-        <script src="~/lib/fastclick/lib/fastclick.js"></script>
-        <!-- AdminLTE App -->
-        <script src="~/js/adminlte.min.js"></script>
-        <!-- AdminLTE for demo purposes -->
-        <script src="~/js/demo.js"></script>
-        @RenderSection("scripts", required: false)
-    </body>
+    <!-- jQuery 3 -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- Slimscroll -->
+    <script src="~/lib/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <!-- FastClick -->
+    <script src="~/lib/fastclick/lib/fastclick.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/js/demo.js"></script>
+    @RenderSection("scripts", required: false)
+</body>
 
 @*<body>
-    <div class="navbar navbar-default navbar-blue navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a asp-controller="Home" asp-action="Index" class="navbar-brand">ePMS</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                @await Html.PartialAsync("_LoginPartial")
-                <ul class="nav navbar-nav navbar-right">
-                    @RenderSection("navigations", required: false)
-                    <li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
-                </ul>
+        <div class="navbar navbar-default navbar-blue navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a asp-controller="Home" asp-action="Index" class="navbar-brand">ePMS</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    @await Html.PartialAsync("_LoginPartial")
+                    <ul class="nav navbar-nav navbar-right">
+                        @RenderSection("navigations", required: false)
+                        <li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="container-fluid body-content">
-        @RenderBody()
-    </div>
-    <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-    </environment>
-    <environment names="Staging,Production">
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.1.4.min.js"
-                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                asp-fallback-test="window.jQuery">
-        </script>
-        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.5/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
-        </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
+        <div class="container-fluid body-content">
+            @RenderBody()
+        </div>
+        <environment names="Development">
+            <script src="~/lib/jquery/dist/jquery.js"></script>
+            <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+            <script src="~/js/site.js" asp-append-version="true"></script>
+        </environment>
+        <environment names="Staging,Production">
+            <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.1.4.min.js"
+                    asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                    asp-fallback-test="window.jQuery">
+            </script>
+            <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.5/bootstrap.min.js"
+                    asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                    asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
+            </script>
+            <script src="~/js/site.min.js" asp-append-version="true"></script>
+        </environment>
 
-    @RenderSection("scripts", required: false)
-</body>*@
+        @RenderSection("scripts", required: false)
+    </body>*@
 
 @*<body class="hold-transition skin-blue sidebar-mini">
         <div class="wrapper">
