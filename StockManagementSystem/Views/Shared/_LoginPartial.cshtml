@@ -1,6 +1,5 @@
-﻿@using System.Security.Claims
-@using Microsoft.AspNetCore.Identity
-@inject SignInManager<ApplicationUser> SignInManager
+﻿@using StockManagementSystem.Core.Domain.Identity
+@inject SignInManager<User> SignInManager
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -25,7 +24,7 @@
                     <!-- Menu Footer-->
                     <li class="user-footer">
                         <div class="pull-left">
-                            <a asp-controller="Manage" asp-action="Index" title="Manage" class="btn btn-default btn-flat">Profile</a>
+                            @*<a asp-controller="Manage" asp-action="Index" title="Manage" class="btn btn-default btn-flat">Profile</a>*@
                         </div>
                         <div class="pull-right">
                             <form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm">
@@ -37,7 +36,7 @@
             </li>
         </ul>
     </div>
-        @if (User.IsInRole(Roles.Admin))
+        @if (User.IsInRole("admin"))
         {
             <li>
                 <a href="@Url.Action("Index", "Admin")" data-toggle="tooltip" data-placement="bottom" title="Admin Area"><i class="glyphicon glyphicon-cog"></i></a>

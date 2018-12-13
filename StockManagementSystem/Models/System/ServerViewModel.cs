@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace StockManagementSystem.ViewModels.System
+namespace StockManagementSystem.Models.System
 {
     public class ServerViewModel
     {
