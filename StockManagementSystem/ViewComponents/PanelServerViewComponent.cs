@@ -4,7 +4,7 @@ using StockManagementSystem.System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using StockManagementSystem.ViewModels.System;
+using StockManagementSystem.Models.System;
 
 namespace StockManagementSystem.ViewComponents
 {
@@ -13,8 +13,7 @@ namespace StockManagementSystem.ViewComponents
     {
         public IViewComponentResult Invoke()
         {
-            ServerViewModel model = new ServerViewModel();
-            model.AppVersion = AppInfo.GetVersion();
+            ServerViewModel model = new ServerViewModel {AppVersion = AppInfo.GetVersion()};
             return View(model);
         }
     }

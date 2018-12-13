@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockManagementSystem", "StockManagementSystem\StockManagementSystem.csproj", "{C68E88D5-748B-46BE-8070-2067B3DA552E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockManagementSystem.Data", "StockManagementSystem.Data\StockManagementSystem.Data.csproj", "{30C9BCDD-9AD5-4C8C-93F1-6CF489E4D658}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockManagementSystem.Core", "StockManagementSystem.Core\StockManagementSystem.Core.csproj", "{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{C68E88D5-748B-46BE-8070-2067B3DA552E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C68E88D5-748B-46BE-8070-2067B3DA552E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C68E88D5-748B-46BE-8070-2067B3DA552E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30C9BCDD-9AD5-4C8C-93F1-6CF489E4D658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30C9BCDD-9AD5-4C8C-93F1-6CF489E4D658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30C9BCDD-9AD5-4C8C-93F1-6CF489E4D658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30C9BCDD-9AD5-4C8C-93F1-6CF489E4D658}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
