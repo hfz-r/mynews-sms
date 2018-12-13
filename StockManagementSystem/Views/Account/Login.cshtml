@@ -1,8 +1,9 @@
 ﻿@using System.Collections.Generic
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Authentication
-@model StockManagementSystem.ViewModels.Account.LoginViewModel
-@inject SignInManager<ApplicationUser> SignInManager
+@using StockManagementSystem.Core.Domain.Identity
+@model StockManagementSystem.Models.Account.LoginViewModel
+@inject SignInManager<User> SignInManager
 
 @{
     ViewData["Title"] = "Login";

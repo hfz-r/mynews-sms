@@ -5,9 +5,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
-using StockManagementSystem.Models;
-using System.Text;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using StockManagementSystem.Core;
+using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Data;
 using StockManagementSystem.Services;
 using StockManagementSystem.Extensions;
 
@@ -15,43 +17,37 @@ namespace StockManagementSystem
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        private readonly ILogger _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
-            //Set up configuration sources
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-
-            if (env.IsDevelopment())
-            {
-                // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
-                builder.AddApplicationInsightsSettings(developerMode: true);
-            }
-
-            Configuration = builder.Build();
+            Configuration = configuration;
+            _logger = logger;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //Add framework services
-            services.AddSingleton<IConfigurationRoot>(provider => Configuration);
-            services.AddApplicationInsightsTelemetry(Configuration);
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddEntityFrameworkSqlServer()
-                .AddDbContext<ApplicationDbContext>((options) =>
-                        options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
+            services.AddDbContext<ObjectContext>(options => options
+                .UseLazyLoadingProxies()
+                .UseSqlServer(Configuration.GetConnectionString("Default"), migration => 
+                    migration.MigrationsAssembly(typeof(Startup).Assembly.FullName)));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()              
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+            services.AddEntityFrameworkSqlServer();
+            services.AddEntityFrameworkProxies();
+
+            _logger.LogInformation("Initialize repository");
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IDbContext, ObjectContext>();
+
+            services.AddIdentity<User, Role>()
+                .AddCustomStores()
                 .AddDefaultTokenProviders();
 
-            services.Configure<IdentityOptions>(options =>
-            {
+            services.Configure<IdentityOptions>(options => {
                 // Password settings
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;
@@ -69,16 +65,11 @@ namespace StockManagementSystem
                 options.User.RequireUniqueEmail = true;
             });
 
-            services.ConfigureApplicationCookie(options =>
-            {
+            services.ConfigureApplicationCookie(options => {
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
                 options.Cookie.Expiration = TimeSpan.FromDays(150);
-                // If the LoginPath isn't set, ASP.NET Core defaults 
-                // the path to /Account/Login.
                 options.LoginPath = "/Account/Login";
-                // If the AccessDeniedPath isn't set, ASP.NET Core defaults 
-                // the path to /Account/AccessDenied.
                 options.AccessDeniedPath = "/Account/AccessDenied";
                 options.SlidingExpiration = true;
             });
@@ -89,47 +80,24 @@ namespace StockManagementSystem
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
-
             services.AddStartupTime();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationLifetime appLifetime, IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
-            appLifetime.ApplicationStopped.Register(() =>
-            {
-                logger.LogInformation("Application Stopped.");
-            });
-
-#pragma warning disable CS0612 // Type or member is obsolete
-            app.UseApplicationInsightsRequestTelemetry();
-#pragma warning restore CS0612 // Type or member is obsolete
-
-            if (env.IsDevelopment())
-            {
-                app.UseBrowserLink();
+            if (env.IsDevelopment()) {
+                _logger.LogInformation("Env:Dev");
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
             }
-            else
-            {
+            else {
                 app.UseExceptionHandler("/Home/Error");
-
-                // For more details on creating database during deployment see http://go.microsoft.com/fwlink/?LinkID=615859
             }
-            
+
             app.UseStaticFiles();
-
             app.UseAuthentication();
-
-            // To configure external authentication please see http://go.microsoft.com/fwlink/?LinkID=532715
             app.UseSession();
-
-            app.UseMvc(routes =>
-            {
+            app.UseMvc(routes =>  {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");

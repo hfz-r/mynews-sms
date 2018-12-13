@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 
-namespace StockManagementSystem.ViewModels.Account
+namespace StockManagementSystem.Models.Account
 {
     public class RegisterViewModel
     {
