@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Device";
+}
+
+@section navigations{
+    @await Html.PartialAsync("_NavPartial")
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1 class="fa fa-mobile">&nbsp;Manage Device</h1>
+        <ol class="breadcrumb">
+            <li class="#"><a href="@Url.Action("Index", "Device")"><i class="fa fa-mobile"></i></a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("Index", "Device")">Device Management</a></li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <!-- Panels -->
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">List of devices</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="dataTables_length" id="example1_length">
+                                <label>
+                                    Show
+                                    <select name="example1_length" aria-controls="example1" class="form-control input-sm"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select> entries
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div id="example1_filter" class="dataTables_filter">
+                                <label>Search:<input type="search" class="form-control input-sm" placeholder="" aria-controls="example1"></label>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="button" id="btn-register" class="btn btn-default pull-right">Register</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                <thead>
+                                    <tr role="row">
+                                        <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Serial No.: activate to sort column ascending" style="width: 144px;">Serial No.</th>
+                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Model No.: activate to sort column ascending" style="width: 126px;">Model No</th>
+                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Branch: activate to sort column ascending" style="width: 96px;">Branch</th>
+                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 67px;">Status</th>
+                                        <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 67px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr role="row" class="odd">
+                                        <td class="sorting_1">3123431FDS321</td>
+                                        <td>SM-G920P</td>
+                                        <td>Tesco Bandar Setia Alam</td>
+                                        <td>Active</td>
+                                        <td>
+                                            <button type="submit" class="btn btn-info pull-left">Edit</button>
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="even">
+                                        <td class="sorting_1">3123431434241</td>
+                                        <td>SM-G920P</td>
+                                        <td>Mid Valley</td>
+                                        <td>Active</td>
+                                        <td>
+                                            <button type="submit" class="btn btn-info pull-left">Edit</button>
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="odd">
+                                        <td class="sorting_1">312XXY1434241</td>
+                                        <td>SM-G920P</td>
+                                        <td>Damen USJ Sentral</td>
+                                        <td>Active</td>
+                                        <td>
+                                            <button type="submit" class="btn btn-info pull-left">Edit</button>
+                                        </td>
+                                    </tr>
+                                    <tr role="row" class="even">
+                                        <td class="sorting_1">313XXY1H34641</td>
+                                        <td>SM-G920P</td>
+                                        <td>IOI Mall Puchong	</td>
+                                        <td>Active</td>
+                                        <td>
+                                            <button type="submit" class="btn btn-info pull-left">Edit</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="dataTables_info" id="example1_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries</div>
+                            <div class="dataTables_paginate paging_simple_numbers pull-right" id="example1_paginate">
+                                <ul class="pagination">
+                                    <li class="paginate_button previous disabled" id="example1_previous">
+                                        <a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0">Previous</a>
+                                    </li>
+                                    <li class="paginate_button active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0">1</a></li>
+                                    <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0">2</a></li>
+                                    <li class="paginate_button ">
+                                        <a href="#" aria-controls="example1" data-dt-idx="3" tabindex="0">3</a>
+                                    </li>
+                                    <li class="paginate_button ">
+                                        <a href="#" aria-controls="example1" data-dt-idx="4" tabindex="0">4</a>
+                                    </li>
+                                    <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="5" tabindex="0">5</a></li>
+                                    <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="6" tabindex="0">6</a></li>
+                                    <li class="paginate_button next" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="7" tabindex="0">Next</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#btn-register').click(function (e)
+      {
+          location.href = '@Url.Content("~/Device/RegisterDevice/")';
+      });
+
+    });
+    </script>
+}
