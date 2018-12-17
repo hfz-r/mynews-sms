@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Register Device";
+    ViewData["Title"] = "Add Order";
 }
 
 @section navigations{
@@ -8,10 +8,10 @@
 
 <div class="content-wrapper">
     <section class="content-header">
-        <h1 class="fa fa-mobile">&nbsp;Manage Device</h1>
+        <h1 class="fa fa-wrench">&nbsp;Stock Order Setting</h1>
         <ol class="breadcrumb">
-            <li class="#"><a href="@Url.Action("Index", "Device")"><i class="fa fa-mobile"></i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("Index", "Device")">Device</a></li>
+            <li class="#"><a href="#"><i class="fa fa-wrench"></i></a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("Order", "Setting")">Stock Order Setting</a></li>
         </ol>
     </section>
     <!-- Main content -->
@@ -19,17 +19,21 @@
         <!-- Panels -->
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title">Register Device</h3>
+                <h3 class="box-title">Add order limit</h3>
             </div>
             <form role="form">
                 <div class="box-body">
                     <div class="form-group">
-                        <label for="InputSerialNo">Serial Number</label>
-                        <input type="text" class="form-control" id="InputSerialNo" placeholder="Enter serial number">
+                        <label for="InputMinQty">Minimum Order Quantity</label>
+                        <input type="text" class="form-control" id="InputMinQty" placeholder="Enter quantity">
                     </div>
                     <div class="form-group">
-                        <label for="InputModelNo">Model Number</label>
-                        <input type="text" class="form-control" id="InputModelNo" placeholder="Enter Model Number">
+                        <label for="InputMaxQty">Maximum Order Quantity</label>
+                        <input type="text" class="form-control" id="InputMaxQty" placeholder="Enter quantity">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputPercentage">Percentage Allowance</label>
+                        <input type="text" class="form-control" id="InputPercentage" placeholder="Enter percentage">
                     </div>
                     <div class="form-group">
                         <label for="InputBranch">Branch</label>
@@ -37,13 +41,6 @@
                             <option selected="selected">Mid Valley</option>
                             <option>One Utama</option>
                             <option>Pavillion</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="InputBranch">Status</label>
-                        <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                            <option selected="selected">Active</option>
-                            <option>Inactive</option>
                         </select>
                     </div>
                 </div>
@@ -64,7 +61,7 @@
 
         $('#btn-cancel').click(function (e)
       {
-          location.href = '@Url.Content("~/Device/")';
+          location.href = '@Url.Content("~/Setting/Order/")';
       });
 
     });
