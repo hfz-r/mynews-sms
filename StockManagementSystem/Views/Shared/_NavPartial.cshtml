@@ -6,14 +6,10 @@
         </div>
         <div class="pull-left info">
             <p>
-                @User.Identity.Name
+                
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
-                }
-                else
-                {
-                    <b>Alexander Mag</b><br><br>
+                <b>@User.Identity.Name</b><br><br>
                     <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                 }
             </p>
@@ -75,7 +71,7 @@
                 </li>
             </ul>
         </li>
-        <li><a href="https://adminlte.io/docs"><i class="fa fa-wrench"></i> <span>Push Notification</span></a></li>
+        <li><a href='@Url.Action("Notification","PushNotification")'><i class="fa fa-exclamation-triangle"></i> <span>Push Notification</span></a></li>
         <li class="treeview">
             <a href="#">
                 <i class="fa fa-wrench"></i> <span>Setting Configuration</span>

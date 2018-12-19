@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StockManagementSystem.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class HomeController : Controller
     {
         public IActionResult Index()

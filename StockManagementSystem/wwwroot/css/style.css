@@ -507,8 +507,8 @@ a {
 
 @media (max-width: 767px) {
     .sidebar-open .main-sidebar {
-        -webkit-transform: translate(0, 0);473
-        -ms-transform: translate(0, 0);
+        -webkit-transform: translate(0, 0);
+        473 -ms-transform: translate(0, 0);
         -o-transform: translate(0, 0);
         transform: translate(0, 0);
     }
@@ -3841,22 +3841,23 @@ table.text-center th {
 
 .login-box,
 .register-box {
-    width: 360px;
-    margin: 7% auto;
+    width: 400px;
+    margin: 10% auto;
 }
 
 @media (max-width: 768px) {
     .login-box,
     .register-box {
         width: 90%;
-        margin-top: 20px;
+        padding: 40px 20px 20px 20px;
     }
 }
 
 .login-box-body,
 .register-box-body {
     background: #fff;
-    padding: 20px;
+    padding: 40px 20px 40px 20px;
+    border: 1px solid #e0e0e0;
     border-top: 0;
     color: #666;
 }
