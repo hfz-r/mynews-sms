@@ -30,7 +30,7 @@ namespace StockManagementSystem.Data
 
             foreach (var typeConfiguration in typeConfigurations)
             {
-                var configuration = (IMappingConfiguration)Activator.CreateInstance(typeConfiguration);
+                var configuration = (IMappingConfiguration) Activator.CreateInstance(typeConfiguration);
                 configuration.ApplyConfiguration(modelBuilder);
             }
 
@@ -79,9 +79,10 @@ namespace StockManagementSystem.Data
 
         private void AddTimestamps()
         {
-            var entities = ChangeTracker.Entries().Where(x => x.Entity is BaseEntity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+            var entities = ChangeTracker.Entries().Where(x =>
+                x.Entity is Entity && (x.State == EntityState.Added || x.State == EntityState.Modified));
 
-            var currentUsername = !string.IsNullOrEmpty(_httpContextAccessor.HttpContext.User?.Identity?.Name)
+            var currentUsername = !string.IsNullOrEmpty(_httpContextAccessor?.HttpContext?.User?.Identity?.Name)
                 ? _httpContextAccessor.HttpContext.User.Identity.Name
                 : "Anonymous";
 
@@ -89,14 +90,13 @@ namespace StockManagementSystem.Data
             {
                 if (entity.State == EntityState.Added)
                 {
-                    ((BaseEntity)entity.Entity).CreatedBy = currentUsername;
-                    ((BaseEntity)entity.Entity).CreatedOn = DateTimeOffset.UtcNow;
+                    ((Entity) entity.Entity).CreatedBy = currentUsername;
+                    ((Entity) entity.Entity).CreatedOn = DateTimeOffset.UtcNow;
                 }
-                ((BaseEntity) entity.Entity).ModifiedBy = currentUsername;
-                ((BaseEntity) entity.Entity).ModifiedOn = DateTimeOffset.UtcNow;
+                ((Entity) entity.Entity).ModifiedBy = currentUsername;
+                ((Entity) entity.Entity).ModifiedOn = DateTimeOffset.UtcNow;
             }
         }
-
 
         #endregion
     }

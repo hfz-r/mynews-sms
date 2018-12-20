@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Models.Account;
-using StockManagementSystem.Services;
+using StockManagementSystem.Services.Messages;
 
 namespace StockManagementSystem.Controllers
 {

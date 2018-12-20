@@ -36,16 +36,4 @@
             </li>
         </ul>
     </div>
-        @if (User.IsInRole("admin"))
-        {
-            <li>
-                <a href="@Url.Action("Index", "Admin")" data-toggle="tooltip" data-placement="bottom" title="Admin Area"><i class="glyphicon glyphicon-cog"></i></a>
-            </li>
-        }
-}
-else
-{
-    @*<ul class="sidebar-menu">
-              <li><a asp-controller="Account" asp-action="Login">Login</a></li>
-     </ul>*@
 }

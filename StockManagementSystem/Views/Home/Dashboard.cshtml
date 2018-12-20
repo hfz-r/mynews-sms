@@ -1,33 +1,33 @@
 ﻿@{
-    ViewData["Title"] = "Home";
+    ViewBag.Title = "Dashboard";
 }
 
-@section navigations{
-    @await Html.PartialAsync("_NavPartial")
-}
+<section class="content-header clearfix">
+    <h1 class="fa fa-dashboard">&nbsp;Dashboard</h1>
+    <ol class="breadcrumb">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a href="@Url.Action("Dashboard", "Home")">Dashboard</a>
+        </li>
+    </ol>
+</section>
 
-<div class="content-wrapper">
-    <section class="content-header">
-        <h1 class="fa fa-dashboard">&nbsp;Dashboard</h1>
-        <ol class="breadcrumb">
-            <li class="#"><a href="@Url.Action("Index", "Home")"><i class="glyphicon glyphicon-home"></i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("Dashboard", "Home")">Dashboard</a></li>
-        </ol>
-    </section>
-    <!-- Main content -->
-    <section class="content">
-        <!-- Panels -->
-        <div class="box box-default box">          
-            <div class=" box-body">
-                <div class="dashboard-panel-container">
-                    <div id="server" class="dashboard-panel col-sm-6 col-md-4">
-                        @await Component.InvokeAsync("PanelServerComponent")
-                    </div>
+<section class="content">
+    <!-- Panels -->
+    <div class="box box-default box">
+        <div class=" box-body">
+            <div class="dashboard-panel-container">
+                <div id="server" class="dashboard-panel col-sm-6 col-md-4">
+                    @await Component.InvokeAsync("PanelServerComponent")
                 </div>
             </div>
         </div>
-    </section>
-</div>
+    </div>
+</section>
 
 @section scripts{
     <script src="~/lib/jquery-ui-1.12.1/jquery-ui-1.12.1/jquery-ui.min.js"></script>
@@ -35,9 +35,11 @@
         $('.dashboard-panel-container').sortable({ tolerance: 'pointer' });
         $(".dashboard-panel-container").disableSelection();
 
-        $(document).on('click', '#btn-refresh-server', function (e) {
-            $('#server').load('@Url.Action("PanelServerComponent", "Home")');
-        });
+        $(document).on('click',
+            '#btn-refresh-server',
+            function(e) {
+                $('#server').load('@Url.Action("PanelServerComponent", "Home")');
+            });
 
     </script>
 }

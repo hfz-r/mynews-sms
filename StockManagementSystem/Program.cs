@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using StockManagementSystem.Data;
 
 namespace StockManagementSystem
 {
@@ -11,17 +12,14 @@ namespace StockManagementSystem
     {
         public static void Main(string[] args)
         {
-            //BuildWebHost(args).Run();
             var host = BuildWebHost(args);
 
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-
                 try
                 {
-                    // Requires using RazorPagesMovie.Models;
-                    //SeedData.Initialize(services);
+                    SeedData.Initialize(services);
                 }
                 catch (Exception ex)
                 {

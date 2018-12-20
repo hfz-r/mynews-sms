@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StockManagementSystem.Core.Domain.Identity
 {
-    public partial class User : BaseEntity
+    public partial class User : Entity
     {
         [Required]
         public int AccessFailedCount { get; set; }

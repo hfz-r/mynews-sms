@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BundlerMinifier.Core" Version="2.8.391" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Html.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.138" />
+    <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.138" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StockManagementSystem.Core\StockManagementSystem.Core.csproj" />
+    <ProjectReference Include="..\StockManagementSystem.Data\StockManagementSystem.Data.csproj" />
+    <ProjectReference Include="..\StockManagementSystem.Services\StockManagementSystem.Services.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StockManagementSystem.Core.Domain.Identity
 {
-    public partial class Role : BaseEntity
+    public partial class Role : Entity
     {
         public string ConcurrencyStamp { get; set; }
 

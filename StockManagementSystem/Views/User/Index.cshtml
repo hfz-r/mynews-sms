@@ -1,0 +1,86 @@
+﻿@model StockManagementSystem.Models.Users.UserSearchModel
+
+@using StockManagementSystem.Web.UI
+@{
+    //page title
+    ViewBag.Title = "User Setting";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("User");
+}
+<form asp-controller="User" asp-action="Index" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">User Setting</h1>
+            <ol class="breadcrumb pull-right">
+                <li class="#">
+                    <a href="@Url.Action("Index", "Home")">
+                        <i class="glyphicon glyphicon-home"></i>
+                    </a>
+                </li>
+                <li class="#">
+                    <a href="#">
+                        <i class="fa fa-cogs"></i>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <a href="@Url.Action("Index", "User")">User</a>
+                </li>
+            </ol>
+    </section>
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label asp-for="SearchEmail" class="control-label"></label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input asp-for="SearchEmail" class="form-control text-box" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label asp-for="SearchUsername" class="control-label"></label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input asp-for="SearchUsername" class="form-control text-box" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label asp-for="SearchName" class="control-label"></label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input asp-for="SearchName" class="form-control text-box" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <button type="button" id="search-vendors" class="btn btn-primary btn-search">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="grid"></div>
+                    
+                    <script></script>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</form>
+
+@section scripts{
+}

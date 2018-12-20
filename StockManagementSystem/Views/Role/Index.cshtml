@@ -1,0 +1,122 @@
+﻿@using StockManagementSystem.Web.UI
+@using StockManagementSystem.Models.Roles
+
+@model RoleSearchModel
+
+@{
+    //page title
+    ViewBag.Title = "Role Setting";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Role");
+}
+
+<section class="content-header clearfix">
+    <h1 class="pull-left">Role Setting</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cogs"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a href="@Url.Action("Index", "Role")">Role</a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="grid"></div>
+
+                    <script>
+                        var grid;
+                        $(document).ready(function() {
+                            grid = $("#grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("List", "Role"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                //Id: { editable: false, nullable: true },
+                                                Name: { validation: { required: true } },
+                                                Description: { validation: { required: true } }
+                                            }
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true,
+                                    allowUnsort: true,
+                                    sort: { field: "Id", dir: "asc" }
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                //filterable: true,
+                                //columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                toolbar: ["save", "create"],
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "Name",
+                                        title: "Name",
+                                        width: 300
+                                    }, {
+                                        field: "Description",
+                                        title: "Description",
+                                        width: 200
+                                    },
+                                    {
+                                        command: [
+                                            { name: "edit" },
+                                            { name: "destroy", text: "Remove", className: "btn-destroy" }
+                                        ],
+                                        title: "Action",
+                                        width: "160px",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" }
+                                    }
+                                ],
+                                editable: "inline"
+                            }).data("kendoGrid");
+                        });
+
+                    </script>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
