@@ -30,6 +30,9 @@
   <ItemGroup>
     <None Include="Views\Account\Login.cshtml" />
     <None Include="Views\Account\Register.cshtml" />
+    <None Include="wwwroot\lib\datatables.net\js\jquery.dataTables.js" />
+    <None Include="wwwroot\lib\datatables.net\js\jquery.dataTables.min.js" />
+    <None Include="wwwroot\lib\datatables.net\Readme.md" />
     <None Include="wwwroot\lib\jquery-ui-1.12.1\jquery-ui-1.12.1\external\jquery\jquery.js" />
     <None Include="wwwroot\lib\jquery-ui-1.12.1\jquery-ui-1.12.1\jquery-ui.js" />
     <None Include="wwwroot\lib\jquery-ui-1.12.1\jquery-ui-1.12.1\jquery-ui.min.js" />
