@@ -25,7 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bower" Version="1.3.11" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +38,8 @@
     <!--The common language runtime (CLR) supports two types of garbage collection:
     workstation garbage collection, which is available on all systems, and server garbage collection,
     which is available on multiprocessor systems.
+    <None Include="wwwroot\lib\datatables.net\js\jquery.dataTables.min.js" />
+    <None Include="wwwroot\lib\datatables.net\Readme.md" />
       
     For single-processor computers, the default workstation garbage collection should be the fastest option.
     Either workstation or server can be used for two-processor computers.

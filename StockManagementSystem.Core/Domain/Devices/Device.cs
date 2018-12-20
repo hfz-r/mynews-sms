@@ -14,6 +14,6 @@
 
         public string StoreId { get; set; }
 
-        public byte? Status { get; set; }
+        public string Status { get; set; }
     }
 }

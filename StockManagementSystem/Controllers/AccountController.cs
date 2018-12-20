@@ -106,8 +106,8 @@ namespace StockManagementSystem.Controllers
                 {
                     UserName = model.UserName,
                     Email = model.Email,
-                    Branch = "FCK",
-                    Department = "FU",
+                    Branch = "",
+                    Department = "",
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)

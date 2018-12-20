@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockManagementSystem.Data;
 
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    partial class ObjectContextModelSnapshot : ModelSnapshot
+    [Migration("20181218025708_AddTables")]
+    partial class AddTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,6 +28,10 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
                     b.Property<string>("Latitude");
 
                     b.Property<string>("Longitude");
@@ -34,11 +40,15 @@ namespace StockManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
                     b.Property<string>("SerialNo")
                         .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<string>("Status");
+                    b.Property<byte?>("Status");
 
                     b.Property<string>("StoreId");
 
@@ -93,6 +103,14 @@ namespace StockManagementSystem.Migrations
                     b.Property<string>("ClaimType");
 
                     b.Property<string>("ClaimValue");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
 
                     b.Property<int>("RoleId");
 
@@ -173,6 +191,14 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("ClaimValue");
 
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
                     b.Property<int>("UserId");
 
                     b.HasKey("Id");
@@ -189,8 +215,16 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
                     b.Property<string>("LoginProvider")
                         .IsRequired();
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasMaxLength(2147483647);
@@ -214,6 +248,14 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
                     b.Property<int>("RoleId");
 
                     b.Property<int>("UserId");
@@ -234,8 +276,16 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
                     b.Property<string>("LoginProvider")
                         .IsRequired();
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
 
                     b.Property<string>("Name")
                         .IsRequired();
@@ -250,54 +300,6 @@ namespace StockManagementSystem.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserTokens");
-                });
-
-            modelBuilder.Entity("StockManagementSystem.Core.Domain.Stores.Store", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTimeOffset?>("CreatedOn");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn");
-
-                    b.Property<string>("P_Addr1");
-
-                    b.Property<string>("P_Addr2");
-
-                    b.Property<string>("P_Addr3");
-
-                    b.Property<string>("P_AreaCode");
-
-                    b.Property<string>("P_BranchNo");
-
-                    b.Property<string>("P_Brand");
-
-                    b.Property<string>("P_City");
-
-                    b.Property<string>("P_CompID");
-
-                    b.Property<string>("P_Country");
-
-                    b.Property<string>("P_Name");
-
-                    b.Property<string>("P_PostCode");
-
-                    b.Property<string>("P_RecStatus");
-
-                    b.Property<string>("P_SellPriceLevel");
-
-                    b.Property<string>("P_State");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Store");
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.RoleClaim", b =>

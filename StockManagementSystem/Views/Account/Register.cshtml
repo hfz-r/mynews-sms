@@ -1,77 +1,89 @@
-﻿@model StockManagementSystem.Models.Account.RegisterViewModel 
+﻿@model StockManagementSystem.Models.Account.RegisterViewModel
 @{
     ViewData["Title"] = "Register";
+    Layout = null;
 }
 
-@*<div class="row" style="height: 100%; width: 100%;">*@
-    <div class="col-sm-6 col-sm-offset-2">
-        <form asp-controller="Account" asp-action="Register" method="post" class="form-horizontal" role="form">
-            <div align="center" style="height: 130px">
-                <img src="~/images/MainMenu_Logo.png" alt="Logo">
-            </div>
-            <div class="panel panel-default" style="width: 510px;">
-                <div class="panel-heading">Create a new account</div>
-                <div class="panel-body">
-                    <div class="form-group">
-                        <label asp-for="UserName" class="col-sm-4 control-label"></label>
-                        <div class="col-md-7">
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
-                                <input asp-for="UserName" class="form-control" />
-                            </div>
-                            <span asp-validation-for="UserName" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Email" class="col-md-4 control-label"></label>
-                        <div class="col-md-7">
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-envelope fa" aria-hidden="true"></i></span>
-                                <input asp-for="Email" class="form-control" />
-                            </div>
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-                        </div>
-                    <div class="form-group">
-                        <label asp-for="Password" class="col-md-4 control-label"></label>
-                        <div class="col-md-7">
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
-                                <input asp-for="Password" class="form-control" />
-                            </div>
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-                        </div>
-                    <div class="form-group">
-                        <label asp-for="ConfirmPassword" class="col-md-4 control-label"></label>
-                        <div class="col-md-7">
-                            <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
-                                <input asp-for="ConfirmPassword" class="form-control" />
-                            </div>
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                        </div>
-                        </div>
-                    <div class="form-group">
-                        <div class="col-md-offset-4 col-md-5">
-                            <button type="submit" class="btn btn-primary">
-                                <span class="fa fa-user-o"> Register</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="col-sm-offset-4">
-                            <div class="col-sm-6">
-                                <a asp-action="Login">Back To Login Page</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-@*</div>*@
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Stock Management System</title>
 
+    <environment include="Development">
+        <!-- Bootstrap -->
+        <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all" id="bootstraps" />
+        <!-- Font Awesome -->
+        <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="~/lib/Ionicons/css/ionicons.min.css">
+        <!-- Theme style -->
+        <link rel="stylesheet" href="~/css/style.css" type="text/css" media="all" id="styles" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/style.min.css" asp-append-version="true" />
+    </environment>
+</head>
+
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <img src="~/images/MainMenu_Logo.png" alt="Logo">
+        </div>
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            <h3 class="login-box-msg">Create a new account</h3>
+
+            <form asp-controller="Account" asp-action="Register" method="post" role="form">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                        <input asp-for="UserName" class="form-control" autocomplete="off" autofocus placeholder="Username" />
+                    </div>
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                        <input asp-for="Email" class="form-control" autocomplete="off" placeholder="Email" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                        <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                        <input asp-for="ConfirmPassword" class="form-control" autocomplete="off" placeholder="ConfirmPassword" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+                <div class="row">
+                    <!-- /.col -->
+                    <div class="col-xs-6">
+                        <a asp-action="Login" title="Back" class="btn btn-default btn-block btn-flat">
+                            Back
+                        </a>
+                    </div>
+                    <div class="col-xs-6">
+                        <button type="submit" class="btn btn-primary btn-block btn-flat">
+                            Register
+                        </button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+        </div>
+        <!-- /.login-box-body -->
+    </div>
+</body>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
