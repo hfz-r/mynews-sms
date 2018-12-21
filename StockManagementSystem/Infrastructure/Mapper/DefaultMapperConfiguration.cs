@@ -14,7 +14,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             
             ForAllMaps((mapConfiguration, map) =>
             {
-                //exclude Form and CustomProperties from mapping BaseNopModel
+                //exclude Form and CustomProperties from mapping BaseModel
                 if (typeof(BaseModel).IsAssignableFrom(mapConfiguration.DestinationType))
                 {
                     map.ForMember(nameof(BaseModel.Form), options => options.Ignore());

@@ -453,7 +453,7 @@ a:focus {
 @media (max-width: 767px) {
     .sidebar-open .main-sidebar {
         -webkit-transform: translate(0, 0);
-        473 -ms-transform: translate(0, 0);
+        -ms-transform: translate(0, 0);
         -o-transform: translate(0, 0);
         transform: translate(0, 0);
     }
@@ -1160,8 +1160,7 @@ a:focus {
 
 .navbar-nav > .user-menu > .dropdown-menu > .user-footer:after { clear: both; }
 
-.navbar-nav > .user-menu > .dropdown-menu > .user-footer .btn-default { color: #666666; }
-        color: #dd4b39;
+.navbar-nav > .user-menu > .dropdown-menu > .user-footer .btn-default { color: #dd4b39; }
 
 @media (max-width: 991px) {
     .navbar-nav > .user-menu > .dropdown-menu > .user-footer .btn-default:hover { background-color: #f9f9f9; }
@@ -2264,8 +2263,7 @@ a:focus {
 
 .btn-primary:hover,
 .btn-primary:active,
-.btn-primary.hover { background-color: #367fa9; }
-        background-color: #d73925;
+.btn-primary.hover { background-color: #d73925; }
 
 .btn-success {
     background-color: #00a65a;
@@ -2283,8 +2281,7 @@ a:focus {
 
 .btn-info:hover,
 .btn-info:active,
-.btn-info.hover { background-color: #00acd6; }
-        background-color: #d73925 !important;
+.btn-info.hover { background-color: #d73925 !important; }
 
 .btn-danger {
     background-color: #dd4b39;
@@ -3429,8 +3426,6 @@ table.text-center th { text-align: center; }
 .post .user-block { margin-bottom: 15px; }
 
 /*
-
-
  * Plugin: Full Calendar
  * ---------------------
  */
@@ -4241,11 +4236,8 @@ table.text-center th { text-align: center; }
  * Skin: Blue
  * ----------
  */
-.skin-blue .main-header .navbar {
-    background-color: #dd4b39;
-}
 
-.skin-blue .main-header .navbar { background-color: #3c8dbc; }
+.skin-blue .main-header .navbar { background-color: #dd4b39; }
 
 .skin-blue .main-header .navbar .nav > li > a { color: #ffffff; }
 
@@ -4269,16 +4261,14 @@ table.text-center th { text-align: center; }
 
 .skin-blue .main-header .navbar .sidebar-toggle { color: #fff; }
 
-.skin-blue .main-header .navbar .sidebar-toggle:hover { background-color: #367fa9; }
-            background-color: #d73925;
+.skin-blue .main-header .navbar .sidebar-toggle:hover { background-color: #d73925; }
 
 @media (max-width: 767px) {
     .skin-blue .main-header .navbar .dropdown-menu li.divider { background-color: rgba(255, 255, 255, 0.1); }
 
     .skin-blue .main-header .navbar .dropdown-menu li a { color: #fff; }
 
-    .skin-blue .main-header .navbar .dropdown-menu li a:hover { background: #367fa9; }
-            background: #d73925;
+    .skin-blue .main-header .navbar .dropdown-menu li a:hover { background: #d73925; }
 }
 
 .skin-blue .main-header .logo {
@@ -4287,11 +4277,9 @@ table.text-center th { text-align: center; }
     border-bottom: 0 solid transparent;
 }
 
-.skin-blue .main-header .logo:hover { background-color: #357ca5; }
-        background-color: #d33724;
+.skin-blue .main-header .logo:hover { background-color: #d33724; }
 
-.skin-blue .main-header li.user-header { background-color: #3c8dbc; }
-    background-color: #dd4b39;
+.skin-blue .main-header li.user-header { background-color: #dd4b39; }
 
 .skin-blue .content-header { background: transparent; }
 
@@ -4316,9 +4304,8 @@ table.text-center th { text-align: center; }
     background: #1e282c;
 }
 
-.skin-blue .sidebar-menu > li.active > a { border-left-color: #3c8dbc; }
-    border-left-color: #dd4b39;
-}
+.skin-blue .sidebar-menu > li.active > a { border-left-color: #dd4b39; }
+
 
 .skin-blue .sidebar-menu > li > .treeview-menu {
     margin: 0 1px;
@@ -4386,22 +4373,20 @@ table.text-center th { text-align: center; }
     font-size: 13px !important;
 }
 
-span.multiselect-native-select {
-    position: relative
-}
+span.multiselect-native-select { position: relative }
 
-    span.multiselect-native-select select {
-        border: 0 !important;
-        clip: rect(0 0 0 0) !important;
-        height: 1px !important;
-        margin: -1px -1px -1px -3px !important;
-        overflow: hidden !important;
-        padding: 0 !important;
-        position: absolute !important;
-        width: 1px !important;
-        left: 50%;
-        top: 30px
-    }
+span.multiselect-native-select select {
+    border: 0 !important;
+    clip: rect(0 0 0 0) !important;
+    height: 1px !important;
+    margin: -1px -1px -1px -3px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    position: absolute !important;
+    width: 1px !important;
+    left: 50%;
+    top: 30px
+}
 
 .multiselect-container {
     position: absolute;
@@ -4410,61 +4395,43 @@ span.multiselect-native-select {
     padding: 0
 }
 
-    .multiselect-container .input-group {
-        margin: 5px
-    }
+.multiselect-container .input-group { margin: 5px }
 
-    .multiselect-container .multiselect-reset .input-group {
-        width: 93%
-    }
+.multiselect-container .multiselect-reset .input-group { width: 93% }
 
-    .multiselect-container > li {
-        padding: 0
-    }
+.multiselect-container > li { padding: 0 }
 
-        .multiselect-container > li > a.multiselect-all label {
-            font-weight: 700
-        }
+.multiselect-container > li > a.multiselect-all label { font-weight: 700 }
 
-        .multiselect-container > li.multiselect-group label {
-            margin: 0;
-            padding: 3px 20px;
-            height: 100%;
-            font-weight: 700
-        }
+.multiselect-container > li.multiselect-group label {
+    margin: 0;
+    padding: 3px 20px;
+    height: 100%;
+    font-weight: 700
+}
 
-        .multiselect-container > li.multiselect-group-clickable label {
-            cursor: pointer
-        }
+.multiselect-container > li.multiselect-group-clickable label { cursor: pointer }
 
-        .multiselect-container > li > a {
-            padding: 0
-        }
+.multiselect-container > li > a { padding: 0 }
 
-            .multiselect-container > li > a > label {
-                margin: 0;
-                height: 100%;
-                cursor: pointer;
-                font-weight: 400;
-                padding: 3px 20px 3px 40px
-            }
+.multiselect-container > li > a > label {
+    margin: 0;
+    height: 100%;
+    cursor: pointer;
+    font-weight: 400;
+    padding: 3px 20px 3px 40px
+}
 
-                .multiselect-container > li > a > label.checkbox, .multiselect-container > li > a > label.radio {
-                    margin: 0
-                }
+.multiselect-container > li > a > label.checkbox, .multiselect-container > li > a > label.radio { margin: 0 }
 
-                .multiselect-container > li > a > label > input[type=checkbox] {
-                    margin-bottom: 5px
-                }
+.multiselect-container > li > a > label > input[type=checkbox] { margin-bottom: 5px }
 
 .btn-group > .btn-group:nth-child(2) > .multiselect.btn {
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px
 }
 
-.form-inline .multiselect-container label.checkbox, .form-inline .multiselect-container label.radio {
-    padding: 3px 20px 3px 40px
-}
+.form-inline .multiselect-container label.checkbox, .form-inline .multiselect-container label.radio { padding: 3px 20px 3px 40px }
 
 .form-inline .multiselect-container li a label.checkbox input[type=checkbox], .form-inline .multiselect-container li a label.radio input[type=radio] {
     margin-left: -20px;

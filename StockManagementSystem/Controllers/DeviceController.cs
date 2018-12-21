@@ -9,8 +9,6 @@ namespace StockManagementSystem.Controllers
 {
     public class DeviceController : Controller
     {
-        private bool _disposed;
-
         private readonly IRepository<Device> _deviceRepository;
 
         #region Constructor
@@ -27,28 +25,6 @@ namespace StockManagementSystem.Controllers
         ~DeviceController()
         {
             Dispose(false);
-        }
-
-        #endregion
-
-        #region IDisposable 
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                }
-                _disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion

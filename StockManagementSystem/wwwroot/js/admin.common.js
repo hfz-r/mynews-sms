@@ -1,4 +1,27 @@
-﻿// CSRF (XSRF) security
+﻿// html event tag (onchange/onclick/etc) helpers
+function setLocation(url) {
+    window.location.href = url;
+}
+
+function OpenWindow(query, w, h, scroll) {
+    var l = (screen.width - w) / 2;
+    var t = (screen.height - h) / 2;
+
+    winprops = 'resizable=1, height=' + h + ',width=' + w + ',top=' + t + ',left=' + l + 'w';
+    if (scroll) winprops += ',scrollbars=1';
+    var f = window.open(query, "_blank", winprops);
+}
+
+// loading gif for long run task
+function showThrobber(message) {
+    $('.throbber-header').html(message);
+    window.setTimeout(function() {
+            $(".throbber").show();
+        },
+        1000);
+}
+
+// CSRF (XSRF) security
 function addAntiForgeryToken(data) {
     //if the object is undefined, create a new one.
     if (!data) {
@@ -11,6 +34,14 @@ function addAntiForgeryToken(data) {
     }
     return data;
 };
+
+// tab helper
+function bindBootstrapTabSelectEvent(tabsId, inputId) {
+    $('#' + tabsId + ' > ul li a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var tabName = $(e.target).attr("data-tab-name");
+        $("#" + inputId).val(tabName);
+    });
+}
 
 // kendoui error
 function display_kendoui_grid_error(e) {
@@ -70,3 +101,36 @@ $(document).ajaxStart(function() {
 }).ajaxStop(function() {
     $('#ajaxBusy').hide();
 });
+
+$(document).ready(function() {
+    // intercept all events of pressing the Enter button in the search bar
+    $("div.panel-search").keypress(function(event) {
+        if (event.which == 13 || event.keyCode == 13) {
+            $("button.btn-search").click();
+            return false;
+        }
+    });
+
+    //pressing Enter in the tablex should not lead to any action
+    $("div[id$='-grid']").keypress(function (event) {
+        if (event.which == 13 || event.keyCode == 13) {
+            return false;
+        }
+    });
+});
+
+// collapsable panel
+$(document).on('click',
+    '.panel-heading span.clickable',
+    function(e) {
+        var $this = $(this);
+        if (!$this.hasClass('panel-collapsed')) {
+            $this.parents('.panel').find('.panel-body').slideUp();
+            $this.addClass('panel-collapsed');
+            $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+        } else {
+            $this.parents('.panel').find('.panel-body').slideDown();
+            $this.removeClass('panel-collapsed');
+            $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
+        }
+    })

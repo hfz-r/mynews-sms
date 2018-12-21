@@ -5,13 +5,13 @@
 
 @{
     //page title
-    ViewBag.Title = "Role Setting";
+    ViewBag.Title = "Role Management";
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Role");
 }
 
 <section class="content-header clearfix">
-    <h1 class="pull-left">Role Setting</h1>
+    <h1 class="pull-left">@ViewBag.Title</h1>
     <ol class="breadcrumb pull-right">
         <li class="#">
             <a href="@Url.Action("Index", "Home")">
@@ -24,7 +24,7 @@
             </a>
         </li>
         <li class="breadcrumb-item active">
-            <a href="@Url.Action("Index", "Role")">Role</a>
+            <a href="@Url.Action("Index", "Role")">@ViewBag.Title</a>
         </li>
     </ol>
 </section>
@@ -48,6 +48,24 @@
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
+                                        },
+                                        create: {
+                                            url: "@Html.Raw(Url.Action("RoleAdd", "Role"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        },
+                                        update: {
+                                            @*url: "@Html.Raw(Url.Action("CategoryUpdate", "Tax"))",*@
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        },
+                                        destroy: {
+                                            @*url: "@Html.Raw(Url.Action("CategoryDelete", "Tax"))",*@
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
                                         }
                                     },
                                     schema: {
@@ -57,10 +75,15 @@
                                         model: {
                                             id: "Id",
                                             fields: {
-                                                //Id: { editable: false, nullable: true },
-                                                Name: { validation: { required: true } },
-                                                Description: { validation: { required: true } }
+                                                Id: { editable: false, type: "number" },
+                                                Name: { editable: true, validation: { required: true } },
+                                                Description: { editable: true }
                                             }
+                                        }
+                                    },
+                                    requestEnd: function(e) {
+                                        if (e.type == "create" || e.type == "update") {
+                                            this.read();
                                         }
                                     },
                                     error: function(e) {
@@ -72,39 +95,39 @@
                                     serverPaging: true,
                                     serverFiltering: true,
                                     serverSorting: true,
-                                    allowUnsort: true,
                                     sort: { field: "Id", dir: "asc" }
                                 },
                                 sortable: {
                                     mode: "single",
                                     allowUnsort: false
                                 },
-                                //filterable: true,
-                                //columnMenu: { columns: false },
+                                filterable: true,
+                                columnMenu: { columns: false },
                                 pageable: {
                                     refresh: true,
                                     pageSizes: [@(Model.AvailablePageSizes)],
                                     @await Html.PartialAsync("_GridPagerMessages")
                                 },
-                                toolbar: ["save", "create"],
+                                toolbar: [{ name: "create" }],
                                 scrollable: false,
                                 columns: [
                                     {
                                         field: "Name",
                                         title: "Name",
-                                        width: 300
-                                    }, {
+                                        width: 200
+                                    },
+                                    {
                                         field: "Description",
                                         title: "Description",
-                                        width: 200
+                                        width: 300
                                     },
                                     {
                                         command: [
                                             { name: "edit" },
-                                            { name: "destroy", text: "Remove", className: "btn-destroy" }
+                                            { name: "destroy" }
                                         ],
                                         title: "Action",
-                                        width: "160px",
+                                        width: "10px",
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" }
                                     }
@@ -119,4 +142,5 @@
             </div>
         </div>
     </div>
+
 </section>

@@ -26,6 +26,10 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
                     b.Property<string>("Latitude");
 
                     b.Property<string>("Longitude");
@@ -33,6 +37,10 @@ namespace StockManagementSystem.Migrations
                     b.Property<string>("ModelNo")
                         .IsRequired()
                         .HasMaxLength(256);
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
 
                     b.Property<string>("SerialNo")
                         .IsRequired()
@@ -258,14 +266,6 @@ namespace StockManagementSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTimeOffset?>("CreatedOn");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn");
 
                     b.Property<string>("P_Addr1");
 

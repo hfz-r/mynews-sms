@@ -20,7 +20,7 @@
             @if (!string.IsNullOrEmpty(Model.IconClass))
             {
                 <text>
-                    <i class="fa @Url.Content(Model.IconClass)"></i>
+                    <i class="@Url.Content(Model.IconClass)"></i>
                 </text>
             }
             <span class="menu-item-title">@Model.Title</span>
@@ -34,7 +34,7 @@ else
             @if (!string.IsNullOrEmpty(Model.IconClass))
             {
                 <text>
-                    <i class="fa @Url.Content(Model.IconClass)"></i>
+                    <i class="@Url.Content(Model.IconClass)"></i>
                 </text>
             }
             <span>@Model.Title</span>

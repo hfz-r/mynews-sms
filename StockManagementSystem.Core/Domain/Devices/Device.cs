@@ -1,6 +1,6 @@
 ﻿namespace StockManagementSystem.Core.Domain.Devices
 {
-    public class Device : BaseEntity
+    public class Device : Entity
     {
         public string SerialNo { get; set; }
 

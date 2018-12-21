@@ -37,61 +37,14 @@
     </script>
     @Html.DefaultCssFiles(this.Url, ResourceLocation.Head, false)
     @Html.DefaultScripts(this.Url, ResourceLocation.Head, false)
-        <!-- DataTables -->
-        <link rel="stylesheet" href="~/lib/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/lib/datatables.net-bs/css/dataTables.bootstrap.min.css">
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
-<div class="throbber">
-    <div class="curtain">
-                <div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
-                        <!-- Notifications: style can be found in dropdown.less -->
-                        <li class="dropdown notifications-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-bell-o"></i>
-                                <span class="label label-warning">10</span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li class="header">You have 10 notifications</li>
-                                <li>
-                                    <!-- inner menu: contains the actual data -->
-                                    <ul class="menu">
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-warning text-yellow"></i> Very long description here that may not fit into the
-                                                page and may cause design problems
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-users text-red"></i> 5 new members joined
-                                            </a>
-                                        </li>
 
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-shopping-cart text-green"></i> 25 sales made
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-user text-red"></i> You changed your username
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="footer"><a href="#">View all</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-    </div>
+<div class="throbber">
+    <div class="curtain"></div>
     <div class="curtain-content">
         <div>
             <h1 class="throbber-header">Wait...</h1>
@@ -104,24 +57,50 @@
 <div id="ajaxBusy">
     <span>&nbsp;</span>
 </div>
+
 <div class="wrapper">
     <header class="main-header">
         <a href="@Url.Content("~/")" class="logo">
             <!-- mini logo for sidebar mini 50x50 pixels -->
             <span class="logo-mini">
-                <img src="~/images/logo.png" alt="home" height="35" width="38"/>
+                <img src="~/images/logo.png" alt="home" height="35" width="38" />
             </span>
             <!-- logo for regular state and mobile devices -->
             <span class="logo-lg">
-                <img src="~/images/MainMenu_Logo.png" alt="home" height="40" width="105"/>
+                <img src="~/images/MainMenu_Logo.png" alt="home" height="40" width="105" />
             </span>
         </a>
-        <div class="navbar navbar-static-top" role="navigation">
+        <nav class="navbar navbar-static-top" role="navigation">
             <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                 <span class="sr-only">Toggle navigation</span>
             </a>
             @await Html.PartialAsync("_LoginPartial")
-        </div>
+            <div class="navbar-custom-menu">
+                <ul class="nav navbar-nav">
+                    <!-- Notifications: style can be found in dropdown.less -->
+                    <li class="dropdown notifications-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-bell-o"></i>
+                            <span class="label label-warning"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="header">You have 10 notifications</li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu">
+                                    <li>
+                                        <a href="#">
+                                            <i class="fa fa-users text-aqua"></i> 5 new members joined today
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="footer"><a href="#">View all</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
     </header>
     <aside class="main-sidebar">
         <section class="sidebar">
@@ -142,20 +121,11 @@
         </div>
     </div>
     <footer class="main-footer clearfix">
-        <strong>Copyright &copy; 2018 <a href="https://www.b-excelle.com">B Excelle</a></strong> 
+        <strong>Copyright &copy; 2018 <a href="https://www.b-excelle.com">B Excelle</a></strong>
         <span class="pull-right small">All rights reserved</span>
     </footer>
 </div>
-<script>
-    var AdminLTEOptions = {
-        boxWidgetOptions: {
-            boxWidgetIcons: {
-                collapse: 'fa-minus',
-                open: 'fa-plus'
-            }
-        }
-    };
-</script>
+
 @Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, true)
 @Html.DefaultScripts(this.Url, ResourceLocation.Footer, true)
 <a id="backTop" class="btn btn-back-top bg-teal"></a>
