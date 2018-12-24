@@ -30,6 +30,8 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<DateTimeOffset?>("CreatedOn");
 
+                    b.Property<DateTime?>("EndDate");
+
                     b.Property<string>("Latitude");
 
                     b.Property<string>("Longitude");
@@ -46,15 +48,19 @@ namespace StockManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
+                    b.Property<DateTime?>("StartDate");
+
                     b.Property<string>("Status");
 
-                    b.Property<string>("StoreId");
+                    b.Property<int>("StoreId");
 
                     b.Property<string>("TokenId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Devices");
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("Device");
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.Role", b =>
@@ -302,10 +308,7 @@ namespace StockManagementSystem.Migrations
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Stores.Store", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<int>("P_BranchNo");
 
                     b.Property<string>("CreatedBy");
 
@@ -322,8 +325,6 @@ namespace StockManagementSystem.Migrations
                     b.Property<string>("P_Addr3");
 
                     b.Property<string>("P_AreaCode");
-
-                    b.Property<string>("P_BranchNo");
 
                     b.Property<string>("P_Brand");
 
@@ -343,9 +344,17 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("P_State");
 
-                    b.HasKey("Id");
+                    b.HasKey("P_BranchNo");
 
                     b.ToTable("Store");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
+                        .WithMany("Devices")
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.RoleClaim", b =>
