@@ -10,8 +10,8 @@ using StockManagementSystem.Data;
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    [Migration("20181218025708_AddTables")]
-    partial class AddTables
+    [Migration("20181224134358_AddTable")]
+    partial class AddTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,6 +32,8 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<DateTimeOffset?>("CreatedOn");
 
+                    b.Property<DateTime?>("EndDate");
+
                     b.Property<string>("Latitude");
 
                     b.Property<string>("Longitude");
@@ -48,15 +50,19 @@ namespace StockManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
-                    b.Property<byte?>("Status");
+                    b.Property<DateTime?>("StartDate");
 
-                    b.Property<string>("StoreId");
+                    b.Property<string>("Status");
+
+                    b.Property<int>("StoreId");
 
                     b.Property<string>("TokenId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Devices");
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("Device");
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.Role", b =>
@@ -300,6 +306,57 @@ namespace StockManagementSystem.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserTokens");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Stores.Store", b =>
+                {
+                    b.Property<int>("P_BranchNo");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
+                    b.Property<string>("P_Addr1");
+
+                    b.Property<string>("P_Addr2");
+
+                    b.Property<string>("P_Addr3");
+
+                    b.Property<string>("P_AreaCode");
+
+                    b.Property<string>("P_Brand");
+
+                    b.Property<string>("P_City");
+
+                    b.Property<string>("P_CompID");
+
+                    b.Property<string>("P_Country");
+
+                    b.Property<string>("P_Name");
+
+                    b.Property<string>("P_PostCode");
+
+                    b.Property<string>("P_RecStatus");
+
+                    b.Property<string>("P_SellPriceLevel");
+
+                    b.Property<string>("P_State");
+
+                    b.HasKey("P_BranchNo");
+
+                    b.ToTable("Store");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
+                        .WithMany("Devices")
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.RoleClaim", b =>
