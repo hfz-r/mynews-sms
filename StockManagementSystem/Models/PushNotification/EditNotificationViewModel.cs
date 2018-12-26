@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using StockManagementSystem.Core.Domain.PushNotification;
+﻿using StockManagementSystem.Core.Domain.PushNotification;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,8 +8,10 @@ using static StockManagementSystem.Controllers.PushNotificationController;
 
 namespace StockManagementSystem.Models.PushNotification
 {
-    public class AddNotificationViewModel
+    public class EditNotificationViewModel
     {
+        public int Id { get; set; }
+
         [Display(Name = "Title")]
         public string Title { get; set; }
 
@@ -22,8 +23,7 @@ namespace StockManagementSystem.Models.PushNotification
 
         [Display(Name = "Category")]
         public int NotificationCategoryId { get; set; }
-
-        public IEnumerable<NotificationCategory> NotificationCategories { set; get; }
-
+        public IEnumerable<NotificationCategory> NotificationCategories { get; set; }
+        public NotificationCategory NotificationCategory { get; set; }
     }
 }

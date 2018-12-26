@@ -15,23 +15,24 @@ namespace StockManagementSystem.Controllers
     {
         private readonly IRepository<NotificationCategory> _notificationCategoryRepository;
         private readonly IRepository<PushNotifications> _pushNotificationsRepository;
-        private readonly IRepository<PushNotificationCategory> _pushNotificationCategoryRepository;
 
         public PushNotificationController(
             IRepository<NotificationCategory> notificationCategory,
-            IRepository<PushNotifications> pushNotifications,
-            IRepository<PushNotificationCategory> pushNotificationCategoryRepository)
+            IRepository<PushNotifications> pushNotifications)
         {
             this._notificationCategoryRepository = notificationCategory;
             this._pushNotificationsRepository = pushNotifications;
-            this._pushNotificationCategoryRepository = pushNotificationCategoryRepository;
         }
 
         //
         // GET: /PushNotification/Notification
+        [HttpGet]
         public IActionResult Notification()
         {
-            return View("Notification");
+            NotificationViewModel model = new NotificationViewModel();
+            model.PushNotificationsList = _pushNotificationsRepository.Table.ToList();
+
+            return View(model);
         }
 
         //
@@ -51,7 +52,6 @@ namespace StockManagementSystem.Controllers
         //
         // POST: /PushNotification/AddNotification
         [HttpPost]
-        [Route("[Controller]/PushNotification/AddNotification")]
         public IActionResult AddNotification(AddNotificationViewModel model)
         {
             if (ModelState.IsValid)
@@ -63,17 +63,10 @@ namespace StockManagementSystem.Controllers
                     CreatedOn = DateTime.Now,
                     CreatedBy = User.Identity.Name,
                     IsShift = model.IsShift.ToString(),
+                    NotificationCategoryId = model.NotificationCategoryId
+
                 };
                 _pushNotificationsRepository.Insert(pushNotifications);
-
-                //selected dropdownlist
-                PushNotificationCategory pushNotificationCategory = new PushNotificationCategory()
-                {
-                    NotificationCategoryId = model.NotificationCategoryId,
-                    PushNotificationsId = pushNotifications.Id,
-                };
-                _pushNotificationCategoryRepository.Insert(pushNotificationCategory);
-
             }
             return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
         }
@@ -81,21 +74,85 @@ namespace StockManagementSystem.Controllers
         //
         // GET: /PushNotification/EditNotification
         [HttpGet]
-        public IActionResult EditNotification()
+        [Route("[Controller]/PushNotification/EditNotification/{Id}")]
+        public IActionResult EditNotification(int? Id)
         {
-            return View();
+            EditNotificationViewModel model = new EditNotificationViewModel();
+            var pushNotifications = _pushNotificationsRepository.GetById(Id);
+            
+            var category = _notificationCategoryRepository.Table.ToList();
+
+            if (pushNotifications != null)
+            {
+                model.Title = pushNotifications.Title;
+                model.Desc = pushNotifications.Desc;
+                model.NotificationCategoryId = pushNotifications.NotificationCategoryId;
+                model.NotificationCategories = category;
+
+                if (pushNotifications.IsShift == "Today")
+                {
+                    model.IsShift = Repeat.Today;
+                }
+                else if (pushNotifications.IsShift == "Weekly")
+                {
+                    model.IsShift = Repeat.Weekly;
+                }
+                else if (pushNotifications.IsShift == "Monthly")
+                {
+                    model.IsShift = Repeat.Monthly;
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Notification list not found.");
+            }
+            return View(model);
+        }
+
+        //
+        // POST: /PushNotification/EditNotification
+        [HttpPost]
+        [Route("[Controller]/PushNotification/EditNotification/{Id}")]
+        public IActionResult EditNotification(EditNotificationViewModel model, int? Id)
+        {
+            if (ModelState.IsValid)
+            {
+                var pushNotifications = _pushNotificationsRepository.GetById(Id);
+
+                if (Id == pushNotifications.Id)
+                {
+                    pushNotifications.Title = model.Title;
+                    pushNotifications.Desc = model.Desc;
+                    pushNotifications.IsShift = model.IsShift.ToString();
+                    pushNotifications.NotificationCategoryId = model.NotificationCategoryId;
+                    //pushNotifications.BranchId = model.
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Update notification failed!.");
+                }
+                _pushNotificationsRepository.Update(pushNotifications);
+            }
+                return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
         }
 
         //
         // POST: Delete
         [HttpPost]
-        public IActionResult DeleteNotification(string id)
-        { 
-            var result = _pushNotificationsRepository.GetById(id);
-            if (result != null)
+        public IActionResult DeleteNotification(int Id)
+        {
+            if (ModelState.IsValid)
             {
-                _pushNotificationsRepository.Delete(result);
-            }
+                var pushNotifications = _pushNotificationsRepository.GetById(Id);
+                if (pushNotifications != null && Id == pushNotifications.Id)
+                {
+                    _pushNotificationsRepository.Delete(pushNotifications);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Delete notification failed!.");
+                }
+            }   
             return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");  
         }
 
