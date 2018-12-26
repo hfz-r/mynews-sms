@@ -1,6 +1,6 @@
 ﻿@model StockManagementSystem.Models.Devices.DeviceViewModel
 @{
-    ViewData["Title"] = "Register Device";
+    ViewData["Title"] = "Edit Device";
 }
 
 @section navigations{
@@ -20,10 +20,11 @@
         <!-- Panels -->
         <div class="box box-default">
             <div class="box-header with-border">
-                <h3 class="box-title">Register Device</h3>
+                <h3 class="box-title">Edit Device</h3>
             </div>
-            <form id="register-form" asp-controller="Device" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
+            <form id="edit-form" asp-controller="Device" asp-action="Edit" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
                 <div class="box-body">
+                    @Html.HiddenFor(model => model.DeviceId)
                     <div class="form-group">
                         <label for="InputSerialNo">Serial Number</label>
                         <input asp-for="SerialNo" type="text" class="form-control" id="InputSerialNo" autofocus placeholder="Enter serial number">

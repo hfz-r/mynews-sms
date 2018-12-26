@@ -9,7 +9,7 @@ namespace StockManagementSystem.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Devices",
+                name: "Device",
                 columns: table => new
                 {
                     Id = table.Column<int>(maxLength: 450, nullable: false)

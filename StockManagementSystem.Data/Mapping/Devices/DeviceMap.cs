@@ -8,7 +8,7 @@ namespace StockManagementSystem.Data.Mapping.Devices
     {
         public override void Configure(EntityTypeBuilder<Device> builder)
         {
-            builder.ToTable("Devices");
+            builder.ToTable("Device");
             builder.HasKey(device => device.Id);
 
             builder.Property(device => device.SerialNo)
@@ -16,6 +16,10 @@ namespace StockManagementSystem.Data.Mapping.Devices
                 .IsRequired();
             builder.Property(device => device.ModelNo)
                 .HasMaxLength(256)
+                .IsRequired();
+            builder.HasOne(ur => ur.Store)
+                .WithMany(u => u.Devices)
+                .HasForeignKey(ur => ur.StoreId)
                 .IsRequired();
 
             base.Configure(builder);
