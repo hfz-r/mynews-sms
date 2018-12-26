@@ -45,8 +45,7 @@
                                         <tr role="row" class="odd">
                                             <td>@device.SerialNo</td>
                                             <td>@device.ModelNo</td>
-                                            <td>@Model.Store.Where(x => x.P_BranchNo == @device.StoreId).FirstOrDefault().P_Name
-                                            </td>
+                                            <td>@device.Store.P_Name</td>
                                             <td>
                                                 <div class="btn-group">
                                                     @using (Html.BeginForm("EditDevice", "Device", FormMethod.Post))

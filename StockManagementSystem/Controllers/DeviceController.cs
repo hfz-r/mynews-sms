@@ -67,6 +67,8 @@ namespace StockManagementSystem.Controllers
 
         #endregion
 
+        #region Manage Device
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -185,6 +187,17 @@ namespace StockManagementSystem.Controllers
             return View("RegisterDevice", model);
         }
 
+        #endregion
+
+        #region Device Tracking
+
+        [HttpGet]
+        public IActionResult DeviceTracking()
+        {
+            return View("DeviceTracking");
+        }
+        #endregion
+
         #region Private Method
 
         private void AddErrors(string result)
@@ -196,38 +209,7 @@ namespace StockManagementSystem.Controllers
         {
             DeviceViewModel model = new DeviceViewModel
             {
-                Device = _deviceRepository.Table.Select(device => new Device
-                {
-                    Id = device.Id,
-                    TokenId = device.TokenId,
-                    SerialNo = device.SerialNo,
-                    ModelNo = device.ModelNo,
-                    Longitude = device.Longitude,
-                    Latitude = device.Latitude,
-                    StoreId = device.StoreId,
-                    Status = device.Status,
-                    CreatedBy = device.CreatedBy,
-                    CreatedOn = Convert.ToDateTime(device.CreatedOn.ToString()),
-                    ModifiedBy = device.ModifiedBy,
-                    ModifiedOn = Convert.ToDateTime(device.ModifiedOn.ToString())                     
-                }).ToList(),
-                Store = _storeRepository.Table.Select(store => new Store
-                {
-                    P_BranchNo = store.P_BranchNo,
-                    P_Addr1 = store.P_Addr1,
-                    P_Addr2 = store.P_Addr2,
-                    P_Addr3 = store.P_Addr3,
-                    P_AreaCode = store.P_AreaCode,
-                    P_Brand = store.P_Brand,
-                    P_City = store.P_City,
-                    P_CompID = store.P_CompID,
-                    P_Country = store.P_Country,
-                    P_Name = store.P_Name,
-                    P_PostCode = store.P_PostCode,
-                    P_RecStatus = store.P_RecStatus,
-                    P_SellPriceLevel = store.P_SellPriceLevel,
-                    P_State = store.P_State
-                }).OrderBy(x => x.P_Name).ToList()
+                Device = _deviceRepository.Table.ToList()
             };
 
             return model;
@@ -237,23 +219,7 @@ namespace StockManagementSystem.Controllers
         {
             DeviceViewModel model = new DeviceViewModel
             {
-                Store = _storeRepository.Table.Select(store => new Store
-                {
-                    P_BranchNo = store.P_BranchNo,
-                    P_Addr1 = store.P_Addr1,
-                    P_Addr2 = store.P_Addr2,
-                    P_Addr3 = store.P_Addr3,
-                    P_AreaCode = store.P_AreaCode,
-                    P_Brand = store.P_Brand,
-                    P_City = store.P_City,
-                    P_CompID = store.P_CompID,
-                    P_Country = store.P_Country,
-                    P_Name = store.P_Name,
-                    P_PostCode = store.P_PostCode,
-                    P_RecStatus = store.P_RecStatus,
-                    P_SellPriceLevel = store.P_SellPriceLevel,
-                    P_State = store.P_State
-                }).OrderBy(x => x.P_Name).ToList()
+                Store = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
             };
 
             return model;
@@ -273,23 +239,7 @@ namespace StockManagementSystem.Controllers
                 SerialNo = device.SerialNo,
                 Status = device.Status,
                 Device = devices,
-                Store = _storeRepository.Table.Select(store => new Store
-                {
-                    P_BranchNo = store.P_BranchNo,
-                    P_Addr1 = store.P_Addr1,
-                    P_Addr2 = store.P_Addr2,
-                    P_Addr3 = store.P_Addr3,
-                    P_AreaCode = store.P_AreaCode,
-                    P_Brand = store.P_Brand,
-                    P_City = store.P_City,
-                    P_CompID = store.P_CompID,
-                    P_Country = store.P_Country,
-                    P_Name = store.P_Name,
-                    P_PostCode = store.P_PostCode,
-                    P_RecStatus = store.P_RecStatus,
-                    P_SellPriceLevel = store.P_SellPriceLevel,
-                    P_State = store.P_State
-                }).OrderBy(x => x.P_Name).ToList()
+                Store = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
             };
 
             return model;
