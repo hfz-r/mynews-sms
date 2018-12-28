@@ -20,9 +20,6 @@ namespace StockManagementSystem.Models.Devices
         [Required]
         [Display(Name = "Model Number")]
         public string ModelNo { get; set; }
-
-        [Display(Name = "Status")]
-        public string Status { get; set; }
                 
         [Display(Name = "BranchNo")]
         public int P_BranchNo { get; set; }

@@ -37,6 +37,6 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public string P_Brand { get; set; }
 
-        public virtual ICollection<Device> Devices { get; set; }
+        public virtual ICollection<Device> Device { get; set; }
     }
 }

@@ -117,9 +117,9 @@ namespace StockManagementSystem.Controllers
                             SerialNo = model.SerialNo,
                             ModelNo = model.ModelNo,
                             StoreId = model.P_BranchNo,
-                            Status = "ACTIVE",
                             EndDate = null,
                             StartDate = null,
+                            Status = "0", //Inactive
                             CreatedBy = @Environment.UserName,
                             CreatedOn = DateTime.UtcNow, //TODO Change to get server datetime
                             ModifiedBy = @Environment.UserName,
@@ -167,7 +167,6 @@ namespace StockManagementSystem.Controllers
                     device.SerialNo = model.SerialNo;
                     device.ModelNo = model.ModelNo;
                     device.StoreId = model.P_BranchNo;
-                    device.Status = "ACTIVE"; //TODO
                     device.ModifiedBy = @Environment.UserName;
                     device.ModifiedOn = DateTime.UtcNow; //TODO Change to get server datetime                    
 
@@ -194,7 +193,7 @@ namespace StockManagementSystem.Controllers
         [HttpGet]
         public IActionResult DeviceTracking()
         {
-            return View("DeviceTracking");
+            return View("DeviceTracking", GetAllDevice());
         }
         #endregion
 
@@ -237,7 +236,6 @@ namespace StockManagementSystem.Controllers
                 ModelNo = device.ModelNo,
                 P_BranchNo = device.StoreId,
                 SerialNo = device.SerialNo,
-                Status = device.Status,
                 Device = devices,
                 Store = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
             };

@@ -5260,3 +5260,9 @@ span.multiselect-native-select {
     margin-left: -20px;
     margin-right: 0
 }
+
+.map {
+    height: 540px; /* The height is 540 pixels */
+    width: 100%; /* The width is the width of the web page */
+    background-color: grey;
+}

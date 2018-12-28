@@ -1,0 +1,101 @@
+﻿@model StockManagementSystem.Models.Devices.DeviceViewModel
+
+@{
+    ViewData["Title"] = "DeviceTracking";
+}
+
+@section navigations{
+    @await Html.PartialAsync("_NavPartial")
+}
+@*<meta http-equiv="refresh" content="60"> auto-refresh*@
+<div class="content-wrapper">
+    <section class="content-header">
+        <h1 class="fa fa-mobile">&nbsp;Device Tracking</h1>
+        <ol class="breadcrumb">
+            <li class="#"><a href="#"><i class="fa fa-mobile"> Device Modules</i></a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("DeviceTracking", "Device")">Device Tracking</a></li>
+        </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content">
+        <!-- Panels -->
+        <div class="box">
+            <div class="box-header with-border">
+                <h3 class="box-title">Map</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <!--The div element for the map -->
+                <div class="map" id="map">
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <!-- DataTables -->
+    <!-- jQuery CDN -->
+
+    <script>
+        function initMap() {
+            var location = { lat: 4.004, lng: 109.151};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: location
+            });
+
+            var infowindow = new google.maps.InfoWindow();
+            var marker, i;
+
+            @foreach (var item in Model.Device)
+            {
+                <text>
+                var pinImage;
+
+                if (@item.Status.ToLower() == "1")
+                {
+                    pinImage = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+                }
+                else if (@item.Status.ToLower() == "0")
+                {
+                    pinImage = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+            }
+
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(parseFloat(@item.Latitude), parseFloat(@item.Longitude)),
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    title: '@item.Store.P_Name',
+                    icon: pinImage
+                });
+                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                    return function () {
+                        map.setZoom(15);
+                        map.setCenter(marker.getPosition());
+                            infowindow.setContent('<div id="content">' +
+                                '<div id="siteNotice">' +
+                                '</div>' +
+                                '<h4 id="firstHeading" class="firstHeading"><b>@item.Store.P_Name</b></h4>' +
+                                '<div id="bodyContent">' +
+                                '<p>@item.Store.P_Addr1<br>' +
+                                '@item.Store.P_Addr2' +
+                                '@item.Store.P_Addr3<br>' +
+                                '@item.Store.P_PostCode, @item.Store.P_City, @item.Store.P_State<br>' +
+                                '@item.Store.P_Country</p > ' +
+                                '</div>' +
+                                '<button class="btn btn-info" onclick="myFunction()">Remote</button>' +
+                                '</div>');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, i));
+                </text>
+            }
+        }
+    </script>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbqJOiaBKfoR-MsgNEiaU5yUYtcVW94cY&libraries=places&callback=initMap">
+    </script>
+}
