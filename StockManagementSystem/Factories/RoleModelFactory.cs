@@ -19,7 +19,7 @@ namespace StockManagementSystem.Factories
             _roleService = roleService;
         }
 
-        public async Task<RoleSearchModel> PrepareRoleSearchModelAsync(RoleSearchModel searchModel)
+        public async Task<RoleSearchModel> PrepareRoleSearchModel(RoleSearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
@@ -30,12 +30,12 @@ namespace StockManagementSystem.Factories
             return await Task.FromResult(searchModel);
         }
 
-        public async Task<RoleListModel> PrepareRoleListModelAync(RoleSearchModel searchModel)
+        public async Task<RoleListModel> PrepareRoleListModel(RoleSearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            var roles = await _roleService.GetRoles();
+            var roles = await _roleService.GetRolesAsync();
 
             if (roles == null)
                 throw new ArgumentNullException(nameof(roles));
@@ -63,7 +63,8 @@ namespace StockManagementSystem.Factories
             if (searchModel.Filter != null && searchModel.Filter.Filters != null && searchModel.Filter.Filters.Any())
             {
                 var filter = searchModel.Filter;
-                model.Data = model.Data.Filter(filter.Logic, filter.Filters);
+                model.Data = await model.Data.Filter(filter);
+                model.Total = model.Data.Count();
             }
 
             return model;

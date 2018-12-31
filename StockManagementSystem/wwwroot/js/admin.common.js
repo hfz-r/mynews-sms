@@ -33,7 +33,25 @@ function addAntiForgeryToken(data) {
         data.__RequestVerificationToken = tokenInput.val();
     }
     return data;
-};
+}
+
+function saveUserPreferences(url, name, value) {
+    var postData = {
+        name: name,
+        value: value
+    }
+    addAntiForgeryToken(postData);
+    $.ajax({
+        cache: false,
+        url: url,
+        type: 'post',
+        data: postData,
+        dataType: 'json',
+        error: function(xhr, ajaxOptions, thrownError) {
+            alert('Failed to save preferences.');
+        }
+    });
+}
 
 // tab helper
 function bindBootstrapTabSelectEvent(tabsId, inputId) {
@@ -120,8 +138,7 @@ $(document).ready(function() {
 });
 
 // collapsable panel
-$(document).on('click',
-    '.panel-heading span.clickable',
+$(document).on('click', '.panel-heading span.clickable',
     function(e) {
         var $this = $(this);
         if (!$this.hasClass('panel-collapsed')) {

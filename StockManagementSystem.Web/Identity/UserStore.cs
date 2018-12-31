@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Identity;
 
@@ -54,7 +55,7 @@ namespace StockManagementSystem.Web.Identity
 
         #region Username/Password
 
-        public Task<IdentityResult> CreateAsync(User user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> CreateAsync(User user, CancellationToken cancellationToken)
         {
             try
             {
@@ -64,16 +65,16 @@ namespace StockManagementSystem.Web.Identity
                 if (user == null)
                     throw new ArgumentNullException(nameof(user));
 
-                _userRepository.Insert(user);
-                return Task.FromResult(IdentityResult.Success);
+                await _userRepository.InsertAsync(user);
+                return IdentityResult.Success;
             }
             catch (Exception ex)
             {
-                return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = ex.Message, Description = ex.Message }));
+                return IdentityResult.Failed(new IdentityError {Code = ex.Message, Description = ex.Message});
             }
         }
 
-        public Task<IdentityResult> DeleteAsync(User user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> DeleteAsync(User user, CancellationToken cancellationToken)
         {
             try
             {
@@ -83,16 +84,16 @@ namespace StockManagementSystem.Web.Identity
                 if (user == null)
                     throw new ArgumentNullException(nameof(user));
 
-                _userRepository.Delete(user);
-                return Task.FromResult(IdentityResult.Success);
+                await _userRepository.DeleteAsync(user);
+                return IdentityResult.Success;
             }
             catch (Exception ex)
             {
-                return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = ex.Message, Description = ex.Message }));
+                return IdentityResult.Failed(new IdentityError {Code = ex.Message, Description = ex.Message});
             }
         }
 
-        public Task<User> FindByIdAsync(string userId, CancellationToken cancellationToken)
+        public async Task<User> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -103,16 +104,18 @@ namespace StockManagementSystem.Web.Identity
             if (!int.TryParse(userId, out int id))
                 throw new ArgumentOutOfRangeException(nameof(userId), $"{nameof(userId)} is not a valid Integer");
 
-            return Task.FromResult(_userRepository.GetById(id));
+            return await _userRepository.GetByIdAsync(id);
         }
 
-        public Task<User> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
+        public async Task<User> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
-            
-            var userEntity = _userRepository.Table.FirstOrDefault(user => user.NormalizedUserName == normalizedUserName);
-            return Task.FromResult(userEntity);
+
+            var userEntity =
+                await _userRepository.Table.FirstOrDefaultAsync(user => user.NormalizedUserName == normalizedUserName,
+                    cancellationToken);
+            return userEntity;
         }
 
         public Task<string> GetNormalizedUserNameAsync(User user, CancellationToken cancellationToken)
@@ -148,7 +151,8 @@ namespace StockManagementSystem.Web.Identity
             return Task.FromResult(user.UserName);
         }
 
-        public Task SetNormalizedUserNameAsync(User user, string normalizedUserName, CancellationToken cancellationToken)
+        public Task SetNormalizedUserNameAsync(User user, string normalizedUserName,
+            CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -172,7 +176,7 @@ namespace StockManagementSystem.Web.Identity
             return Task.CompletedTask;
         }
 
-        public Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken)
         {
             try
             {
@@ -182,12 +186,12 @@ namespace StockManagementSystem.Web.Identity
                 if (user == null)
                     throw new ArgumentNullException(nameof(user));
 
-                _userRepository.Update(user);
-                return Task.FromResult(IdentityResult.Success);
+                await _userRepository.UpdateAsync(user);
+                return IdentityResult.Success;
             }
             catch (Exception ex)
             {
-                return Task.FromResult(IdentityResult.Failed(new IdentityError { Code = ex.Message, Description = ex.Message }));
+                return IdentityResult.Failed(new IdentityError {Code = ex.Message, Description = ex.Message});
             }
         }
 
@@ -266,13 +270,15 @@ namespace StockManagementSystem.Web.Identity
             throw new NotImplementedException(nameof(SetEmailConfirmedAsync));
         }
 
-        public Task<User> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
+        public async Task<User> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(normalizedEmail))
                 throw new ArgumentNullException(nameof(normalizedEmail));
 
-            var userEntity = _userRepository.Table.FirstOrDefault(user => user.NormalizedEmail == normalizedEmail);
-            return Task.FromResult(userEntity);
+            var userEntity =
+                await _userRepository.Table.FirstOrDefaultAsync(user => user.NormalizedEmail == normalizedEmail,
+                    cancellationToken);
+            return userEntity;
         }
 
         public Task<string> GetNormalizedEmailAsync(User user, CancellationToken cancellationToken)
@@ -413,7 +419,7 @@ namespace StockManagementSystem.Web.Identity
 
         #region UserRole
 
-        public Task AddToRoleAsync(User user, string roleName, CancellationToken cancellationToken)
+        public async Task AddToRoleAsync(User user, string roleName, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -424,17 +430,11 @@ namespace StockManagementSystem.Web.Identity
             if (string.IsNullOrWhiteSpace(roleName))
                 throw new ArgumentNullException(nameof(roleName));
 
-            var role = _roleRepository.Table.FirstOrDefault(r => r.Name == roleName);
-            _userRoleRepository.Insert(new UserRole
-            {
-                UserId = user.Id,
-                RoleId = role.Id,
-            });
-
-            return Task.CompletedTask;
+            var role = await _roleRepository.Table.FirstOrDefaultAsync(r => r.Name == roleName, cancellationToken);
+            await _userRoleRepository.InsertAsync(new UserRole {User = user, Role = role});
         }
 
-        public Task RemoveFromRoleAsync(User user, string roleName, CancellationToken cancellationToken)
+        public async Task RemoveFromRoleAsync(User user, string roleName, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -446,18 +446,17 @@ namespace StockManagementSystem.Web.Identity
                 throw new ArgumentNullException(nameof(roleName));
 
             var roleEntity = _roleRepository.Table;
-            var query = _userRoleRepository.Table
+            var query = await _userRoleRepository.Table
                 .Join(roleEntity, userRole => userRole.RoleId, role => role.Id,
-                    (ur, r) => new { UserRole = ur, Role = r })
+                    (ur, r) => new {UserRole = ur, Role = r})
                 .Where(x => x.Role.Name == roleName)
                 .Select(ur => ur.UserRole)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(cancellationToken);
 
-            _userRoleRepository.Delete(query);
-            return Task.CompletedTask;
+            await _userRoleRepository.DeleteAsync(query);
         }
 
-        public Task<IList<string>> GetRolesAsync(User user, CancellationToken cancellationToken)
+        public async Task<IList<string>> GetRolesAsync(User user, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -467,15 +466,15 @@ namespace StockManagementSystem.Web.Identity
 
             var roleEntity = _roleRepository.Table;
             var query = _userRoleRepository.Table
-                .Join(roleEntity, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRole = ur, Role = r })
+                .Join(roleEntity, ur => ur.RoleId, r => r.Id, (ur, r) => new {UserRole = ur, Role = r})
                 .Where(x => x.UserRole.UserId == user.Id)
                 .Select(r => r.Role);
 
-            IList<string> result = query.Select(name => name.Name).ToList();
-            return Task.FromResult(result);
+            IList<string> result = await query.Select(name => name.Name).ToListAsync(cancellationToken);
+            return result;
         }
 
-        public Task<bool> IsInRoleAsync(User user, string roleName, CancellationToken cancellationToken)
+        public async Task<bool> IsInRoleAsync(User user, string roleName, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -488,15 +487,15 @@ namespace StockManagementSystem.Web.Identity
 
             var roleEntity = _roleRepository.Table;
             var query = _userRoleRepository.Table
-                .Join(roleEntity, ur => ur.RoleId, r => r.Id, (ur, r) => new { UserRole = ur, Role = r })
+                .Join(roleEntity, ur => ur.RoleId, r => r.Id, (ur, r) => new {UserRole = ur, Role = r})
                 .Where(x => x.UserRole.UserId == user.Id)
                 .Select(r => r.Role);
 
-            var result = query.Any(rolename => rolename.Name == roleName);
-            return Task.FromResult(result);
+            var result = await query.AnyAsync(rolename => rolename.Name == roleName, cancellationToken);
+            return result;
         }
 
-        public Task<IList<User>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
+        public async Task<IList<User>> GetUsersInRoleAsync(string roleName, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -507,19 +506,19 @@ namespace StockManagementSystem.Web.Identity
             var userEntity = _userRepository.Table;
             var roleEntity = _roleRepository.Table;
             var query = _userRoleRepository.Table
-                .Join(userEntity, ur => ur.UserId, u => u.Id, (ur, u) => new { UserRole = ur, User = u })
-                .Join(roleEntity, ur => ur.UserRole.RoleId, r => r.Id, (ur, r) => new { UserRole = ur, Role = r })
+                .Join(userEntity, ur => ur.UserId, u => u.Id, (ur, u) => new {UserRole = ur, User = u})
+                .Join(roleEntity, ur => ur.UserRole.RoleId, r => r.Id, (ur, r) => new {UserRole = ur, Role = r})
                 .Where(x => x.Role.Name == roleName);
 
-            IList<User> result = query.Select(user => user.UserRole.User).ToList();
-            return Task.FromResult(result);
+            IList<User> result = await query.Select(user => user.UserRole.User).ToListAsync(cancellationToken);
+            return result;
         }
 
         #endregion
 
         #region UserLogin
 
-        public Task AddLoginAsync(User user, UserLoginInfo login, CancellationToken cancellationToken)
+        public async Task AddLoginAsync(User user, UserLoginInfo login, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -544,11 +543,11 @@ namespace StockManagementSystem.Web.Identity
                 UserId = user.Id
             };
 
-            _userLoginRepository.Insert(loginEntity);
-            return Task.CompletedTask;
+            await _userLoginRepository.InsertAsync(loginEntity);
         }
 
-        public Task RemoveLoginAsync(User user, string loginProvider, string providerKey, CancellationToken cancellationToken)
+        public async Task RemoveLoginAsync(User user, string loginProvider, string providerKey,
+            CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -565,11 +564,10 @@ namespace StockManagementSystem.Web.Identity
             var loginEntity = _userLoginRepository.Table.FirstOrDefault(login =>
                 login.LoginProvider == loginProvider && login.ProviderKey == providerKey);
 
-            _userLoginRepository.Delete(loginEntity);
-            return Task.CompletedTask;
+            await _userLoginRepository.DeleteAsync(loginEntity);
         }
 
-        public Task<IList<UserLoginInfo>> GetLoginsAsync(User user, CancellationToken cancellationToken)
+        public async Task<IList<UserLoginInfo>> GetLoginsAsync(User user, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -579,12 +577,14 @@ namespace StockManagementSystem.Web.Identity
 
             var loginEntity = _userLoginRepository.Table.Where(login => login.UserId == user.Id);
 
-            IList<UserLoginInfo> result = loginEntity.Select(login =>
-                new UserLoginInfo(login.LoginProvider, login.ProviderKey, login.ProviderDisplayName)).ToList();
-            return Task.FromResult(result);
+            IList<UserLoginInfo> result = await loginEntity.Select(login =>
+                    new UserLoginInfo(login.LoginProvider, login.ProviderKey, login.ProviderDisplayName))
+                .ToListAsync(cancellationToken);
+            return result;
         }
 
-        public Task<User> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
+        public async Task<User> FindByLoginAsync(string loginProvider, string providerKey,
+            CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -595,18 +595,19 @@ namespace StockManagementSystem.Web.Identity
             if (string.IsNullOrWhiteSpace(providerKey))
                 throw new ArgumentNullException(nameof(providerKey));
 
-            var loginEntity = _userLoginRepository.Table.FirstOrDefault(login =>
-                login.LoginProvider == loginProvider && login.ProviderKey == providerKey);
-            var userEntity = _userRepository.GetById(loginEntity.UserId);
+            var loginEntity = await _userLoginRepository.Table.FirstOrDefaultAsync(login =>
+                login.LoginProvider == loginProvider && login.ProviderKey == providerKey, cancellationToken);
+            var userEntity = await _userRepository.GetByIdAsync(loginEntity.UserId);
 
-            return Task.FromResult(userEntity);
+            return userEntity;
         }
 
         #endregion
 
         #region UserToken
 
-        public Task SetTokenAsync(User user, string loginProvider, string name, string value, CancellationToken cancellationToken)
+        public async Task SetTokenAsync(User user, string loginProvider, string name, string value,
+            CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -628,11 +629,11 @@ namespace StockManagementSystem.Web.Identity
                 UserId = user.Id
             };
 
-            _userTokenRepository.Insert(tokenEntity);
-            return Task.CompletedTask;
+            await _userTokenRepository.InsertAsync(tokenEntity);
         }
 
-        public Task RemoveTokenAsync(User user, string loginProvider, string name, CancellationToken cancellationToken)
+        public async Task RemoveTokenAsync(User user, string loginProvider, string name,
+            CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -646,14 +647,15 @@ namespace StockManagementSystem.Web.Identity
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
 
-            var tokenEntity = _userTokenRepository.Table.FirstOrDefault(token =>
-                token.UserId == user.Id && token.LoginProvider == loginProvider && token.Name == name);
+            var tokenEntity = await _userTokenRepository.Table.FirstOrDefaultAsync(token =>
+                    token.UserId == user.Id && token.LoginProvider == loginProvider && token.Name == name,
+                cancellationToken);
 
-            _userTokenRepository.Delete(tokenEntity);
-            return Task.CompletedTask;
+            await _userTokenRepository.DeleteAsync(tokenEntity);
         }
 
-        public Task<string> GetTokenAsync(User user, string loginProvider, string name, CancellationToken cancellationToken)
+        public async Task<string> GetTokenAsync(User user, string loginProvider, string name,
+            CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -667,16 +669,17 @@ namespace StockManagementSystem.Web.Identity
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name));
 
-            var tokenEntity = _userTokenRepository.Table.FirstOrDefault(token =>
-                token.UserId == user.Id && token.LoginProvider == loginProvider && token.Name == name);
-            return Task.FromResult(tokenEntity.Value);
+            var tokenEntity = await _userTokenRepository.Table.FirstOrDefaultAsync(token =>
+                    token.UserId == user.Id && token.LoginProvider == loginProvider && token.Name == name,
+                cancellationToken);
+            return tokenEntity.Value;
         }
 
         #endregion
 
         #region UserClaim
 
-        public Task<IList<Claim>> GetClaimsAsync(User user, CancellationToken cancellationToken)
+        public async Task<IList<Claim>> GetClaimsAsync(User user, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -686,8 +689,9 @@ namespace StockManagementSystem.Web.Identity
 
             var claimEntity = _userClaimRepository.Table.Where(claim => claim.UserId == user.Id);
 
-            IList<Claim> result = claimEntity.Select(claim => new Claim(claim.ClaimType, claim.ClaimValue)).ToList();
-            return Task.FromResult(result);
+            IList<Claim> result = await claimEntity.Select(claim => new Claim(claim.ClaimType, claim.ClaimValue))
+                .ToListAsync(cancellationToken);
+            return result;
         }
 
         public Task AddClaimsAsync(User user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
@@ -701,11 +705,11 @@ namespace StockManagementSystem.Web.Identity
             if (claims == null)
                 throw new ArgumentNullException(nameof(claims));
 
-            claims.ToList().ForEach(claim =>
+            claims.ToList().ForEach(async claim =>
             {
                 try
                 {
-                    _userClaimRepository.Insert(new UserClaim
+                    await _userClaimRepository.InsertAsync(new UserClaim
                     {
                         ClaimType = claim.Type,
                         ClaimValue = claim.Value,
@@ -714,14 +718,14 @@ namespace StockManagementSystem.Web.Identity
                 }
                 catch (Exception ex)
                 {
-                    Task.FromResult(IdentityResult.Failed(new IdentityError { Code = ex.Message, Description = ex.Message }));
+                    IdentityResult.Failed(new IdentityError {Code = ex.Message, Description = ex.Message});
                 }
             });
 
             return Task.CompletedTask;
         }
 
-        public Task ReplaceClaimAsync(User user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
+        public async Task ReplaceClaimAsync(User user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -735,16 +739,14 @@ namespace StockManagementSystem.Web.Identity
             if (newClaim == null)
                 throw new ArgumentNullException(nameof(newClaim));
 
-            var claimEntity = _userClaimRepository.Table.FirstOrDefault(c =>
-                c.ClaimType == claim.Type && c.ClaimValue == claim.Value && c.UserId == user.Id);
+            var claimEntity = await _userClaimRepository.Table.FirstOrDefaultAsync(c =>
+                c.ClaimType == claim.Type && c.ClaimValue == claim.Value && c.UserId == user.Id, cancellationToken);
             if (claimEntity != null)
             {
                 claimEntity.ClaimType = newClaim.Type;
                 claimEntity.ClaimValue = newClaim.Value;
-                _userClaimRepository.Update(claimEntity);
+                await _userClaimRepository.UpdateAsync(claimEntity);
             }
-           
-            return Task.CompletedTask;
         }
 
         public Task RemoveClaimsAsync(User user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
@@ -758,24 +760,25 @@ namespace StockManagementSystem.Web.Identity
             if (claims == null)
                 throw new ArgumentNullException(nameof(claims));
 
-            claims.ToList().ForEach(claim =>
+            claims.ToList().ForEach(async claim =>
             {
                 try
                 {
-                    var claimEntity = _userClaimRepository.Table.FirstOrDefault(c =>
-                        c.ClaimType == claim.Type && c.ClaimValue == claim.Value && c.UserId == user.Id);
-                    _userClaimRepository.Delete(claimEntity);
+                    var claimEntity = await _userClaimRepository.Table.FirstOrDefaultAsync(c =>
+                            c.ClaimType == claim.Type && c.ClaimValue == claim.Value && c.UserId == user.Id,
+                        cancellationToken);
+                    await _userClaimRepository.DeleteAsync(claimEntity);
                 }
                 catch (Exception ex)
                 {
-                    Task.FromResult(IdentityResult.Failed(new IdentityError { Code = ex.Message, Description = ex.Message }));
+                    IdentityResult.Failed(new IdentityError {Code = ex.Message, Description = ex.Message});
                 }
             });
 
             return Task.CompletedTask;
         }
 
-        public Task<IList<User>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
+        public async Task<IList<User>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
         {
             if (cancellationToken != null)
                 cancellationToken.ThrowIfCancellationRequested();
@@ -783,10 +786,11 @@ namespace StockManagementSystem.Web.Identity
             if (claim == null)
                 throw new ArgumentNullException(nameof(claim));
 
-            var claimEntity = _userClaimRepository.Table.Where(c => c.ClaimType == claim.Type && c.ClaimValue == claim.Value);
+            var claimEntity =
+                _userClaimRepository.Table.Where(c => c.ClaimType == claim.Type && c.ClaimValue == claim.Value);
 
-            IList<User> result = claimEntity.Select(c => c.User).ToList();
-            return Task.FromResult(result);
+            IList<User> result = await claimEntity.Select(c => c.User).ToListAsync(cancellationToken);
+            return result;
         }
 
         #endregion

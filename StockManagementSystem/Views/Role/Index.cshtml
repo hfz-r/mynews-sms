@@ -1,7 +1,4 @@
-﻿@using StockManagementSystem.Web.UI
-@using StockManagementSystem.Models.Roles
-
-@model RoleSearchModel
+﻿@model RoleSearchModel
 
 @{
     //page title
@@ -35,11 +32,18 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div id="grid"></div>
+                    <style>
+                        .hidden { display: none; }
 
+                        .custom-button {
+                            color: #444444;
+                            padding-right: 10px;
+                            font-size: 1.5em;
+                        }
+                    </style>
                     <script>
-                        var grid;
                         $(document).ready(function() {
-                            grid = $("#grid").kendoGrid({
+                            var grid = $("#grid").kendoGrid({
                                 dataSource: {
                                     type: "json",
                                     transport: {
@@ -56,13 +60,13 @@
                                             data: addAntiForgeryToken
                                         },
                                         update: {
-                                            @*url: "@Html.Raw(Url.Action("CategoryUpdate", "Tax"))",*@
+                                            url: "@Html.Raw(Url.Action("RoleUpdate", "Role"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         },
                                         destroy: {
-                                            @*url: "@Html.Raw(Url.Action("CategoryDelete", "Tax"))",*@
+                                            url: "@Html.Raw(Url.Action("RoleDelete", "Role"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
@@ -108,7 +112,13 @@
                                     pageSizes: [@(Model.AvailablePageSizes)],
                                     @await Html.PartialAsync("_GridPagerMessages")
                                 },
-                                toolbar: [{ name: "create" }],
+                                toolbar: [
+                                    {
+                                        name: "create",
+                                        text: "Add",
+                                        iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
+                                    }
+                                ],
                                 scrollable: false,
                                 columns: [
                                     {
@@ -122,25 +132,45 @@
                                         width: 300
                                     },
                                     {
-                                        command: [
-                                            { name: "edit" },
-                                            { name: "destroy" }
-                                        ],
-                                        title: "Action",
-                                        width: "10px",
+                                        template:
+                                            "<a href='\\#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                            "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
                                         headerAttributes: { style: "text-align:center" },
-                                        attributes: { style: "text-align:center" }
+                                        attributes: { style: "text-align:center" },
+                                        width: 10
                                     }
                                 ],
-                                editable: "inline"
+                                editable: "inline",
+                                edit: function(e) {
+                                    // Change buttons visibility when the Grid enters edit mode.
+                                    var editRow = e.container;
+                                    editRow.find(".custom-button").toggleClass("hidden");
+                                }
                             }).data("kendoGrid");
+
+                            $("#grid").on("click", ".custom-button", function(e) {
+                                    var btn = $(this);
+                                    e.preventDefault();
+
+                                    if (btn.hasClass("edit-button")) {
+                                        var row = btn.closest("tr");
+                                        grid.editRow(row);
+                                    } else if (btn.hasClass("cancel-button")) {
+                                        grid.cancelRow();
+                                    } else if (btn.hasClass("update-button")) {
+                                        grid.saveChanges();
+                                    } else if (btn.hasClass("destroy-button")) {
+                                        var row = btn.closest("tr");
+                                        grid.removeRow(row);
+                                    } 
+                                });
                         });
 
                     </script>
-
                 </div>
             </div>
         </div>
     </div>
-
 </section>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
@@ -30,7 +32,7 @@ namespace StockManagementSystem.Data
 
             foreach (var typeConfiguration in typeConfigurations)
             {
-                var configuration = (IMappingConfiguration) Activator.CreateInstance(typeConfiguration);
+                var configuration = (IMappingConfiguration)Activator.CreateInstance(typeConfiguration);
                 configuration.ApplyConfiguration(modelBuilder);
             }
 
@@ -73,28 +75,30 @@ namespace StockManagementSystem.Data
             return base.SaveChanges();
         }
 
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            AddTimestamps();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
         #endregion
 
         #region Private Method
 
         private void AddTimestamps()
         {
-            var entities = ChangeTracker.Entries().Where(x =>
-                x.Entity is Entity && (x.State == EntityState.Added || x.State == EntityState.Modified));
-
-            var currentUsername = !string.IsNullOrEmpty(_httpContextAccessor?.HttpContext?.User?.Identity?.Name)
-                ? _httpContextAccessor.HttpContext.User.Identity.Name
-                : "Anonymous";
+            var entities = ChangeTracker.Entries().Where(x => x.Entity is Entity && (x.State == EntityState.Added || x.State == EntityState.Modified));
+            var currentUsername = !string.IsNullOrEmpty(_httpContextAccessor?.HttpContext?.User?.Identity?.Name) ? _httpContextAccessor.HttpContext.User.Identity.Name : "Anonymous";
 
             foreach (var entity in entities)
             {
                 if (entity.State == EntityState.Added)
                 {
-                    ((Entity) entity.Entity).CreatedBy = currentUsername;
-                    ((Entity) entity.Entity).CreatedOn = DateTimeOffset.UtcNow;
+                    ((Entity)entity.Entity).CreatedBy = currentUsername;
+                    ((Entity)entity.Entity).CreatedOnUtc = DateTime.UtcNow;
                 }
-                ((Entity) entity.Entity).ModifiedBy = currentUsername;
-                ((Entity) entity.Entity).ModifiedOn = DateTimeOffset.UtcNow;
+                ((Entity)entity.Entity).ModifiedBy = currentUsername;
+                ((Entity)entity.Entity).ModifiedOnUtc = DateTime.UtcNow;
             }
         }
 

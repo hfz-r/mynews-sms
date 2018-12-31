@@ -1,27 +1,70 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Builder;
 using StockManagementSystem.Web.Kendoui;
+using StockManagementSystem.Web.Mvc.Filters;
 using StockManagementSystem.Web.UI;
 
 namespace StockManagementSystem.Web.Controllers
 {
-    public abstract class BaseController : Controller
+    [AuthorizeUser]
+    [SaveLastActivity]
+    [SaveIpAddress]
+    public abstract partial class BaseController : Controller
     {
-        public override JsonResult Json(object data)
+        #region Tab
+
+        //Save selected tab name
+        protected virtual void SaveSelectedTabName(string tabName = "", bool persistForTheNextRequest = true)
         {
-            //use IsoDateFormat on writing JSON text to fix issue with dates in KendoUI grid
-            var serializerSettings =
-                EngineContext.Current.Resolve<IOptions<MvcJsonOptions>>()?.Value?.SerializerSettings
-                ?? new JsonSerializerSettings();
+            //default root tab
+            SaveSelectedTabName(tabName, "selected-tab-name", null, persistForTheNextRequest);
 
-            serializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-            serializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified;
+            if (!Request.Method.Equals(WebRequestMethods.Http.Post, StringComparison.InvariantCultureIgnoreCase))
+                return;
 
-            return base.Json(data, serializerSettings);
+            foreach (var key in Request.Form.Keys)
+            {
+                if (key.StartsWith("selected-tab-name-", StringComparison.InvariantCultureIgnoreCase))
+                    SaveSelectedTabName(null, key, key.Substring("selected-tab-name-".Length),
+                        persistForTheNextRequest);
+            }
         }
+
+        protected virtual void SaveSelectedTabName(string tabName, string formKey, string dataKeyPrefix,
+            bool persistForTheNextRequest)
+        {
+            //keep this method synchronized with
+            //"GetSelectedTabName" method of \StockManagementSystem.Web\Extensions\HtmlExtensions.cs
+            if (string.IsNullOrEmpty(tabName))
+            {
+                tabName = Request.Form[formKey];
+            }
+
+            if (string.IsNullOrEmpty(tabName))
+                return;
+
+            var dataKey = "sms.selected-tab-name";
+            if (!string.IsNullOrEmpty(dataKeyPrefix))
+                dataKey += $"-{dataKeyPrefix}";
+
+            if (persistForTheNextRequest)
+            {
+                TempData[dataKey] = tabName;
+            }
+            else
+            {
+                ViewData[dataKey] = tabName;
+            }
+        }
+
+        #endregion
+
+        #region Notifications
 
         protected JsonResult ErrorForKendoGridJson(string errorMessage)
         {
@@ -40,6 +83,10 @@ namespace StockManagementSystem.Web.Controllers
             pageHeadBuilder.AddEditPageUrl(editPageUrl);
         }
 
+        #endregion
+
+        #region Security
+
         protected virtual IActionResult AccessDeniedView()
         {
             var webHelper = EngineContext.Current.Resolve<IWebHelper>();
@@ -49,6 +96,21 @@ namespace StockManagementSystem.Web.Controllers
         protected JsonResult AccessDeniedKendoGridJson()
         {
             return ErrorForKendoGridJson("You do not have permission to perform the selected operation.");
+        }
+
+        #endregion
+
+        public override JsonResult Json(object data)
+        {
+            //use IsoDateFormat on writing JSON text to fix issue with dates in KendoUI grid
+            var serializerSettings =
+                EngineContext.Current.Resolve<IOptions<MvcJsonOptions>>()?.Value?.SerializerSettings
+                ?? new JsonSerializerSettings();
+
+            serializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+            serializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified;
+
+            return base.Json(data, serializerSettings);
         }
     }
 }

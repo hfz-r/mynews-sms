@@ -26,49 +26,119 @@ namespace StockManagementSystem.Web.Kendoui.Extensions
             return result.ToList();
         }
 
-        // TODO: Grid server-side filter rendering
-        public static IList<T> Filter<T>(this IEnumerable<T> source, string logic, IList<GridFilterDetails> filters)
+        public static async Task<IList<T>> Filter<T>(this IEnumerable<T> source, GridFilter filter)
         {
-            if (string.IsNullOrWhiteSpace(logic))
-                throw new ArgumentNullException(nameof(logic));
+            const string selector = "f.";
 
-            string expression = String.Empty;
-            //where(f => f.Name == 'John' && f.Name != 'Cena')
-
+            string expression = "f=>";
+            var filters = filter.Filters;
             for (var i = 0; i < filters.Count; i++)
             {
-                logic = (i == filters.Count - 1) ? "" : logic;
-
-                //expression += $"f.{filters[i].Filters} {BuildOperator(filters[i].Operator)}"
-                expression += $"f => f.{filters[i].Field} {filters[i].Operator} {filters[i].Value} {logic} ";
-
-               
+                var f = filters[i];
+                if (f.Filters == null)
+                {
+                    if (i == 0)
+                        expression += $"{ConstructExpression<T>(f, selector)}" + " ";
+                    if (i != 0)
+                        expression += $"{Operator(filter.Logic)} {ConstructExpression<T>(f, selector)}" + " ";
+                    if (i == filters.Count - 1)
+                    {
+                        CleanUp(ref expression);
+                        source = await source.ProcessExpression(expression);
+                    }
+                }
+                else
+                {
+                    source = await Filter<T>(source, f);
+                }
             }
-
-            //foreach (var filter in filters)
-            //{
-            //    if (!string.IsNullOrWhiteSpace(filter.Logic) && filter.Filters.Any())
-            //    {
-            //        source = source.ConstructFirstLevelExp(filter.Logic, filter.Filters);
-            //    }
-
-            //    expression += $"f => f.{filter.Field} {filter.Operator} {filter.Value} {logic} ";
-
-            //}
 
             return source.ToList();
         }
 
-        private static IEnumerable<T> ConstructFirstLevelExp<T>(this IEnumerable<T> source, string logic,
-            IList<GridFilterDetails> filters)
+        private static string ConstructExpression<T>(GridFilter filter, string selector)
         {
-            string expression = String.Empty;
-            foreach (var filter in filters)
-            {
-                expression += $"f => f.{filter.Field} {filter.Operator} {filter.Value}";
-            }
+            var type = typeof(T);
+            var property = type.GetProperty(filter.Field);
 
-            return source.ToList();
+            switch (filter.Operator.ToLowerInvariant())
+            {
+                case "eq":
+                case "neq":
+                case "gte":
+                case "gt":
+                case "lte":
+                case "lt":
+                    if (typeof(DateTime).IsAssignableFrom(property?.PropertyType))
+                    {
+                        var value = DateTime.Parse(filter.Value).Date;
+                        return $"EntityFunctions.TruncateTime(({NullChecker(selector, filter.Field)} {selector}{filter.Field}) {Operator(filter.Operator)} \"{value}\")";
+                    }
+                    if (typeof(int).IsAssignableFrom(property?.PropertyType))
+                    {
+                        var value = int.Parse(filter.Value);
+                        return $"({NullChecker(selector, filter.Field)} {selector}{filter.Field} {Operator(filter.Operator)} {value})";
+                    }
+
+                    return $"({NullChecker(selector, filter.Field)} {selector}{filter.Field} {Operator(filter.Operator)} \"{filter.Value}\")";
+
+                case "startswith":
+                    return $"({NullChecker(selector, filter.Field)} {selector}{filter.Field}.StartsWith(\"{filter.Value}\"))";
+                case "endswith":
+                    return $"({NullChecker(selector, filter.Field)} {selector}{filter.Field}.EndsWith(\"{filter.Value}\"))";
+                case "contains":
+                    return $"({NullChecker(selector, filter.Field)} {selector}{filter.Field}.Contains(\"{filter.Value}\"))";
+                case "doesnotcontain":
+                    return $"({NullChecker(selector, filter.Field)} !{selector}{filter.Field}.Contains(\"{filter.Value}\"))";
+                default:
+                    throw new ArgumentException("This operator is not yet supported for this Grid", filter.Operator);
+            }
+        }
+
+        private static void CleanUp(ref string expression)
+        {
+            // clean up f=>
+            switch (expression.Trim().Substring(3, 2).ToLower())
+            {
+                case "&&":
+                    expression = expression.Trim().Remove(3, 2);
+                    break;
+                case "||":
+                    expression = expression.Trim().Remove(3, 2);
+                    break;
+            }
+        }
+
+        private static string Operator(string @operator)
+        {
+            switch (@operator.ToLower())
+            {
+                case "eq": return "==";
+                case "neq": return "!=";
+                case "gte": return ">=";
+                case "gt": return ">";
+                case "lte": return "<=";
+                case "lt": return "<";
+                case "or": return "||";
+                case "and": return "&&";
+                default: return null;
+            }
+        }
+
+        private static string NullChecker(string selector, string field)
+        {
+            return $"{selector}{field} != null && ";
+        }
+
+        private static async Task<IEnumerable<T>> ProcessExpression<T>(this IEnumerable<T> source, string expression)
+        {
+            if (string.IsNullOrEmpty(expression))
+                throw new ArgumentNullException(nameof(expression));
+
+            var options = ScriptOptions.Default.AddReferences(typeof(T).Assembly);
+            Func<T, bool> exp = await CSharpScript.EvaluateAsync<Func<T, bool>>(expression, options);
+
+            return source.Where(exp);
         }
     }
 }

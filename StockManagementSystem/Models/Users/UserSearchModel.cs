@@ -5,17 +5,18 @@ using StockManagementSystem.Web.Models;
 
 namespace StockManagementSystem.Models.Users
 {
-    public partial class UserSearchModel : BaseSearchModel
+    public partial class UserSearchModel : BaseSearchModel, IAclSupportedModel
     {
         public UserSearchModel()
         {
-            SelectedUserRoleIds = new List<int>();
-            AvailableUserRoles = new List<SelectListItem>();
+            SelectedRoleIds = new List<int>();
+            AvailableRoles = new List<SelectListItem>();
         }
 
-        public IList<int> SelectedUserRoleIds { get; set; }
+        [Display(Name = "Roles")]
+        public IList<int> SelectedRoleIds { get; set; }
 
-        public IList<SelectListItem> AvailableUserRoles { get; set; }
+        public IList<SelectListItem> AvailableRoles { get; set; }
 
         [EmailAddress]
         [Display(Name = "Email")]
@@ -27,8 +28,7 @@ namespace StockManagementSystem.Models.Users
         [Display(Name = "Name")]
         public string SearchName { get; set; }
 
-        public string SearchBranch { get; set; }
-
-        public string SearchDepartment { get; set; }
+        [Display(Name = "IP address")]
+        public string SearchIpAddress { get; set; }
     }
 }

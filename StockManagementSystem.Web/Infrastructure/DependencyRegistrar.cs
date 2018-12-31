@@ -3,11 +3,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Data;
 using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Roles;
+using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.UI;
 
 namespace StockManagementSystem.Web.Infrastructure
@@ -24,16 +28,32 @@ namespace StockManagementSystem.Web.Infrastructure
 
             // data layer
             builder.Register(context => new ObjectContext(context.Resolve<IHttpContextAccessor>(),
-                context.Resolve<DbContextOptions<ObjectContext>>())).As<IDbContext>().InstancePerLifetimeScope();
+                    context.Resolve<DbContextOptions<ObjectContext>>())).As<IDbContext>().InstancePerLifetimeScope();
 
             // repositories
             builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
 
+            // cache manager
+            builder.RegisterType<PerRequestCacheManager>().As<ICacheManager>().InstancePerLifetimeScope();
+
+            // static cache manager
+            builder.RegisterType<MemoryCacheManager>().As<ILocker>().As<IStaticCacheManager>().SingleInstance();
+
+            // work context
+            builder.RegisterType<WorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
+
             // services
-            builder.RegisterType<AuthMessageSender>().As<IEmailSender>().InstancePerLifetimeScope();  // email sender?
-            builder.RegisterType<StartupTime>().As<IStartupTime>().InstancePerLifetimeScope(); // startup time?
+            builder.RegisterType<AuthMessageSender>().As<IEmailSender>().InstancePerLifetimeScope();
+            builder.RegisterType<StartupTime>().As<IStartupTime>()
+                .InstancePerLifetimeScope(); // startup time? for what?
             builder.RegisterType<PageHeadBuilder>().As<IPageHeadBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
             builder.RegisterType<RoleService>().As<IRoleService>().InstancePerLifetimeScope();
+            builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
+            builder.RegisterType<NotificationService>().As<INotificationService>().InstancePerLifetimeScope();
+            builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
+            builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
 
             // mvc context accessor
             builder.RegisterType<ActionContextAccessor>().As<IActionContextAccessor>().InstancePerLifetimeScope();

@@ -1,0 +1,55 @@
+﻿@using Newtonsoft.Json
+@using StockManagementSystem.Services.Messages
+@{
+    var successMessages = new List<string>();
+    var errorMessages = new List<string>();
+    var warningMessages = new List<string>();
+
+    //Get messages from TempData
+    var notes = TempData.ContainsKey(MessageDefaults.NotificationListKey)
+        ? JsonConvert.DeserializeObject<IList<NotificationData>>(TempData[MessageDefaults.NotificationListKey].ToString())
+        : null;
+
+    if (notes != null)
+    {
+        foreach (var note in notes)
+        {
+            switch (note.Type)
+            {
+                case NotificationType.Success:
+                    successMessages.Add(note.Message);
+                    break;
+                case NotificationType.Error:
+                    errorMessages.Add(note.Message);
+                    break;
+                case NotificationType.Warning:
+                    warningMessages.Add(note.Message);
+                    break;
+            }
+        }
+    }
+}
+
+@foreach (var message in successMessages)
+{
+    <div class="alert alert-success alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        @message
+    </div>
+}
+
+@foreach (var message in errorMessages)
+{
+    <div class="alert alert-danger alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        @message
+    </div>
+}
+
+@foreach (var message in warningMessages)
+{
+    <div class="alert alert-warning alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        @message
+    </div>
+}

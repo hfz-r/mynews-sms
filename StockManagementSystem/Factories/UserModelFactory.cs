@@ -1,49 +1,136 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Users;
+using StockManagementSystem.Services.Helpers;
+using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Users;
+using StockManagementSystem.Web.Factories;
+using StockManagementSystem.Web.Kendoui.Extensions;
 
 namespace StockManagementSystem.Factories
 {
     /// <summary>
     /// Represents the user model factory implementation
     /// </summary>
-    public class UserModelFactory
+    public class UserModelFactory : IUserModelFactory
     {
         private readonly IUserService _userService;
+        private readonly IRoleService _roleService;
+        private readonly IAclSupportedModelFactory _aclSupportedModelFactory;
+        private readonly IDateTimeHelper _dateTimeHelper;
 
         public UserModelFactory(
-            IUserService userService)
+            IUserService userService,
+            IRoleService roleService,
+            IAclSupportedModelFactory aclSupportedModelFactory,
+            IDateTimeHelper dateTimeHelper)
         {
             _userService = userService;
+            _roleService = roleService;
+            _aclSupportedModelFactory = aclSupportedModelFactory;
+            _dateTimeHelper = dateTimeHelper;
         }
 
-        //public async Task<UserSearchModel> PrepareUserSearcModelAsync(UserSearchModel searchModel)
-        //{
-        //    if (searchModel == null)
-        //        throw new ArgumentNullException(nameof(searchModel));
+        public async Task<UserSearchModel> PrepareUserSearchModel(UserSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
 
+            //prepare role selectlist = default = registered
+            var defaultRole = await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName);
+            if (defaultRole != null)
+                searchModel.SelectedRoleIds.Add(defaultRole.Id);
 
-        //}
+            await _aclSupportedModelFactory.PrepareModelRoles(searchModel);
 
-        //public async Task<IEnumerable<UserSearchModel>> PrepareUserSearcModelAsync()
-        //{
-        //    var users = await _userService.GetAllUsersAsync();
+            //prepare page parameters
+            searchModel.SetGridPageSize();
 
-        //    if (users == null)
-        //        return Enumerable.Empty<UserSearchModel>();
+            return searchModel;
+        }
 
-        //    var sm = new List<UserSearchModel>();
+        public async Task<UserListModel> PrepareUserListModel(UserSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
 
-        //    foreach (var user in users)
-        //    {
-        //        sm.Add(new UserSearchModel
-        //        {
+            var users = await _userService.GetUsersAsync(
+                roleIds: searchModel.SelectedRoleIds.ToArray(),
+                email: searchModel.SearchEmail,
+                username: searchModel.SearchUsername,
+                name: searchModel.SearchName,
+                ipAddress: searchModel.SearchIpAddress,
+                pageIndex: searchModel.Page - 1,
+                pageSize: searchModel.PageSize);
 
-        //        });
-        //    }
-        //}
+            var model = new UserListModel
+            {
+                Data = users.Select(user =>
+                {
+                    var userModel = user.ToModel<UserModel>();
+
+                    userModel.Email = user.Email;
+                    userModel.Username = user.UserName;
+                    userModel.Name = user.Name;
+                    userModel.UserRolesName = String.Join(", ", user.UserRoles.Select(role => role.Role.Name));
+                    userModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
+                    userModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
+
+                    return userModel;
+                }),
+                Total = users.TotalCount
+            };
+
+            // sort
+            if (searchModel.Sort != null && searchModel.Sort.Any())
+            {
+                foreach (var s in searchModel.Sort)
+                {
+                    model.Data = await model.Data.Sort(s.Field, s.Dir);
+                }
+            }
+
+            // filter
+            if (searchModel.Filter != null && searchModel.Filter.Filters != null && searchModel.Filter.Filters.Any())
+            {
+                var filter = searchModel.Filter;
+                model.Data = await model.Data.Filter(filter);
+                model.Total = model.Data.Count();
+            }
+
+            return model;
+        }
+
+        public async Task<UserModel> PrepareUserModel(UserModel model, User user)
+        {
+            if (user != null)
+            {
+                model = model ?? new UserModel();
+
+                model.Id = user.Id;
+                model.Email = user.Email;
+                model.Username = user.UserName;
+                model.Name = user.Name;
+                model.AdminComment = user.AdminComment;
+                model.LastIpAddress = user.LastIpAddress;
+                model.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
+                model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
+                model.SelectedRoleIds = user.UserRoles.Select(map => map.RoleId).ToList();
+            }
+            else
+            {
+                //precheck Registered Role 
+                var registeredRole = await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName);
+                if (registeredRole != null)
+                    model.SelectedRoleIds.Add(registeredRole.Id);
+            }
+            //prepare model customer roles
+            await _aclSupportedModelFactory.PrepareModelRoles(model);
+
+            return model;
+        }
     }
 }

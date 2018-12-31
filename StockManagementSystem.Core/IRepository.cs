@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StockManagementSystem.Core
 {
@@ -59,6 +60,24 @@ namespace StockManagementSystem.Core
         /// Gets a table with "no tracking" enabled 
         /// </summary>
         IQueryable<TEntity> TableNoTracking { get; }
+
+        #endregion
+
+        #region Async methods
+
+        Task<TEntity> GetByIdAsync(object id);
+
+        Task InsertAsync(TEntity entity);
+
+        Task InsertAsync(IEnumerable<TEntity> entities);
+
+        Task UpdateAsync(TEntity entity);
+
+        Task UpdateAsync(IEnumerable<TEntity> entities);
+
+        Task DeleteAsync(TEntity entity);
+
+        Task DeleteAsync(IEnumerable<TEntity> entities);
 
         #endregion
     }

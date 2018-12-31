@@ -44,9 +44,9 @@ namespace StockManagementSystem.Controllers
                 StoreId = "TEST", //TODO
                 Status = x.Status == "1" ? "Active" : "Inactive",
                 CreatedBy = x.CreatedBy,
-                CreatedOn = Convert.ToDateTime(x.CreatedOn.ToString()),
+                CreatedOnUtc = Convert.ToDateTime(x.CreatedOnUtc.ToString()),
                 ModifiedBy = x.ModifiedBy,
-                ModifiedOn = Convert.ToDateTime(x.ModifiedOn.ToString())
+                ModifiedOnUtc = Convert.ToDateTime(x.ModifiedOnUtc.ToString())
             }).ToList();
 
             return View("Device", model);

@@ -19,12 +19,12 @@ namespace StockManagementSystem
                 var services = scope.ServiceProvider;
                 try
                 {
-                    SeedData.Initialize(services);
+                    Seed.Init(services).GetAwaiter().GetResult();
                 }
                 catch (Exception ex)
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
+                    var logger = services.GetRequiredService<ILogger>();
+                    logger.LogError(ex, "An error occurred when seeding the data.");
                 }
             }
 

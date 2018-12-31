@@ -5,8 +5,8 @@ namespace StockManagementSystem.Factories
 {
     public interface IRoleModelFactory
     {
-        Task<RoleSearchModel> PrepareRoleSearchModelAsync(RoleSearchModel searchModel);
+        Task<RoleSearchModel> PrepareRoleSearchModel(RoleSearchModel searchModel);
 
-        Task<RoleListModel> PrepareRoleListModelAync(RoleSearchModel searchModel);
+        Task<RoleListModel> PrepareRoleListModel(RoleSearchModel searchModel);
     }
 }

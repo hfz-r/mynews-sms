@@ -1,9 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using StockManagementSystem.Core.Builder;
 using StockManagementSystem.Core.Infrastructure;
+using StockManagementSystem.Services.Security;
 
 namespace StockManagementSystem.Web.Menu
 {
@@ -51,7 +54,7 @@ namespace StockManagementSystem.Web.Menu
 
         private static void Iterate(SiteMapNode siteMapNode, XmlNode xmlNode)
         {
-            PopulateNode(siteMapNode, xmlNode);
+            PopulateNodeAsync(siteMapNode, xmlNode);
 
             foreach (XmlNode xmlChildNode in xmlNode.ChildNodes)
             {
@@ -65,7 +68,7 @@ namespace StockManagementSystem.Web.Menu
             }
         }
 
-        private static void PopulateNode(SiteMapNode siteMapNode, XmlNode xmlNode)
+        private static void PopulateNodeAsync(SiteMapNode siteMapNode, XmlNode xmlNode)
         {
             siteMapNode.SystemName = GetStringValueFromAttribute(xmlNode, "SystemName");
 
@@ -86,10 +89,13 @@ namespace StockManagementSystem.Web.Menu
             }
 
             siteMapNode.IconClass = GetStringValueFromAttribute(xmlNode, "IconClass");
+
             var permissionNames = GetStringValueFromAttribute(xmlNode, "PermissionNames");
             if (!string.IsNullOrEmpty(permissionNames))
             {
-                // TODO: permission services
+                var service = EngineContext.Current.Resolve<IPermissionService>();
+                siteMapNode.Visible = permissionNames.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
+                    .Any(permissionName => service.AuthorizeAsync(permissionName.Trim()).Result);
             }
             else
             {
@@ -97,7 +103,8 @@ namespace StockManagementSystem.Web.Menu
             }
 
             var openUrlInNewTabValue = GetStringValueFromAttribute(xmlNode, "OpenUrlInNewTab");
-            if (!string.IsNullOrWhiteSpace(openUrlInNewTabValue) && bool.TryParse(openUrlInNewTabValue, out bool booleanResult))
+            if (!string.IsNullOrWhiteSpace(openUrlInNewTabValue) &&
+                bool.TryParse(openUrlInNewTabValue, out bool booleanResult))
             {
                 siteMapNode.OpenUrlInNewTab = booleanResult;
             }

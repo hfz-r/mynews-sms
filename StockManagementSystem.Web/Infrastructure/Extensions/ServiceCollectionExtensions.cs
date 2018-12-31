@@ -98,6 +98,8 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             {
                 //use memory cache provider for storing each result
                 (miniProfilerOptions.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
+
+                //TODO: setup miniprofiler
             }).AddEntityFramework();
         }
 

@@ -19,6 +19,31 @@ namespace StockManagementSystem.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Common.GenericAttribute", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EntityId");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(400);
+
+                    b.Property<string>("KeyGroup")
+                        .IsRequired()
+                        .HasMaxLength(400);
+
+                    b.Property<string>("Value")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GenericAttribute");
+                });
+
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -28,7 +53,7 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTimeOffset?>("CreatedOn");
+                    b.Property<DateTime>("CreatedOnUtc");
 
                     b.Property<string>("Latitude");
 
@@ -40,7 +65,7 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<DateTimeOffset?>("ModifiedOn");
+                    b.Property<DateTime?>("ModifiedOnUtc");
 
                     b.Property<string>("SerialNo")
                         .IsRequired()
@@ -69,19 +94,22 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTimeOffset?>("CreatedOn");
+                    b.Property<DateTime>("CreatedOnUtc");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2147483647);
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<DateTimeOffset?>("ModifiedOn");
+                    b.Property<DateTime?>("ModifiedOnUtc");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256);
 
                     b.Property<string>("NormalizedName")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("SystemName")
                         .HasMaxLength(256);
 
                     b.HasKey("Id");
@@ -120,19 +148,23 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<int>("AccessFailedCount");
 
-                    b.Property<string>("Branch");
+                    b.Property<string>("AdminComment");
 
                     b.Property<string>("ConcurrencyStamp")
                         .HasMaxLength(2147483647);
 
                     b.Property<string>("CreatedBy");
 
-                    b.Property<DateTimeOffset?>("CreatedOn");
-
-                    b.Property<string>("Department");
+                    b.Property<DateTime>("CreatedOnUtc");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256);
+
+                    b.Property<DateTime>("LastActivityDateUtc");
+
+                    b.Property<string>("LastIpAddress");
+
+                    b.Property<DateTime?>("LastLoginDateUtc");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -141,7 +173,7 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("ModifiedBy");
 
-                    b.Property<DateTimeOffset?>("ModifiedOn");
+                    b.Property<DateTime?>("ModifiedOnUtc");
 
                     b.Property<string>("Name")
                         .HasMaxLength(2147483647);
@@ -157,6 +189,8 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasMaxLength(2147483647);
+
+                    b.Property<Guid>("UserGuid");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
@@ -217,20 +251,13 @@ namespace StockManagementSystem.Migrations
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.UserRole", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                    b.Property<int>("UserId");
 
                     b.Property<int>("RoleId");
 
-                    b.Property<int>("UserId");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "RoleId");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("UserRoles");
                 });
@@ -258,6 +285,64 @@ namespace StockManagementSystem.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserTokens");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Security.AclRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("EntityId");
+
+                    b.Property<string>("EntityName")
+                        .IsRequired()
+                        .HasMaxLength(400);
+
+                    b.Property<int>("RoleId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AclRecord");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Security.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.Property<string>("SystemName")
+                        .IsRequired()
+                        .HasMaxLength(255);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permission");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Security.PermissionRoles", b =>
+                {
+                    b.Property<int>("PermissionId");
+
+                    b.Property<int>("RoleId");
+
+                    b.HasKey("PermissionId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("PermissionRoles");
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Stores.Store", b =>
@@ -342,6 +427,27 @@ namespace StockManagementSystem.Migrations
                     b.HasOne("StockManagementSystem.Core.Domain.Identity.User", "User")
                         .WithMany("Tokens")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Security.AclRecord", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Identity.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Security.PermissionRoles", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Security.Permission", "Permission")
+                        .WithMany("PermissionRoles")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("StockManagementSystem.Core.Domain.Identity.Role", "Role")
+                        .WithMany("PermissionRoles")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

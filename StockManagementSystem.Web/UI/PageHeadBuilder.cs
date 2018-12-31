@@ -4,11 +4,13 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using BundlerMinifier;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Infrastructure;
 
 namespace StockManagementSystem.Web.UI
@@ -22,6 +24,7 @@ namespace StockManagementSystem.Web.UI
 
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IFileProviderHelper _fileProvider;
+        private readonly IStaticCacheManager _staticCacheManager;
         private readonly BundleFileProcessor _processor;
 
         private readonly List<string> _titleParts;
@@ -34,10 +37,12 @@ namespace StockManagementSystem.Web.UI
 
         public PageHeadBuilder(
             IHostingEnvironment hostingEnvironment,
-            IFileProviderHelper fileProvider)
+            IFileProviderHelper fileProvider,
+            IStaticCacheManager staticCacheManager)
         {
             this._hostingEnvironment = hostingEnvironment;
             this._fileProvider = fileProvider;
+            this._staticCacheManager = staticCacheManager;
             this._processor = new BundleFileProcessor();
 
             this._titleParts = new List<string>();
@@ -129,24 +134,27 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        public virtual void AppendScriptParts(ResourceLocation location, string src, string debugSrc,
+        public virtual Task AppendScriptParts(ResourceLocation location, string src, string debugSrc,
             bool excludeFromBundle, bool isAsync)
         {
-            if (!_scriptParts.ContainsKey(location))
-                _scriptParts.Add(location, new List<ScriptReferenceMeta>());
-
-            if (string.IsNullOrEmpty(src))
-                return;
-
-            if (string.IsNullOrEmpty(debugSrc))
-                debugSrc = src;
-
-            _scriptParts[location].Insert(0, new ScriptReferenceMeta
+            return Task.Run(() =>
             {
-                ExcludeFromBundle = excludeFromBundle,
-                IsAsync = isAsync,
-                Src = src,
-                DebugSrc = debugSrc
+                if (!_scriptParts.ContainsKey(location))
+                    _scriptParts.Add(location, new List<ScriptReferenceMeta>());
+
+                if (string.IsNullOrEmpty(src))
+                    return;
+
+                if (string.IsNullOrEmpty(debugSrc))
+                    debugSrc = src;
+
+                _scriptParts[location].Insert(0, new ScriptReferenceMeta
+                {
+                    ExcludeFromBundle = excludeFromBundle,
+                    IsAsync = isAsync,
+                    Src = src,
+                    DebugSrc = debugSrc
+                });
             });
         }
 
@@ -157,90 +165,99 @@ namespace StockManagementSystem.Web.UI
         /// <param name="location">A location of the script element</param>
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
-        public virtual string GenerateScripts(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
+        public virtual Task<string> GenerateScripts(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
         {
-            if (!_scriptParts.ContainsKey(location) || _scriptParts[location] == null)
-                return "";
-
-            if (!_scriptParts.Any())
-                return "";
-
-            var debugModel = _hostingEnvironment.IsDevelopment();
-
-            if (bundleFiles)
+            return Task.Run(() =>
             {
-                var partsToBundle = _scriptParts[location]
-                    .Where(x => !x.ExcludeFromBundle)
-                    .Distinct()
-                    .ToArray();
-                var partsToDontBundle = _scriptParts[location]
-                    .Where(x => x.ExcludeFromBundle)
-                    .Distinct()
-                    .ToArray();
+                if (!_scriptParts.ContainsKey(location) || _scriptParts[location] == null)
+                    return "";
 
-                var result = new StringBuilder();
+                if (!_scriptParts.Any())
+                    return "";
 
-                //parts to  bundle
-                if (partsToBundle.Any())
+                var debugModel = _hostingEnvironment.IsDevelopment();
+
+                if (bundleFiles)
                 {
-                    //ensure \bundles directory exists
-                    _fileProvider.CreateDirectory(_fileProvider.GetAbsolutePath("bundles"));
+                    var partsToBundle = _scriptParts[location]
+                        .Where(x => !x.ExcludeFromBundle)
+                        .Distinct()
+                        .ToArray();
+                    var partsToDontBundle = _scriptParts[location]
+                        .Where(x => x.ExcludeFromBundle)
+                        .Distinct()
+                        .ToArray();
 
-                    var bundle = new Bundle();
-                    foreach (var item in partsToBundle)
+                    var result = new StringBuilder();
+
+                    //parts to  bundle
+                    if (partsToBundle.Any())
                     {
-                        new PathString(urlHelper.Content(debugModel ? item.DebugSrc : item.Src))
-                            .StartsWithSegments(urlHelper.ActionContext.HttpContext.Request.PathBase,
-                                out PathString path);
-                        var src = path.Value.TrimStart('/');
+                        //ensure \bundles directory exists
+                        _fileProvider.CreateDirectory(_fileProvider.GetAbsolutePath("bundles"));
 
-                        //check whether this file exists, if not it should be stored into /wwwroot directory
-                        if (!_fileProvider.FileExists(_fileProvider.MapPath(path)))
-                            src = $"wwwroot/{src}";
+                        var bundle = new Bundle();
+                        foreach (var item in partsToBundle)
+                        {
+                            new PathString(urlHelper.Content(debugModel ? item.DebugSrc : item.Src))
+                                .StartsWithSegments(urlHelper.ActionContext.HttpContext.Request.PathBase,
+                                    out PathString path);
+                            var src = path.Value.TrimStart('/');
 
-                        bundle.InputFiles.Add(src);
+                            //check whether this file exists, if not it should be stored into /wwwroot directory
+                            if (!_fileProvider.FileExists(_fileProvider.MapPath(path)))
+                                src = $"wwwroot/{src}";
+
+                            bundle.InputFiles.Add(src);
+                        }
+                        //output file
+                        var outputFileName =
+                            GetBundleFileName(partsToBundle.Select(x => debugModel ? x.DebugSrc : x.Src).ToArray());
+                        bundle.OutputFileName = "wwwroot/bundles/" + outputFileName + ".js";
+                        //save
+                        var configFilePath = _hostingEnvironment.ContentRootPath + "\\" + outputFileName + ".json";
+                        bundle.FileName = configFilePath;
+                        lock (s_lock)
+                        {
+                            var cacheKey = $"minification.shouldrebuild.js-{outputFileName}";
+                            var shouldRebuild = _staticCacheManager.Get(cacheKey, () => true, 120);
+                            if (shouldRebuild)
+                            {
+                                //process
+                                _processor.Process(configFilePath, new List<Bundle> {bundle});
+                                _staticCacheManager.Set(cacheKey, false, 120);
+                            }
+                        }
+                        //render
+                        result.AppendFormat("<script src=\"{0}\"></script>",
+                            urlHelper.Content("~/bundles/" + outputFileName + ".min.js"));
+                        result.Append(Environment.NewLine);
                     }
-                    //output file
-                    var outputFileName =
-                        GetBundleFileName(partsToBundle.Select(x => debugModel ? x.DebugSrc : x.Src).ToArray());
-                    bundle.OutputFileName = "wwwroot/bundles/" + outputFileName + ".js";
-                    //save
-                    var configFilePath = _hostingEnvironment.ContentRootPath + "\\" + outputFileName + ".json";
-                    bundle.FileName = configFilePath;
-                    lock (s_lock)
+
+                    //parts to not bundle
+                    foreach (var item in partsToDontBundle)
                     {
-                        //process
-                        _processor.Process(configFilePath, new List<Bundle> {bundle});
+                        var src = debugModel ? item.DebugSrc : item.Src;
+                        result.AppendFormat("<script {1}src=\"{0}\"></script>", urlHelper.Content(src),
+                            item.IsAsync ? "async " : "");
+                        result.Append(Environment.NewLine);
                     }
-                    //render
-                    result.AppendFormat("<script src=\"{0}\"></script>",
-                        urlHelper.Content("~/bundles/" + outputFileName + ".min.js"));
-                    result.Append(Environment.NewLine);
+                    return result.ToString();
                 }
-
-                //parts to not bundle
-                foreach (var item in partsToDontBundle)
+                else
                 {
-                    var src = debugModel ? item.DebugSrc : item.Src;
-                    result.AppendFormat("<script {1}src=\"{0}\"></script>", urlHelper.Content(src),
-                        item.IsAsync ? "async " : "");
-                    result.Append(Environment.NewLine);
+                    //bundling is disabled
+                    var result = new StringBuilder();
+                    foreach (var item in _scriptParts[location].Distinct())
+                    {
+                        var src = debugModel ? item.DebugSrc : item.Src;
+                        result.AppendFormat("<script {1}src=\"{0}\"></script>", urlHelper.Content(src),
+                            item.IsAsync ? "async " : "");
+                        result.Append(Environment.NewLine);
+                    }
+                    return result.ToString();
                 }
-                return result.ToString();
-            }
-            else
-            {
-                //bundling is disabled
-                var result = new StringBuilder();
-                foreach (var item in _scriptParts[location].Distinct())
-                {
-                    var src = debugModel ? item.DebugSrc : item.Src;
-                    result.AppendFormat("<script {1}src=\"{0}\"></script>", urlHelper.Content(src),
-                        item.IsAsync ? "async " : "");
-                    result.Append(Environment.NewLine);
-                }
-                return result.ToString();
-            }
+            });
         }
 
         /// <summary>
@@ -277,23 +294,26 @@ namespace StockManagementSystem.Web.UI
         /// <param name="src">Script path (minified version)</param>
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
-        public virtual void AppendCssFileParts(ResourceLocation location, string src, string debugSrc,
+        public virtual Task AppendCssFileParts(ResourceLocation location, string src, string debugSrc,
             bool excludeFromBundle = false)
         {
-            if (!_cssParts.ContainsKey(location))
-                _cssParts.Add(location, new List<CssReferenceMeta>());
-
-            if (string.IsNullOrEmpty(src))
-                return;
-
-            if (string.IsNullOrEmpty(debugSrc))
-                debugSrc = src;
-
-            _cssParts[location].Insert(0, new CssReferenceMeta
+            return Task.Run(() =>
             {
-                ExcludeFromBundle = excludeFromBundle,
-                Src = src,
-                DebugSrc = debugSrc
+                if (!_cssParts.ContainsKey(location))
+                    _cssParts.Add(location, new List<CssReferenceMeta>());
+
+                if (string.IsNullOrEmpty(src))
+                    return;
+
+                if (string.IsNullOrEmpty(debugSrc))
+                    debugSrc = src;
+
+                _cssParts[location].Insert(0, new CssReferenceMeta
+                {
+                    ExcludeFromBundle = excludeFromBundle,
+                    Src = src,
+                    DebugSrc = debugSrc
+                });
             });
         }
 
@@ -304,103 +324,115 @@ namespace StockManagementSystem.Web.UI
         /// <param name="location">A location of the script element</param>
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
-        public virtual string GenerateCssFiles(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
+        public virtual Task<string> GenerateCssFiles(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
         {
-            if (!_cssParts.ContainsKey(location) || _cssParts[location] == null)
-                return "";
-
-            if (!_cssParts.Any())
-                return "";
-
-            var debugModel = _hostingEnvironment.IsDevelopment();
-
-            //CSS bundling is not allowed in virtual directories
-            if (urlHelper.ActionContext.HttpContext.Request.PathBase.HasValue)
-                bundleFiles = false;
-
-            if (bundleFiles)
+            return Task.Run(() =>
             {
-                var partsToBundle = _cssParts[location]
-                    .Where(x => !x.ExcludeFromBundle)
-                    .Distinct()
-                    .ToArray();
-                var partsToDontBundle = _cssParts[location]
-                    .Where(x => x.ExcludeFromBundle)
-                    .Distinct()
-                    .ToArray();
+                if (!_cssParts.ContainsKey(location) || _cssParts[location] == null)
+                    return "";
 
-                var result = new StringBuilder();
+                if (!_cssParts.Any())
+                    return "";
 
-                //parts to  bundle
-                if (partsToBundle.Any())
+                var debugModel = _hostingEnvironment.IsDevelopment();
+
+                //CSS bundling is not allowed in virtual directories
+                if (urlHelper.ActionContext.HttpContext.Request.PathBase.HasValue)
+                    bundleFiles = false;
+
+                if (bundleFiles)
                 {
-                    //ensure \bundles directory exists
-                    _fileProvider.CreateDirectory(_fileProvider.GetAbsolutePath("bundles"));
+                    var partsToBundle = _cssParts[location]
+                        .Where(x => !x.ExcludeFromBundle)
+                        .Distinct()
+                        .ToArray();
+                    var partsToDontBundle = _cssParts[location]
+                        .Where(x => x.ExcludeFromBundle)
+                        .Distinct()
+                        .ToArray();
 
-                    var bundle = new Bundle();
-                    foreach (var item in partsToBundle)
+                    var result = new StringBuilder();
+
+                    //parts to  bundle
+                    if (partsToBundle.Any())
+                    {
+                        //ensure \bundles directory exists
+                        _fileProvider.CreateDirectory(_fileProvider.GetAbsolutePath("bundles"));
+
+                        var bundle = new Bundle();
+                        foreach (var item in partsToBundle)
+                        {
+                            var src = debugModel ? item.DebugSrc : item.Src;
+                            src = urlHelper.Content(src);
+                            //check whether this file exists 
+                            var srcPath = _fileProvider.Combine(_hostingEnvironment.ContentRootPath,
+                                src.Remove(0, 1).Replace("/", "\\"));
+                            if (_fileProvider.FileExists(srcPath))
+                            {
+                                //remove starting /
+                                src = src.Remove(0, 1);
+                            }
+                            else
+                            {
+                                //if not, it should be stored into /wwwroot directory
+                                src = "wwwroot/" + src;
+                            }
+                            bundle.InputFiles.Add(src);
+                        }
+                        //output file
+                        var outputFileName = GetBundleFileName(partsToBundle.Select(x =>
+                        {
+                            return debugModel ? x.DebugSrc : x.Src;
+                        }).ToArray());
+                        bundle.OutputFileName = "wwwroot/bundles/" + outputFileName + ".css";
+                        //save
+                        var configFilePath = _hostingEnvironment.ContentRootPath + "\\" + outputFileName + ".json";
+                        bundle.FileName = configFilePath;
+                        lock (s_lock)
+                        {
+                            var cacheKey = $"minification.shouldrebuild.css-{outputFileName}";
+                            var shouldRebuild = _staticCacheManager.Get(cacheKey, () => true, 120);
+                            if (shouldRebuild)
+                            {
+                                //process
+                                _processor.Process(configFilePath, new List<Bundle> {bundle});
+                                _staticCacheManager.Set(cacheKey, false, 120);
+                            }
+                        }
+
+                        //render
+                        result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />",
+                            urlHelper.Content("~/bundles/" + outputFileName + ".min.css"), "text/css");
+                        result.Append(Environment.NewLine);
+                    }
+
+                    //parts not to bundle
+                    foreach (var item in partsToDontBundle)
                     {
                         var src = debugModel ? item.DebugSrc : item.Src;
-                        src = urlHelper.Content(src);
-                        //check whether this file exists 
-                        var srcPath = _fileProvider.Combine(_hostingEnvironment.ContentRootPath,
-                            src.Remove(0, 1).Replace("/", "\\"));
-                        if (_fileProvider.FileExists(srcPath))
-                        {
-                            //remove starting /
-                            src = src.Remove(0, 1);
-                        }
-                        else
-                        {
-                            //if not, it should be stored into /wwwroot directory
-                            src = "wwwroot/" + src;
-                        }
-                        bundle.InputFiles.Add(src);
-                    }
-                    //output file
-                    var outputFileName = GetBundleFileName(partsToBundle.Select(x =>
-                    {
-                        return debugModel ? x.DebugSrc : x.Src;
-                    }).ToArray());
-                    bundle.OutputFileName = "wwwroot/bundles/" + outputFileName + ".css";
-                    //save
-                    var configFilePath = _hostingEnvironment.ContentRootPath + "\\" + outputFileName + ".json";
-                    bundle.FileName = configFilePath;
-                    lock (s_lock)
-                    {
-                        _processor.Process(configFilePath, new List<Bundle> {bundle});
+                        result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />",
+                            urlHelper.Content(src),
+                            "text/css");
+                        result.Append(Environment.NewLine);
                     }
 
-                    //render
-                    result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />",
-                        urlHelper.Content("~/bundles/" + outputFileName + ".min.css"), "text/css");
-                    result.Append(Environment.NewLine);
+                    return result.ToString();
                 }
-
-                //parts not to bundle
-                foreach (var item in partsToDontBundle)
+                else
                 {
-                    var src = debugModel ? item.DebugSrc : item.Src;
-                    result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />", urlHelper.Content(src),
-                        "text/css");
-                    result.Append(Environment.NewLine);
+                    //bundling is disabled
+                    var result = new StringBuilder();
+                    foreach (var item in _cssParts[location].Distinct())
+                    {
+                        var src = debugModel ? item.DebugSrc : item.Src;
+                        result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />",
+                            urlHelper.Content(src),
+                            "text/css");
+                        result.AppendLine();
+                    }
+                    return result.ToString();
                 }
-
-                return result.ToString();
-            }
-            else
-            {
-                //bundling is disabled
-                var result = new StringBuilder();
-                foreach (var item in _cssParts[location].Distinct())
-                {
-                    var src = debugModel ? item.DebugSrc : item.Src;
-                    result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />", urlHelper.Content(src),
-                        "text/css");
-                    result.AppendLine();
-                }
-                return result.ToString();
-            }
+            });
         }
 
         /// <summary>

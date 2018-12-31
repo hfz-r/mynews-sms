@@ -9,10 +9,10 @@ namespace StockManagementSystem.Core
     {
         public string CreatedBy { get; set; }
 
-        public DateTimeOffset? CreatedOn { get; set; }
+        public DateTime CreatedOnUtc { get; set; }
 
         public string ModifiedBy { get; set; }
 
-        public DateTimeOffset? ModifiedOn { get; set; }
+        public DateTime? ModifiedOnUtc { get; set; }
     }
 }
