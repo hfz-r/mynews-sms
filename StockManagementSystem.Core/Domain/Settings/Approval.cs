@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace StockManagementSystem.Core.Domain.Approvals
+namespace StockManagementSystem.Core.Domain.Settings
 {
     public class Approval : BaseEntity
     {

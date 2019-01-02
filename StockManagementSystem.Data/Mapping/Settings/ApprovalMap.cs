@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StockManagementSystem.Core.Domain.Approvals;
+using StockManagementSystem.Core.Domain.Settings;
 
 namespace StockManagementSystem.Data.Mapping.Approvals
 {

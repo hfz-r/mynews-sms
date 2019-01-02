@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Domain.Approvals;
+using StockManagementSystem.Core.Domain.Settings;
 using System;
 
 namespace StockManagementSystem.Controllers
@@ -80,48 +80,7 @@ namespace StockManagementSystem.Controllers
         {
             return View("Approval");
         }
-
-        // POST: /Approval/Approve
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Approve(SettingViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    if (!DeviceExist(model))
-                    {
-                        var device = new Approval
-                        {
-                            IsApprovalEnabled = , //Inactive
-                            CreatedBy = @Environment.UserName,
-                            CreatedOn = DateTime.UtcNow, //TODO Change to get server datetime
-                            ModifiedBy = @Environment.UserName,
-                            ModifiedOn = DateTime.UtcNow //TODO Change to get server datetime
-                        };
-
-                        _deviceRepository.Insert(device);
-                        _logger.LogInformation(3, "Device(" + device.SerialNo + ") created successfully.");
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        return View("RegisterDevice", model);
-                    }
-                }
-
-                // If we got this far, something failed, redisplay form
-                return View("RegisterDevice", model);
-            }
-            catch (Exception ex)
-            {
-                AddErrors(ex.Message);
-            }
-
-            return View("RegisterDevice", model);
-        }
-
+        
         #endregion
 
         #region Location
