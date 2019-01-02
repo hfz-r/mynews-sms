@@ -1,0 +1,56 @@
+﻿@model SiteMapNode
+@using StockManagementSystem.Web.Menu
+@using StockManagementSystem.Web.UI
+@{
+    string url = null;
+    if (!string.IsNullOrEmpty(Model.ControllerName) && !string.IsNullOrEmpty(Model.ActionName))
+    {
+        url = Url.Action(Model.ActionName, Model.ControllerName, Model.RouteValues, null, null);
+    }
+    else if (!string.IsNullOrEmpty(Model.Url))
+    {
+        url = Model.Url.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(Model.Url) : Model.Url;
+    }
+    var isActive = Model.ContainsSystemName(Html.GetActiveMenuItemSystemName());
+}
+@if (!string.IsNullOrEmpty(url))
+{
+    <li @(isActive ? Html.Raw("class=\"active current-active-item\"") : null)>
+        <a href="@url" class="menu-item-link" @(Model.OpenUrlInNewTab ? Html.Raw(" target=\"_blank\"") : null)>
+            @if (!string.IsNullOrEmpty(Model.IconClass))
+            {
+                <text>
+                    <i class="@Url.Content(Model.IconClass)"></i>
+                </text>
+            }
+            <span class="menu-item-title">@Model.Title</span>
+        </a>
+    </li>
+}
+else
+{
+    <li class="treeview @(isActive ? Html.Raw("active current-active-item") : null)">
+        <a href="#">
+            @if (!string.IsNullOrEmpty(Model.IconClass))
+            {
+                <text>
+                    <i class="@Url.Content(Model.IconClass)"></i>
+                </text>
+            }
+            <span>@Model.Title</span>
+            <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        @{
+            var childNodes = Model.ChildNodes.Where(x => x.Visible).ToList();
+        }
+        @if (childNodes.Any())
+        {
+            <ul class="treeview-menu">
+                @foreach (var childItem in childNodes)
+                {
+                    @await Html.PartialAsync("_MenuItem", childItem)
+                }
+            </ul>
+        }
+    </li>
+}

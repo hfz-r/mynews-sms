@@ -4,8 +4,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StockManagementSystem.Core.Domain.Identity
 {
-    public partial class User : BaseEntity
+    public partial class User : Entity
     {
+        public User()
+        {
+            UserGuid = Guid.NewGuid();
+        }
+
+        public Guid UserGuid { get; set; }
+
         [Required]
         public int AccessFailedCount { get; set; }
 
@@ -30,13 +37,17 @@ namespace StockManagementSystem.Core.Domain.Identity
 
         public string UserName { get; set; }
 
-        public string Branch { get; set; }
+        public string AdminComment { get; set; }
 
-        public string Department { get; set; }
+        public string LastIpAddress { get; set; }
+
+        public DateTime LastActivityDateUtc { get; set; }
+
+        public DateTime? LastLoginDateUtc { get; set; }
 
         public virtual ICollection<UserLogin> Logins { get; set; }
         public virtual ICollection<UserClaim> Claims { get; set; }
-        public virtual ICollection<UserRole> UserRoles { get; set; }
         public virtual ICollection<UserToken> Tokens { get; set; }
+        public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }

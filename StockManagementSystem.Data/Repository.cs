@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 
@@ -199,6 +200,135 @@ namespace StockManagementSystem.Data
                     _entities = _context.Set<TEntity>();
 
                 return _entities;
+            }
+        }
+
+        #endregion
+
+        #region Async Method
+
+        protected async Task<string> GetFullErrorTextAndRollbackEntityChangesAsync(DbUpdateException exception)
+        {
+            if (_context is DbContext dbContext)
+            {
+                var entries = dbContext.ChangeTracker.Entries()
+                    .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified).ToList();
+
+                entries.ForEach(entry =>
+                {
+                    try
+                    {
+                        entry.State = EntityState.Unchanged;
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // ignored
+                    }
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return exception.ToString();
+        }
+
+        public virtual async Task<TEntity> GetByIdAsync(object id)
+        {
+            return await Entities.FindAsync(id);
+        }
+
+        public virtual async Task InsertAsync(TEntity entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            try
+            {
+                await Entities.AddAsync(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(await GetFullErrorTextAndRollbackEntityChangesAsync(exception), exception);
+            }
+        }
+
+        public virtual async Task InsertAsync(IEnumerable<TEntity> entities)
+        {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
+
+            try
+            {
+                await Entities.AddRangeAsync(entities);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(await GetFullErrorTextAndRollbackEntityChangesAsync(exception), exception);
+            }
+        }
+
+        public virtual async Task UpdateAsync(TEntity entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            try
+            {
+                Entities.Update(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(await GetFullErrorTextAndRollbackEntityChangesAsync(exception), exception);
+            }
+        }
+
+        public virtual async Task UpdateAsync(IEnumerable<TEntity> entities)
+        {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
+
+            try
+            {
+                Entities.UpdateRange(entities);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(await GetFullErrorTextAndRollbackEntityChangesAsync(exception), exception);
+            }
+        }
+
+        public virtual async Task DeleteAsync(TEntity entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            try
+            {
+                Entities.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(await GetFullErrorTextAndRollbackEntityChangesAsync(exception), exception);
+            }
+        }
+
+        public virtual async Task DeleteAsync(IEnumerable<TEntity> entities)
+        {
+            if (entities == null)
+                throw new ArgumentNullException(nameof(entities));
+
+            try
+            {
+                Entities.RemoveRange(entities);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException exception)
+            {
+                throw new Exception(await GetFullErrorTextAndRollbackEntityChangesAsync(exception), exception);
             }
         }
 

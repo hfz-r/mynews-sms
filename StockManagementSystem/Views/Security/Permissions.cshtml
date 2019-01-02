@@ -1,0 +1,171 @@
+﻿@model PermissionRolesModel
+
+@{
+    //page title
+    ViewBag.Title = "Permission";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("permission");
+}
+
+<form asp-controller="Security" asp-action="Permissions" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">@ViewBag.Title</h1>
+        <ol class="breadcrumb pull-right">
+            <li class="#">
+                <a href="@Url.Action("Index", "Home")">
+                    <i class="glyphicon glyphicon-home"></i>
+                </a>
+            </li>
+            <li class="#">
+                <a href="#">
+                    <i class="fa fa-cogs"></i>
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <a href="@Url.Action("Permissions", "Security")">@ViewBag.Title</a>
+            </li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <style>
+                            .k-grid-header { padding: 0 !important; }
+                            .k-grid-content { overflow-y: hidden; }
+                            .k-grid.k-widget { overflow-x: hidden; }
+                        </style>
+                        <p>Permissions is attached to roles. This list specifies the access rights of users to objects.</p>
+
+                        @if (Model.AvailablePermissions.Count == 0)
+                        {
+                            <text>No permissions defined</text>
+                        }
+                        else if (Model.AvailableRoles.Count == 0)
+                        {
+                            <text>No roles available</text>
+                        }
+                        else
+                        {
+                            <script>
+                                $(document).ready(function() {
+                                    @foreach (var cr in Model.AvailableRoles)
+                                    {
+                                        <text>
+                                            $("#selectall-@(cr.Id)").click(function() {
+                                                $('.allow_@(cr.Id)').not(this).prop('checked', this.checked);
+                                            });
+                                        </text>
+                                    }
+                                });
+                            </script>
+                            <div id="permissions">
+                                <table id="grid" class="table-responsive">
+                                    <tbody>
+                                    <tr>
+                                        <th id="name" scope="col">
+                                            <strong>Permission Name</strong>
+                                        </th>
+                                        @foreach (var cr in Model.AvailableRoles)
+                                        {
+                                            <th scope="col">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" id="selectall-@(cr.Id)"/>
+                                                        <strong>@cr.Name</strong>
+                                                    </label>
+                                                </div>
+                                            </th>
+                                        }
+                                    </tr>
+                                    @foreach (var pr in Model.AvailablePermissions)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span>@pr.Name</span>
+                                            </td>
+                                            @foreach (var cr in Model.AvailableRoles)
+                                            {
+                                                var allowed = Model.Allowed.ContainsKey(pr.SystemName) && Model.Allowed[pr.SystemName][cr.Id];
+                                                <td>
+                                                    <input class="allow_@(cr.Id)" type="checkbox" value="@(pr.SystemName)" name="allow_@(cr.Id)" @(allowed ? " checked=checked" : null)/>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        <script type="text/javascript">
+
+                            $(document).ready(function() {
+                                var grid = $('#grid').kendoGrid({
+                                    resizable: true,
+                                    scrollable: true,
+                                    lockable: true,
+                                    pageable: {
+                                        refresh: true,
+                                        pageSizes: false,
+                                        previousNext: false,
+                                        numeric: false,
+                                        input: false,
+                                        info: false
+                                    },
+                                    toolbar: [
+                                        {
+                                            name: "save",
+                                            text: "Save",
+                                            iconClass: "glyphicon btn-glyphicon glyphicon-saved img-circle text-danger",
+                                        }
+                                    ]
+                                }).data("kendoGrid");
+
+                                init_column_sizing(grid);
+
+                                grid.bind("saveChanges", grid_saveChanges);
+                                $(".k-grid-save-changes").click(function(e) {
+                                    grid.saveChanges();
+                                });
+                            });
+
+                            function grid_saveChanges(e) {
+                                e.preventDefault();
+
+                                $('form').submit();
+                            }
+
+                            function init_column_sizing(grid) {
+                                //resize column
+                                //resize_column(999, 300); //all columns
+                                for (var i = 0; i < grid.columns.length; i++) {
+                                    switch (i) {
+                                    case 0:
+                                        resize_column(i, 400);
+                                        break;
+                                    default:
+                                        resize_column(i, 200);
+                                    }
+                                }
+                            }
+
+                            function resize_column(col, width) {
+                                if(col === 999) {
+                                    $("#permissions .k-grid-header-wrap").find("colgroup col").width(width);
+                                    $("#permissions .k-grid-content").find("colgroup col").width(width);
+                                } else {
+                                    $("#permissions .k-grid-header-wrap").find("colgroup col").eq(col).width(width);
+                                    $("#permissions .k-grid-content").find("colgroup col").eq(col).width(width);
+                                }
+                            }
+
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

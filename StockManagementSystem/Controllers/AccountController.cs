@@ -1,11 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Models.Account;
-using StockManagementSystem.Services;
+using StockManagementSystem.Services.Messages;
+using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Controllers
 {
@@ -14,17 +16,20 @@ namespace StockManagementSystem.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IUserService _userService;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
         public AccountController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
+            IUserService userService,
             IEmailSender emailSender,
             ILoggerFactory loggerFactory)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userService = userService;
             _emailSender = emailSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
@@ -62,6 +67,14 @@ namespace StockManagementSystem.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
+
+                    //update login details
+                    var user = await _userService.GetUserByUsernameAsync(model.UserName);
+                    user.AccessFailedCount = 0;
+                    user.LockoutEnabled = false;
+                    user.LastLoginDateUtc = DateTime.UtcNow;
+                    await _userService.UpdateUserAsync(user);
+
                     return RedirectToLocal(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -106,18 +119,11 @@ namespace StockManagementSystem.Controllers
                 {
                     UserName = model.UserName,
                     Email = model.Email,
-                    Branch = "",
-                    Department = "",
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
-                    // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    "Please confirm your account by clicking this link: <a href=\"" + callbackUrl + "\">link</a>");
+                    await _userManager.AddToRoleAsync(user, IdentityDefaults.RegisteredRoleName);
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
                     return RedirectToAction(nameof(HomeController.Index), "Home");

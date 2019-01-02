@@ -1,0 +1,16 @@
+﻿@using StockManagementSystem.Web.Menu
+@{
+    //load sitemap
+    var siteMap = new XmlSiteMap();
+    siteMap.LoadFrom("~/Views/sitemap.config");
+}
+<ul class="sidebar-menu" data-widget="tree">
+    @{
+        var rootNode = siteMap.RootNode;
+
+        foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
+        {
+            @await Html.PartialAsync("_MenuItem", item);
+        }
+    }
+</ul>

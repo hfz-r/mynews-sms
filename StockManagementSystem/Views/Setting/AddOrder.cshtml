@@ -1,12 +1,20 @@
+<<<<<<< HEAD
 ﻿@model StockManagementSystem.Models.Setting.SettingViewModel
 @{
     ViewData["Title"] = "Add Order";
 }
+=======
+﻿@using StockManagementSystem.Web.UI
+>>>>>>> 24e3f383572959159b5585402d4e9140eed2a352
 
-@section navigations{
-    @await Html.PartialAsync("_NavPartial")
+@{
+    //page title
+    ViewBag.Title = "Add Order";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("setting.order");
 }
 
+<<<<<<< HEAD
 <div class="content-wrapper">
     <section class="content-header">
         <h1 class="fa fa-wrench">&nbsp;Stock Order Setting</h1>
@@ -38,26 +46,77 @@
                             <option>Please select one</option>
                         </select>
                     </div>
-                </div>
-                <!-- /.box-body -->
-
-                <div class="box-footer">
-                    <button type="button" id="btn-cancel" class="btn btn-default">Cancel</button>
-                    <button type="submit" class="btn btn-info pull-right">Submit</button>
-                </div>
-            </form>
+=======
+<section class="content-header">
+    <h1 class="fa fa-wrench">&nbsp;Stock Order Setting</h1>
+    <ol class="breadcrumb">
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-wrench"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a href="@Url.Action("Order", "Setting")">Stock Order Setting</a>
+        </li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <!-- Panels -->
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">Add order limit</h3>
         </div>
-    </section>
-</div>
+        <form role="form">
+            <div class="box-body">
+                <div class="form-group">
+                    <label for="InputMinQty">Minimum Order Quantity</label>
+                    <input type="text" class="form-control" id="InputMinQty" placeholder="Enter quantity">
+>>>>>>> 24e3f383572959159b5585402d4e9140eed2a352
+                </div>
+                <div class="form-group">
+                    <label for="InputMaxQty">Maximum Order Quantity</label>
+                    <input type="text" class="form-control" id="InputMaxQty" placeholder="Enter quantity">
+                </div>
+                <div class="form-group">
+                    <label for="InputPercentage">Percentage Allowance</label>
+                    <input type="text" class="form-control" id="InputPercentage" placeholder="Enter percentage">
+                </div>
+                <div class="form-group">
+                    <label for="InputBranch">Branch</label>
+                    <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                        <option selected="selected">Mid Valley</option>
+                        <option>One Utama</option>
+                        <option>Pavillion</option>
+                    </select>
+                </div>
+            </div>
+            <!-- /.box-body -->
+
+            <div class="box-footer">
+                <button type="button" id="btn-cancel" class="btn btn-default">Cancel</button>
+                <button type="submit" class="btn btn-info pull-right">Submit</button>
+            </div>
+        </form>
+    </div>
+</section>
 
 @section scripts{
     <script type="text/javascript">
-    $(document).ready(function () {
+        $(document).ready(function() {
 
+<<<<<<< HEAD
         $('#btn-cancel').click(function (e)
         {
             location.href = '@Url.Content("~/Setting/Order/")';
         });
     });
+=======
+            $('#btn-cancel').click(function(e) {
+                location.href = '@Url.Content("~/Setting/Order/")';
+            });
+
+        });
+>>>>>>> 24e3f383572959159b5585402d4e9140eed2a352
     </script>
 }
