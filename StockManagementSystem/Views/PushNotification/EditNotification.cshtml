@@ -1,7 +1,7 @@
-﻿@model StockManagementSystem.Models.PushNotification.AddNotificationViewModel
+﻿@model StockManagementSystem.Models.PushNotification.EditNotificationViewModel
 
 @{
-    ViewData["Title"] = "Add Notification";
+    ViewData["Title"] = "Edit Notification";
 }
 
 @section navigations{
@@ -13,7 +13,7 @@
         <h1 class="fa fa-exclamation-triangle">&nbsp;Push Notification</h1>
         <ol class="breadcrumb">
             <li class="#"><a href="#"><i class="fa fa-exclamation-triangle"></i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("AddNotification", "PushNotification")">Push Notification</a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("EditNotification", "PushNotification")">Push Notification</a></li>
         </ol>
     </section>
     <!-- Main content -->
@@ -23,7 +23,7 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Add notification</h3>
             </div>
-            <form asp-controller="PushNotification" asp-action="AddNotification" method="post" role="form">
+            <form asp-controller="PushNotification" asp-action="EditNotification" method="post" role="form">
                 <div class="box-body">
                     <div class="form-group">
                         <label asp-for="Title"></label>
@@ -35,7 +35,8 @@
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.NotificationCategoryId, new { @class = "control-label" })
-                        @Html.DropDownListFor(m => m.NotificationCategoryId, new SelectList(Model.NotificationCategories, "Id", "Name"), "--Please Select Notification Category--", new { @class = "form-control" })
+                        @Html.DropDownListFor(m => m.NotificationCategoryId, new SelectList(Model.NotificationCategories, "Id", "Name"), "", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.NotificationCategoryId)
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.IsShift, new { @class = "control-label" })
@@ -45,14 +46,15 @@
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.StoreId, new { @class = "control-label" })
-                        @Html.DropDownListFor(m => m.StoreId, new SelectList(Model.Stores, "P_BranchNo", "P_Name"), "--Please Select Branch--", new { @class = "form-control" })
+                        @Html.DropDownListFor(m => m.StoreId, new SelectList(Model.Stores, "P_BranchNo", "P_Name"), "", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.StoreId)
                     </div>
                 </div>
                 <!-- /.box-body -->
 
                 <div class="box-footer">
                     <button type="button" id="btn-cancel" class="btn btn-default">Cancel</button>
-                    <button type="submit" class="btn btn-info pull-right">Submit</button>
+                    <button type="submit" class="btn btn-info pull-right">Save</button>
                 </div>
             </form>
         </div>
@@ -62,6 +64,7 @@
 @section scripts{
     <script type="text/javascript">
     $(document).ready(function () {
+
         $('#btn-cancel').click(function (e)
       {
           location.href = '@Url.Content("~/PushNotification/Notification/")';
@@ -71,4 +74,3 @@
 
     </script>
 }
-

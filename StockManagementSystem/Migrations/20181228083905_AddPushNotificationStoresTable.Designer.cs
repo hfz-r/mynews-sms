@@ -3,43 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockManagementSystem.Data;
 
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    partial class ObjectContextModelSnapshot : ModelSnapshot
+    [Migration("20181228083905_AddPushNotificationStoresTable")]
+    partial class AddPushNotificationStoresTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.0-rtm-35687")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("StockManagementSystem.Core.Domain.Approvals.Approval", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTimeOffset?>("CreatedOn");
-
-                    b.Property<bool>("IsApprovalEnabled");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Approval");
-                });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
                 {
@@ -462,7 +442,7 @@ namespace StockManagementSystem.Migrations
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
                 {
                     b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
-                        .WithMany("Device")
+                        .WithMany("Devices")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
