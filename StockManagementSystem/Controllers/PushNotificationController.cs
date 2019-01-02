@@ -8,21 +8,72 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.PushNotification;
 using StockManagementSystem.Models.PushNotification;
+using StockManagementSystem.Core.Domain.Stores;
+using Microsoft.Extensions.Logging;
+using System.Collections.ObjectModel;
 
 namespace StockManagementSystem.Controllers
 {
     public class PushNotificationController : Controller
     {
+        private bool _disposed;
+
         private readonly IRepository<NotificationCategory> _notificationCategoryRepository;
         private readonly IRepository<PushNotifications> _pushNotificationsRepository;
+        private readonly IRepository<PushNotificationStore> _pushNotificationStoreRepository;
+        private readonly IRepository<Store> _storeRepository;
+        private readonly ILogger _logger;
+
+        #region Constructor
 
         public PushNotificationController(
             IRepository<NotificationCategory> notificationCategory,
-            IRepository<PushNotifications> pushNotifications)
+            IRepository<PushNotifications> pushNotifications,
+            IRepository<PushNotificationStore> pushNotificationStore,
+            IRepository<Store> store,
+            ILoggerFactory loggerFactory)
         {
             this._notificationCategoryRepository = notificationCategory;
             this._pushNotificationsRepository = pushNotifications;
+            this._pushNotificationStoreRepository = pushNotificationStore;
+            this._storeRepository = store;
+            _logger = loggerFactory.CreateLogger<PushNotificationController>();
         }
+
+        #endregion
+
+        #region Destructor
+
+        ~PushNotificationController()
+        {
+            Dispose(false);
+        }
+
+        #endregion
+
+        #region IDisposable 
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
+        #region PushNotification
 
         //
         // GET: /PushNotification/Notification
@@ -30,21 +81,24 @@ namespace StockManagementSystem.Controllers
         public IActionResult Notification()
         {
             NotificationViewModel model = new NotificationViewModel();
-            model.PushNotificationsList = _pushNotificationsRepository.Table.ToList();
-
+            if (ModelState.IsValid)
+            {
+                model.PushNotificationStore = _pushNotificationStoreRepository.Table.ToList();
+            }
             return View(model);
         }
 
         //
         // GET: /PushNotification/AddNotification
         [HttpGet]
-        //[Route("[Controller]/PushNotification/AddNotification")]
         public IActionResult AddNotification()
         {
             AddNotificationViewModel model = new AddNotificationViewModel();
-            var notificationCategories = _notificationCategoryRepository.Table.ToList();
+            var notificationCategory = _notificationCategoryRepository.Table.ToList();
+            var store = _storeRepository.Table.ToList();
             {
-                model.NotificationCategories = notificationCategories;
+                model.NotificationCategories = notificationCategory;
+                model.Stores = store;
             }
             return View(model);
         }
@@ -52,109 +106,117 @@ namespace StockManagementSystem.Controllers
         //
         // POST: /PushNotification/AddNotification
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult AddNotification(AddNotificationViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var pushNotifications = new PushNotifications()
+                if (ModelState.IsValid)
                 {
-                    Title = model.Title,
-                    Desc = model.Desc,
-                    CreatedOn = DateTime.Now,
-                    CreatedBy = User.Identity.Name,
-                    IsShift = model.IsShift.ToString(),
-                    NotificationCategoryId = model.NotificationCategoryId
+                    var pushNotifications = new PushNotifications
+                    {
+                        Title = model.Title,
+                        Desc = model.Desc,
+                        CreatedOn = DateTime.UtcNow,
+                        CreatedBy = User.Identity.Name,
+                        IsShift = model.IsShift.ToString(),
+                        NotificationCategoryId = model.NotificationCategoryId
+                    };
+                    _pushNotificationsRepository.Insert(pushNotifications);
 
-                };
-                _pushNotificationsRepository.Insert(pushNotifications);
+                    var pushNotificationStore = new PushNotificationStore
+                    {
+                        PushNotificationId = pushNotifications.Id,
+                        StoreId = model.StoreId,
+                        CreatedBy = User.Identity.Name,
+                        CreatedOn = DateTime.UtcNow
+                    };
+                    _pushNotificationStoreRepository.Insert(pushNotificationStore);
+                    _logger.LogInformation(3, "PushNotificationStore(" + pushNotificationStore.Id + ") added successfully.");
+                    return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
+                }
+                return View("AddNotification", model);
             }
-            return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
+            catch (Exception ex)
+            {
+                AddErrors(ex.Message);
+            }
+            return View("AddNotification", model);
         }
 
         //
         // GET: /PushNotification/EditNotification
         [HttpGet]
-        [Route("[Controller]/PushNotification/EditNotification/{Id}")]
+        //[Route("[Controller]/PushNotification/EditNotification/{Id}")]
         public IActionResult EditNotification(int? Id)
         {
-            EditNotificationViewModel model = new EditNotificationViewModel();
-            var pushNotifications = _pushNotificationsRepository.GetById(Id);
-            
-            var category = _notificationCategoryRepository.Table.ToList();
-
-            if (pushNotifications != null)
-            {
-                model.Title = pushNotifications.Title;
-                model.Desc = pushNotifications.Desc;
-                model.NotificationCategoryId = pushNotifications.NotificationCategoryId;
-                model.NotificationCategories = category;
-
-                if (pushNotifications.IsShift == "Today")
-                {
-                    model.IsShift = Repeat.Today;
-                }
-                else if (pushNotifications.IsShift == "Weekly")
-                {
-                    model.IsShift = Repeat.Weekly;
-                }
-                else if (pushNotifications.IsShift == "Monthly")
-                {
-                    model.IsShift = Repeat.Monthly;
-                }
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Notification list not found.");
-            }
-            return View(model);
+            return View("EditNotification", GetPushNotification(Id));
         }
 
         //
         // POST: /PushNotification/EditNotification
         [HttpPost]
-        [Route("[Controller]/PushNotification/EditNotification/{Id}")]
-        public IActionResult EditNotification(EditNotificationViewModel model, int? Id)
+       // [Route("[Controller]/PushNotification/EditNotification/{Id}")]
+        public IActionResult EditNotification(EditNotificationViewModel model, int Id)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var pushNotifications = _pushNotificationsRepository.GetById(Id);
+                if (ModelState.IsValid)
+                {
+                    var pushNotificationStore = _pushNotificationStoreRepository.Table.FirstOrDefault(x => x.Id == model.Id);
 
-                if (Id == pushNotifications.Id)
-                {
-                    pushNotifications.Title = model.Title;
-                    pushNotifications.Desc = model.Desc;
-                    pushNotifications.IsShift = model.IsShift.ToString();
-                    pushNotifications.NotificationCategoryId = model.NotificationCategoryId;
-                    //pushNotifications.BranchId = model.
+                    pushNotificationStore.PushNotifications.Title = model.Title;
+                    pushNotificationStore.PushNotifications.Desc = model.Desc;
+                    pushNotificationStore.PushNotifications.IsShift = model.IsShift.ToString();
+                    pushNotificationStore.PushNotifications.NotificationCategoryId = model.NotificationCategoryId;
+                    pushNotificationStore.PushNotifications.ModifiedBy = User.Identity.Name;
+                    pushNotificationStore.PushNotifications.ModifiedOn = DateTime.UtcNow;
+                    pushNotificationStore.StoreId = model.StoreId;
+                    pushNotificationStore.ModifiedBy = User.Identity.Name;
+                    pushNotificationStore.ModifiedOn = DateTime.UtcNow;
+
+                    _pushNotificationStoreRepository.Update(pushNotificationStore);
+                    _logger.LogInformation(3, "PushNotificationStore(" + pushNotificationStore.Id + ") edited successfully.");
+                    return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Update notification failed!.");
-                }
-                _pushNotificationsRepository.Update(pushNotifications);
+                // If we got this far, something failed, redisplay form
+                return View("EditNotification", model);
             }
-                return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
+            catch (Exception ex)
+            {
+                AddErrors(ex.Message);
+            }
+            return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
         }
 
         //
         // POST: Delete
         [HttpPost]
-        public IActionResult DeleteNotification(int Id)
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteNotification(int? Id)
         {
-            if (ModelState.IsValid)
+            if (Id == null)
             {
-                var pushNotifications = _pushNotificationsRepository.GetById(Id);
-                if (pushNotifications != null && Id == pushNotifications.Id)
-                {
-                    _pushNotificationsRepository.Delete(pushNotifications);
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Delete notification failed!.");
-                }
-            }   
-            return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");  
+                return BadRequest();
+            }
+
+            PushNotificationStore pushNotificationStore = _pushNotificationStoreRepository.GetById(Id);
+            PushNotifications pushNotifications = pushNotificationStore.PushNotifications;
+            if (pushNotificationStore.PushNotificationId == pushNotifications.Id)
+            {
+                _pushNotificationStoreRepository.Delete(pushNotificationStore);
+                _pushNotificationsRepository.Delete(pushNotifications);
+            }
+
+            if (pushNotificationStore == null)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
         }
+
+        #endregion
 
         #region enum
         public enum Repeat
@@ -162,6 +224,75 @@ namespace StockManagementSystem.Controllers
             Today,
             Weekly,
             Monthly
+        }
+        #endregion
+
+        #region Private Method
+        private void AddErrors(string result)
+        {
+            ModelState.AddModelError(string.Empty, result);
+        }
+
+        private NotificationViewModel GetAllPushNotification()
+        {
+            NotificationViewModel model = new NotificationViewModel
+            {
+                PushNotificationStore = _pushNotificationStoreRepository.Table.ToList()
+            };
+
+            return model;
+        }
+
+        private AddNotificationViewModel GetAllNotificationCategory()
+        {
+            AddNotificationViewModel model = new AddNotificationViewModel
+            {
+                NotificationCategories = _notificationCategoryRepository.Table.ToList()
+            };
+
+            return model;
+        }     
+
+        private AddNotificationViewModel GetAllStore()
+        {
+            AddNotificationViewModel model = new AddNotificationViewModel
+            {
+                Stores = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
+            };
+
+            return model;
+        }
+
+        private EditNotificationViewModel GetPushNotification(int? id)
+        {
+            PushNotificationStore pushNotificationStore = _pushNotificationStoreRepository.GetById(id);
+            PushNotifications pushNotifications = pushNotificationStore.PushNotifications;
+
+            EditNotificationViewModel model = new EditNotificationViewModel
+            {
+                Id = id,
+                Title = pushNotifications.Title,
+                Desc = pushNotifications.Desc,
+                NotificationCategoryId = pushNotifications.NotificationCategoryId,
+                NotificationCategories = _notificationCategoryRepository.Table.OrderBy(x => x.Name).ToList(),
+                StoreId = pushNotificationStore.StoreId,
+                Stores = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
+            };
+
+            if (pushNotificationStore.PushNotifications.IsShift == "Today")
+            {
+                model.IsShift = Repeat.Today;
+            }
+            else if (pushNotificationStore.PushNotifications.IsShift == "Weekly")
+            {
+                model.IsShift = Repeat.Weekly;
+            }
+            else if (pushNotificationStore.PushNotifications.IsShift == "Monthly")
+            {
+                model.IsShift = Repeat.Monthly;
+            }
+
+            return model;
         }
         #endregion
     }
