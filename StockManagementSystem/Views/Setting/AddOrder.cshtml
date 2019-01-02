@@ -1,4 +1,5 @@
-﻿@{
+﻿@model StockManagementSystem.Models.Setting.SettingViewModel
+@{
     ViewData["Title"] = "Add Order";
 }
 
@@ -10,8 +11,8 @@
     <section class="content-header">
         <h1 class="fa fa-wrench">&nbsp;Stock Order Setting</h1>
         <ol class="breadcrumb">
-            <li class="#"><a href="#"><i class="fa fa-wrench"></i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("Order", "Setting")">Stock Order Setting</a></li>
+            <li class="#"><a href="@Url.Action("Order","Setting")"><i class="fa fa-wrench"></i></a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("Order","Setting")">Stock Order Setting</a></li>
         </ol>
     </section>
     <!-- Main content -->
@@ -21,26 +22,20 @@
             <div class="box-header with-border">
                 <h3 class="box-title">Add order limit</h3>
             </div>
-            <form role="form">
+            <form id="add-form" asp-controller="Setting" asp-action="SaveOrderLimit" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
                 <div class="box-body">
                     <div class="form-group">
-                        <label for="InputMinQty">Minimum Order Quantity</label>
-                        <input type="text" class="form-control" id="InputMinQty" placeholder="Enter quantity">
-                    </div>
-                    <div class="form-group">
-                        <label for="InputMaxQty">Maximum Order Quantity</label>
-                        <input type="text" class="form-control" id="InputMaxQty" placeholder="Enter quantity">
-                    </div>
-                    <div class="form-group">
-                        <label for="InputPercentage">Percentage Allowance</label>
-                        <input type="text" class="form-control" id="InputPercentage" placeholder="Enter percentage">
+                        <label for="InputPercentage">Percentage Allowance</label>                        
+                        <div class="input-group">
+                            <input asp-for="Percentage" type="text" class="form-control" id="InputPercentage" autofocus placeholder="Enter percentage">
+                            <span class="input-group-addon"><i class="fa fa-percent"></i></span>
+                            <span asp-validation-for="Percentage" class="text-danger"></span>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="InputBranch">Branch</label>
-                        <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                            <option selected="selected">Mid Valley</option>
-                            <option>One Utama</option>
-                            <option>Pavillion</option>
+                        <select asp-for="P_BranchNo" asp-items="@(new SelectList(Model.Store, "P_BranchNo", "P_Name"))" class="form-control select2 select2-hidden-accessible">
+                            <option>Please select one</option>
                         </select>
                     </div>
                 </div>
@@ -60,10 +55,9 @@
     $(document).ready(function () {
 
         $('#btn-cancel').click(function (e)
-      {
-          location.href = '@Url.Content("~/Setting/Order/")';
-      });
-
+        {
+            location.href = '@Url.Content("~/Setting/Order/")';
+        });
     });
     </script>
 }
