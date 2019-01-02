@@ -16,8 +16,6 @@ namespace StockManagementSystem.Controllers
 {
     public class PushNotificationController : Controller
     {
-        private bool _disposed;
-
         private readonly IRepository<NotificationCategory> _notificationCategoryRepository;
         private readonly IRepository<PushNotifications> _pushNotificationsRepository;
         private readonly IRepository<PushNotificationStore> _pushNotificationStoreRepository;
@@ -47,28 +45,6 @@ namespace StockManagementSystem.Controllers
         ~PushNotificationController()
         {
             Dispose(false);
-        }
-
-        #endregion
-
-        #region IDisposable 
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                }
-                _disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion
@@ -117,7 +93,7 @@ namespace StockManagementSystem.Controllers
                     {
                         Title = model.Title,
                         Desc = model.Desc,
-                        CreatedOn = DateTime.UtcNow,
+                        CreatedOnUtc = DateTime.UtcNow,
                         CreatedBy = User.Identity.Name,
                         IsShift = model.IsShift.ToString(),
                         NotificationCategoryId = model.NotificationCategoryId
@@ -129,7 +105,7 @@ namespace StockManagementSystem.Controllers
                         PushNotificationId = pushNotifications.Id,
                         StoreId = model.StoreId,
                         CreatedBy = User.Identity.Name,
-                        CreatedOn = DateTime.UtcNow
+                        CreatedOnUtc = DateTime.UtcNow
                     };
                     _pushNotificationStoreRepository.Insert(pushNotificationStore);
                     _logger.LogInformation(3, "PushNotificationStore(" + pushNotificationStore.Id + ") added successfully.");
@@ -170,10 +146,10 @@ namespace StockManagementSystem.Controllers
                     pushNotificationStore.PushNotifications.IsShift = model.IsShift.ToString();
                     pushNotificationStore.PushNotifications.NotificationCategoryId = model.NotificationCategoryId;
                     pushNotificationStore.PushNotifications.ModifiedBy = User.Identity.Name;
-                    pushNotificationStore.PushNotifications.ModifiedOn = DateTime.UtcNow;
+                    pushNotificationStore.PushNotifications.ModifiedOnUtc = DateTime.UtcNow;
                     pushNotificationStore.StoreId = model.StoreId;
                     pushNotificationStore.ModifiedBy = User.Identity.Name;
-                    pushNotificationStore.ModifiedOn = DateTime.UtcNow;
+                    pushNotificationStore.ModifiedOnUtc = DateTime.UtcNow;
 
                     _pushNotificationStoreRepository.Update(pushNotificationStore);
                     _logger.LogInformation(3, "PushNotificationStore(" + pushNotificationStore.Id + ") edited successfully.");

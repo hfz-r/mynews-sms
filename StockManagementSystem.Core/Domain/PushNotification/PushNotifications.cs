@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StockManagementSystem.Core.Domain.PushNotification
 {
-    public partial class PushNotifications : BaseEntity
+    public partial class PushNotifications : Entity
     {
         public string Title { get; set; }
 

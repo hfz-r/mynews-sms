@@ -34,15 +34,6 @@ namespace StockManagementSystem.Controllers
 
         #endregion
 
-        #region Destructor
-
-        ~DeviceController()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
         #region Manage Device
 
         [HttpGet]
@@ -50,8 +41,6 @@ namespace StockManagementSystem.Controllers
         {
             return View("Device", GetAllDevice());
         }
-                CreatedOnUtc = Convert.ToDateTime(x.CreatedOnUtc.ToString()),
-                ModifiedOnUtc = Convert.ToDateTime(x.ModifiedOnUtc.ToString())
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -99,9 +88,9 @@ namespace StockManagementSystem.Controllers
                             StartDate = null,
                             Status = "0", //Inactive
                             CreatedBy = @Environment.UserName,
-                            CreatedOn = DateTime.UtcNow, //TODO Change to get server datetime
+                            CreatedOnUtc = DateTime.UtcNow, //TODO Change to get server datetime
                             ModifiedBy = @Environment.UserName,
-                            ModifiedOn = DateTime.UtcNow //TODO Change to get server datetime
+                            ModifiedOnUtc = DateTime.UtcNow //TODO Change to get server datetime
                         };
 
                         _deviceRepository.Insert(device);
@@ -146,7 +135,7 @@ namespace StockManagementSystem.Controllers
                     device.ModelNo = model.ModelNo;
                     device.StoreId = model.P_BranchNo;
                     device.ModifiedBy = @Environment.UserName;
-                    device.ModifiedOn = DateTime.UtcNow; //TODO Change to get server datetime                    
+                    device.ModifiedOnUtc = DateTime.UtcNow; //TODO Change to get server datetime                    
 
                     _deviceRepository.Update(device);
                     _logger.LogInformation(3, "Device(" + device.SerialNo + ") edited successfully.");

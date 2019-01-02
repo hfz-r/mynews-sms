@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20181212191915_InitialCreate.cs" />
-    <Compile Remove="Migrations\20181212191915_InitialCreate.Designer.cs" />
-    <Compile Remove="Migrations\20181213034245_InitialCreate.cs" />
-    <Compile Remove="Migrations\20181213034245_InitialCreate.Designer.cs" />
-    <Compile Remove="Migrations\20181213041631_InitialCreate.cs" />
-    <Compile Remove="Migrations\20181213041631_InitialCreate.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
