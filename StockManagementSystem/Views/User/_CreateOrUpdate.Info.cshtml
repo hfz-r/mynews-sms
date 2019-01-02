@@ -1,0 +1,123 @@
+﻿@model UserModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="Email" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <input asp-for="Email" class="form-control"/>
+                    <span asp-validation-for="Email"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="Password" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group">
+                        <input asp-for="Password" class="form-control"/>
+                        <div class="input-group-btn">
+                            @if (Model.Id > 0)
+                            {
+                                <button type="submit" name="changepassword" class="btn bg-red-active">
+                                    Change password
+                                </button>
+                            }
+                        </div>
+                    </div>
+                    <span asp-validation-for="Password"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="Name" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <input asp-for="Name" class="form-control"/>
+                    <span asp-validation-for="Name"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="SelectedRoleIds" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required/>
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var rolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)')
+                                .kendoMultiSelect({
+                                    autoClose: false,
+                                    filter: "contains"
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableRoles.Count == 0)
+                            {
+                                <text>
+                                    rolesIdsInput.placeholder = "No roles available";
+                                    rolesIdsInput.enable = false;
+                                </text>
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="AdminComment" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <textarea asp-for="AdminComment" class="form-control"></textarea>
+                    <span asp-validation-for="AdminComment"></span>
+                </div>
+            </div>
+
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <label asp-for="LastIpAddress" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-text-row">@Model.LastIpAddress</div>
+                    </div>
+                </div>
+            }
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-text-row">@Model.CreatedOn</div>
+                    </div>
+                </div>
+            }
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-text-row">@Model.LastActivityDate</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -9,7 +9,7 @@ namespace StockManagementSystem.Data.Mapping.Identity
         public override void Configure(EntityTypeBuilder<UserRole> builder)
         {
             builder.ToTable("UserRoles");
-            builder.HasKey(ur => ur.Id);
+            builder.HasKey(ur => new { ur.UserId, ur.RoleId });
 
             builder.HasOne(ur => ur.User)
                 .WithMany(u => u.UserRoles)
@@ -20,6 +20,8 @@ namespace StockManagementSystem.Data.Mapping.Identity
                 .WithMany(r => r.UserRoles)
                 .HasForeignKey(ur => ur.RoleId)
                 .IsRequired();
+
+            builder.Ignore(ur => ur.Id);
 
             base.Configure(builder);
         }

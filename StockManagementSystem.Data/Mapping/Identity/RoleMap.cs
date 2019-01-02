@@ -16,6 +16,7 @@ namespace StockManagementSystem.Data.Mapping.Identity
 
             builder.Property(role => role.Name).HasMaxLength(256);
             builder.Property(role => role.NormalizedName).HasMaxLength(256);
+            builder.Property(role => role.SystemName).HasMaxLength(256);
 
             builder.HasMany(e => e.UserRoles)
                 .WithOne(e => e.Role)

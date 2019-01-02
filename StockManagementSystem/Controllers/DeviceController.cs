@@ -15,8 +15,6 @@ namespace StockManagementSystem.Controllers
 {
     public class DeviceController : Controller
     {
-        private bool _disposed;
-
         private readonly IRepository<Device> _deviceRepository;
         private readonly IRepository<Store> _storeRepository;
         private readonly ILogger _logger;
@@ -32,37 +30,6 @@ namespace StockManagementSystem.Controllers
             this._storeRepository = storeRepository;
             _logger = loggerFactory.CreateLogger<DeviceController>();
 
-        }
-
-        #endregion
-
-        #region Destructor
-
-        ~DeviceController()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
-        #region IDisposable 
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                }
-                _disposed = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion
@@ -121,9 +88,9 @@ namespace StockManagementSystem.Controllers
                             StartDate = null,
                             Status = "0", //Inactive
                             CreatedBy = @Environment.UserName,
-                            CreatedOn = DateTime.UtcNow, //TODO Change to get server datetime
+                            CreatedOnUtc = DateTime.UtcNow, //TODO Change to get server datetime
                             ModifiedBy = @Environment.UserName,
-                            ModifiedOn = DateTime.UtcNow //TODO Change to get server datetime
+                            ModifiedOnUtc = DateTime.UtcNow //TODO Change to get server datetime
                         };
 
                         _deviceRepository.Insert(device);
@@ -168,7 +135,7 @@ namespace StockManagementSystem.Controllers
                     device.ModelNo = model.ModelNo;
                     device.StoreId = model.P_BranchNo;
                     device.ModifiedBy = @Environment.UserName;
-                    device.ModifiedOn = DateTime.UtcNow; //TODO Change to get server datetime                    
+                    device.ModifiedOnUtc = DateTime.UtcNow; //TODO Change to get server datetime                    
 
                     _deviceRepository.Update(device);
                     _logger.LogInformation(3, "Device(" + device.SerialNo + ") edited successfully.");

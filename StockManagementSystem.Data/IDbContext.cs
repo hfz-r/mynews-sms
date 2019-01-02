@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 
 namespace StockManagementSystem.Data
@@ -27,5 +29,7 @@ namespace StockManagementSystem.Data
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="entity">Entity</param>
         void Detach<TEntity>(TEntity entity) where TEntity : BaseEntity;
+
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken());
     }
 }

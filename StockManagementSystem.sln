@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockManagementSystem.Data"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockManagementSystem.Core", "StockManagementSystem.Core\StockManagementSystem.Core.csproj", "{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockManagementSystem.Web", "StockManagementSystem.Web\StockManagementSystem.Web.csproj", "{3CAC39FE-F828-4805-9CFF-0CF1F3D819AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockManagementSystem.Services", "StockManagementSystem.Services\StockManagementSystem.Services.csproj", "{D2C13F45-7AF9-4F56-9857-B3D0DAEF5FDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EE8BC95-EDE1-4729-B4CD-8A895FF44C26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CAC39FE-F828-4805-9CFF-0CF1F3D819AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CAC39FE-F828-4805-9CFF-0CF1F3D819AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CAC39FE-F828-4805-9CFF-0CF1F3D819AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CAC39FE-F828-4805-9CFF-0CF1F3D819AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2C13F45-7AF9-4F56-9857-B3D0DAEF5FDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2C13F45-7AF9-4F56-9857-B3D0DAEF5FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2C13F45-7AF9-4F56-9857-B3D0DAEF5FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2C13F45-7AF9-4F56-9857-B3D0DAEF5FDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
