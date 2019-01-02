@@ -8,12 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Views\sitemap.config">
+      <Compile Remove="Migrations\*.cs" />
+      <None Update="Views\sitemap.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      </None>
   </ItemGroup>
 
   <ItemGroup>
