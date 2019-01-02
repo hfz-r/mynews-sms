@@ -8,6 +8,7 @@ using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Data;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Helpers;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
@@ -54,6 +55,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
+            builder.RegisterType<UserActivityService>().As<IUserActivityService>().InstancePerLifetimeScope();
 
             // mvc context accessor
             builder.RegisterType<ActionContextAccessor>().As<IActionContextAccessor>().InstancePerLifetimeScope();

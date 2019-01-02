@@ -1,0 +1,77 @@
+﻿@model UserModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div id="activitylog-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#activitylog-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ListActivityLog", "User"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: function() {
+                                        var data = {
+                                            UserId: '@(Model.Id)'
+                                        };
+                                        addAntiForgeryToken(data);
+                                        return data;
+                                    }
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(Model.UserActivityLogSearchModel.PageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        sortable: {
+                            mode: "single",
+                            allowUnsort: false
+                        },
+                        filterable: true,
+                        columnMenu: { columns: false },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(Model.UserActivityLogSearchModel.AvailablePageSizes)],
+                            @await Html.PartialAsync("_GridPagerMessages")
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "ActivityLogTypeName",
+                            title: "Activity Log Type",
+                            width: 300
+                        }, {
+                            field: "IpAddress",
+                            title: "IP address",
+                            width: 150
+                        }, {
+                            field: "Comment",
+                            title: "Comment"
+                        }, {
+                            field: "CreatedOn",
+                            title: "Created on",
+                            width: 200,
+                            type: "date",
+                            format: "{0:G}"
+                        }]
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

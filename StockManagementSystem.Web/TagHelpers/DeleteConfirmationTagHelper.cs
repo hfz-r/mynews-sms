@@ -9,7 +9,7 @@ using StockManagementSystem.Web.Models;
 
 namespace StockManagementSystem.Web.TagHelpers
 {
-    [HtmlTargetElement("delete-confirmation", Attributes = ModelIdAttributeName + "," + ButtonIdAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("_delete-confirmation", Attributes = ModelIdAttributeName + "," + ButtonIdAttributeName, TagStructure = TagStructure.WithoutEndTag)]
     public class DeleteConfirmationTagHelper : TagHelper
     {
         private const string ModelIdAttributeName = "asp-model-id";

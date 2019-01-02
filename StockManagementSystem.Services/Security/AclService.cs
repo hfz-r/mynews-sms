@@ -11,6 +11,10 @@ using StockManagementSystem.Data.Extensions;
 
 namespace StockManagementSystem.Services.Security
 {
+    /// <summary>
+    /// Represent access control list 
+    /// </summary>
+    /// <remarks>Will be used by modules which affected by role</remarks>
     public class AclService : IAclService
     {
         private readonly IRepository<AclRecord> _aclRecordRepository;

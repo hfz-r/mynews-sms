@@ -11,5 +11,9 @@ namespace StockManagementSystem.Factories
         Task<UserListModel> PrepareUserListModel(UserSearchModel searchModel);
 
         Task<UserModel> PrepareUserModel(UserModel model, User user);
+
+        UserActivityLogSearchModel PrepareUserActivityLogSearchModel(UserActivityLogSearchModel searchModel, User user);
+
+        Task<UserActivityLogListModel> PrepareUserActivityLogListModel(UserActivityLogSearchModel searchModel, User user);
     }
 }

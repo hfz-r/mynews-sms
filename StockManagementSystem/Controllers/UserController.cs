@@ -8,6 +8,7 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Users;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
@@ -24,6 +25,7 @@ namespace StockManagementSystem.Controllers
         private readonly IUserModelFactory _userModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
+        private readonly IUserActivityService _userActivityService;
 
         public UserController(
             IUserService userService,
@@ -31,6 +33,7 @@ namespace StockManagementSystem.Controllers
             IUserModelFactory userModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
+            IUserActivityService userActivityService,
             ILogger<UserController> logger)
         {
             _userService = userService;
@@ -38,6 +41,7 @@ namespace StockManagementSystem.Controllers
             _userModelFactory = userModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
+            _userActivityService = userActivityService;
 
             Logger = logger;
         }
@@ -164,6 +168,7 @@ namespace StockManagementSystem.Controllers
                     }
                     await _userService.AddUserRoles(user, rolesStr.ToArray());
                     await _userService.UpdateUserAsync(user);
+                    await _userActivityService.InsertActivityAsync("EditUser", $"Edited a user (ID = {user.Id})", user);
 
                     _notificationService.SuccessNotification("User has been updated successfully.");
 
@@ -197,8 +202,8 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                //remove
                 await _userService.DeleteUserAsync(user);
+                await _userActivityService.InsertActivityAsync("DeleteUser", $"Deleted a user (ID = {user.Id})", user);
 
                 _notificationService.SuccessNotification("User has been deleted successfully.");
 
@@ -246,5 +251,23 @@ namespace StockManagementSystem.Controllers
 
             return RedirectToAction("Edit", new { id = user.Id });
         }
+
+        #region MyRegion
+
+        [HttpPost]
+        public async Task<IActionResult> ListActivityLog(UserActivityLogSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers))
+                return AccessDeniedKendoGridJson();
+
+            var user = await _userService.GetUserByIdAsync(searchModel.UserId) 
+                ?? throw new ArgumentException("No user found with the specified id");
+
+            var model = await _userModelFactory.PrepareUserActivityLogListModel(searchModel, user);
+
+            return Json(model);
+        }
+
+        #endregion
     }
 }

@@ -113,7 +113,7 @@ namespace StockManagementSystem.Services.Helpers
         /// <summary>
         /// Gets a user time zone
         /// </summary>
-        public async Task<TimeZoneInfo> GetCustomerTimeZone(User user)
+        public async Task<TimeZoneInfo> GetUserTimeZone(User user)
         {
             TimeZoneInfo timeZoneInfo = null;
 
@@ -139,7 +139,7 @@ namespace StockManagementSystem.Services.Helpers
         /// </summary>
         public virtual TimeZoneInfo CurrentTimeZone
         {
-            get => GetCustomerTimeZone(_workContext.CurrentUser).Result;
+            get => GetUserTimeZone(_workContext.CurrentUser).Result;
             set
             {
                 var timeZoneId = string.Empty;

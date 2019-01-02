@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
 
 namespace StockManagementSystem.Data
@@ -22,6 +24,10 @@ namespace StockManagementSystem.Data
             var permission = service.GetRequiredService<IPermissionService>();
             if (!permission.GetAllPermissions().Result.Any())
                 await InitDefaultPermission(permission);
+
+            var userActivity = service.GetRequiredService<IUserActivityService>();
+            if (!userActivity.GetAllActivityTypesAsync().Result.Any())
+                await InitDefaultActivityTypes(userActivity);
         }
 
         private static async Task InitIdentitySeed(RoleManager<Role> roleManager, UserManager<User> userManager)
@@ -114,6 +120,62 @@ namespace StockManagementSystem.Data
                 var provider = (IPermissionProvider)Activator.CreateInstance(providerType);
                 await permission.InstallPermissionsAsync(provider);
             }
+        }
+
+        private static async Task InitDefaultActivityTypes(IUserActivityService _userActivity)
+        {
+            var activityLogTypes = new List<ActivityLogType>
+            {
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewUser",
+                    Enabled = true,
+                    Name = "Add a new user"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewRole",
+                    Enabled = true,
+                    Name = "Add a new role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteUser",
+                    Enabled = true,
+                    Name = "Delete a user"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteRole",
+                    Enabled = true,
+                    Name = "Delete a role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteActivityLog",
+                    Enabled = true,
+                    Name = "Delete activity log"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditUser",
+                    Enabled = true,
+                    Name = "Edit a user"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditRole",
+                    Enabled = true,
+                    Name = "Edit a role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditActivityLogTypes",
+                    Enabled = true,
+                    Name = "Edit activity log types"
+                },
+            };
+            await _userActivity.InsertActivityTypesAsync(activityLogTypes);
         }
     }
 }

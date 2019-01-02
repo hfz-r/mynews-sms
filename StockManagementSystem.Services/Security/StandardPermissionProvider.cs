@@ -31,7 +31,14 @@ namespace StockManagementSystem.Services.Security
         {
             Name = "Manage Permission",
             SystemName = "ManagePermission",
-            Category = "User Management"
+            Category = "User Management Configuration"
+        };
+
+        public static readonly Permission ManageActivityLog = new Permission
+        {
+            Name = "Manage Activity Log",
+            SystemName = "ManageActivityLog",
+            Category = "User Management Configuration"
         };
 
         //TODO: other modules
@@ -47,6 +54,7 @@ namespace StockManagementSystem.Services.Security
                 ManageUsers,
                 ManageRoles,
                 ManagePermission,
+                ManageActivityLog,
             };
         }
 
@@ -66,6 +74,7 @@ namespace StockManagementSystem.Services.Security
                         ManageUsers,
                         ManageRoles,
                         ManagePermission,
+                        ManageActivityLog,
                     }
                 },
                 new DefaultPermission

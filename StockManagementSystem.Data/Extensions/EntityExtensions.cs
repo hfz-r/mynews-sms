@@ -15,7 +15,7 @@ namespace StockManagementSystem.Data.Extensions
 
             var type = entity.GetType();
             return type.BaseType != null && type.BaseType.BaseType != null &&
-                   type.BaseType.BaseType == typeof(BaseEntity);
+                   (type.BaseType.BaseType == typeof(BaseEntity) || type.BaseType.BaseType == typeof(Entity));
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace StockManagementSystem.Data.Extensions
             else
                 type = entity.GetType();
 
-            if (type==null)
+            if (type == null)
                 throw new Exception("Original entity type cannot be loaded");
 
             return type;

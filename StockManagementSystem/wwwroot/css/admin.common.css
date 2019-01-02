@@ -767,13 +767,32 @@ td.k-state-focused.k-state-selected {
 }
 
 /* Form */
-.form-horizontal .attributes .input-group-required {
-    width: 320px;
+
+.form-horizontal .label-wrapper {
+    display: table;
+    float: right;
+    min-height: 28px;
 }
 
-.input-group-required {
-    width: 100%;
+.form-horizontal .label-wrapper .control-label { display: table-cell; }
+
+.form-horizontal .label-wrapper .ico-help {
+    display: table-cell;
+    color: #3c8dbc;
+    font-size: 1.17em;
+    padding-left: 6px;
 }
+
+.form-horizontal .label-wrapper i.fa { width: 16px; }
+
+.form-horizontal .label-wrapper i.fa:before {
+    position: absolute;
+    top: 9px;
+}
+
+.form-horizontal .attributes .input-group-required { width: 320px; }
+
+.input-group-required { width: 100%; }
 
 .input-group-required .input-group-btn {
     font-size: inherit;
@@ -781,13 +800,9 @@ td.k-state-focused.k-state-selected {
     width: 1.5%;
 }
 
-.form-text-row {
-    padding-top: 6px;
-}
+.form-text-row { padding-top: 6px; }
 
-.field-validation-error, .validation-summary-errors {
-    color: red;
-}
+.field-validation-error, .validation-summary-errors { color: red; }
 
 .field-validation-valid.warning,
 .field-validation-custom.warning {
@@ -801,6 +816,7 @@ td.k-state-focused.k-state-selected {
 }
 
 /* Required tag */
+
 .form-horizontal span.required {
     color: #ff2e2e;
     margin-left: 6px;

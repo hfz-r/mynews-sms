@@ -13,6 +13,7 @@ namespace StockManagementSystem.Models.Users
         {
             SelectedRoleIds = new List<int>();
             AvailableRoles = new List<SelectListItem>();
+            UserActivityLogSearchModel = new UserActivityLogSearchModel();
         }
 
         public string Username { get; set; }
@@ -46,20 +47,13 @@ namespace StockManagementSystem.Models.Users
 
         public IList<SelectListItem> AvailableRoles { get; set; }
 
+        public UserActivityLogSearchModel UserActivityLogSearchModel { get; set; }
+
         public SendEmailModel SendEmail { get; set; }
     }
 
     public partial class SendEmailModel : BaseModel
     {
-        public string Subject { get; set; }
-
-        public string Body { get; set; }
-
-        [Display(Name = "Send immediately")]
-        public bool SendImmediately { get; set; }
-
-        [Display(Name = "Planned date of sending")]
-        //[UIHint("DateTimeNullable")]
-        public DateTime? DontSendBeforeDate { get; set; }
+        //TODO: wire with Azira`s module
     }
 }

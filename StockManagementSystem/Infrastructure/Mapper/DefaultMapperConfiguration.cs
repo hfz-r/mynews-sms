@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Infrastructure.Mapper;
+using StockManagementSystem.Models.Logging;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
@@ -14,6 +16,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
         {
             CreateRoleMaps();
             CreateUserMaps();
+            CreateLoggingMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -54,12 +57,18 @@ namespace StockManagementSystem.Infrastructure.Mapper
         /// </summary>
         protected virtual void CreateUserMaps()
         {
+            CreateMap<ActivityLog, UserActivityLogModel>()
+                .ForMember(model => model.CreatedOn, options => options.Ignore())
+                .ForMember(model => model.ActivityLogTypeName, options => options.Ignore());
+
             CreateMap<User, UserModel>()
                 .ForMember(model => model.Password, options => options.Ignore())
                 .ForMember(model => model.CreatedOn, options => options.Ignore())
                 .ForMember(model => model.LastActivityDate, options => options.Ignore())
                 .ForMember(model => model.UserRolesName, options => options.Ignore())
-                .ForMember(model => model.SendEmail, options => options.Ignore());
+                .ForMember(model => model.SendEmail, options => options.Ignore())
+                .ForMember(model => model.UserActivityLogSearchModel, options => options.Ignore());
+
             CreateMap<UserModel, User>()
                 .ForMember(entity => entity.UserGuid, options => options.Ignore())
                 .ForMember(entity => entity.AccessFailedCount, options => options.Ignore())
@@ -76,6 +85,28 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedBy, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create logging maps 
+        /// </summary>
+        protected virtual void CreateLoggingMaps()
+        {
+            CreateMap<ActivityLog, ActivityLogModel>()
+                .ForMember(model => model.ActivityLogTypeName, options => options.Ignore())
+                .ForMember(model => model.CreatedOn, options => options.Ignore())
+                .ForMember(model => model.UserEmail, options => options.Ignore());
+            CreateMap<ActivityLogModel, ActivityLog>()
+                .ForMember(entity => entity.ActivityLogType, options => options.Ignore())
+                .ForMember(entity => entity.ActivityLogTypeId, options => options.Ignore())
+                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.User, options => options.Ignore())
+                .ForMember(entity => entity.EntityId, options => options.Ignore())
+                .ForMember(entity => entity.EntityName, options => options.Ignore());
+
+            CreateMap<ActivityLogType, ActivityLogTypeModel>();
+            CreateMap<ActivityLogTypeModel, ActivityLogType>()
+                .ForMember(entity => entity.SystemKeyword, options => options.Ignore());
         }
 
         public int Order => 0;

@@ -43,7 +43,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 if (string.IsNullOrEmpty(currentIpAddress))
                     return;
 
-                //update customer's IP address
+                //update user's IP address
                 if (!currentIpAddress.Equals(_workContext.CurrentUser.LastIpAddress, StringComparison.InvariantCultureIgnoreCase))
                 {
                     _workContext.CurrentUser.LastIpAddress = currentIpAddress;

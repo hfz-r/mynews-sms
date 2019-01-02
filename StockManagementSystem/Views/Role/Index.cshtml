@@ -7,6 +7,7 @@
     Html.SetActiveMenuItemSystemName("Role");
 }
 
+<_antiforgery-token/>
 <section class="content-header clearfix">
     <h1 class="pull-left">@ViewBag.Title</h1>
     <ol class="breadcrumb pull-right">
@@ -21,7 +22,7 @@
             </a>
         </li>
         <li class="breadcrumb-item active">
-            <a href="@Url.Action("Index", "Role")">@ViewBag.Title</a>
+            <a asp-action="Index">@ViewBag.Title</a>
         </li>
     </ol>
 </section>
