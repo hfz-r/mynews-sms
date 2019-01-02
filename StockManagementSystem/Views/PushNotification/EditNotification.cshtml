@@ -45,12 +45,9 @@
                         @Html.RadioButtonFor(m => m.IsShift, "Monthly") @Html.Label("Monthly")
                     </div>
                     <div class="form-group">
-                        <label for="InputBranch">Branch</label>
-                        <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                            <option selected="selected">Mid Valley</option>
-                            <option>One Utama</option>
-                            <option>Pavillion</option>
-                        </select>
+                        @Html.LabelFor(m => m.StoreId, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.StoreId, new SelectList(Model.Stores, "P_BranchNo", "P_Name"), "", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.StoreId)
                     </div>
                 </div>
                 <!-- /.box-body -->

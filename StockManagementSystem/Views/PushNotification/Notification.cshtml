@@ -51,56 +51,64 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
-                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                            <table id="notification" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                                 <thead>
                                     <tr role="row">
-                                        <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Title: activate to sort column ascending" style="width: 180px;">Title</th>
-                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Description: activate to sort column ascending" style="width: 79px;">Description</th>
-                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Repeat: activate to sort column ascending" style="width: 50px;">Repeat</th>
-                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Category: activate to sort column ascending" style="width: 100px;">Category</th>
-                                        <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Branch: activate to sort column ascending" style="width: 100px;">Branch</th>
-                                        <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 67px;">Action</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Repeat</th>
+                                        <th>Category</th>
+                                        <th>Branch</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var pushNotifications in Model.PushNotificationsList)
+                                    @foreach (var pushNotificationStore in Model.PushNotificationStore)
                                     {
                                         <tr role="row">
-                                            <td>@pushNotifications.Title</td>
-                                            <td>@pushNotifications.Desc</td>
-                                            <td>@pushNotifications.IsShift</td>
-                                            <td>@pushNotifications.NotificationCategories.Name</td>
-                                            <td>@pushNotifications.BranchId</td>
+                                            <td>@pushNotificationStore.PushNotifications.Title</td>
+                                            <td>@pushNotificationStore.PushNotifications.Desc</td>
+                                            <td>@pushNotificationStore.PushNotifications.IsShift</td>
+                                            <td>@pushNotificationStore.PushNotifications.NotificationCategories.Name</td>
+                                            <td>@pushNotificationStore.Store.P_Name</td>
                                             <td>
-                                                @using (Html.BeginForm("DeleteNotification", "PushNotification", new { Id = @pushNotifications.Id }, FormMethod.Post))
-                                                {
-                                                    <a href="@Url.Action("EditNotification", "PushNotification", new { Id = @pushNotifications.Id })" class="btn btn-info pull-left" role="button">Edit</a>
-                                                    <button type="submit" class="btn btn-info pull-left">Delete</button>
-                                                }
+                                                <div class="btn-group">
+                                                    @Html.AntiForgeryToken()
+                                                    <a href="@Url.Action("EditNotification", "PushNotification", new { Id = @pushNotificationStore.Id })" class="btn btn-info pull-left" role="button">Edit</a>
+                                                </div>
+                                                <div class="btn-group">
+                                                    <button type="submit" data-toggle="modal" data-target="#confirmation" class="btn btn-info pull-left" title="Delete"> Delete</button>
+                                                </div>
+
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                                <h4 class="modal-title" id="confirmationLabel">Confirmation</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                Confirm to delete notification?
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Close</button>
+                                                                @using (Html.BeginForm("DeleteNotification", "PushNotification", FormMethod.Post))
+                                                                {
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-primary pull-right" title="Delete" asp-action="DeleteNotification" asp-route-id="@pushNotificationStore.Id">Confirm</button>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
-                            <div class="dataTables_info" id="example1_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries</div>
-                            <div class="dataTables_paginate paging_simple_numbers pull-right" id="example1_paginate">
-                                <ul class="pagination">
-                                    <li class="paginate_button previous disabled" id="example1_previous">
-                                        <a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0">Previous</a>
-                                    </li>
-                                    <li class="paginate_button active"><a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0">1</a></li>
-                                    <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0">2</a></li>
-                                    <li class="paginate_button ">
-                                        <a href="#" aria-controls="example1" data-dt-idx="3" tabindex="0">3</a>
-                                    </li>
-                                    <li class="paginate_button ">
-                                        <a href="#" aria-controls="example1" data-dt-idx="4" tabindex="0">4</a>
-                                    </li>
-                                    <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="5" tabindex="0">5</a></li>
-                                    <li class="paginate_button "><a href="#" aria-controls="example1" data-dt-idx="6" tabindex="0">6</a></li>
-                                    <li class="paginate_button next" id="example1_next"><a href="#" aria-controls="example1" data-dt-idx="7" tabindex="0">Next</a></li>
-                                </ul>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -110,13 +118,20 @@
 </div>
 
 @section scripts{
+
+    <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
     <script type="text/javascript">
     $(document).ready(function () {
 
         $('#btn-addNotification').click(function (e)
       {
           location.href = '@Url.Content("~/PushNotification/AddNotification/")';
-      });
+        });
+
+        $('#device').DataTable({
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+        })
 
     });
     </script>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using StockManagementSystem.Core.Domain.PushNotification;
+using StockManagementSystem.Core.Domain.Stores;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -24,6 +25,11 @@ namespace StockManagementSystem.Models.PushNotification
         public int NotificationCategoryId { get; set; }
 
         public IEnumerable<NotificationCategory> NotificationCategories { set; get; }
+
+        [Display(Name = "Branch")]
+        public int StoreId { get; set; }
+
+        public IEnumerable<Store> Stores { set; get; }
 
     }
 }

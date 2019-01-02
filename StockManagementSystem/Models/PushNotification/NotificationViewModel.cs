@@ -1,4 +1,5 @@
 ﻿using StockManagementSystem.Core.Domain.PushNotification;
+using StockManagementSystem.Core.Domain.Stores;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,6 @@ namespace StockManagementSystem.Models.PushNotification
 {
     public class NotificationViewModel
     {
-        public IEnumerable<PushNotifications> PushNotificationsList { set; get; }
-
-        public IEnumerable<NotificationCategory> NotificationCategories { set; get; }
+        public IEnumerable<PushNotificationStore> PushNotificationStore { set; get; }
     }
 }
