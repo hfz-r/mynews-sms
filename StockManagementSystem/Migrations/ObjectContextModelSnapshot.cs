@@ -55,6 +55,8 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<DateTime>("CreatedOnUtc");
 
+                    b.Property<DateTime?>("EndDate");
+
                     b.Property<string>("Latitude");
 
                     b.Property<string>("Longitude");
@@ -71,15 +73,19 @@ namespace StockManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
+                    b.Property<DateTime?>("StartDate");
+
                     b.Property<string>("Status");
 
-                    b.Property<string>("StoreId");
+                    b.Property<int>("StoreId");
 
                     b.Property<string>("TokenId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Devices");
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("Device");
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.Role", b =>
@@ -294,6 +300,60 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Code");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NotificationCategories");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.PushNotification.PushNotificationStore", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
+                    b.Property<bool?>("IsHHTDownloaded");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
+                    b.Property<int>("PushNotificationId");
+
+                    b.Property<int>("StoreId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PushNotificationId");
+
+                    b.HasIndex("StoreId");
+
+                    b.ToTable("PushNotificationStores");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.PushNotification.PushNotifications", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
                     b.Property<int>("EntityId");
 
                     b.Property<string>("EntityName")
@@ -301,6 +361,36 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(400);
 
                     b.Property<int>("RoleId");
+                        .IsRequired()
+                        .HasMaxLength(256);
+
+                    b.Property<string>("IsShift");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn");
+
+                    b.Property<int>("NotificationCategoryId");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NotificationCategoryId");
+
+                    b.ToTable("PushNotification");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Stores.Store", b =>
+                {
+                    b.Property<int>("P_BranchNo");
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTimeOffset?>("CreatedOn");
+
 
                     b.HasKey("Id");
 
@@ -360,8 +450,6 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("P_AreaCode");
 
-                    b.Property<string>("P_BranchNo");
-
                     b.Property<string>("P_Brand");
 
                     b.Property<string>("P_City");
@@ -380,9 +468,17 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<string>("P_State");
 
-                    b.HasKey("Id");
+                    b.HasKey("P_BranchNo");
 
                     b.ToTable("Store");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
+                        .WithMany("Device")
+                        .HasForeignKey("StoreId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.RoleClaim", b =>

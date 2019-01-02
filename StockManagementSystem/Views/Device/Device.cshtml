@@ -11,8 +11,8 @@
 <section class="content-header">
     <h1 class="fa fa-mobile">&nbsp;Manage Device</h1>
     <ol class="breadcrumb">
-        <li class="#">
-            <a href="@Url.Action("Index", "Device")">
+            <li class="#"><a href="#"><i class="fa fa-mobile"> Device Modules</i></a></li>
+            <li class="breadcrumb-item active"><a href="@Url.Action("Index", "Device")">Manage Device</a></li>
                 <i class="fa fa-mobile"></i>
             </a>
         </li>
@@ -32,16 +32,15 @@
         <div class="box-body">
             <button type="button" id="btn-register" class="btn btn-warning pull-right margin-bottom"> Register</button>
 
-            <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
+                <div id="device_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
                 <div class="row">
                     <div class="col-sm-12">
-                        <table id="example1" class="table table-bordered table-hover">
+                            <table id="device" class="table table-bordered table-hover">
                             <thead>
                                 <tr>
-                                    <th>Serial No.</th>
-                                    <th>Model No</th>
-                                    <th>Branch</th>
-                                    <th>Status</th>
+                                        <th>Serial Number</th>
+                                        <th>Model Number</th>
+                                        <th>Branch(s)</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -51,14 +50,42 @@
                                     <tr role="row" class="odd">
                                         <td>@device.SerialNo</td>
                                         <td>@device.ModelNo</td>
-                                        <td>@device.StoreId</td>
-                                        <td>@device.Status</td>
+                                            <td>@device.Store.P_Name</td>
                                         <td>
                                             <div class="btn-group">
-                                                <button type="submit" class="btn btn-info pull-left fa fa-edit" title="Edit"></button>
+                                                    @using (Html.BeginForm("EditDevice", "Device", FormMethod.Post))
+                                                    {
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-info pull-left" title="Edit" asp-action="EditDevice" asp-route-id="@device.Id"> Edit</button>
+                                                    }
                                             </div>
                                             <div class="btn-group">
-                                                <button type="submit" class="btn btn-info pull-left fa fa-remove" title="Delete"></button>
+                                                    <button type="submit" data-toggle="modal" data-target="#confirmation" class="btn btn-info pull-left" title="Delete"> Delete</button>
+
+                                                </div>
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                                <h4 class="modal-title" id="confirmationLabel">Confirmation</h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                Confirm to delete device?
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Close</button>
+                                                                @using (Html.BeginForm("Delete", "Device", FormMethod.Post))
+                                                                {
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-primary pull-right" title="Delete" asp-action="Delete" asp-route-id="@device.Id">Confirm</button>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                             </div>
                                         </td>
                                     </tr>
@@ -73,17 +100,17 @@
 </section>
 
 @section scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <!-- DataTables -->
     <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
     <script type="text/javascript">
     $(document).ready(function () {
-        $('#btn-register').click(function (e)
-        {
+        $('#btn-register').click(function (e){
             location.href = '@Url.Content("~/Device/RegisterDevice/")';
         });
 
-        $('#example1').DataTable({
+        $('#device').DataTable({
             "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
         })
     });

@@ -89,7 +89,7 @@ namespace StockManagementSystem.Controllers
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
+                    return View("Register", model);
                 }
             }
 

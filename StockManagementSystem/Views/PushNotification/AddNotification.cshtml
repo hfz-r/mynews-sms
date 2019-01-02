@@ -1,4 +1,4 @@
-﻿@using StockManagementSystem.Web.UI
+﻿@model StockManagementSystem.Models.PushNotification.AddNotificationViewModel
 
 @{
     //page title
@@ -27,43 +27,29 @@
         <div class="box-header with-border">
             <h3 class="box-title">Add notification</h3>
         </div>
-        <form role="form">
+            <form asp-controller="PushNotification" asp-action="AddNotification" method="post" role="form">
             <div class="box-body">
                 <div class="form-group">
-                    <label for="InputTitle">Title</label>
-                    <input type="text" class="form-control" id="InputTitle" placeholder="Enter notification title">
+                        <label asp-for="Title"></label>
+                        <input asp-for="Title" class="form-control" id="InputTitle" placeholder="Enter notification title">
                 </div>
                 <div class="form-group">
-                    <label for="InputDesc">Description</label>
-                    <input type="text" class="form-control" id="InputDesc" placeholder="Enter notification description">
+                        <label asp-for="Desc"></label>
+                        <input asp-for="Desc" class="form-control" id="InputDesc" placeholder="Enter notification description">
                 </div>
                 <div class="form-group">
-                    <label for="InputCategory">Category</label>
-                    <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                        <option selected="selected">Others</option>
-                        <option>Stock Take</option>
-                        <option>Others</option>
-                    </select>
+                        @Html.LabelFor(m => m.NotificationCategoryId, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.NotificationCategoryId, new SelectList(Model.NotificationCategories, "Id", "Name"), "--Please Select Notification Category--", new { @class = "form-control" })
                 </div>
                 <div class="form-group">
-                    <label for="InputCategory">Repeat</label>
-                    <label class="radio-inline">
-                        <input type="radio" name="optradio" checked>Shift/Daily
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="optradio">Weekly
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="optradio">Monthly
-                    </label>
+                        @Html.LabelFor(m => m.IsShift, new { @class = "control-label" })
+                        @Html.RadioButtonFor(m => m.IsShift, "Today") @Html.Label("Today")
+                        @Html.RadioButtonFor(m => m.IsShift, "Weekly") @Html.Label("Weekly")
+                        @Html.RadioButtonFor(m => m.IsShift, "Monthly") @Html.Label("Monthly")
                 </div>
                 <div class="form-group">
-                    <label for="InputBranch">Branch</label>
-                    <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                        <option selected="selected">Mid Valley</option>
-                        <option>One Utama</option>
-                        <option>Pavillion</option>
-                    </select>
+                        @Html.LabelFor(m => m.StoreId, new { @class = "control-label" })
+                        @Html.DropDownListFor(m => m.StoreId, new SelectList(Model.Stores, "P_BranchNo", "P_Name"), "--Please Select Branch--", new { @class = "form-control" })
                 </div>
             </div>
             <!-- /.box-body -->
@@ -79,11 +65,11 @@
 @section scripts{
     <script type="text/javascript">
         $(document).ready(function() {
-
             $('#btn-cancel').click(function(e) {
                 location.href = '@Url.Content("~/PushNotification/Notification/")';
             });
 
         });
+
     </script>
 }

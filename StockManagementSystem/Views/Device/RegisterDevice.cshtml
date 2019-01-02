@@ -1,4 +1,4 @@
-﻿@using StockManagementSystem.Web.UI
+﻿@model StockManagementSystem.Models.Devices.DeviceViewModel
 
 @{
     //page title
@@ -27,29 +27,22 @@
         <div class="box-header with-border">
             <h3 class="box-title">Register Device</h3>
         </div>
-        <form role="form">
+            <form id="register-form" asp-controller="Device" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
             <div class="box-body">
                 <div class="form-group">
                     <label for="InputSerialNo">Serial Number</label>
-                    <input type="text" class="form-control" id="InputSerialNo" placeholder="Enter serial number">
+                        <input asp-for="SerialNo" type="text" class="form-control" id="InputSerialNo" autofocus placeholder="Enter serial number">
+                        <span asp-validation-for="SerialNo" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label for="InputModelNo">Model Number</label>
-                    <input type="text" class="form-control" id="InputModelNo" placeholder="Enter Model Number">
+                        <input asp-for="ModelNo" type="text" class="form-control" id="InputModelNo" placeholder="Enter Model Number">
+                        <span asp-validation-for="ModelNo" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label for="InputBranch">Branch</label>
-                    <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                        <option selected="selected">Mid Valley</option>
-                        <option>One Utama</option>
-                        <option>Pavillion</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="InputBranch">Status</label>
-                    <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                        <option selected="selected">Active</option>
-                        <option>Inactive</option>
+                        <select asp-for="P_BranchNo" asp-items="@(new SelectList(Model.Store, "P_BranchNo", "P_Name"))" class="form-control select2 select2-hidden-accessible">
+                            <option>Please select one</option>
                     </select>
                 </div>
             </div>
@@ -65,12 +58,11 @@
 
 @section scripts{
     <script type="text/javascript">
-        $(document).ready(function() {
-
-            $('#btn-cancel').click(function(e) {
+        $(document).ready(function () {
+            $('#btn-cancel').click(function (e)
+            {
                 location.href = '@Url.Content("~/Device/")';
             });
-
         });
     </script>
 }
