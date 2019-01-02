@@ -440,7 +440,7 @@ namespace StockManagementSystem.Migrations
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
                 {
                     b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
-                        .WithMany("Devices")
+                        .WithMany("Device")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

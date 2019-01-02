@@ -18,7 +18,7 @@ namespace StockManagementSystem.Data.Mapping.Devices
                 .HasMaxLength(256)
                 .IsRequired();
             builder.HasOne(ur => ur.Store)
-                .WithMany(u => u.Devices)
+                .WithMany(u => u.Device)
                 .HasForeignKey(ur => ur.StoreId)
                 .IsRequired();
 

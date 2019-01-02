@@ -10,8 +10,8 @@ using StockManagementSystem.Data;
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    [Migration("20181224090453_AddStoreDeviceTable")]
-    partial class AddStoreDeviceTable
+    [Migration("20181228024515_AddTableDeviceStore")]
+    partial class AddTableDeviceStore
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -62,7 +62,7 @@ namespace StockManagementSystem.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Devices");
+                    b.ToTable("Device");
                 });
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Identity.Role", b =>
@@ -354,7 +354,7 @@ namespace StockManagementSystem.Migrations
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Devices.Device", b =>
                 {
                     b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
-                        .WithMany("Devices")
+                        .WithMany("Device")
                         .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
