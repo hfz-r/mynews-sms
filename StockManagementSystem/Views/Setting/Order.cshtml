@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-﻿@model StockManagementSystem.Models.Setting.SettingViewModel
-@{
-    ViewData["Title"] = "Order";
-}
-=======
-﻿@using StockManagementSystem.Web.UI
->>>>>>> 24e3f383572959159b5585402d4e9140eed2a352
+@using StockManagementSystem.Web.UI
+@model StockManagementSystem.Models.Setting.SettingViewModel
 
 @{
     //page title
@@ -14,94 +8,11 @@
     Html.SetActiveMenuItemSystemName("setting.order");
 }
 
-<<<<<<< HEAD
-<div class="content-wrapper">
-    <section class="content-header">
-        <h1 class="fa fa-wrench">&nbsp;Stock Order Setting</h1>
-        <ol class="breadcrumb">
-            <li class="#"><a href="#"><i class="fa fa-wrench"></i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("Order", "Setting")">Stock Order Setting</a></li>
-        </ol>
-    </section>
-    <!-- Main content -->
-    <section class="content">
-        <!-- Panels -->
-        <div class="box">
-            <!-- /.box-header -->
-            <div class="box-body">
-                <button type="button" id="btn-add" class="btn btn-warning pull-right margin-bottom"> Add Order Limit</button>
-
-                <div id="device_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <table id="device" class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Percentage</th>
-                                        <th>Branch(s)</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var orderLimit in Model.OrderLimit)
-                                    {
-                                        <tr role="row" class="odd">
-                                            <td>@orderLimit.Percentage</td>
-                                            <td>@orderLimit.OrderLimitStores.FirstOrDefault().Store.P_Name</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    @using (Html.BeginForm("EditOrderLimit", "Setting", FormMethod.Post))
-                                                    {
-                                                        @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-info pull-left" title="Edit" asp-action="EditOrderLimit" asp-route-id="@orderLimit.Id"> Edit</button>
-                                                    }
-                                                </div>
-                                                <div class="btn-group">
-                                                    <button type="submit" data-toggle="modal" data-target="#confirmation" class="btn btn-info pull-left" title="Delete"> Delete</button>
-
-                                                </div>
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                                <h4 class="modal-title" id="confirmationLabel">Confirmation</h4>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                Confirm to delete order limit?
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Close</button>
-                                                                @using (Html.BeginForm("Delete", "Setting", FormMethod.Post))
-                                                                {
-                                                                    @Html.AntiForgeryToken()
-                                                                    <button type="submit" class="btn btn-primary pull-right" title="Delete" asp-action="DeleteOrderLimit" asp-route-id="@orderLimit.Id">Confirm</button>
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-=======
 <section class="content-header">
     <h1 class="fa fa-wrench">&nbsp;Stock Order Setting</h1>
     <ol class="breadcrumb">
-        <li class="#">
-            <a href="#">
-                <i class="fa fa-wrench"></i>
-            </a>
-        </li>
-        <li class="breadcrumb-item active">
-            <a href="@Url.Action("Order", "Setting")">Stock Order Setting</a>
-        </li>
+        <li class="#"><a href="#"><i class="fa fa-wrench"></i></a></li>
+        <li class="breadcrumb-item active"><a href="@Url.Action("Order", "Setting")">Stock Order Setting</a></li>
     </ol>
 </section>
 <!-- Main content -->
@@ -110,154 +21,73 @@
     <div class="box">
         <!-- /.box-header -->
         <div class="box-body">
-            <div class="nav-tabs-custom" style="cursor: move;">
-                <!-- Tabs within a box -->
-                <ul class="nav nav-tabs pull-right">
-                    <li class="active">
-                        <a href="#revenue-chart" data-toggle="tab" aria-expanded="true">Order Quantity Limit</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <!-- Morris chart - Sales -->
-                    <div class="chart tab-pane active" id="revenue-chart" style="position: relative; height: auto; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);">
-                        <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
-                            <div class="row">
-                                <div class="col-sm-4">
-                                    <div class="dataTables_length" id="example1_length">
-                                        <label>
-                                            Show
-                                            <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                                                <option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option>
-                                            </select> entries
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="input-group input-group-sm" style="width: 150px;">
-                                        <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
+            <button type="button" id="btn-add" class="btn btn-warning pull-right margin-bottom"> Add Order Limit</button>
 
-                                        <div class="input-group-btn">
-                                            <button type="submit" class="btn btn-default">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <button type="button" id="btn-add" class="btn btn-warning pull-right">Add New Quantity Limit</button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
-                                        <thead>
-                                        <tr role="row">
-                                            <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Min. Order Qty: activate to sort column ascending" style="width: 110px;">Min. Order Qty</th>
-                                            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Max. Order Qty: activate to sort column ascending" style="width: 110px;">Max. Order Qty</th>
-                                            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Percentage Allowance: activate to sort column ascending" style="width: 5px;">Percentage Allowance</th>
-                                            <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Branch: activate to sort column ascending" style="width: 150px;">Branch</th>
-                                            <th tabindex="0" aria-controls="example1" rowspan="1" colspan="1" style="width: 40px;">Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr role="row" class="odd">
-                                            <td class="sorting_1">20</td>
-                                            <td>200</td>
-                                            <td>
-                                                <span class="badge bg-yellow">10%</span>
-                                            </td>
-                                            <td>Tesco Setia Alam, Setia City Mall</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="submit" class="btn btn-info pull-left">Edit</button>
+            <div id="orderLimit_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
+                <section class="row">
+                    <div class="col-sm-12">
+                        <table id="orderLimit" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Percentage</th>
+                                    <th>Branch(s)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var orderLimit in Model.OrderLimit)
+                                {
+                                    <tr role="row" class="odd">
+                                        <td><span class="label label-info">@orderLimit.Percentage @Html.Label("%")</span></td>
+                                        <td>@orderLimit.OrderLimitStores.FirstOrDefault().Store.P_Name</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                @using (Html.BeginForm("EditOrderLimit", "Setting", FormMethod.Post))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-info pull-left" title="Edit" asp-action="EditOrderLimit" asp-route-id="@orderLimit.Id"> Edit</button>
+                                                }
+                                            </div>
+                                            <div class="btn-group">
+                                                <button type="submit" data-toggle="modal" data-target="#confirmation" class="btn btn-info pull-left" title="Delete"> Delete</button>
+
+                                            </div>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                            <h4 class="modal-title" id="confirmationLabel">Confirmation</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Confirm to delete order limit?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Close</button>
+                                                            @using (Html.BeginForm("Delete", "Setting", FormMethod.Post))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="btn btn-primary pull-right" title="Delete" asp-action="DeleteOrderLimit" asp-route-id="@orderLimit.Id">Confirm</button>
+                                                            }
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="btn-group">
-                                                    <button type="submit" class="btn btn-info pull-left">Delete</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr role="row" class="even">
-                                            <td class="sorting_1">10</td>
-                                            <td>100</td>
-                                            <td>
-                                                <span class="badge bg-yellow">20%</span>
-                                            </td>
-                                            <td>Klang Parade, AEON Bandar Baru Klang</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="submit" class="btn btn-info pull-left">Edit</button>
-                                                </div>
-                                                <div class="btn-group">
-                                                    <button type="submit" class="btn btn-info pull-left">Delete</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr role="row" class="odd">
-                                            <td class="sorting_1">10</td>
-                                            <td>200</td>
-                                            <td>
-                                                <span class="badge bg-yellow">30%</span>
-                                            </td>
-                                            <td>Damen USJ Sentral, Sunway Pyramid, Subang Jaya</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <button type="submit" class="btn btn-info pull-left">Edit</button>
-                                                </div>
-                                                <div class="btn-group">
-                                                    <button type="submit" class="btn btn-info pull-left">Delete</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                    <div class="dataTables_info" id="example1_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries</div>
-                                    <div class="dataTables_paginate paging_simple_numbers pull-right" id="example1_paginate">
-                                        <ul class="pagination">
-                                            <li class="paginate_button previous disabled" id="example1_previous">
-                                                <a href="#" aria-controls="example1" data-dt-idx="0" tabindex="0">Previous</a>
-                                            </li>
-                                            <li class="paginate_button active">
-                                                <a href="#" aria-controls="example1" data-dt-idx="1" tabindex="0">1</a>
-                                            </li>
-                                            <li class="paginate_button ">
-                                                <a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0">2</a>
-                                            </li>
-                                            <li class="paginate_button ">
-                                                <a href="#" aria-controls="example1" data-dt-idx="3" tabindex="0">3</a>
-                                            </li>
-                                            <li class="paginate_button ">
-                                                <a href="#" aria-controls="example1" data-dt-idx="4" tabindex="0">4</a>
-                                            </li>
-                                            <li class="paginate_button ">
-                                                <a href="#" aria-controls="example1" data-dt-idx="5" tabindex="0">5</a>
-                                            </li>
-                                            <li class="paginate_button ">
-                                                <a href="#" aria-controls="example1" data-dt-idx="6" tabindex="0">6</a>
-                                            </li>
-                                            <li class="paginate_button next" id="example1_next">
-                                                <a href="#" aria-controls="example1" data-dt-idx="7" tabindex="0">Next</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="chart tab-pane" id="sales-chart" style="position: relative; height: 300px;">
-                        <svg height="300" version="1.1" width="794" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="overflow: hidden; position: relative;">
-                            <desc style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">Created with Raphaël 2.2.0</desc><defs style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></defs><path fill="none" stroke="#3c8dbc" d="M397,243.33333333333331A93.33333333333333,93.33333333333333,0,0,0,485.2277551949771,180.44625304313007" stroke-width="2" opacity="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 0;"></path><path fill="#3c8dbc" stroke="#ffffff" d="M397,246.33333333333331A96.33333333333333,96.33333333333333,0,0,0,488.06364732624417,181.4248826052307L524.6151459070204,194.03833029452744A135,135,0,0,1,397,285Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#f56954" d="M485.2277551949771,180.44625304313007A93.33333333333333,93.33333333333333,0,0,0,313.28484627831415,108.73398312817662" stroke-width="2" opacity="1" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 1;"></path><path fill="#f56954" stroke="#ffffff" d="M488.06364732624417,181.4248826052307A96.33333333333333,96.33333333333333,0,0,0,310.59400205154566,107.40757544301087L271.42726941747117,88.10097469226493A140,140,0,0,1,529.3416327924656,195.6693795646951Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><path fill="none" stroke="#00a65a" d="M313.28484627831415,108.73398312817662A93.33333333333333,93.33333333333333,0,0,0,396.97067846904883,243.333328727518" stroke-width="2" opacity="0" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); opacity: 0;"></path><path fill="#00a65a" stroke="#ffffff" d="M310.59400205154566,107.40757544301087A96.33333333333333,96.33333333333333,0,0,0,396.96973599126824,246.3333285794739L396.9575884998742,284.9999933380171A135,135,0,0,1,275.9120097954186,90.31165416754118Z" stroke-width="3" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path><text x="397" y="140" text-anchor="middle" font-family="&quot;Arial&quot;" font-size="15px" stroke="none" fill="#000000" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 15px; font-weight: 800;" font-weight="800" transform="matrix(1,0,0,1,0,0)">
-                                <tspan dy="140" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">In-Store Sales</tspan>
-                            </text><text x="397" y="160" text-anchor="middle" font-family="&quot;Arial&quot;" font-size="14px" stroke="none" fill="#000000" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-family: Arial; font-size: 14px;" transform="matrix(1,0,0,1,0,0)">
-                                <tspan dy="160" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);">30</tspan>
-                            </text>
-                        </svg>
->>>>>>> 24e3f383572959159b5585402d4e9140eed2a352
-                    </div>
-                </div>
+                </section>
             </div>
         </div>
     </div>
 </section>
+
 
 @section scripts{
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -267,20 +97,13 @@
     <script type="text/javascript">
         $(document).ready(function() {
 
-<<<<<<< HEAD
-        $('#btn-add').click(function (e)
-        {
-          location.href = '@Url.Content("~/Setting/AddOrder/")';
-        });
-
-        $('#device').DataTable({
-            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
-        })
-=======
             $('#btn-add').click(function(e) {
                 location.href = '@Url.Content("~/Setting/AddOrder/")';
             });
->>>>>>> 24e3f383572959159b5585402d4e9140eed2a352
+
+            $('#orderLimit').DataTable({
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+            })
 
         });
     </script>

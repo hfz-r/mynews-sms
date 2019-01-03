@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Settings
 {
-    public class OrderLimit : BaseEntity
+    public class OrderLimit : Entity
     {
         public double Percentage { get; set; }
 

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Stores
 {
-    public class Store : BaseEntity
+    public class Store : Entity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int P_BranchNo { get; set; }

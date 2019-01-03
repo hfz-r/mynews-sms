@@ -67,9 +67,9 @@ namespace StockManagementSystem.Controllers
                         {
                             Percentage = model.Percentage,
                             CreatedBy = @Environment.UserName,
-                            CreatedOn = DateTime.UtcNow, //TODO Change to get server datetime
+                            CreatedOnUtc = DateTime.UtcNow, //TODO Change to get server datetime
                             ModifiedBy = @Environment.UserName,
-                            ModifiedOn = DateTime.UtcNow //TODO Change to get server datetime
+                            ModifiedOnUtc = DateTime.UtcNow //TODO Change to get server datetime
                         };
 
                         _orderLimitRepository.Insert(orderLimit);
@@ -79,9 +79,9 @@ namespace StockManagementSystem.Controllers
                             StoreId = model.P_BranchNo,
                             OrderLimitId = orderLimit.Id,
                             CreatedBy = @Environment.UserName,
-                            CreatedOn = DateTime.UtcNow, //TODO Change to get server datetime
+                            CreatedOnUtc = DateTime.UtcNow, //TODO Change to get server datetime
                             ModifiedBy = @Environment.UserName,
-                            ModifiedOn = DateTime.UtcNow //TODO Change to get server datetime
+                            ModifiedOnUtc = DateTime.UtcNow //TODO Change to get server datetime
 
                         };
 
@@ -126,7 +126,7 @@ namespace StockManagementSystem.Controllers
                     var orderLimit = _orderLimitRepository.Table.FirstOrDefault(x => x.Id == model.OrderLimitId);
                     orderLimit.Percentage = model.Percentage;
                     orderLimit.ModifiedBy = @Environment.UserName;
-                    orderLimit.ModifiedOn = DateTime.UtcNow; //TODO Change to get server datetime                    
+                    orderLimit.ModifiedOnUtc = DateTime.UtcNow; //TODO Change to get server datetime                    
 
                     _orderLimitRepository.Update(orderLimit);
 

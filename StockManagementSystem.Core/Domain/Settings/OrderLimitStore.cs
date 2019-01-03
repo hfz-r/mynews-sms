@@ -5,7 +5,7 @@ using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Settings
 {
-    public class OrderLimitStore : BaseEntity
+    public class OrderLimitStore : Entity
     {
         public int OrderLimitId { get; set; }
 

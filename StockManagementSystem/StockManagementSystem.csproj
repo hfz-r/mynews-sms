@@ -9,6 +9,9 @@
 
   <ItemGroup>
       <Compile Remove="Migrations\*.cs" />
+      <Compile Include="Migrations\20190102063554_CreateTable.cs" />
+      <Compile Include="Migrations\20190102063554_CreateTable.Designer.cs" />
+      <Compile Include="Migrations\ObjectContextModelSnapshot.cs" />
       <None Update="Views\sitemap.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
