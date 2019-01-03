@@ -293,6 +293,61 @@ namespace StockManagementSystem.Migrations
                     b.ToTable("UserTokens");
                 });
 
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.ActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ActivityLogTypeId");
+
+                    b.Property<string>("Comment")
+                        .IsRequired();
+
+                    b.Property<DateTime>("CreatedOnUtc");
+
+                    b.Property<int?>("EntityId");
+
+                    b.Property<string>("EntityName")
+                        .HasMaxLength(400);
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(200);
+
+                    b.Property<int>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityLogTypeId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ActivityLog");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.ActivityLogType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200);
+
+                    b.Property<string>("SystemKeyword")
+                        .IsRequired()
+                        .HasMaxLength(100);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActivityLogType");
+                });
+
             modelBuilder.Entity("StockManagementSystem.Core.Domain.PushNotification.NotificationCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -529,6 +584,19 @@ namespace StockManagementSystem.Migrations
                 {
                     b.HasOne("StockManagementSystem.Core.Domain.Identity.User", "User")
                         .WithMany("Tokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.ActivityLog", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Logging.ActivityLogType", "ActivityLogType")
+                        .WithMany()
+                        .HasForeignKey("ActivityLogTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("StockManagementSystem.Core.Domain.Identity.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
