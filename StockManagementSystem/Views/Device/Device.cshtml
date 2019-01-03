@@ -3,21 +3,26 @@
 
 @{
     //page title
-    ViewBag.Title = "Device";
+    ViewBag.Title = "Manage Device";
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("device.manage");
 }
 
 <section class="content-header">
     <h1 class="fa fa-mobile">&nbsp;Manage Device</h1>
-    <ol class="breadcrumb">
-            <li class="#"><a href="#"><i class="fa fa-mobile"> Device Modules</i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("Index", "Device")">Manage Device</a></li>
-                <i class="fa fa-mobile"></i>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="glyphicon glyphicon-phone"></i>
             </a>
         </li>
         <li class="breadcrumb-item active">
-            <a href="@Url.Action("Index", "Device")">Device Management</a>
+            <a href="@Url.Action("Index", "Device")">@ViewBag.Title</a>
         </li>
     </ol>
 </section>

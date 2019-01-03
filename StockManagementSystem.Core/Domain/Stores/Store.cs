@@ -1,5 +1,6 @@
 ﻿using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.PushNotification;
+using StockManagementSystem.Core.Domain.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Stores
 {
-    public class Store : BaseEntity
+    public class Store : Entity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int P_BranchNo { get; set; }
@@ -41,5 +42,7 @@ namespace StockManagementSystem.Core.Domain.Stores
         public virtual ICollection<Device> Device { get; set; }
 
         public virtual ICollection<PushNotificationStore> PushNotificationStores { get; set; }
+
+        public virtual ICollection<OrderLimitStore> OrderLimitStores { get; set; }
     }
 }

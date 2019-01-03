@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockManagementSystem.Data;
 
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    partial class ObjectContextModelSnapshot : ModelSnapshot
+    [Migration("20190102044342_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -500,67 +502,9 @@ namespace StockManagementSystem.Migrations
                     b.ToTable("Approval");
                 });
 
-            modelBuilder.Entity("StockManagementSystem.Core.Domain.Settings.OrderLimit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime>("CreatedOnUtc");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<DateTime?>("ModifiedOnUtc");
-
-                    b.Property<double>("Percentage");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OrderLimit");
-                });
-
-            modelBuilder.Entity("StockManagementSystem.Core.Domain.Settings.OrderLimitStore", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(450)
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime>("CreatedOnUtc");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<DateTime?>("ModifiedOnUtc");
-
-                    b.Property<int>("OrderLimitId");
-
-                    b.Property<int>("StoreId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderLimitId");
-
-                    b.HasIndex("StoreId");
-
-                    b.ToTable("OrderLimitStore");
-                });
-
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Stores.Store", b =>
                 {
                     b.Property<int>("P_BranchNo");
-
-                    b.Property<string>("CreatedBy");
-
-                    b.Property<DateTime>("CreatedOnUtc");
-
-                    b.Property<string>("ModifiedBy");
-
-                    b.Property<DateTime?>("ModifiedOnUtc");
 
                     b.Property<string>("P_Addr1");
 
@@ -698,19 +642,6 @@ namespace StockManagementSystem.Migrations
                     b.HasOne("StockManagementSystem.Core.Domain.Identity.Role", "Role")
                         .WithMany("PermissionRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("StockManagementSystem.Core.Domain.Settings.OrderLimitStore", b =>
-                {
-                    b.HasOne("StockManagementSystem.Core.Domain.Settings.OrderLimit", "OrderLimit")
-                        .WithMany("OrderLimitStores")
-                        .HasForeignKey("OrderLimitId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("StockManagementSystem.Core.Domain.Stores.Store", "Store")
-                        .WithMany("OrderLimitStores")
-                        .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

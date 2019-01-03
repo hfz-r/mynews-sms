@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MimeKit" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StockManagementSystem.Core\StockManagementSystem.Core.csproj" />
     <ProjectReference Include="..\StockManagementSystem.Data\StockManagementSystem.Data.csproj" />
   </ItemGroup>
