@@ -174,6 +174,12 @@ namespace StockManagementSystem.Data
                     Enabled = true,
                     Name = "Edit activity log types"
                 },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditPermission",
+                    Enabled = false,
+                    Name = "Edit a permissions"
+                },
             };
             await _userActivity.InsertActivityTypesAsync(activityLogTypes);
         }

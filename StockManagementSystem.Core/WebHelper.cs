@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using StockManagementSystem.Core.Infrastructure;
@@ -148,8 +149,18 @@ namespace StockManagementSystem.Core
             return appLocation;
         }
 
-        public virtual string CurrentRequestProtocol => IsCurrentConnectionSecured() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        public virtual bool IsStaticResource()
+        {
+            if (!IsRequestAvailable())
+                return false;
 
+            string path = _httpContextAccessor.HttpContext.Request.Path;
+
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            return contentTypeProvider.TryGetContentType(path, out string _);
+        }
+
+        public virtual string CurrentRequestProtocol => IsCurrentConnectionSecured() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
 
         public virtual string GetRawUrl(HttpRequest request)
         {

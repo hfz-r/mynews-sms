@@ -14,6 +14,8 @@ namespace StockManagementSystem.Core
 
         string GetAppLocation(bool? useSsl = null);
 
+        bool IsStaticResource();
+
         string CurrentRequestProtocol { get; }
 
         string GetRawUrl(HttpRequest request);

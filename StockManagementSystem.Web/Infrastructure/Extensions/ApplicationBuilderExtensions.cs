@@ -31,7 +31,6 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
                 application.UseExceptionHandler("/Home/Error");
             }
 
-            // TODO: log errors
             application.UseExceptionHandler(handler =>
             {
                 handler.Run(context =>
@@ -42,8 +41,10 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
                     try
                     {
-                        var currentUser = EngineContext.Current.Resolve<IWorkContext>().CurrentUser;
-                        EngineContext.Current.Resolve<ILogger>().LogError(exception.Message, exception, currentUser);
+                        var currentUser = EngineContext.Current?.Resolve<IWorkContext>()?.CurrentUser;
+
+                        //TODO: Global exception handler, maybe log it, or ??
+                        //EngineContext.Current?.Resolve<ILogger>()?.LogError(exception.Message, exception, currentUser);
                     }
                     finally
                     {
@@ -56,14 +57,58 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             });
         }
 
+        public static void UsePageNotFound(this IApplicationBuilder application)
+        {
+            application.UseStatusCodePages(async context =>
+            {
+                //handle 404 Not Found
+                if (context.HttpContext.Response.StatusCode == StatusCodes.Status404NotFound)
+                {
+                    var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+                    if (!webHelper.IsStaticResource())
+                    {
+                        //get original path and query
+                        var originalPath = context.HttpContext.Request.Path;
+                        var originalQueryString = context.HttpContext.Request.QueryString;
+
+                        //store the original paths in special feature, so we can use it later
+                        context.HttpContext.Features.Set<IStatusCodeReExecuteFeature>(new StatusCodeReExecuteFeature()
+                        {
+                            OriginalPathBase = context.HttpContext.Request.PathBase.Value,
+                            OriginalPath = originalPath.Value,
+                            OriginalQueryString = originalQueryString.HasValue ? originalQueryString.Value : null,
+                        });
+
+                        //get new path
+                        context.HttpContext.Request.Path = "/page-not-found";
+                        context.HttpContext.Request.QueryString = QueryString.Empty;
+
+                        try
+                        {
+                            //re-execute request with new path
+                            await context.Next(context.HttpContext);
+                        }
+                        finally
+                        {
+                            //return original path to request
+                            context.HttpContext.Request.QueryString = originalQueryString;
+                            context.HttpContext.Request.Path = originalPath;
+                            context.HttpContext.Features.Set<IStatusCodeReExecuteFeature>(null);
+                        }
+                    }
+                }
+            });
+        }
+
         public static void UseBadRequestResult(this IApplicationBuilder application)
         {
             application.UseStatusCodePages(context =>
             {
-                //handle 404 (Bad request)
                 if (context.HttpContext.Response.StatusCode == StatusCodes.Status400BadRequest)
                 {
-                    // TODO: log erros
+                    var logger = EngineContext.Current.Resolve<ILogger>();
+                    var workContext = EngineContext.Current.Resolve<IWorkContext>();
+                    logger.LogError("Error 400. Bad request", null, workContext.CurrentUser);
                 }
 
                 return Task.CompletedTask;

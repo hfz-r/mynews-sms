@@ -41,6 +41,8 @@ namespace StockManagementSystem.Services.Users
         }
 
         public Task<IPagedList<User>> GetUsersAsync(
+            DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null,
             int[] roleIds = null,
             string email = null,
             string username = null,
@@ -51,6 +53,11 @@ namespace StockManagementSystem.Services.Users
             bool getOnlyTotalCount = false)
         {
             var query = _userRepository.Table;
+
+            if (createdFromUtc.HasValue)
+                query = query.Where(c => createdFromUtc.Value <= c.CreatedOnUtc);
+            if (createdToUtc.HasValue)
+                query = query.Where(c => createdToUtc.Value >= c.CreatedOnUtc);
 
             if (roleIds != null && roleIds.Length > 0)
             {
@@ -154,6 +161,9 @@ namespace StockManagementSystem.Services.Users
             user.Email = newEmail;
             await _userManager.UpdateAsync(user);
 
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+
             if (string.IsNullOrEmpty(oldEmail) ||
                 oldEmail.Equals(newEmail, StringComparison.InvariantCultureIgnoreCase))
                 return;
@@ -173,6 +183,9 @@ namespace StockManagementSystem.Services.Users
             user.UserName = newUsername;
 
             await _userManager.UpdateAsync(user);
+
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
         }
 
         public async Task<IdentityResult> ChangePassword(User user, string requestPassword)
@@ -199,6 +212,9 @@ namespace StockManagementSystem.Services.Users
                 return;
 
             await _userManager.AddToRolesAsync(user, roles);
+
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
         }
 
         public async Task RemoveUserRole(User user, string role)
@@ -210,6 +226,9 @@ namespace StockManagementSystem.Services.Users
                 throw new ArgumentNullException(nameof(role));
 
             await _userManager.RemoveFromRoleAsync(user, role);
+
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
         }
 
         #endregion

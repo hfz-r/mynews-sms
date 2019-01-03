@@ -13,9 +13,6 @@ namespace StockManagementSystem.Web.Infrastructure
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            //add logger
-            services.AddLogging();
-
             //compression
             services.AddResponseCompression();
 

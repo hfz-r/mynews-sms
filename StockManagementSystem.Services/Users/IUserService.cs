@@ -9,6 +9,8 @@ namespace StockManagementSystem.Services.Users
     public interface IUserService
     {
         Task<IPagedList<User>> GetUsersAsync(
+            DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null,
             int[] roleIds = null,
             string email = null,
             string username = null,

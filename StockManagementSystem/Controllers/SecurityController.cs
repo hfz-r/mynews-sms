@@ -9,6 +9,7 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Security;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
@@ -22,6 +23,7 @@ namespace StockManagementSystem.Controllers
         private readonly ISecurityModelFactory _securityModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
+        private readonly IUserActivityService _userActivityService;
         private readonly IWorkContext _workContext;
 
         public SecurityController(
@@ -29,6 +31,7 @@ namespace StockManagementSystem.Controllers
             ISecurityModelFactory securityModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
+            IUserActivityService userActivityService,
             IWorkContext workContext,
             ILogger<SecurityController> logger )
         {
@@ -36,6 +39,7 @@ namespace StockManagementSystem.Controllers
             _securityModelFactory = securityModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
+            _userActivityService = userActivityService;
             _workContext = workContext;
 
             Logger = logger;
@@ -104,6 +108,8 @@ namespace StockManagementSystem.Controllers
                     }
                 }
             }
+
+            await _userActivityService.InsertActivityAsync("EditPermission", "Edited a permissions", new Permission());
 
             _notificationService.SuccessNotification("The permission has been updated successfully");
 

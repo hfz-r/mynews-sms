@@ -108,7 +108,8 @@
                                 });
 
                             grid.bind("saveChanges", grid_saveChanges);
-                            $(".k-grid-save-changes").click(function(e) {
+                            $(".k-grid-save-changes").click(function (e) {
+                                e.preventDefault();
                                 grid.saveChanges();
                             });
 
@@ -121,7 +122,6 @@
                         }
 
                         function grid_saveChanges(e) {
-                            e.preventDefault();
                             $('form').submit();
                         }
                     </script>
