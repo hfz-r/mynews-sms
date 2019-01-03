@@ -1,0 +1,77 @@
+﻿@model StockManagementSystem.Models.Account.FirstTimeLoginViewModel
+@{
+    ViewData["Title"] = "First Time Login";
+    Layout = null;
+}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Stock Management System</title>
+
+    <environment include="Development">
+        <!-- Bootstrap -->
+        <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all" id="bootstraps" />
+        <!-- Font Awesome -->
+        <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="~/lib/Ionicons/css/ionicons.min.css">
+        <!-- Theme style -->
+        <link rel="stylesheet" href="~/css/style.css" type="text/css" media="all" id="styles" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/style.min.css" asp-append-version="true" />
+    </environment>
+</head>
+
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <img src="~/images/MainMenu_Logo.png" alt="Logo">
+        </div>
+        <!-- /.login-logo -->
+        <div class="login-box-body">
+            <h3 class="login-box-msg">First time login!</h3>
+
+            <form asp-controller="Account" asp-action="FirstTimeLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
+                <h5>Please change your password.</h5>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                        <input asp-for="CurrentPassword" class="form-control" autocomplete="off" placeholder="Current Password" />
+                    </div>
+                    <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                        <input asp-for="NewPassword" class="form-control" autocomplete="off" placeholder="New Password" />
+                    </div>
+                    <span asp-validation-for="NewPassword" class="text-danger"></span>
+                </div>
+                <div class="row">
+                    <!-- /.col -->
+                    <div class="col-xs-6">
+                        <a asp-action="Login" title="Back" class="btn btn-default btn-block btn-flat">
+                            Back
+                        </a>
+                    </div>
+                    <div class="col-xs-6">
+                        <button type="submit" class="btn btn-primary btn-block btn-flat">
+                            Confirm Password
+                        </button>
+                    </div>
+                    <!-- /.col -->
+                </div>
+            </form>
+        </div>
+        <!-- /.login-box-body -->
+    </div>
+</body>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
