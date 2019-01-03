@@ -43,7 +43,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<WorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
 
             // services
-            builder.RegisterType<AuthMessageSender>().As<IEmailSender>().InstancePerLifetimeScope();
+            builder.RegisterType<EmailSender>().As<IEmailSender>().InstancePerLifetimeScope();
             builder.RegisterType<StartupTime>().As<IStartupTime>()
                 .InstancePerLifetimeScope(); // startup time? for what?
             builder.RegisterType<PageHeadBuilder>().As<IPageHeadBuilder>().InstancePerLifetimeScope();
