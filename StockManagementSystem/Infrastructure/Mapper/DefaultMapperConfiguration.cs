@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Infrastructure.Mapper;
+using StockManagementSystem.Models.Devices;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
@@ -14,6 +16,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
         {
             CreateRoleMaps();
             CreateUserMaps();
+            CreateDeviceMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -76,6 +79,20 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedBy, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create devices maps
+        /// </summary>
+        protected virtual void CreateDeviceMaps()
+        {
+            CreateMap<Device, DeviceModel>();
+            CreateMap<DeviceModel, Device>()
+                .ForMember(entity => entity.SerialNo, options => options.Ignore())
+                .ForMember(entity => entity.StoreId, options => options.Ignore())
+                .ForMember(entity => entity.Store, options => options.Ignore())
+                .ForMember(entity => entity.ModelNo, options => options.Ignore())
+                .ForMember(entity => entity.Id, options => options.Ignore());
         }
 
         public int Order => 0;

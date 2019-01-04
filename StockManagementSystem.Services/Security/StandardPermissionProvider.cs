@@ -34,6 +34,12 @@ namespace StockManagementSystem.Services.Security
             Category = "User Management"
         };
 
+        public static readonly Permission ManageDevices = new Permission
+        {
+            Name = "Manage Devices",
+            SystemName = "ManageDevices",
+            Category = "Device Management"
+        };
         //TODO: other modules
 
         /// <summary>
@@ -47,6 +53,7 @@ namespace StockManagementSystem.Services.Security
                 ManageUsers,
                 ManageRoles,
                 ManagePermission,
+                ManageDevices,
             };
         }
 
@@ -66,6 +73,7 @@ namespace StockManagementSystem.Services.Security
                         ManageUsers,
                         ManageRoles,
                         ManagePermission,
+                        ManageDevices,
                     }
                 },
                 new DefaultPermission

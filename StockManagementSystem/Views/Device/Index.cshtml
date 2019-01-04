@@ -1,0 +1,248 @@
+﻿@model DeviceSearchModel
+
+@{
+    //page title
+    ViewBag.Title = "Device Management";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("device.manage");
+}
+<form asp-controller="Device" asp-action="Index" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">@ViewBag.Title</h1>
+        <ol class="breadcrumb pull-right">
+            <li class="#">
+                <a href="@Url.Action("Index", "Home")">
+                    <i class="glyphicon glyphicon-home"></i>
+                </a>
+            </li>
+            <li class="#">
+                <a href="#">
+                    <i class="glyphicon glyphicon-phone"></i>
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <a href="@Url.Action("Index", "Device")">@ViewBag.Title</a>
+            </li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-search">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="form-group">
+                                    <div class="col-xs-4">
+                                        <label asp-for="SearchSerialNo" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <input asp-for="SearchSerialNo" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <div class="col-xs-4">
+                                        <label asp-for="SelectedStoreId" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <select asp-for="SelectedStoreId" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                                        <script>
+                                        $(document).ready(function() {
+                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreId)')
+                                                .kendoMultiSelect({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                }).data("kendoMultiSelect");
+
+                                            @if (Model.AvailableStores.Count == 0)
+                                            {
+                                                <text>
+                                                storesIdsInput.placeholder = "No stores available";
+                                                storesIdsInput.enable = false;
+                                                </text>
+                                            }
+                                        });
+                                        </script>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2 col-xs-offset-5">
+                                <button type="button" id="search-devices" class="btn btn-primary btn-search">
+                                    <i class="fa fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="grid"></div>
+                        <style>
+                            .custom-button {
+                                color: #444444;
+                                padding-right: 10px;
+                                font-size: 1.5em;
+                            }
+                        </style>
+                        <script>
+                            var datasource = @Html.Raw(Json.Serialize(Model.AvailableStores));
+
+                            $(document).ready(function () {
+                                var grid = $("#grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("DeviceList", "Device"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    SelectedStoreId: $('#@Html.IdFor(model => model.SelectedStoreId)').val(),
+                                                    SearchSerialNo: $('#@Html.IdFor(model => model.SearchSerialNo)').val()
+                                                };
+                                                addAntiForgeryToken(data);
+                                                return data;
+                                            }
+                                        },
+                                        create: {
+                                            url: "@Html.Raw(Url.Action("AddDevice", "Device"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                Id: { editable: false, type: "number" },
+                                                SerialNo: { editable: true, validation: { required: true } },
+                                                ModelNo: { editable: true, validation: { required: true } },
+                                                StoreName: { type: "string"},
+                                                SelectedStoreId: { editable: true, validation: { required: true } }
+                                            }
+                                        }
+                                    },
+                                    requestEnd: function (e) {
+                                        if (e.type == "create") {
+                                            this.read();
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                filterable: true,
+                                resizable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                toolbar: [
+                                    {
+                                        name: "create",
+                                        url: "@Html.Raw(Url.Action("AddDevice", "Device"))",
+                                        text: "Add",
+                                        iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
+                                    }
+                                ],
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "SerialNo",
+                                        title: "Serial No",
+                                        width: 230
+                                    },
+                                    {
+                                        field: "ModelNo",
+                                        title: "Model No",
+                                        width: 220
+                                    },
+                                    {
+                                        field: "SelectedStoreId",
+                                        title: "Store",
+                                        template: "#=StoreName#",
+                                        type: "string",
+                                        width: 300,
+                                        editor: function (container, option) { // use a dropdownlist as an editor
+                                            // create an input element with id and name set as the bound field (brandId)
+                                            var input = $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            // append to the editor container
+                                            input.appendTo(container);
+
+                                            // initialize a dropdownlist
+                                            input.kendoDropDownList({
+                                                dataTextField: "Text",
+                                                dataValueField: "Value",
+                                                dataSource: datasource,
+                                                optionLabel: " "
+                                            }).appendTo(container)
+                                        }
+                                    }, {
+                                        template:
+                                            "<a href='Device/EditDevice/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                            "<a href='Device/DeleteDevice/#=Id#' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        width: 111
+                                    }
+                                ],
+                                editable: "inline",
+                                edit: function (e) {
+                                    // Change buttons visibility when the Grid enters edit mode.
+                                    var editRow = e.container;
+                                    editRow.find(".custom-button").toggleClass("hidden");
+                                }
+                                }).data("kendoGrid");
+
+                            $("#grid").on("click", ".custom-button", function (e) {
+                                var btn = $(this);
+                                if (btn.hasClass("cancel-button")) {
+                                    grid.cancelRow();
+                                } else if (btn.hasClass("update-button")) {
+                                    grid.saveChanges();
+                                }
+                            });
+                        });
+                        </script>
+                        <script>
+
+                            $(document).ready(function () {
+                                //search button
+                                $('#search-devices').click(function () {
+                                    var grid = $('#grid').data('kendoGrid');
+                                    grid.dataSource.page(1);
+                                    return false;
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

@@ -1,0 +1,12 @@
+﻿@model DeviceModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <tabs id="user-edit">
+            <tab asp-name="tab-info" asp-title="Device info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdateDevice.Info", Model)</tab>
+        </tabs>
+    </div>
+</section>

@@ -1,5 +1,4 @@
-﻿@using StockManagementSystem.Web.UI
-@model StockManagementSystem.Models.Devices.DeviceViewModel
+﻿@model DeviceSearchModel
 
 @{
     //page title
@@ -8,8 +7,8 @@
     Html.SetActiveMenuItemSystemName("device.tracking");
 }
 
-<section class="content-header">
-    <h1 class="fa fa-mobile">&nbsp;Device Tracking</h1>
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
     <ol class="breadcrumb pull-right">
         <li class="#">
             <a href="@Url.Action("Index", "Home")">
@@ -58,7 +57,7 @@
             var infowindow = new google.maps.InfoWindow();
             var marker, i;
 
-            @foreach (var item in Model.Device)
+            @*@foreach (var item in Model.Device)
             {
                 <text>
                 var pinImage;
@@ -100,7 +99,7 @@
                         }
                     })(marker, i));
                 </text>
-            }
+            }*@
         }
     </script>
 
