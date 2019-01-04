@@ -1,12 +1,6 @@
-﻿@using System.Collections.Generic
-@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Http.Authentication
-@using StockManagementSystem.Core.Domain.Identity
-@model StockManagementSystem.Models.Account.LoginViewModel
-@inject SignInManager<User> SignInManager
-
+﻿@model StockManagementSystem.Models.Account.FirstTimeLoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "First Time Login";
     Layout = null;
 }
 
@@ -40,37 +34,34 @@
         </div>
         <!-- /.login-logo -->
         <div class="login-box-body">
-            <h3 class="login-box-msg">Login into your account</h3>
+            <h3 class="login-box-msg">First time login!</h3>
 
-            <form id="login-form" asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
+            <form asp-controller="Account" asp-action="FirstTimeLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
+                <h5>Please change your password.</h5>
                 <div class="form-group">
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
-                        <input asp-for="UserName" class="form-control" autocomplete="off" autofocus placeholder="Username" />
+                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                        <input asp-for="CurrentPassword" class="form-control" autocomplete="off" placeholder="Current Password" />
                     </div>
-                    <span asp-validation-for="UserName" class="text-danger"></span>
-
+                    <span asp-validation-for="CurrentPassword" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
-                        <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password" />
+                        <input asp-for="NewPassword" class="form-control" autocomplete="off" placeholder="New Password" />
                     </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <a asp-controller="Account" asp-action="ForgotPassword" id="fgtPass">Forgot Password?</a>
+                    <span asp-validation-for="NewPassword" class="text-danger"></span>
                 </div>
                 <div class="row">
                     <!-- /.col -->
                     <div class="col-xs-6">
-                        <a asp-controller="Account" asp-action="Register" title="Manage" id="Register" class="btn btn-default btn-block btn-flat">
-                            Register
+                        <a asp-action="Login" title="Back" class="btn btn-default btn-block btn-flat">
+                            Back
                         </a>
                     </div>
                     <div class="col-xs-6">
-                        <button id="loginClick" href="#" type="submit" class="btn btn-primary btn-block btn-flat">
-                            Login
+                        <button type="submit" class="btn btn-primary btn-block btn-flat">
+                            Confirm Password
                         </button>
                     </div>
                     <!-- /.col -->
@@ -80,9 +71,6 @@
         <!-- /.login-box-body -->
     </div>
 </body>
-
-<script type="text/javascript">
-</script>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

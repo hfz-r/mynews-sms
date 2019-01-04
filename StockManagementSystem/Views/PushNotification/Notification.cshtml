@@ -1,5 +1,5 @@
 ﻿@model StockManagementSystem.Models.PushNotification.NotificationViewModel
-@using StockManagementSystem.Core.Domain.PushNotification
+@using StockManagementSystem.Web.UI
 
 
 @{
@@ -11,14 +11,19 @@
 
 <section class="content-header">
     <h1 class="fa fa-exclamation-triangle">&nbsp;Push Notification</h1>
-    <ol class="breadcrumb">
+    <ol class="breadcrumb pull-right">
         <li class="#">
-            <a href="@Url.Action("Notification", "PushNotification")">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
                 <i class="fa fa-exclamation-triangle"></i>
             </a>
         </li>
         <li class="breadcrumb-item active">
-            <a href="@Url.Action("Notification", "PushNotification")">Push Notification</a>
+            <a href="@Url.Action("Notification", "PushNotification")">@ViewBag.Title</a>
         </li>
     </ol>
 </section>
@@ -31,103 +36,68 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-            <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
-                <div class="row">
-                    <div class="col-sm-4">
-                        <div class="dataTables_length" id="example1_length">
-                            <label>
-                                Show
-                                <select name="example1_length" aria-controls="example1" class="form-control input-sm">
-                                    <option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option>
-                                </select> entries
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="input-group input-group-sm" style="width: 150px;">
-                            <input type="text" name="table_search" class="form-control pull-right" placeholder="Search">
-
-                            <div class="input-group-btn">
-                                <button type="submit" class="btn btn-default">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <button type="button" id="btn-addNotification" class="btn btn-default pull-right">Add New Notification</button>
-                    </div>
-                </div>
+            <button type="button" id="btn-addNotification" class="btn btn-default pull-right"><span class="glyphicon glyphicon-plus"></span> Add New Notification</button>
+            <div id="notification_wrapper" class="dataTables_wrapper form-inline dt-bootstrap box-tools">
                 <div class="row">
                     <div class="col-sm-12">
-                            <table id="notification" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                        <table id="notification" class="table table-bordered table-striped table-hover">
                             <thead>
-                            <tr role="row">
-                                        <th>Title</th>
-                                        <th>Description</th>
-                                        <th>Repeat</th>
-                                        <th>Category</th>
-                                        <th>Branch</th>
-                                        <th>Action</th>
-                            </tr>
+                                <tr role="row">
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Repeat</th>
+                                    <th>Category</th>
+                                    <th>Branch(s)</th>
+                                    <th>Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                    @foreach (var pushNotificationStore in Model.PushNotificationStore)
-                                    {
-                                        <tr role="row">
-                                            <td>@pushNotificationStore.PushNotifications.Title</td>
-                                            <td>@pushNotificationStore.PushNotifications.Desc</td>
-                                            <td>@pushNotificationStore.PushNotifications.IsShift</td>
-                                            <td>@pushNotificationStore.PushNotifications.NotificationCategories.Name</td>
-                                            <td>@pushNotificationStore.Store.P_Name</td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    @Html.AntiForgeryToken()
-                                                    <a href="@Url.Action("EditNotification", "PushNotification", new { Id = @pushNotificationStore.Id })" class="btn btn-info pull-left" role="button">Edit</a>
-                                                </div>
-                                                <div class="btn-group">
-                                                    <button type="submit" data-toggle="modal" data-target="#confirmation" class="btn btn-info pull-left" title="Delete"> Delete</button>
-                                                </div>
+                                @foreach (var pushNotificationStore in Model.PushNotificationStore)
+                                {
+                                    <tr role="row">
+                                        <td>@pushNotificationStore.PushNotifications.Title</td>
+                                        <td>@pushNotificationStore.PushNotifications.Desc</td>
+                                        <td>@pushNotificationStore.PushNotifications.IsShift</td>
+                                        <td>@pushNotificationStore.PushNotifications.NotificationCategories.Name</td>
+                                        <td>@pushNotificationStore.Store.P_Name</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                @Html.AntiForgeryToken()
+                                                <a href="@Url.Action("EditNotification", "PushNotification", new { Id = @pushNotificationStore.Id })" class="btn btn-info pull-left" role="button">Edit</a>
+                                            </div>
+                                            <div class="btn-group">
+                                                <button type="submit" data-toggle="modal" data-target="#confirmation" class="btn btn-info pull-left" title="Delete"> Delete</button>
+                                            </div>
 
-                                                <!-- Modal -->
-                                                <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                                <h4 class="modal-title" id="confirmationLabel">Confirmation</h4>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                Confirm to delete notification?
-                                                            </div>
-                                                            <div class="modal-footer">
-                                                                <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Close</button>
-                                                                @using (Html.BeginForm("DeleteNotification", "PushNotification", FormMethod.Post))
-                                                                {
-                                                                    @Html.AntiForgeryToken()
-                                                                    <button type="submit" class="btn btn-primary pull-right" title="Delete" asp-action="DeleteNotification" asp-route-id="@pushNotificationStore.Id">Confirm</button>
-                                                                }
-                                                            </div>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="confirmationLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                            <h4 class="modal-title" id="confirmationLabel">Confirmation</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Confirm to delete notification?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary pull-left" data-dismiss="modal">Close</button>
+                                                            @using (Html.BeginForm("DeleteNotification", "PushNotification", FormMethod.Post))
+                                                            {
+                                                                @Html.AntiForgeryToken()
+                                                                <button type="submit" class="btn btn-primary pull-right" title="Delete" asp-action="DeleteNotification" asp-route-id="@pushNotificationStore.Id">Confirm</button>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
-                                </li>
-                                <li class="paginate_button ">
-                                    <a href="#" aria-controls="example1" data-dt-idx="2" tabindex="0">2</a>
-                                </li>
-                                <li class="paginate_button ">
-                                    <a href="#" aria-controls="example1" data-dt-idx="6" tabindex="0">6</a>
-                                </li>
-                                <li class="paginate_button next" id="example1_next">
-                                    <a href="#" aria-controls="example1" data-dt-idx="7" tabindex="0">Next</a>
-                                </li>
                     </div>
                 </div>
             </div>
@@ -136,20 +106,19 @@
 </section>
 
 @section scripts{
-
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <!-- DataTables -->
     <script src="~/lib/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="~/lib/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-
             $('#btn-addNotification').click(function(e) {
                 location.href = '@Url.Content("~/PushNotification/AddNotification/")';
-        });
+            });
 
-        $('#device').DataTable({
+            $('#notification').DataTable({
             "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
-        })
-
+            })
         });
     </script>
 }
