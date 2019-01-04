@@ -227,10 +227,9 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
                 return AccessDeniedView();
 
-            var model = await _deviceModelFactory.PrepareDeviceListModel(new DeviceSearchModel());
+            var model = await _deviceModelFactory.PrepareDeviceListModel();
 
             return View(model);
-            //return View("DeviceTracking", GetAllDevice());
         }
 
         #endregion

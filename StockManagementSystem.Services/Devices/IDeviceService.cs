@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Devices;
 
@@ -12,10 +13,12 @@ namespace StockManagementSystem.Services.Devices
 
         Task<IPagedList<Device>> GetDevicesAsync(
             int[] storeIds = null,
-            string serialNo = null, 
-            int pageIndex = 0, 
-            int pageSize = int.MaxValue, 
+            string serialNo = null,
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
             bool getOnlyTotalCount = false);
+
+        Task<ICollection<Device>> GetAllDevicesAsync();
 
         void UpdateDevice(Device device);
 

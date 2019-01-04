@@ -1,4 +1,4 @@
-﻿@model DeviceSearchModel
+﻿@model DeviceModel
 
 @{
     //page title
@@ -6,7 +6,6 @@
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("device.tracking");
 }
-
 <section class="content-header clearfix">
     <h1 class="pull-left">@ViewBag.Title</h1>
     <ol class="breadcrumb pull-right">
@@ -42,10 +41,6 @@
 </section>
 
 @section scripts{
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <!-- DataTables -->
-    <!-- jQuery CDN -->
-
     <script>
         function initMap() {
             var location = { lat: 4.004, lng: 109.151};
@@ -57,7 +52,7 @@
             var infowindow = new google.maps.InfoWindow();
             var marker, i;
 
-            @*@foreach (var item in Model.Device)
+            @foreach (var item in Model.Devices)
             {
                 <text>
                 var pinImage;
@@ -69,7 +64,7 @@
                 else if (@item.Status.ToLower() == "0")
                 {
                     pinImage = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
-            }
+                }
 
                 marker = new google.maps.Marker({
                     position: new google.maps.LatLng(parseFloat(@item.Latitude), parseFloat(@item.Longitude)),
@@ -93,17 +88,17 @@
                                 '@item.Store.P_PostCode, @item.Store.P_City, @item.Store.P_State<br>' +
                                 '@item.Store.P_Country</p > ' +
                                 '</div>' +
-                                '<button class="btn btn-info" onclick="myFunction()">Remote</button>' +
+                                '<button class="btn btn-info" disabled onclick="myFunction()">Remote</button>' +
                                 '</div>');
                             infowindow.open(map, marker);
                         }
                     })(marker, i));
                 </text>
-            }*@
+            }
         }
     </script>
 
     <script async defer
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCbqJOiaBKfoR-MsgNEiaU5yUYtcVW94cY&libraries=places&callback=initMap">
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8VSRHXMWqEtPk2kAL_3dNOnVeElszr-o&libraries=places&callback=initMap">
     </script>
 }

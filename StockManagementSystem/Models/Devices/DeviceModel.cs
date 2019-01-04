@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -39,5 +40,7 @@ namespace StockManagementSystem.Models.Devices
         public string StoreName { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
+
+        public ICollection<Device> Devices { get; set; }
     }
 }

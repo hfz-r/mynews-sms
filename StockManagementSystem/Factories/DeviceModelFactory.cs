@@ -98,6 +98,18 @@ namespace StockManagementSystem.Factories
             return model;
         }
 
+        public async Task<DeviceModel> PrepareDeviceListModel()
+        {
+            var devices = await _deviceService.GetAllDevicesAsync();
+
+            var model = new DeviceModel
+            {
+                Devices = devices
+            };            
+
+            return model;
+        }
+
         public async Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device)
         {
             if (device != null)

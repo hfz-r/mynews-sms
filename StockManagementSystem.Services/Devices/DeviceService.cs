@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,15 @@ namespace StockManagementSystem.Services.Devices
 
             return Task.FromResult<IPagedList<Device>>(new PagedList<Device>(query, pageIndex, pageSize,
                 getOnlyTotalCount));
+        }
+
+        public Task<ICollection<Device>> GetAllDevicesAsync()
+        {
+            var query = _deviceRepository.Table;            
+
+            query = query.OrderByDescending(c => c.CreatedOnUtc);
+
+            return Task.FromResult<ICollection<Device>>(new List<Device>(query.ToList()));
         }
 
         public virtual void UpdateDevice(Device device)
