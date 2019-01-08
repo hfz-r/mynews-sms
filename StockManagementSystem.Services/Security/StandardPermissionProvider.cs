@@ -40,6 +40,13 @@ namespace StockManagementSystem.Services.Security
             SystemName = "ManageDevices",
             Category = "Device Management"
         };
+
+        public static readonly Permission ManageOrderLimit = new Permission
+        {
+            Name = "Manage Stock Order Limits",
+            SystemName = "ManageOrderLimit",
+            Category = "Setting"
+        };
         //TODO: other modules
 
         /// <summary>
@@ -54,6 +61,7 @@ namespace StockManagementSystem.Services.Security
                 ManageRoles,
                 ManagePermission,
                 ManageDevices,
+                ManageOrderLimit
             };
         }
 
@@ -74,6 +82,7 @@ namespace StockManagementSystem.Services.Security
                         ManageRoles,
                         ManagePermission,
                         ManageDevices,
+                        ManageOrderLimit
                     }
                 },
                 new DefaultPermission

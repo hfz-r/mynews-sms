@@ -213,7 +213,7 @@ namespace StockManagementSystem.Controllers
             catch (Exception e)
             {
                 _notificationService.ErrorNotification(e.Message);
-                return RedirectToAction("Edit", new { id = device.Id });
+                return RedirectToAction("EditDevice", new { id = device.Id });
             }
         }
         

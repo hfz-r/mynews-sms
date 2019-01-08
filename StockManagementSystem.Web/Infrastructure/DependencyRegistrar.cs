@@ -10,6 +10,7 @@ using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Devices;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Messages;
+using StockManagementSystem.Services.OrderLimits;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Services.Stores;
@@ -52,6 +53,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
             builder.RegisterType<RoleService>().As<IRoleService>().InstancePerLifetimeScope();
             builder.RegisterType<DeviceService>().As<IDeviceService>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderLimitService>().As<IOrderLimitService>().InstancePerLifetimeScope();
             builder.RegisterType<StoreService>().As<IStoreService>().InstancePerLifetimeScope();
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<NotificationService>().As<INotificationService>().InstancePerLifetimeScope();

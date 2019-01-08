@@ -2,8 +2,10 @@
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 using StockManagementSystem.Models.Devices;
+using StockManagementSystem.Models.OrderLimits;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
@@ -17,6 +19,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateRoleMaps();
             CreateUserMaps();
             CreateDeviceMaps();
+            CreateOrderLimitMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -92,7 +95,23 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.StoreId, options => options.Ignore())
                 .ForMember(entity => entity.Store, options => options.Ignore())
                 .ForMember(entity => entity.ModelNo, options => options.Ignore())
-                .ForMember(entity => entity.Id, options => options.Ignore());
+                .ForMember(entity => entity.Id, options => options.Ignore())
+                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedBy, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create order limit maps
+        /// </summary>
+        protected virtual void CreateOrderLimitMaps()
+        {
+            CreateMap<OrderLimit, OrderLimitModel>()
+                .ForMember(model => model.StoreName, options => options.Ignore());
+            CreateMap<OrderLimitModel, OrderLimit>()
+                .ForMember(entity => entity.Percentage, options => options.Ignore())
+                .ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
         }
 
         public int Order => 0;

@@ -629,7 +629,7 @@ a:focus {
 .sidebar-mini:not(.sidebar-mini-expand-feature).sidebar-collapse .sidebar-menu > li:hover > .treeview-menu {
     display: block !important;
     position: absolute;
-    width: 180px;
+    width: 240px;
     left: 50px;
 }
 
@@ -3130,7 +3130,7 @@ table.text-center th { text-align: center; }
 .treeview-menu > li { margin: 0; }
 
 .treeview-menu > li > a {
-    padding: 15px 5px 15px 15px;
+    padding: 15px 5px 15px 5px;
     display: block;
     font-size: 14px;
 }
