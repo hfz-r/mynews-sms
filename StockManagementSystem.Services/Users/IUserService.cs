@@ -11,6 +11,8 @@ namespace StockManagementSystem.Services.Users
         Task<IPagedList<User>> GetUsersAsync(
             DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null,
+            DateTime? lastLoginFrom = null,
+            DateTime? lastLoginTo = null,
             int[] roleIds = null,
             string email = null,
             string username = null,

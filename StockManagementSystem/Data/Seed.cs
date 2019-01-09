@@ -122,7 +122,7 @@ namespace StockManagementSystem.Data
             }
         }
 
-        private static async Task InitDefaultActivityTypes(IUserActivityService _userActivity)
+        private static async Task InitDefaultActivityTypes(IUserActivityService userActivity)
         {
             var activityLogTypes = new List<ActivityLogType>
             {
@@ -181,7 +181,7 @@ namespace StockManagementSystem.Data
                     Name = "Edit a permissions"
                 },
             };
-            await _userActivity.InsertActivityTypesAsync(activityLogTypes);
+            await userActivity.InsertActivityTypesAsync(activityLogTypes);
         }
     }
 }

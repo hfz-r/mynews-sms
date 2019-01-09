@@ -1,4 +1,4 @@
-﻿@model ActivityLogSearchModel
+﻿@model SignedInLogSearchModel
 
 <section class="content">
     <div class="form-horizontal">
@@ -9,39 +9,31 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <div class="col-md-4">
-                                    <_label asp-for="CreatedOnFrom"/>
+                                    <_label asp-for="LastLoginFrom"/>
                                 </div>
                                 <div class="col-md-8">
-                                    <_editor asp-for="CreatedOnFrom"/>
+                                    <_editor asp-for="LastLoginFrom"/>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-md-4">
-                                    <_label asp-for="CreatedOnTo"/>
+                                    <_label asp-for="LastLoginTo"/>
                                 </div>
                                 <div class="col-md-8">
-                                    <_editor asp-for="CreatedOnTo"/>
+                                    <_editor asp-for="LastLoginTo"/>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-md-4">
-                                    <_label asp-for="IpAddress"/>
+                                    <_label asp-for="LastIpAddress"/>
                                 </div>
                                 <div class="col-md-8">
-                                    <_editor asp-for="IpAddress"/>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-md-4">
-                                    <_label asp-for="ActivityLogTypeId"/>
-                                </div>
-                                <div class="col-md-8">
-                                    <_select asp-for="ActivityLogTypeId" asp-items="Model.ActivityLogType"/>
+                                    <_editor asp-for="LastIpAddress"/>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-md-8 col-md-offset-4">
-                                    <button type="button" id="search-log" class="btn btn-primary btn-search">
+                                    <button type="button" id="search-signedin-log" class="btn btn-primary btn-search">
                                         <i class="fa fa-search"></i> Search
                                     </button>
                                 </div>
@@ -53,7 +45,8 @@
 
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <div id="activitylog-grid"></div>
+                    <div id="signedinlog-grid"></div>
+
                     <style>
                         .custom-button {
                             color: #444444;
@@ -61,32 +54,27 @@
                             font-size: 1.5em;
                         }
                     </style>
+
                     <script>
+
                         $(document).ready(function() {
-                            $("#activitylog-grid").kendoGrid({
+                            $("#signedinlog-grid").kendoGrid({
                                 dataSource: {
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Raw(Url.Action("ListLogs", "ActivityLog"))",
+                                            url: "@Html.Raw(Url.Action("ListSignedIn", "Report"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: function() {
                                                 var data = {
-                                                    CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
-                                                    CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
-                                                    IpAddress: $('#@Html.IdFor(model => model.IpAddress)').val(),
-                                                    ActivityLogTypeId: $('#ActivityLogTypeId').val()
+                                                    LastLoginFrom: $('#@Html.IdFor(model => model.LastLoginFrom)').val(),
+                                                    LastLoginTo: $('#@Html.IdFor(model => model.LastLoginTo)').val(),
+                                                    LastIpAddress: $('#@Html.IdFor(model => model.LastIpAddress)').val()
                                                 };
                                                 addAntiForgeryToken(data);
                                                 return data;
                                             }
-                                        },
-                                        destroy: {
-                                            url: "@Html.Raw(Url.Action("AcivityLogDelete", "ActivityLog"))",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: addAntiForgeryToken
                                         }
                                     },
                                     schema: {
@@ -96,7 +84,7 @@
                                         model: {
                                             id: "Id",
                                             fields: {
-                                                CreatedOn: { type: "date" }
+                                                LastLoginDate: { type: "date" }
                                             }
                                         }
                                     },
@@ -121,59 +109,38 @@
                                     pageSizes: [@(Model.AvailablePageSizes)],
                                     @await Html.PartialAsync("_GridPagerMessages")
                                 },
-                                editable: {
-                                    confirmation: "Are you sure you want to delete this item?",
-                                    mode: "inline"
-                                },
                                 scrollable: false,
                                 columns: [
                                     {
-                                        field: "ActivityLogTypeName",
-                                        title: "Activity log type",
-                                        width: 200
-                                    }, {
                                         field: "UserId",
                                         title: "User",
-                                        width: 100,
-                                        template: '<a href="@Url.Content("~/User/Edit/")#=UserId#">#:UserEmail#</a>'
-                                    }, {
-                                        field: "IpAddress",
-                                        title: "IP address",
+                                        width: 200,
+                                        template: '<a href="@Url.Content("~/User/Edit/")#=UserId#">#:Email#</a>'
+                                    },
+                                    {
+                                        field: "LastIpAddress",
+                                        title: "Last IP address",
                                         width: 150
-                                    }, {
-                                        field: "Comment",
-                                        title: "Message"
-                                    }, {
-                                        field: "CreatedOn",
-                                        title: "Created on",
+                                    },
+                                    {
+                                        field: "LastLoginDate",
+                                        title: "Last login",
                                         width: 200,
                                         type: "date",
                                         format: "{0:G}"
-                                    }, {
-                                        template: "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
-                                        headerAttributes: { style: "text-align:center" },
-                                        attributes: { style: "text-align:center" }
                                     }
                                 ]
                             });
-                        });
-                    </script>
-                    <script>
-                        $(document).ready(function () {
-                            $('#search-log').click(function () {
-                                var grid = $('#activitylog-grid').data('kendoGrid');
-                                grid.dataSource.page(1); //new search. Set page size to 1
+
+                            $('#search-signedin-log').click(function () {
+                                var grid = $('#signedinlog-grid').data('kendoGrid');
+                                grid.dataSource.page(1);
                                 return false;
                             });
-
-                            $("#activitylog-grid").on("click", ".custom-button", function (e) {
-                                e.preventDefault();
-
-                                var row = $(this).closest("tr");
-                                $("#activitylog-grid").data("kendoGrid").removeRow(row);
-                            });
                         });
+
                     </script>
+
                 </div>
             </div>
         </div>

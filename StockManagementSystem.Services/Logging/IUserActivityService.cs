@@ -13,9 +13,13 @@ namespace StockManagementSystem.Services.Logging
 
         Task DeleteActivityTypeAsync(ActivityLogType activityLogType);
 
+        Task ClearAllActivitiesAsync();
+
         Task<ActivityLog> GetActivityByIdAsync(int activityLogId);
 
         Task<ActivityLogType> GetActivityTypeByIdAsync(int activityLogTypeId);
+
+        Task<IList<ActivityLog>> GetActivitiesByEntityNameAsync(string entityName = null);
 
         IPagedList<ActivityLog> GetAllActivities(DateTime? createdOnFrom = null, DateTime? createdOnTo = null,
             int? userId = null, int? activityLogTypeId = null, string ipAddress = null, string entityName = null,

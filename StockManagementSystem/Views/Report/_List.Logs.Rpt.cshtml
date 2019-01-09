@@ -1,0 +1,37 @@
+﻿@inject StockManagementSystem.Services.Common.IGenericAttributeService GenericAttributeService
+@inject IWorkContext WorkContext
+@{
+    await Html.AppendScriptParts("~/js/chart-utils.js");
+    await Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
+}
+
+<!--Pie Chart-->
+@{
+    const string prefixPie = "transaction-activity-pie";
+    const string hidePanelPieAttributeName = "HideTransActivityPiePanel";
+}
+<div id="@(prefixPie)-box" class="content clearfix">
+    @await Html.PartialAsync("../Report/TransActivityPieRpt", null, new ViewDataDictionary(ViewData)
+    {
+        {"prefix", prefixPie},
+        {"hidePanelAttributeName", hidePanelPieAttributeName}
+    })
+</div>
+
+<!--Bar Chart-->
+@{
+    const string prefixBar = "transaction-activity-bar";
+    const string hidePanelBarAttributeName = "HideTransActivityBarPanel";
+}
+<div id="@(prefixBar)-box" class="content clearfix">
+    <div class="pull-right margin-bottom">
+        @await Html.PartialAsync("../Report/_TransActivityBarToolbar", null, new ViewDataDictionary(ViewData) {{"hidePanel", false}})
+    </div>
+
+    @await Html.PartialAsync("../Report/TransActivityBarRpt", null, new ViewDataDictionary(ViewData)
+    {
+        {"prefix", prefixBar},
+        {"hidePanelAttributeName", hidePanelBarAttributeName},
+        {"hidePanel", false}
+    })
+</div>

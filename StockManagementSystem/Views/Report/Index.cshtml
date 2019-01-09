@@ -1,0 +1,39 @@
+﻿@model ActivityLogContainerModel
+
+@{
+    ViewBag.Title = "Activity reports";
+    Html.SetActiveMenuItemSystemName("activity.report");
+}
+
+
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cogs"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a asp-action="Index">@ViewBag.Title</a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="form-horizontal">
+        <_tabs id="activity-log-tabs">
+            <_tab asp-name="signedin-log" asp-title="Signed in report" asp-default="true">@await Html.PartialAsync("_List.SignedIn", Model.ListSignedIn)</_tab>
+            <_tab asp-name="activity-log" asp-title="Activity report">@await Html.PartialAsync("_List.Logs", Model.ListLogs)</_tab>
+            @*@if (User.Identity.IsAuthenticated && User.IsInRole("Admininistrator"))
+            {
+                <_tab asp-name="activity-log-types" asp-title="Activity types">@await Html.PartialAsync("_List.LogTypes", Model.ListTypes)</_tab>
+            }*@
+        </_tabs>
+    </div>
+</section>

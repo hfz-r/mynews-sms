@@ -7,6 +7,7 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Data;
 using StockManagementSystem.Data.Extensions;
 
 namespace StockManagementSystem.Services.Logging
@@ -15,19 +16,22 @@ namespace StockManagementSystem.Services.Logging
     {
         private readonly IRepository<ActivityLog> _activityLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
+        private readonly IDbContext _dbContext;
         private readonly IStaticCacheManager _cacheManager;
         private readonly IWebHelper _webHelper;
         private readonly IWorkContext _workContext;
 
         public UserActivityService(
             IRepository<ActivityLog> activityLogRepository,
-            IRepository<ActivityLogType> activityLogTypeRepository, 
+            IRepository<ActivityLogType> activityLogTypeRepository,
+            IDbContext dbContext,
             IStaticCacheManager cacheManager,
             IWebHelper webHelper, 
             IWorkContext workContext)
         {
             _activityLogRepository = activityLogRepository;
             _activityLogTypeRepository = activityLogTypeRepository;
+            _dbContext = dbContext;
             _cacheManager = cacheManager;
             _webHelper = webHelper;
             _workContext = workContext;
@@ -72,6 +76,8 @@ namespace StockManagementSystem.Services.Logging
                 return result;
             });
         }
+
+        #region ActivityLogType
 
         public async Task InsertActivityTypeAsync(ActivityLogType activityLogType)
         {
@@ -125,6 +131,10 @@ namespace StockManagementSystem.Services.Logging
             return await _activityLogTypeRepository.GetByIdAsync(activityLogTypeId);
         }
 
+        #endregion
+
+        #region Activity Log
+
         public async Task<ActivityLog> InsertActivityAsync(string systemKeyword, string comment, BaseEntity entity = null)
         {
             return await InsertActivityAsync(_workContext.CurrentUser, systemKeyword, comment, entity);
@@ -163,15 +173,21 @@ namespace StockManagementSystem.Services.Logging
             await _activityLogRepository.DeleteAsync(activityLog);
         }
 
+        public async Task ClearAllActivitiesAsync()
+        {
+            var activityLogTableName = _dbContext.GetTableName<ActivityLog>();
+            await  _dbContext.ExecuteSqlCommandAsync($"TRUNCATE TABLE [{activityLogTableName}]");
+        }
+
         public IPagedList<ActivityLog> GetAllActivities(
             DateTime? createdOnFrom = null,
             DateTime? createdOnTo = null,
-            int? userId = null, 
-            int? activityLogTypeId = null, 
-            string ipAddress = null, 
+            int? userId = null,
+            int? activityLogTypeId = null,
+            string ipAddress = null,
             string entityName = null,
             int? entityId = null,
-            int pageIndex = 0, 
+            int pageIndex = 0,
             int pageSize = int.MaxValue)
         {
             var query = _activityLogRepository.Table;
@@ -205,6 +221,16 @@ namespace StockManagementSystem.Services.Logging
             return new PagedList<ActivityLog>(query, pageIndex, pageSize);
         }
 
+        public async Task<IList<ActivityLog>> GetActivitiesByEntityNameAsync(string entityName = null)
+        {
+            var activities = _activityLogRepository.Table;
+
+            if (!string.IsNullOrEmpty(entityName))
+                activities = activities.Where(logItem => logItem.EntityName.Equals(entityName));
+
+            return await activities.ToListAsync();
+        }
+
         public async Task<ActivityLog> GetActivityByIdAsync(int activityLogId)
         {
             if (activityLogId == 0)
@@ -212,5 +238,7 @@ namespace StockManagementSystem.Services.Logging
 
             return await _activityLogRepository.GetByIdAsync(activityLogId);
         }
+
+        #endregion
     }
 }

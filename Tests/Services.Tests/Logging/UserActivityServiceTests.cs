@@ -76,7 +76,7 @@ namespace Services.Tests.Logging
             _activityLogRepository.Setup(x => x.Table)
                 .Returns(new List<ActivityLog> {_activity1, _activity2}.AsQueryable());
             _userActivityService = new UserActivityService(_activityLogRepository.Object,
-                _activityLogTypeRepository.Object, _cacheManager, _webHelper.Object, _workContext.Object);
+                _activityLogTypeRepository.Object, null, _cacheManager, _webHelper.Object, _workContext.Object);
         }
 
         [Test]

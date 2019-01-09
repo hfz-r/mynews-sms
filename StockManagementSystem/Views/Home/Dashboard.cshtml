@@ -17,6 +17,7 @@
 </section>
 
 <section class="content">
+
     <!-- Panels -->
     <div class="box box-default box">
         <div class=" box-body">
@@ -27,17 +28,10 @@
             </div>
         </div>
     </div>
-
+    
     @if (User.Identity.IsAuthenticated && User.IsInRole("Administrators"))
     {
-        <div class="row">
-            <div class="col-md-6">
-                @await Html.PartialAsync("../Reports/TransActivityRpt")
-            </div>
-            <div class="col-md-6">
-                @await Html.PartialAsync("../Reports/TransActivityPieRpt")
-            </div>
-        </div>
+        @await Component.InvokeAsync("TransActivityPanel")
     }
 
     <div class="box box-danger">
@@ -54,7 +48,8 @@
         </div>
     </div>
 </section>
-<_alert asp-alert-id="loadCustomerStatisticsAlert" asp-alert-message="Failed to load transaction activity report." />
+<_alert asp-alert-id="loadTAPieRptAlert" asp-alert-message="Failed to load (pie chart) transaction activity report." />
+<_alert asp-alert-id="loadTABarRptAlert" asp-alert-message="Failed to load (bar chart) transaction activity report." />
 
 @section scripts{
     <script type="text/javascript">

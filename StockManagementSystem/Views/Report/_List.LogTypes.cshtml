@@ -1,0 +1,142 @@
+﻿@using System.Text.Encodings.Web
+@model List<ActivityLogTypeModel>
+
+<_antiforgery-token/>
+<form asp-controller="Report" asp-action="ListTypes" method="post">
+    <section class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="activitylogtype-grid"></div>
+
+                        <script>
+                            var activityLogTypes = [
+                                @for (var i = 0; i < Model.Count; i++)
+                                {
+                                    var alt = Model[i];
+                                    <text>
+                                        {
+                                            Id: @(alt.Id),
+                                            Name: "@(Html.Raw(JavaScriptEncoder.Default.Encode(alt.Name)))",
+                                            Enabled: @(alt.Enabled.ToString().ToLowerInvariant())
+                                        }
+                                    </text>
+                                    if (i != Model.Count - 1)
+                                    {
+                                        <text>,</text>
+                                    }
+                                }
+                            ];
+
+                            $(document).ready(function() {
+                                $("#activitylogtype-grid").kendoGrid({
+                                    dataSource: {
+                                        data: activityLogTypes,
+                                        schema: {
+                                            model: {
+                                                fields: {
+                                                    Id: { type: "number" },
+                                                    Name: { type: "string" },
+                                                    Enabled: { type: "boolean" }
+                                                }
+                                            }
+                                        },
+                                        error: function(e) {
+                                            display_kendoui_grid_error(e);
+                                            this.cancelChanges();
+                                        }
+                                    },
+                                    sortable: {
+                                        mode: "single",
+                                        allowUnsort: false
+                                    },
+                                    filterable: true,
+                                    columnMenu: { columns: false },
+                                    pageable: {
+                                        refresh: true,
+                                        numeric: false,
+                                        previousNext: false,
+                                        info: false,
+                                        @await Html.PartialAsync("_GridPagerMessages")
+                                    },
+                                    toolbar: [
+                                        {
+                                            name: "save",
+                                            text: "Save",
+                                            iconClass: "glyphicon btn-glyphicon glyphicon-saved img-circle text-danger"
+                                        }
+                                    ],
+                                    scrollable: false,
+                                    columns: [
+                                        {
+                                            field: "Name",
+                                            title: "Name",
+                                            width: 100
+                                        }, {
+                                            field: "Enabled",
+                                            headerTemplate:
+                                                "<div class='checkbox'><label><input id='mastercheckbox' type='checkbox'/>Enabled</label></div>",
+                                            headerAttributes: { style: "text-align:center" },
+                                            attributes: { style: "text-align:center" },
+                                            template:
+                                                "<input name='checkbox_activity_types' value='#=Id#' type='checkbox' class='checkboxGroups' # if(Enabled) {# checked='checked' #}  # />",
+                                            width: 100,
+                                            sortable: false,
+                                            filterable: false
+                                        }
+                                    ]
+                                });
+                            });
+
+                        </script>
+                        <script>
+                            $(document).ready(function() {
+                                //Removing Column Menu
+                                var grid = $("#activitylogtype-grid").data("kendoGrid");
+                                grid.thead.find("[data-field=Enabled]>.k-header-column-menu").remove();
+
+                                updateMasterCheckbox();
+
+                                $('#mastercheckbox').click(function() {
+                                    $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+                                });
+
+                                //wire up checkboxes.
+                                $('#activitylogtype-grid').on('change',
+                                    'input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]',
+                                    function(e) {
+                                        updateMasterCheckbox();
+                                    });
+
+                                grid.bind("saveChanges", grid_saveChanges);
+                                $(".k-grid-save-changes").click(function(e) {
+                                    e.preventDefault();
+                                    grid.saveChanges();
+                                });
+
+                            });
+
+                            function updateMasterCheckbox() {
+                                var numChkBoxes =
+                                    $(
+                                            '#activitylogtype-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]')
+                                        .length;
+                                var numChkBoxesChecked =
+                                    $(
+                                            '#activitylogtype-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]:checked')
+                                        .length;
+                                $('#mastercheckbox').attr('checked',
+                                    numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+                            }
+
+                            function grid_saveChanges(e) {
+                                $('form').submit();
+                            }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

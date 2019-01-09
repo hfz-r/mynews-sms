@@ -41,10 +41,9 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
                     try
                     {
-                        var currentUser = EngineContext.Current?.Resolve<IWorkContext>()?.CurrentUser;
-
+                        var currentUser = EngineContext.Current.Resolve<IWorkContext>().CurrentUser;
                         //TODO: Global exception handler, maybe log it, or ??
-                        //EngineContext.Current?.Resolve<ILogger>()?.LogError(exception.Message, exception, currentUser);
+                        //EngineContext.Current.Resolve<ILogger>().LogError(exception.Message, exception, currentUser);
                     }
                     finally
                     {

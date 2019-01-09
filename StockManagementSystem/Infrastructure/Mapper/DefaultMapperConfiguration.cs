@@ -49,7 +49,12 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.NormalizedName, options => options.Ignore())
                 .ForMember(entity => entity.SystemName, options => options.Ignore())
                 .ForMember(entity => entity.Claims, options => options.Ignore())
-                .ForMember(entity => entity.UserRoles, options => options.Ignore());
+                .ForMember(entity => entity.UserRoles, options => options.Ignore())
+                .ForMember(entity => entity.PermissionRoles, options => options.Ignore())
+                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
+                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
         }
 
         /// <summary>
@@ -84,7 +89,11 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedBy, options => options.Ignore());
+                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
+                .ForMember(entity => entity.Logins, options => options.Ignore())
+                .ForMember(entity => entity.Tokens, options => options.Ignore())
+                .ForMember(entity => entity.Claims, options => options.Ignore())
+                .ForMember(entity => entity.UserRoles, options => options.Ignore());
         }
 
         /// <summary>
@@ -101,12 +110,38 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.ActivityLogTypeId, options => options.Ignore())
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.User, options => options.Ignore())
-                .ForMember(entity => entity.EntityId, options => options.Ignore())
-                .ForMember(entity => entity.EntityName, options => options.Ignore());
+                .ForMember(entity => entity.EntityId, options => options.Ignore());
 
             CreateMap<ActivityLogType, ActivityLogTypeModel>();
             CreateMap<ActivityLogTypeModel, ActivityLogType>()
                 .ForMember(entity => entity.SystemKeyword, options => options.Ignore());
+
+            CreateMap<User, SignedInLogModel>()
+                .ForMember(model => model.UserId, options => options.Ignore())
+                .ForMember(model => model.LastLoginDate, options => options.Ignore());
+            CreateMap<SignedInLogModel, User>()
+                .ForMember(entity => entity.UserGuid, options => options.Ignore())
+                .ForMember(entity => entity.AccessFailedCount, options => options.Ignore())
+                .ForMember(entity => entity.ConcurrencyStamp, options => options.Ignore())
+                .ForMember(entity => entity.LockoutEnabled, options => options.Ignore())
+                .ForMember(entity => entity.LockoutEnd, options => options.Ignore())
+                .ForMember(entity => entity.NormalizedEmail, options => options.Ignore())
+                .ForMember(entity => entity.NormalizedUserName, options => options.Ignore())
+                .ForMember(entity => entity.PasswordHash, options => options.Ignore())
+                .ForMember(entity => entity.SecurityStamp, options => options.Ignore())
+                .ForMember(entity => entity.AdminComment, options => options.Ignore())
+                .ForMember(entity => entity.UserName, options => options.Ignore())
+                .ForMember(entity => entity.Name, options => options.Ignore())
+                .ForMember(entity => entity.LastActivityDateUtc, options => options.Ignore())
+                .ForMember(entity => entity.LastLoginDateUtc, options => options.Ignore())
+                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
+                .ForMember(entity => entity.Logins, options => options.Ignore())
+                .ForMember(entity => entity.Tokens, options => options.Ignore())
+                .ForMember(entity => entity.Claims, options => options.Ignore())
+                .ForMember(entity => entity.UserRoles, options => options.Ignore());
         }
 
         public int Order => 0;

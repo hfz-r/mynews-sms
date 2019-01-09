@@ -43,6 +43,8 @@ namespace StockManagementSystem.Services.Users
         public Task<IPagedList<User>> GetUsersAsync(
             DateTime? createdFromUtc = null,
             DateTime? createdToUtc = null,
+            DateTime? lastLoginFrom = null,
+            DateTime? lastLoginTo = null,
             int[] roleIds = null,
             string email = null,
             string username = null,
@@ -54,10 +56,16 @@ namespace StockManagementSystem.Services.Users
         {
             var query = _userRepository.Table;
 
+            //search by created on
             if (createdFromUtc.HasValue)
                 query = query.Where(c => createdFromUtc.Value <= c.CreatedOnUtc);
             if (createdToUtc.HasValue)
                 query = query.Where(c => createdToUtc.Value >= c.CreatedOnUtc);
+            //search by last login
+            if (lastLoginFrom.HasValue)
+                query = query.Where(c => lastLoginFrom.Value <= c.LastLoginDateUtc);
+            if (lastLoginTo.HasValue)
+                query = query.Where(c => lastLoginTo.Value >= c.LastLoginDateUtc);
 
             if (roleIds != null && roleIds.Length > 0)
             {

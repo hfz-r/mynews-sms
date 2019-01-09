@@ -15,6 +15,8 @@ namespace StockManagementSystem.Models.Logging
         [Display(Name = "User")]
         public string UserEmail { get; set; }
 
+        public string EntityName { get; set; }
+
         [Display(Name = "Message")]
         public string Comment { get; set; }
 

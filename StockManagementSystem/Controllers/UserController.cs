@@ -30,8 +30,6 @@ namespace StockManagementSystem.Controllers
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly IUserActivityService _userActivityService;
-        private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserController(
             IUserService userService,
@@ -40,8 +38,6 @@ namespace StockManagementSystem.Controllers
             IPermissionService permissionService,
             INotificationService notificationService,
             IUserActivityService userActivityService,
-            IDateTimeHelper dateTimeHelper,
-            IHttpContextAccessor httpContextAccessor,
             ILogger<UserController> logger)
         {
             _userService = userService;
@@ -50,8 +46,6 @@ namespace StockManagementSystem.Controllers
             _permissionService = permissionService;
             _notificationService = notificationService;
             _userActivityService = userActivityService;
-            _dateTimeHelper = dateTimeHelper;
-            _httpContextAccessor = httpContextAccessor;
 
             Logger = logger;
         }
@@ -276,186 +270,6 @@ namespace StockManagementSystem.Controllers
             var model = await _userModelFactory.PrepareUserActivityLogListModel(searchModel, user);
 
             return Json(model);
-        }
-
-        #endregion
-
-        #region Chart
-
-        public async Task<IActionResult> LoadUserTransActivity(string period)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers))
-                return Content(String.Empty);
-
-            var result = new List<object>();
-
-            var nowDt = _dateTimeHelper.ConvertToUserTime(DateTime.Now);
-            var timeZone = _dateTimeHelper.CurrentTimeZone;
-            var searchRoleIds = new[] { (await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName)).Id };
-
-            var features = _httpContextAccessor.HttpContext?.Features?.Get<IRequestCultureFeature>();
-            var culture = features?.RequestCulture.Culture;
-
-            switch (period)
-            {
-                case "year":
-                    var yearAgoDt = nowDt.AddYears(-1).AddMonths(1);
-                    var yearToSearch = new DateTime(yearAgoDt.Year, yearAgoDt.Month, 1);
-                    for (int i = 0; i <= 12; i++)
-                    {
-                        result.Add(new
-                        {
-                            date = yearToSearch.Date.ToString("Y", culture),
-                            value = (await _userService.GetUsersAsync(
-                                createdFromUtc: _dateTimeHelper.ConvertToUtcTime(yearToSearch, timeZone),
-                                createdToUtc: _dateTimeHelper.ConvertToUtcTime(yearToSearch.AddMonths(1), timeZone),
-                                roleIds: searchRoleIds, pageIndex: 0, pageSize: 1, getOnlyTotalCount: true)).TotalCount.ToString()
-                        });
-
-                        yearToSearch = yearToSearch.AddMonths(1);
-                    }
-                    break;
-
-                case "month":
-                    var monthAgoDt = nowDt.AddDays(-30);
-                    var monthToSearch = new DateTime(monthAgoDt.Year, monthAgoDt.Month, monthAgoDt.Day);
-                    for (int i = 0; i <= 30; i++)
-                    {
-                        result.Add(new
-                        {
-                            date = monthToSearch.Date.ToString("M", culture),
-                            value = (await _userService.GetUsersAsync(
-                                createdFromUtc: _dateTimeHelper.ConvertToUtcTime(monthToSearch, timeZone),
-                                createdToUtc: _dateTimeHelper.ConvertToUtcTime(monthToSearch.AddDays(1), timeZone),
-                                roleIds: searchRoleIds, pageIndex: 0,  pageSize: 1, getOnlyTotalCount: true)).TotalCount.ToString()
-                        });
-
-                        monthToSearch = monthToSearch.AddDays(1);
-                    }
-                    break;
-
-                case "week":
-                    var weekAgoDt = nowDt.AddDays(-7);
-                    var weekToSearch = new DateTime(weekAgoDt.Year, weekAgoDt.Month, weekAgoDt.Day);
-                    for (var i = 0; i <= 7; i++)
-                    {
-                        result.Add(new
-                        {
-                            date = weekToSearch.Date.ToString("d dddd", culture),
-                            value = (await _userService.GetUsersAsync(
-                                createdFromUtc: _dateTimeHelper.ConvertToUtcTime(weekToSearch, timeZone),
-                                createdToUtc: _dateTimeHelper.ConvertToUtcTime(weekToSearch.AddDays(1), timeZone),
-                                roleIds: searchRoleIds, pageIndex: 0, pageSize: 1, getOnlyTotalCount: true)).TotalCount.ToString()
-                        });
-
-                        weekToSearch = weekToSearch.AddDays(1);
-                    }
-                    break;
-            }
-
-            return Json(result);
-        }
-
-        public async Task<IActionResult> GetTransActivityDataPieChart(string period)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers))
-                return Content(String.Empty);
-
-            var result = new List<object>();
-
-            var nowDt = _dateTimeHelper.ConvertToUserTime(DateTime.Now);
-            var timeZone = _dateTimeHelper.CurrentTimeZone;
-            var features = _httpContextAccessor.HttpContext?.Features?.Get<IRequestCultureFeature>();
-            var culture = features?.RequestCulture.Culture;
-
-            switch (period)
-            {
-                case "year":
-                    var yearAgoDt = nowDt.AddYears(-1).AddMonths(1);
-                    var yearToSearch = new DateTime(yearAgoDt.Year, yearAgoDt.Month, 1);
-                    for (int i = 0; i <= 12; i++)
-                    {
-                        var activities = _userActivityService.GetAllActivities(
-                                createdOnFrom: _dateTimeHelper.ConvertToUtcTime(yearToSearch, timeZone),
-                                createdOnTo: _dateTimeHelper.ConvertToUtcTime(yearToSearch.AddMonths(1), timeZone))
-                            .GroupBy(activity => activity.EntityName)
-                            .Select(e => new
-                            {
-                                entity = e.Key,
-                                total = e.Count().ToString()
-                            });
-
-                        foreach (var activity in activities)
-                        {
-                            result.Add(new
-                            {
-                                label = activity.entity,
-                                value = activity.total
-                            });
-                        }
-
-                        yearToSearch = yearToSearch.AddMonths(1);
-                    }
-                    break;
-
-                case "month":
-                    var monthAgoDt = nowDt.AddDays(-30);
-                    var monthToSearch = new DateTime(monthAgoDt.Year, monthAgoDt.Month, monthAgoDt.Day);
-                    for (int i = 0; i <= 30; i++)
-                    {
-                        var activities = _userActivityService.GetAllActivities(
-                                createdOnFrom: _dateTimeHelper.ConvertToUtcTime(monthToSearch, timeZone),
-                                createdOnTo: _dateTimeHelper.ConvertToUtcTime(monthToSearch.AddDays(1), timeZone))
-                            .GroupBy(activity => activity.EntityName)
-                            .Select(e => new
-                            {
-                                entity = e.Key,
-                                total = e.Count().ToString()
-                            });
-
-                        foreach (var activity in activities)
-                        {
-                            result.Add(new
-                            {
-                                label = activity.entity,
-                                value = activity.total
-                            });
-                        }
-
-                        monthToSearch = monthToSearch.AddDays(1);
-                    }
-                    break;
-
-                case "week":
-                    var weekAgoDt = nowDt.AddDays(-7);
-                    var weekToSearch = new DateTime(weekAgoDt.Year, weekAgoDt.Month, weekAgoDt.Day);
-                    for (var i = 0; i <= 7; i++)
-                    {
-                        var activities = _userActivityService.GetAllActivities(
-                                createdOnFrom: _dateTimeHelper.ConvertToUtcTime(weekToSearch, timeZone),
-                                createdOnTo: _dateTimeHelper.ConvertToUtcTime(weekToSearch.AddDays(1), timeZone))
-                            .GroupBy(activity => activity.EntityName)
-                            .Select(e => new
-                            {
-                                entity = e.Key,
-                                total = e.Count().ToString()
-                            });
-
-                        foreach (var activity in activities)
-                        {
-                            result.Add(new
-                            {
-                                label = activity.entity,
-                                value = activity.total
-                            });
-                        }
-
-                        weekToSearch = weekToSearch.AddDays(1);
-                    }
-                    break;
-            }
-
-            return Json(result);
         }
 
         #endregion
