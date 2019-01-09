@@ -28,14 +28,14 @@
             </div>
         </div>
     </div>
-    @*Phase 2 Development*@
-    @*<div class="box box-danger">
     
     @if (User.Identity.IsAuthenticated && User.IsInRole("Administrators"))
     {
         @await Component.InvokeAsync("TransActivityPanel")
     }
 
+    @*Phase 2 Development*@
+    @*<div class="box box-danger">
         <div class="box-header with-border">
             <h3 class="box-title">Pending Transaction for Approval</h3>
             <div class="box-tools pull-right">
