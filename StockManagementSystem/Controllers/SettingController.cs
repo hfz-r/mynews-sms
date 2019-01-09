@@ -3,229 +3,258 @@ using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
-using StockManagementSystem.Models.Setting;
+using StockManagementSystem.Factories;
+using StockManagementSystem.Models.OrderLimits;
+using StockManagementSystem.Services.Messages;
+using StockManagementSystem.Services.OrderLimits;
+using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Stores;
+using StockManagementSystem.Web.Controllers;
+using StockManagementSystem.Web.Mvc;
+using StockManagementSystem.Web.Mvc.Filters;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace StockManagementSystem.Controllers
 {
-    public class SettingController : Controller
+    public class SettingController : BaseController
     {
+        private readonly IOrderLimitService _orderLimitService;
+        private readonly IStoreService _storeService;
         private readonly IRepository<Approval> _approvalRepository;
         private readonly IRepository<OrderLimit> _orderLimitRepository;
         private readonly IRepository<OrderLimitStore> _orderLimitStoreRepository;
         private readonly IRepository<Store> _storeRepository;
+        private readonly IOrderLimitModelFactory _orderLimitModelFactory;
+        private readonly IPermissionService _permissionService;
+        private readonly INotificationService _notificationService;
         private readonly ILogger _logger;
 
         #region Constructor
 
         public SettingController(
+            IOrderLimitService orderLimitService,
+            IStoreService storeService,
             IRepository<Approval> approvalRepository,
             IRepository<OrderLimit> orderLimitRepository,
             IRepository<OrderLimitStore> orderLimitStoreRepository,
             IRepository<Store> storeRepository,
+            IOrderLimitModelFactory orderLimitModelFactory,
+            IPermissionService permissionService,
+            INotificationService notificationService,
             ILoggerFactory loggerFactory)
         {
+            this._orderLimitService = orderLimitService;
+            this._storeService = storeService;
             this._approvalRepository = approvalRepository;
             this._orderLimitRepository = orderLimitRepository;
             this._orderLimitStoreRepository = orderLimitStoreRepository;
             this._storeRepository = storeRepository;
+            this._orderLimitModelFactory = orderLimitModelFactory;
+            _permissionService = permissionService;
+            _notificationService = notificationService;
             _logger = loggerFactory.CreateLogger<SettingController>();
-
         }
+
+        public ILogger Logger { get; }
 
         #endregion
 
         #region Stock Order
 
-        [HttpGet]
-        public IActionResult Order()
+        public async Task<IActionResult> Order()
         {
-            return View("Order", GetAllOrderLimit());
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            var model = await _orderLimitModelFactory.PrepareOrderLimitSearchModel(new OrderLimitSearchModel());
+
+            return View(model);
         }
 
-        [HttpGet]
-        public IActionResult AddOrder()
+        public async Task<IActionResult> GetStore()
         {
-            return View("AddOrder", GetAllStore());
-        }
+            var model = await _orderLimitModelFactory.PrepareOrderLimitSearchModel(new OrderLimitSearchModel());
 
-        // POST: /Order/AddOrder
+            return View(model);
+        }
+        
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult SaveOrderLimit(SettingViewModel model)
+        public async Task<IActionResult> AddOrderLimit(OrderLimitModel model)
         {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+            
+            if (model.SelectedStoreIds.Count == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Store is required to register a device");
+                _notificationService.ErrorNotification("Store is required to register a device");
+                return new NullJsonResult();
+            }
+
             try
             {
-                if (ModelState.IsValid)
+                OrderLimit orderLimit = new OrderLimit();
+                orderLimit.Percentage = model.Percentage;
+                orderLimit.OrderLimitStores = new List<OrderLimitStore>();
+
+                //Add store
+                foreach (var store in model.SelectedStoreIds)
                 {
-                    if (!OrderLimitExist(model))
-                    {
-                        var orderLimit = new OrderLimit
-                        {
-                            Percentage = model.Percentage,
-                            CreatedBy = @Environment.UserName,
-                            CreatedOnUtc = DateTime.UtcNow, //TODO Change to get server datetime
-                            ModifiedBy = @Environment.UserName,
-                            ModifiedOnUtc = DateTime.UtcNow //TODO Change to get server datetime
-                        };
+                    OrderLimitStore orderLimitStore = new OrderLimitStore();
+                    orderLimitStore.OrderLimitId = orderLimit.Id;
+                    orderLimitStore.StoreId = store;
 
-                        _orderLimitRepository.Insert(orderLimit);
-
-                        var orderLimitStore = new OrderLimitStore
-                        {
-                            StoreId = model.P_BranchNo,
-                            OrderLimitId = orderLimit.Id,
-                            CreatedBy = @Environment.UserName,
-                            CreatedOnUtc = DateTime.UtcNow, //TODO Change to get server datetime
-                            ModifiedBy = @Environment.UserName,
-                            ModifiedOnUtc = DateTime.UtcNow //TODO Change to get server datetime
-
-                        };
-
-                        _orderLimitStoreRepository.Insert(orderLimitStore);
-
-                        _logger.LogInformation(3, "Order Limit" + " created successfully.");
-                        return RedirectToAction("Order");
-                    }
-                    else
-                    {
-                        return View("AddOrder", model);
-                    }
+                    orderLimit.OrderLimitStores.Add(orderLimitStore);
                 }
 
-                // If we got this far, something failed, redisplay form
-                return View("AddOrder", model);
-            }
-            catch (Exception ex)
-            {
-                AddErrors(ex.Message);
-            }
+                await _orderLimitService.InsertOrderLimit(orderLimit);
 
-            return View("AddOrder", model);
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                _notificationService.ErrorNotification(e.Message);
+
+                return Json(e.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> OrderLimitList(OrderLimitSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedKendoGridJson();
+
+            var model = await _orderLimitModelFactory.PrepareOrderLimitListModel(searchModel);
+
+            return Json(model);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditOrderLimit(int? id)
+        public async Task<IActionResult> EditOrder(int id)
         {
-            return View("EditOrder", GetOrderLimit(id));
-        }
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
 
-        // POST: /Device/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult SaveEditedOrderLimit(int id, SettingViewModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    var orderLimit = _orderLimitRepository.Table.FirstOrDefault(x => x.Id == model.OrderLimitId);
-                    orderLimit.Percentage = model.Percentage;
-                    orderLimit.ModifiedBy = @Environment.UserName;
-                    orderLimit.ModifiedOnUtc = DateTime.UtcNow; //TODO Change to get server datetime                    
-
-                    _orderLimitRepository.Update(orderLimit);
-
-                    var orderLimitStore = _orderLimitStoreRepository.Table.FirstOrDefault(x => x.OrderLimitId == model.OrderLimitId);
-                    orderLimitStore.StoreId = model.P_BranchNo;
-
-                    _orderLimitStoreRepository.Update(orderLimitStore);
-
-                    _logger.LogInformation(3, "Order Limit" + " edited successfully.");
-                    return RedirectToAction("Order");
-                }
-
-                // If we got this far, something failed, redisplay form
-                return View("RegisterDevice", model);
-            }
-            catch (Exception ex)
-            {
-                AddErrors(ex.Message);
-            }
-
-            return View("RegisterDevice", model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteOrderLimit(int? id)
-        {
-            if (id == null)
-            {
-                return BadRequest();
-            }
-
-            OrderLimitStore orderLimitStore = _orderLimitStoreRepository.Table.FirstOrDefault(x => x.OrderLimitId == id);
-            _orderLimitStoreRepository.Delete(orderLimitStore);
-
-            if (orderLimitStore == null)
-            {
-                return NotFound();
-            }
-
-            OrderLimit orderLimit = _orderLimitRepository.GetById(id);
-            _orderLimitRepository.Delete(orderLimit);
-
+            var orderLimit = await _orderLimitService.GetOrderLimitByIdAsync(id);
             if (orderLimit == null)
+                return RedirectToAction("Order");
+
+            var model = await _orderLimitModelFactory.PrepareOrderLimitModel(null, orderLimit);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
+        public async Task<IActionResult> EditOrder(OrderLimitModel model, bool continueEditing)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            var orderLimit = await _orderLimitService.GetOrderLimitByIdAsync(model.Id);
+            if (orderLimit == null)
+                return RedirectToAction("Order");
+
+            //validate stores
+            var allStores = await _storeService.GetStoresAsync();
+            var newStores = new List<Store>();
+            foreach (var store in allStores)
             {
-                return NotFound();
+                if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                    newStores.Add(store);
             }
 
-            return RedirectToAction("Order");
-        }
-
-        private bool OrderLimitExist(SettingViewModel model)
-        {
-            //TODO
-            //if (_orderLimitRepository.Table.Any(x => x.ModelNo == model.ModelNo && x.SerialNo == model.SerialNo))
-            //    return true;
-            //else
-                return false;
-        }
-
-        private SettingViewModel GetOrderLimit(int? id)
-        {
-            OrderLimit orderLimit = _orderLimitRepository.GetById(id);
-            ICollection<OrderLimit> orderLimits = new ObservableCollection<OrderLimit>();
-            orderLimits.Add(orderLimit);
-
-            OrderLimitStore orderLimitStore = _orderLimitStoreRepository.Table.FirstOrDefault(x => x.OrderLimitId == id);
-
-            SettingViewModel model = new SettingViewModel
+            if(model.SelectedStoreIds.Count == 0)
             {
-                OrderLimitId = id,
-                Percentage = orderLimit.Percentage,
-                P_BranchNo = orderLimitStore.StoreId,
-                Store = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
-            };
+                _notificationService.ErrorNotification("Store is required");
+                model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
+                model.SelectedStoreIds = new List<int>();
 
-            return model;
-        }
+                return View(model);
+            }
 
-        private SettingViewModel GetAllOrderLimit()
-        {
-            SettingViewModel model = new SettingViewModel
+            if (ModelState.IsValid)
             {
-                OrderLimit = _orderLimitRepository.Table.ToList()
-            };
+                try
+                {
+                    orderLimit.Percentage = model.Percentage;
 
-            return model;
+                    //stores
+
+                    List<OrderLimitStore> orderLimitStoreList = new List<OrderLimitStore>();
+
+                    foreach (var store in allStores)
+                    {
+                        if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                        {
+                            //new store
+                            if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                            {
+                                OrderLimitStore orderLimitStore = new OrderLimitStore();
+                                orderLimitStore.OrderLimitId = orderLimit.Id;
+                                orderLimitStore.StoreId = store.P_BranchNo; 
+
+                                orderLimit.OrderLimitStores.Add(orderLimitStore);
+                            }
+                        }
+                        else
+                        {
+                            //remove store
+                            if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                                _orderLimitService.DeleteOrderLimitStore(model.Id, store);
+                        }
+                    }
+
+                    _orderLimitService.UpdateOrderLimit(orderLimit);
+
+                    _notificationService.SuccessNotification("Order limit has been updated successfully.");
+
+                    if (!continueEditing)
+                        return RedirectToAction("Order");
+
+                    //selected tab
+                    SaveSelectedTabName();
+
+                    return RedirectToAction("EditOrder", new { id = orderLimit.Id });
+                }
+                catch (Exception e)
+                {
+                    _notificationService.ErrorNotification(e.Message);
+                }
+            }
+
+            model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
+
+            return View(model);
         }
-
-        private SettingViewModel GetAllStore()
+        
+        public async Task<IActionResult> DeleteOrderLimit(int id)
         {
-            SettingViewModel model = new SettingViewModel
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            var orderLimit = await _orderLimitService.GetOrderLimitByIdAsync(id);
+            if (orderLimit == null)
+                return RedirectToAction("Order");
+
+            try
             {
-                Store = _storeRepository.Table.OrderBy(x => x.P_Name).ToList()
-            };
+                _orderLimitService.DeleteOrderLimit(orderLimit);
 
-            return model;
+                _notificationService.SuccessNotification("Order limit has been deleted successfully.");
+
+                return RedirectToAction("Order");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return RedirectToAction("EditOrder", new { id = orderLimit.Id });
+            }
         }
-
+        
         #endregion
 
         #region Approval

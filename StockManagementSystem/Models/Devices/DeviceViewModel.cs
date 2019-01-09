@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using StockManagementSystem.Core.Domain.Devices;
+﻿using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Stores;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace StockManagementSystem.Models.Devices
 {

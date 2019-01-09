@@ -1,12 +1,12 @@
-@model OrderLimitSearchModel
+﻿@model DeviceSearchModel
 
 @{
     //page title
-    ViewBag.Title = "Stock Order Limit";
+    ViewBag.Title = "Device Management";
     //active menu item (system name)
-    Html.SetActiveMenuItemSystemName("setting.order");
+    Html.SetActiveMenuItemSystemName("device.manage");
 }
-<form asp-controller="Setting" asp-action="Order" method="post">
+<form asp-controller="Device" asp-action="Index" method="post">
     <section class="content-header clearfix">
         <h1 class="pull-left">@ViewBag.Title</h1>
         <ol class="breadcrumb pull-right">
@@ -21,7 +21,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item active">
-                <a href="@Url.Action("Order", "Setting")">@ViewBag.Title</a>
+                <a href="@Url.Action("Index", "Device")">@ViewBag.Title</a>
             </li>
         </ol>
     </section>
@@ -35,23 +35,23 @@
                             <div class="col-xs-5">
                                 <div class="form-group">
                                     <div class="col-xs-4">
-                                        <label asp-for="SearchPercentage" class="control-label pull-right"></label>
+                                        <label asp-for="SearchSerialNo" class="control-label pull-right"></label>
                                     </div>
                                     <div class="col-xs-8">
-                                        <input asp-for="SearchPercentage" class="form-control" />
+                                        <input asp-for="SearchSerialNo" class="form-control" />
                                     </div>
                                 </div>
                             </div>
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <div class="col-xs-4">
-                                        <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+                                        <label asp-for="SelectedStoreId" class="control-label pull-right"></label>
                                     </div>
                                     <div class="col-xs-8">
-                                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                                        <select asp-for="SelectedStoreId" asp-items="Model.AvailableStores" asp-multiple="true"></select>
                                         <script>
                                         $(document).ready(function() {
-                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
+                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreId)')
                                                 .kendoMultiSelect({
                                                     autoClose: false,
                                                     filter: "contains"
@@ -73,7 +73,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-2 col-xs-offset-5">
-                                <button type="button" id="search-orderLimit" class="btn btn-primary btn-search">
+                                <button type="button" id="search-devices" class="btn btn-primary btn-search">
                                     <i class="fa fa-search"></i> Search
                                 </button>
                             </div>
@@ -99,26 +99,25 @@
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Raw(Url.Action("OrderLimitList", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("DeviceList", "Device"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: function() {
                                                 var data = {
-                                                    SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
-                                                    SearchPercentage: $('#@Html.IdFor(model => model.SearchPercentage)').val()
+                                                    SelectedStoreId: $('#@Html.IdFor(model => model.SelectedStoreId)').val(),
+                                                    SearchSerialNo: $('#@Html.IdFor(model => model.SearchSerialNo)').val()
                                                 };
                                                 addAntiForgeryToken(data);
                                                 return data;
                                             }
                                         },
                                         create: {
-                                            url: "@Html.Raw(Url.Action("AddOrderLimit", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("AddDevice", "Device"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         }
                                     },
-                                    
                                     schema: {
                                         data: "Data",
                                         total: "Total",
@@ -127,9 +126,10 @@
                                             id: "Id",
                                             fields: {
                                                 Id: { editable: false, type: "number" },
-                                                Percentage: { editable: true, validation: { required: true } },
+                                                SerialNo: { editable: true, validation: { required: true } },
+                                                ModelNo: { editable: true, validation: { required: true } },
                                                 StoreName: { type: "string"},
-                                                SelectedStoreIds: { editable: true, validation: { required: true } }
+                                                SelectedStoreId: { editable: true, validation: { required: true } }
                                             }
                                         }
                                     },
@@ -163,7 +163,7 @@
                                 toolbar: [
                                     {
                                         name: "create",
-                                        url: "@Html.Raw(Url.Action("AddOrderLimit", "Setting"))",
+                                        url: "@Html.Raw(Url.Action("AddDevice", "Device"))",
                                         text: "Add",
                                         iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
                                     }
@@ -171,38 +171,41 @@
                                 scrollable: false,
                                 columns: [
                                     {
-                                        field: "Percentage",
-                                        title: "Percentage",
+                                        field: "SerialNo",
+                                        title: "Serial No",
                                         width: 230
                                     },
                                     {
-                                        field: "SelectedStoreIds",
+                                        field: "ModelNo",
+                                        title: "Model No",
+                                        width: 220
+                                    },
+                                    {
+                                        field: "SelectedStoreId",
                                         title: "Store",
                                         template: "#=StoreName#",
                                         type: "string",
                                         width: 300,
                                         editor: function (container, option) { // use a dropdownlist as an editor
                                             // create an input element with id and name set as the bound field (brandId)
-                                            var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            var input = $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + option.field + '"/>')
                                             // append to the editor container
                                             input.appendTo(container);
 
                                             // initialize a dropdownlist
-                                            input.kendoMultiSelect({
+                                            input.kendoDropDownList({
                                                 dataTextField: "Text",
                                                 dataValueField: "Value",
                                                 dataSource: datasource,
-                                                optionLabel: " ",
-                                                autoBind: "true",
-                                                valuePrimitive: "true"
+                                                optionLabel: " "
                                             }).appendTo(container)
                                         }
                                     }, {
                                         template:
-                                            "<a href='EditOrder/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='Device/EditDevice/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
                                             "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
                                             "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
-                                            "<a href='DeleteOrderLimit/#=Id#' action='DeleteOrderLimit' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                            "<a href='Device/DeleteDevice/#=Id#' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         width: 111
@@ -227,9 +230,10 @@
                         });
                         </script>
                         <script>
+
                             $(document).ready(function () {
                                 //search button
-                                $('#search-orderLimit').click(function () {
+                                $('#search-devices').click(function () {
                                     var grid = $('#grid').data('kendoGrid');
                                     grid.dataSource.page(1);
                                     return false;

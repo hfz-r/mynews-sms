@@ -44,5 +44,7 @@ namespace StockManagementSystem.Core.Domain.Stores
         public virtual ICollection<PushNotificationStore> PushNotificationStores { get; set; }
 
         public virtual ICollection<OrderLimitStore> OrderLimitStores { get; set; }
+
+        public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
     }
 }
