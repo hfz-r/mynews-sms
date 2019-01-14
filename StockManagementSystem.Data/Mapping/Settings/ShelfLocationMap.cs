@@ -24,10 +24,10 @@ namespace StockManagementSystem.Data.Mapping.Settings
                 .HasForeignKey(e => e.StoreId)
                 .IsRequired();
 
-            //builder.HasOne(e => e.Items)
-            //    .WithMany(s => s.ShelfLocations)
-            //    .HasForeignKey(e => e.ItemId)
-            //    .IsRequired();
+            builder.HasOne(e => e.Items)
+                .WithMany(s => s.ShelfLocations)
+                .HasForeignKey(e => e.ItemId)
+                .IsRequired();
 
             base.Configure(builder);
         }

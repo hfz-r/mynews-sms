@@ -6,6 +6,7 @@ using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 using StockManagementSystem.Models.Devices;
 using StockManagementSystem.Models.OrderLimits;
+using StockManagementSystem.Models.Locations;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
@@ -20,6 +21,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateUserMaps();
             CreateDeviceMaps();
             CreateOrderLimitMaps();
+            CreateShelfLocationFormatMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -112,6 +114,18 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<OrderLimitModel, OrderLimit>()
                 .ForMember(entity => entity.Percentage, options => options.Ignore())
                 .ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create order limit maps
+        /// </summary>
+        protected virtual void CreateShelfLocationFormatMaps()
+        {
+            CreateMap<ShelfLocationFormat, LocationModel>();
+            CreateMap<LocationModel, ShelfLocationFormat>()
+                .ForMember(entity => entity.Prefix, options => options.Ignore())
+                .ForMember(entity => entity.Name, options => options.Ignore())
+                .ForMember(entity => entity.ShelfLocations, options => options.Ignore());
         }
 
         public int Order => 0;

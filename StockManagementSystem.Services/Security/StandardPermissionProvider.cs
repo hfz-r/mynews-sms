@@ -47,6 +47,13 @@ namespace StockManagementSystem.Services.Security
             SystemName = "ManageOrderLimit",
             Category = "Setting"
         };
+
+        public static readonly Permission ManageLocation = new Permission
+        {
+            Name = "Manage Locations",
+            SystemName = "ManageLocation",
+            Category = "Setting"
+        };
         //TODO: other modules
 
         /// <summary>
@@ -61,7 +68,8 @@ namespace StockManagementSystem.Services.Security
                 ManageRoles,
                 ManagePermission,
                 ManageDevices,
-                ManageOrderLimit
+                ManageOrderLimit,
+                ManageLocation
             };
         }
 
@@ -82,7 +90,8 @@ namespace StockManagementSystem.Services.Security
                         ManageRoles,
                         ManagePermission,
                         ManageDevices,
-                        ManageOrderLimit
+                        ManageOrderLimit,
+                        ManageLocation
                     }
                 },
                 new DefaultPermission

@@ -1,4 +1,5 @@
-﻿using StockManagementSystem.Core.Domain.Settings;
+﻿using StockManagementSystem.Core.Domain.Items;
+using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
 using System;
 using System.Collections.Generic;
@@ -22,5 +23,25 @@ namespace StockManagementSystem.Models.Setting
         public ICollection<OrderLimit> OrderLimit { get; set; }
 
         public List<Store> Store { get; set; }
+
+        //Location Setting
+        public int? ShelfLocationFormatId { get; set; }
+
+        public int? ShelfLocationId { get; set; }
+
+        public string Prefix { get; set; }
+
+        public string Names { get; set; }
+
+        public string Location { get; set; }
+
+        [Display(Name = "Item(s)")]
+        public int ItemId { get; set; }
+
+        public ICollection<ShelfLocationFormat> ShelfLocationFormats { get; set; }
+
+        public ICollection<ShelfLocation> ShelfLocations { get; set; }
+
+        public List<Item> Item { get; set; }
     }
 }
