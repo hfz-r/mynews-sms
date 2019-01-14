@@ -1,8 +1,8 @@
 ﻿@inject StockManagementSystem.Services.Common.IGenericAttributeService GenericAttributeService
 @inject IWorkContext WorkContext
 @{
-    await Html.AppendScriptParts("~/js/chart-utils.js");
-    await Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
+    Html.AppendScriptParts("~/js/chart-utils.js");
+    Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
 }
 
 <!--Pie Chart-->
@@ -10,7 +10,7 @@
     const string prefixPie = "transaction-activity-pie";
     const string hidePanelPieAttributeName = "HideTransActivityPiePanel";
 }
-<div id="@(prefixPie)-box" class="content clearfix">
+<div id="@(prefixPie)-box" >
     @await Html.PartialAsync("../Report/TransActivityPieRpt", null, new ViewDataDictionary(ViewData)
     {
         {"prefix", prefixPie},

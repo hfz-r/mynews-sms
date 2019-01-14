@@ -1,5 +1,8 @@
 ﻿@using StockManagementSystem.Core.Domain.Identity
 @inject SignInManager<User> SignInManager
+@{
+    var rawUrl = ViewData["rawUrl"];
+}
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -26,11 +29,15 @@
                     </li>
                     <!-- Menu Footer-->
                     <li class="user-footer">
-                        <div class="pull-left">
-                        </div>
                         <div class="pull-right">
                             <form asp-controller="Account" asp-action="LogOff" method="post" id="logoutForm">
                                 <button type="submit" class="btn btn-default btn-flat">Log out</button>
+                            </form>
+                        </div>
+                        <div class="pull-right">
+                            <form asp-controller="Preferences" asp-action="ClearCache">
+                                <input name="returnurl" type="hidden" value="@rawUrl">
+                                <button type="submit" class="btn btn-default btn-flat">Clear cache</button>
                             </form>
                         </div>
                     </li>

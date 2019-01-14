@@ -11,10 +11,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using StockManagementSystem.Core.Infrastructure;
+using StockManagementSystem.Core.Infrastructure.DependencyManagement;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 
-namespace StockManagementSystem.Core.Builder
+namespace StockManagementSystem.Core.Infrastructure
 {
     public class Engine : IEngine
     {

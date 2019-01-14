@@ -16,21 +16,22 @@ namespace StockManagementSystem.Data
         public static async Task Init(IServiceProvider service)
         {
             var roleManager = service.GetRequiredService<RoleManager<Role>>();
-            var userManager = service.GetRequiredService<UserManager<User>>();
+            await InitRolesSeed(roleManager, out var roles);
 
-            if (!roleManager.Roles.Any() && !userManager.Users.Any())
-                await InitIdentitySeed(roleManager, userManager);
+            var userManager = service.GetRequiredService<UserManager<User>>();
+            if (!userManager.Users.Any())
+                await InitUsersSeed(userManager, roles);
 
             var permission = service.GetRequiredService<IPermissionService>();
-            if (!permission.GetAllPermissions().Result.Any())
+            if (!permission.GetAllPermissions().GetAwaiter().GetResult().Any())
                 await InitDefaultPermission(permission);
 
             var userActivity = service.GetRequiredService<IUserActivityService>();
-            if (!userActivity.GetAllActivityTypesAsync().Result.Any())
+            if (!userActivity.GetAllActivityTypesAsync().GetAwaiter().GetResult().Any())
                 await InitDefaultActivityTypes(userActivity);
         }
 
-        private static async Task InitIdentitySeed(RoleManager<Role> roleManager, UserManager<User> userManager)
+        private static Task InitRolesSeed(RoleManager<Role> roleManager, out List<Role> roles)
         {
             var urAdministrator = new Role()
             {
@@ -63,12 +64,20 @@ namespace StockManagementSystem.Data
                 ModifiedOnUtc = DateTime.UtcNow,
             };
 
-            var roles = new List<Role> {urAdministrator, urManager, urRegistered};
-            foreach (var role in roles)
+            roles = new List<Role> {urAdministrator, urManager, urRegistered};
+            if (!roleManager.Roles.Any())
             {
-                await roleManager.CreateAsync(role);
+                foreach (var role in roles)
+                {
+                    roleManager.CreateAsync(role).GetAwaiter().GetResult();
+                }
             }
 
+            return Task.CompletedTask;
+        }
+
+        private static async Task InitUsersSeed(UserManager<User> userManager, List<Role> roles)
+        {
             //admin user
             var adminUser = new User
             {
@@ -81,14 +90,13 @@ namespace StockManagementSystem.Data
                 ModifiedBy = "system",
                 ModifiedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
-
+                LastLoginDateUtc = DateTime.UtcNow,
             };
 
             var au = await userManager.CreateAsync(adminUser, "admin123");
             if (au.Succeeded)
             {
-                await userManager.AddToRolesAsync(adminUser, 
-                    new[] {urAdministrator.Name, urManager.Name, urRegistered.Name});
+                await userManager.AddToRolesAsync(adminUser, roles.Select(role => role.Name).ToArray());
             }
 
             //second user
@@ -108,16 +116,17 @@ namespace StockManagementSystem.Data
             var su = await userManager.CreateAsync(secondUser, "user2123");
             if (su.Succeeded)
             {
-                await userManager.AddToRolesAsync(secondUser, new[] { urRegistered.Name });
+                await userManager.AddToRolesAsync(secondUser,
+                    roles.Where(role => role.Name.Equals("Registered")).Select(role => role.Name).ToArray());
             }
         }
 
         private static async Task InitDefaultPermission(IPermissionService permission)
         {
-            var permissionProviders = new List<Type> { typeof(StandardPermissionProvider) };
+            var permissionProviders = new List<Type> {typeof(StandardPermissionProvider)};
             foreach (var providerType in permissionProviders)
             {
-                var provider = (IPermissionProvider)Activator.CreateInstance(providerType);
+                var provider = (IPermissionProvider) Activator.CreateInstance(providerType);
                 await permission.InstallPermissionsAsync(provider);
             }
         }
@@ -179,6 +188,24 @@ namespace StockManagementSystem.Data
                     SystemKeyword = "EditPermission",
                     Enabled = false,
                     Name = "Edit a permissions"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "Login",
+                    Enabled = false,
+                    Name = "Login"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "Login1stTime",
+                    Enabled = true,
+                    Name = "First time login"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "Logout",
+                    Enabled = true,
+                    Name = "Logout"
                 },
             };
             await userActivity.InsertActivityTypesAsync(activityLogTypes);

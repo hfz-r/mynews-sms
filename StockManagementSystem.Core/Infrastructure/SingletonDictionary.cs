@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StockManagementSystem.Core.Builder
+namespace StockManagementSystem.Core.Infrastructure
 {
     public class SingletonDictionary<TKey, TValue> : Singleton<IDictionary<TKey, TValue>>
     {

@@ -139,7 +139,7 @@ namespace StockManagementSystem.Services.Helpers
         /// </summary>
         public virtual TimeZoneInfo CurrentTimeZone
         {
-            get => GetUserTimeZone(_workContext.CurrentUser).Result;
+            get => GetUserTimeZone(_workContext.CurrentUser).GetAwaiter().GetResult();
             set
             {
                 var timeZoneId = string.Empty;

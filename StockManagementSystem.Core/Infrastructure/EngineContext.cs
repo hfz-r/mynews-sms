@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace StockManagementSystem.Core.Builder
+namespace StockManagementSystem.Core.Infrastructure
 {
     public class EngineContext
     {

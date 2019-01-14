@@ -209,7 +209,7 @@ namespace StockManagementSystem.Web.TagHelpers
             var tabContent = new TagBuilder("div");
             tabContent.AddCssClass("tab-pane");
             tabContent.Attributes.Add("id", Name);
-            tabContent.InnerHtml.AppendHtml(output.GetChildContentAsync().Result.GetContent());
+            tabContent.InnerHtml.AppendHtml(output.GetChildContentAsync().GetAwaiter().GetResult().GetContent());
 
             //active class
             var itemClass = string.Empty;

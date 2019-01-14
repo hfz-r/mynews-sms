@@ -81,7 +81,34 @@
                                             id: "Id",
                                             fields: {
                                                 Id: { editable: false, type: "number" },
-                                                Name: { editable: true, validation: { required: true } },
+                                                Name: {
+                                                    editable: true,
+                                                    type: "string",
+                                                    validation: {
+                                                        required: true,
+                                                        duplicate: function(input) {
+                                                            if (input.is("[name='Name']") && input.val() != "") {
+                                                                // get data
+                                                                var name = input.val();
+                                                                var grid = $("#grid").data('kendoGrid');
+                                                                var view = grid.dataSource.view();
+                                                                var dataItem = grid.dataItem('tr.k-grid-edit-row');
+                                                                var nameEdit = dataItem.Name;
+                                                                // validate
+                                                                var valid = true;
+                                                                for (var i = 0; i < view.length; i++) {
+                                                                    if ((name == view[i].Name) && (name != nameEdit) && view[i].id) {
+                                                                        valid = false;
+                                                                        input.attr("data-duplicate-msg", "Duplicates not allowed.");
+                                                                        break;   
+                                                                    }
+                                                                }
+                                                                return valid;
+                                                            }
+                                                            return true;
+                                                        }
+                                                    }
+                                                },
                                                 Description: { editable: true }
                                             }
                                         }

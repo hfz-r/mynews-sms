@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StockManagementSystem.Core.Builder
+namespace StockManagementSystem.Core.Infrastructure
 {
     public class SingletonList<T> : Singleton<IList<T>>
     {

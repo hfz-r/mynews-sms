@@ -1,6 +1,6 @@
 ﻿using Autofac;
 
-namespace StockManagementSystem.Core.Infrastructure
+namespace StockManagementSystem.Core.Infrastructure.DependencyManagement
 {
     public interface IDependencyRegistrar
     {

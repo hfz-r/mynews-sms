@@ -11,6 +11,7 @@ using StockManagementSystem.Models.PushNotification;
 using StockManagementSystem.Core.Domain.Stores;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
+using StockManagementSystem.Core.Data;
 
 namespace StockManagementSystem.Controllers
 {

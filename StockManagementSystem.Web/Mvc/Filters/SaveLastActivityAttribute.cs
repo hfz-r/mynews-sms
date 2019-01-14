@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Web.Mvc.Filters
@@ -34,6 +35,9 @@ namespace StockManagementSystem.Web.Mvc.Filters
 
                 if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get,
                     StringComparison.InvariantCultureIgnoreCase))
+                    return;
+
+                if (!DataSettingsManager.DatabaseIsInstalled)
                     return;
 
                 //update last activity date

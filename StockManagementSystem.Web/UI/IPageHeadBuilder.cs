@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace StockManagementSystem.Web.UI
 {
@@ -19,8 +18,7 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        void AddScriptParts(ResourceLocation location, string src, string debugSrc,
-            bool excludeFromBundle, bool isAsync);
+        void AddScriptParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle, bool isAsync);
 
         /// <summary>
         /// Append script element
@@ -30,8 +28,7 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        Task AppendScriptParts(ResourceLocation location, string src, string debugSrc,
-            bool excludeFromBundle, bool isAsync);
+        void AppendScriptParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle, bool isAsync);
 
         /// <summary>
         /// Generate all script parts
@@ -40,7 +37,7 @@ namespace StockManagementSystem.Web.UI
         /// <param name="location">A location of the script element</param>
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
-        Task<string> GenerateScripts(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles);
+        string GenerateScripts(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles);
 
         /// <summary>
         /// Add CSS element
@@ -49,8 +46,7 @@ namespace StockManagementSystem.Web.UI
         /// <param name="src">Script path (minified version)</param>
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
-        void AddCssFileParts(ResourceLocation location, string src, string debugSrc,
-            bool excludeFromBundle = false);
+        void AddCssFileParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle = false);
 
         /// <summary>
         /// Append CSS element
@@ -59,8 +55,7 @@ namespace StockManagementSystem.Web.UI
         /// <param name="src">Script path (minified version)</param>
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
-        Task AppendCssFileParts(ResourceLocation location, string src, string debugSrc,
-            bool excludeFromBundle = false);
+        void AppendCssFileParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle = false);
 
         /// <summary>
         /// Generate all CSS parts
@@ -69,7 +64,7 @@ namespace StockManagementSystem.Web.UI
         /// <param name="location">A location of the script element</param>
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
-        Task<string> GenerateCssFiles(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles);
+        string GenerateCssFiles(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles);
 
         /// <summary>
         /// Add CSS class to the <![CDATA[<head>]]> element

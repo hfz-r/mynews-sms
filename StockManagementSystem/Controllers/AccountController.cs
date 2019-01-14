@@ -1,39 +1,48 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Models.Account;
+using StockManagementSystem.Services.Authentication;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Users;
+using StockManagementSystem.Web.Mvc.Filters;
 
 namespace StockManagementSystem.Controllers
 {
-    [Authorize]
     public class AccountController : Controller
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserService _userService;
+        private readonly IAuthenticationService _authenticationService;
+        private readonly IUserActivityService _userActivityService;
         private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
+        private readonly IWorkContext _workContext;
         private readonly INotificationService _notificationService;
 
         public AccountController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IUserService userService,
+            IAuthenticationService authenticationService,
+            IUserActivityService userActivityService,
             IEmailSender emailSender,
-            ILoggerFactory loggerFactory,
+            IWorkContext workContext,
             INotificationService notificationService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userService = userService;
+            _authenticationService = authenticationService;
+            _userActivityService = userActivityService;
             _emailSender = emailSender;
-            _logger = loggerFactory.CreateLogger<AccountController>();
+            _workContext = workContext;
             _notificationService = notificationService;
         }
 
@@ -50,62 +59,64 @@ namespace StockManagementSystem.Controllers
         //
         // POST: /Account/Login
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [AntiForgery]
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe,
-                    lockoutOnFailure: false);
+                if (model.UserName != null)
+                    model.UserName = model.UserName.Trim();
 
-                //ClaimsPrincipal currentUser = this.User;
-                //var currentUserName = currentUser.FindFirst(ClaimTypes.NameIdentifier).Value;
-                //User user = await _userManager.FindByNameAsync(currentUserName);
-
-                if (result.Succeeded)
+                //first time login
+                var user = await _userService.GetUserByUsernameAsync(model.UserName);
+                if (user == null)
                 {
-                    _logger.LogInformation(1, "User logged in.");
+                    ModelState.AddModelError(string.Empty, "Unknown user account");
+                    _notificationService.ErrorNotification("Unknown user account");
 
-                    var user = await _userService.GetUserByUsernameAsync(model.UserName);
+                    return View(model);
+                }
 
-                    //first time login
-                    if (user.LastLoginDateUtc == null)
+                if (user.LastLoginDateUtc == null)
+                    return RedirectToAction("FirstTimeLogin", new {id = user.Id});
+
+                var loginResult = await _userService.ValidateUserAsync(model.UserName, model.Password, model.RememberMe);
+                switch (loginResult)
+                {
+                    case UserLoginResults.Successful:
                     {
-                        return RedirectToAction("FirstTimeLogin", new { id = user.Id });
-                    }
-                    else
-                    {
-                        //update login details
-                        user.AccessFailedCount = 0;
-                        user.LockoutEnabled = false;
-                        user.LastLoginDateUtc = DateTime.UtcNow;
-                        await _userService.UpdateUserAsync(user);
+                        //sign in new user
+                        await _authenticationService.SignInAsync(user, model.RememberMe);
 
-                        return RedirectToLocal(returnUrl);
+                        await _userActivityService.InsertActivityAsync(user, "Login", $"Login ('{user.UserName}')",
+                            user);
+
+                        if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                            return RedirectToAction("Dashboard", "Home");
+
+                        return Redirect(returnUrl);
                     }
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    //return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning(2, "User account locked out.");
-                    return View("Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View("Register", model);
+                    case UserLoginResults.UserNotExist:
+                        ModelState.AddModelError(string.Empty, "No user account found");
+                        _notificationService.ErrorNotification("No user account found");
+                        break;
+                    case UserLoginResults.NotRegistered:
+                        ModelState.AddModelError(string.Empty, "Account is not registered");
+                        _notificationService.ErrorNotification("Account is not registered");
+                        break;
+                    case UserLoginResults.LockedOut:
+                        ModelState.AddModelError(string.Empty, "User is locked out");
+                        _notificationService.ErrorNotification("User is locked out");
+                        break;
+                    default:
+                        ModelState.AddModelError(string.Empty, "The credentials provided are incorrect");
+                        _notificationService.ErrorNotification("The credentials provided are incorrect");
+                        break;
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return View(model);
         }
 
@@ -119,18 +130,15 @@ namespace StockManagementSystem.Controllers
             if (user == null)
                 return RedirectToAction("Login");
 
-            FirstTimeLoginViewModel model = new FirstTimeLoginViewModel
+            var model = new FirstTimeLoginViewModel
             {
                 Id = user.Id
             };
             return View(model);
         }
 
-        //
-        // POST: /Account/FirstTimeLogin
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [AntiForgery]
         public async Task<IActionResult> FirstTimeLogin(FirstTimeLoginViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -138,21 +146,41 @@ namespace StockManagementSystem.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(model.Id.ToString());
-
                 if (user != null)
                 {
-                    var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                    var changePasswordResult =
+                        await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+                    if (changePasswordResult.Errors.Any())
+                    {
+                        foreach (var error in changePasswordResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+
+                        return View("FirstTimeLogin", model);
+                    }
+
                     if (changePasswordResult.Succeeded)
                     {
-                        //update lastlogin details
-                        user.LastLoginDateUtc = DateTime.UtcNow;
-                        await _userManager.UpdateAsync(user);
-                        _logger.LogInformation(1, "The password has been changed successfully.");
-                        return RedirectToLocal(returnUrl);
+                        var loginResult = await _userService.ValidateUserAsync(user.UserName, model.NewPassword, false);
+                        if (loginResult != UserLoginResults.Successful)
+                        {
+                            ModelState.AddModelError(string.Empty, "First time login failed.");
+                            return View("FirstTimeLogin", model);
+                        }
+
+                        await _authenticationService.SignInAsync(user, false);
+
+                        await _userActivityService.InsertActivityAsync(user, "Login1stTime", $"First time login ('{user.UserName}')", user);
+
+                        if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                            return RedirectToAction("Dashboard", "Home");
+
+                        return Redirect(returnUrl);
                     }
                 }
             }
-            // If we got this far, something failed, redisplay form
+
             return View("FirstTimeLogin", model);
         }
 
@@ -165,27 +193,31 @@ namespace StockManagementSystem.Controllers
             return View();
         }
 
-        //
-        // POST: /Account/Register
         [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
+        [AntiForgery]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = new User
                 {
+                    UserGuid = Guid.NewGuid(),
                     UserName = model.UserName,
                     Email = model.Email,
+                    CreatedBy = "system",
+                    CreatedOnUtc = DateTime.UtcNow,
+                    AccessFailedCount = 0,
+                    LockoutEnd = null,
+                    LastActivityDateUtc = DateTime.UtcNow,
+                    LastLoginDateUtc = DateTime.UtcNow,
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, IdentityDefaults.RegisteredRoleName);
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToAction(nameof(HomeController.Index), "Home");
+                    await _authenticationService.SignInAsync(user, false);
+                    //await _signInManager.SignInAsync(user, false);
+                    return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
@@ -197,12 +229,12 @@ namespace StockManagementSystem.Controllers
         //
         // POST: /Account/LogOff
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogOff()
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation(4, "User logged out.");
-            return RedirectToAction(nameof(AccountController.Login), "Account");
+            await _userActivityService.InsertActivityAsync("Logout", "Logout", _workContext.CurrentUser);
+            await _authenticationService.SignOutAsync();
+
+            return RedirectToAction("Login", "Account");
         }
 
         //
@@ -229,7 +261,6 @@ namespace StockManagementSystem.Controllers
                 {
                     // If user does not exist or is not confirmed.
                     return View("ForgotPassword");
-
                 }
                 else
                 {
@@ -237,7 +268,8 @@ namespace StockManagementSystem.Controllers
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                     //Create URL with above token
-                    var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+                    var callbackUrl = Url.Action("ResetPassword", "Account", new {userId = user.Id, code = code},
+                        protocol: HttpContext.Request.Scheme);
 
                     _notificationService.SuccessNotification("Successfully sent password to email!");
 
@@ -250,7 +282,7 @@ namespace StockManagementSystem.Controllers
             }
             // If we got this far, something failed, redisplay form
             return View(model);
-         }
+        }
 
         //
         // GET: /Account/ForgotPasswordConfirmation

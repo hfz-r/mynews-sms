@@ -10,6 +10,7 @@
             </button>
             <ul id="charts" class="dropdown-menu">
                 <li><a href="#" id="piechart">Pie Chart</a></li>
+                <li class="divider"></li>
                 <li><a href="#" id="barchart">Bar Chart</a></li>
             </ul>
         </div>
@@ -253,6 +254,14 @@
     </div>
 </section>
 
+<!--View charts-->
+
+<style>
+    .k-window-title {
+        font-weight: bold;
+    }
+</style>
+
 <!-- load chart on fake container -->
 <div class="hidden">
     @await Html.PartialAsync("_List.Logs.Rpt")
@@ -277,29 +286,31 @@
 
         window.kendoWindow({
             width: "400px",
-            height: "420px",
-            title: "(Pie Chart) Activity Report",
+            height: "480px",
+            title: "Activity Statistic using Pie Chart",
             visible: false,
             resizable: false,
+            modal: true,
             actions: [ "Close" ]
-        }).data("kendoWindow").center();
+        }).data("kendoWindow");
 
-        window.data("kendoWindow").open();
+        window.data("kendoWindow").center().open();
     }
 
     function loadBarChart() {
         var window = $('#transaction-activity-bar-box');
 
         window.kendoWindow({
-            width: "420px",
+            width: "400px",
             height: "480px",
-            title: "(Bar Chart) Activity Report",
+            title: "Activity Statistic using Stacked Bar Chart  ",
             visible: false,
             resizable: false,
+            modal: true,
             actions: [ "Close" ]
-        }).data("kendoWindow").center();
+        }).data("kendoWindow");
 
-        window.data("kendoWindow").open();
+        window.data("kendoWindow").center().open();
     }
 
 </script>

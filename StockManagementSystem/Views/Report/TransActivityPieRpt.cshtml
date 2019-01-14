@@ -4,7 +4,7 @@
 }
 
 <div id="@(prefix)-box">
-    <div class="chart" style="height: 400px">
+    <div class="chart">
         <canvas id="@(prefix)-chart" height="350"></canvas>
     </div>
 </div>
@@ -23,7 +23,7 @@
             });
 
         var config = {
-            type: 'doughnut',
+            type: 'pie',
             data: {
                 datasets: [
                     {
@@ -37,7 +37,7 @@
             options: {
                 responsive: true,
                 legend: {
-                    position: 'right'
+                    position: 'bottom'
                 },
                 animation: {
                     animateRotate: true

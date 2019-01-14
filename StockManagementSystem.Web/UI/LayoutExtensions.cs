@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using StockManagementSystem.Core.Builder;
+using StockManagementSystem.Core.Infrastructure;
 
 namespace StockManagementSystem.Web.UI
 {
@@ -61,10 +59,9 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        public static async Task AppendScriptParts(this IHtmlHelper html, string src, string debugSrc = "",
-            bool excludeFromBundle = false, bool isAsync = false)
+        public static void AppendScriptParts(this IHtmlHelper html, string src, string debugSrc = "", bool excludeFromBundle = false, bool isAsync = false)
         {
-            await AppendScriptParts(html, ResourceLocation.Head, src, debugSrc, excludeFromBundle, isAsync);
+            AppendScriptParts(html, ResourceLocation.Head, src, debugSrc, excludeFromBundle, isAsync);
         }
 
         /// <summary>
@@ -76,11 +73,11 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        public static async Task AppendScriptParts(this IHtmlHelper html, ResourceLocation location,
+        public static void AppendScriptParts(this IHtmlHelper html, ResourceLocation location,
             string src, string debugSrc = "", bool excludeFromBundle = false, bool isAsync = false)
         {
             var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
-            await pageHeadBuilder.AppendScriptParts(location, src, debugSrc, excludeFromBundle, isAsync);
+            pageHeadBuilder.AppendScriptParts(location, src, debugSrc, excludeFromBundle, isAsync);
         }
 
         /// <summary>
@@ -91,10 +88,10 @@ namespace StockManagementSystem.Web.UI
         /// <param name="location">A location of the script element</param>
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
-        public static async Task<IHtmlContent> DefaultScripts(this IHtmlHelper html, IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
+        public static IHtmlContent DefaultScripts(this IHtmlHelper html, IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
         {
             var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
-            return new HtmlString(await pageHeadBuilder.GenerateScripts(urlHelper, location, bundleFiles));
+            return new HtmlString(pageHeadBuilder.GenerateScripts(urlHelper, location, bundleFiles));
         }
 
         /// <summary>
@@ -132,10 +129,9 @@ namespace StockManagementSystem.Web.UI
         /// <param name="src">Script path (minified version)</param>
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
-        public static async Task AppendCssFileParts(this IHtmlHelper html, string src, string debugSrc = "",
-            bool excludeFromBundle = false)
+        public static void AppendCssFileParts(this IHtmlHelper html, string src, string debugSrc = "", bool excludeFromBundle = false)
         {
-            await AppendCssFileParts(html, ResourceLocation.Head, src, debugSrc, excludeFromBundle);
+            AppendCssFileParts(html, ResourceLocation.Head, src, debugSrc, excludeFromBundle);
         }
 
         /// <summary>
@@ -146,11 +142,11 @@ namespace StockManagementSystem.Web.UI
         /// <param name="src">Script path (minified version)</param>
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
-        public static async Task AppendCssFileParts(this IHtmlHelper html, ResourceLocation location,
+        public static void AppendCssFileParts(this IHtmlHelper html, ResourceLocation location,
             string src, string debugSrc = "", bool excludeFromBundle = false)
         {
             var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
-            await pageHeadBuilder.AppendCssFileParts(location, src, debugSrc, excludeFromBundle);
+            pageHeadBuilder.AppendCssFileParts(location, src, debugSrc, excludeFromBundle);
         }
 
         /// <summary>
@@ -161,10 +157,10 @@ namespace StockManagementSystem.Web.UI
         /// <param name="location">A location of the script element</param>
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
-        public static async Task<IHtmlContent> DefaultCssFiles(this IHtmlHelper html, IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
+        public static IHtmlContent DefaultCssFiles(this IHtmlHelper html, IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles)
         {
             var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
-            return new HtmlString(await pageHeadBuilder.GenerateCssFiles(urlHelper, location, bundleFiles));
+            return new HtmlString(pageHeadBuilder.GenerateCssFiles(urlHelper, location, bundleFiles));
         }
 
         /// <summary>

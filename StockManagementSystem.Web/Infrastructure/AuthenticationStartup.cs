@@ -6,16 +6,16 @@ using StockManagementSystem.Web.Infrastructure.Extensions;
 
 namespace StockManagementSystem.Web.Infrastructure
 {
-    public class AuthStartup : IBaseStartup
+    public class AuthenticationStartup : IBaseStartup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity();
+            services.AddDefaultAuthentication();
         }
 
         public void Configure(IApplicationBuilder application)
         {
-            application.UseAuthentication();
+            application.UseDefaultAuthentication();
         }
 
         public int Order

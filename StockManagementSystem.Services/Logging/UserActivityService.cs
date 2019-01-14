@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Data;
@@ -60,7 +61,7 @@ namespace StockManagementSystem.Services.Logging
             return _cacheManager.Get(LoggingDefaults.ActivityTypeAllCacheKey, () =>
             {
                 var result = new List<ActivityLogTypeForCaching>();
-                var activityLogTypes = GetAllActivityTypesAsync().Result;
+                var activityLogTypes = GetAllActivityTypesAsync().GetAwaiter().GetResult();
                 foreach (var alt in activityLogTypes)
                 {
                     var altForCaching = new ActivityLogTypeForCaching
@@ -206,7 +207,7 @@ namespace StockManagementSystem.Services.Logging
             if (activityLogTypeId.HasValue && activityLogTypeId.Value > 0)
                 query = query.Where(logItem => activityLogTypeId == logItem.ActivityLogTypeId);
 
-            //filter by customer
+            //filter by user
             if (userId.HasValue && userId.Value > 0)
                 query = query.Where(logItem => userId.Value == logItem.UserId);
 

@@ -21,6 +21,8 @@ namespace StockManagementSystem.Core
             _fileProvider = fileProvider;
         }
 
+        #region Utilities
+
         protected virtual bool IsRequestAvailable()
         {
             if (_httpContextAccessor?.HttpContext == null)
@@ -37,6 +39,16 @@ namespace StockManagementSystem.Core
             }
 
             return true;
+        }
+
+        #endregion
+
+        public virtual string GetUrlReferrer()
+        {
+            if (!IsRequestAvailable())
+                return string.Empty;
+
+            return _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Referer];
         }
 
         public virtual string GetCurrentIpAddress()

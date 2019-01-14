@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Identity;
-using StockManagementSystem.Services.Users;
+using StockManagementSystem.Services.Authentication;
 
 namespace StockManagementSystem.Web
 {
@@ -13,17 +11,17 @@ namespace StockManagementSystem.Web
     /// </summary>
     public partial class WorkContext : IWorkContext
     {
-        private readonly IUserService _userService;
+        private readonly IAuthenticationService _authenticationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly UserManager<User> _userManager;
 
         private User _cachedUser;
 
-        public WorkContext(IUserService userService,IHttpContextAccessor httpContextAccessor, UserManager<User> userManager)
+        public WorkContext(
+            IAuthenticationService authenticationService, 
+            IHttpContextAccessor httpContextAccessor)
         {
-            _userService = userService;
+            _authenticationService = authenticationService;
             _httpContextAccessor = httpContextAccessor;
-            _userManager = userManager;
         }
 
         /// <summary>
@@ -75,19 +73,11 @@ namespace StockManagementSystem.Web
                 if (_cachedUser != null)
                     return _cachedUser;
 
-                User user = null;
-                if (user == null)
+                var user = _authenticationService.GetAuthenticatedUserAsync().GetAwaiter().GetResult();
+                if (user != null)
                 {
-                    //try to get registered user
-                    var currentUser = _httpContextAccessor.HttpContext.User;
-                    var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
-
-                    user = _userManager.FindByNameAsync(currentUserName).Result;
-                    if (user != null && currentUser.Identity.IsAuthenticated)
-                    {
-                        SetUserCookie(user.UserGuid);
-                        _cachedUser = user;
-                    }
+                    SetUserCookie(user.UserGuid);
+                    _cachedUser = user;
                 }
 
                 return _cachedUser;

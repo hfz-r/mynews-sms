@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Logging;
 using StockManagementSystem.Models.Reports;
@@ -34,8 +32,7 @@ namespace StockManagementSystem.Controllers
             IPermissionService permissionService,
             INotificationService notificationService,
             IDateTimeHelper dateTimeHelper,
-            IHttpContextAccessor httpContextAccessor,
-            ILogger<ReportController> logger)
+            IHttpContextAccessor httpContextAccessor)
         {
             _reportModelFactory = reportModelFactory;
             _userActivityService = userActivityService;
@@ -43,11 +40,7 @@ namespace StockManagementSystem.Controllers
             _notificationService = notificationService;
             _dateTimeHelper = dateTimeHelper;
             _httpContextAccessor = httpContextAccessor;
-
-            Logger = logger;
         }
-
-        public ILogger Logger { get; }
 
         public async Task<IActionResult> Index()
         {

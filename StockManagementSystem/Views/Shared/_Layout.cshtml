@@ -1,35 +1,44 @@
-﻿@inject IWorkContext WorkContext
+﻿@inject IWebHelper WebHelper
+@inject IWorkContext WorkContext
+@inject IHttpContextAccessor HttpContextAccessor
 @inject SignInManager<User> SignInManager
 @inject StockManagementSystem.Services.Common.IGenericAttributeService GenericAttributeService
+@using Microsoft.AspNetCore.Http
 @using StockManagementSystem.Core.Domain.Identity
 @using StockManagementSystem.Web.UI
 
 @{
+    var rawUrl = WebHelper.GetRawUrl(HttpContextAccessor.HttpContext.Request);
+
     var kendoVersion = "2014.1.318";
 
     //CSS resources
-    await Html.AppendCssFileParts("~/css/admin.common.css");
-    await Html.AppendCssFileParts("~/css/style.css");
-    await Html.AppendCssFileParts("~/lib/bootstrap/dist/css/bootstrap.min.css");
-    await Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.rtl.min.css");
-    await Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.default.min.css");
-    await Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.common.min.css");
-    await Html.AppendCssFileParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
-    await Html.AppendCssFileParts("~/lib/font-awesome/css/font-awesome.min.css");
-    await Html.AppendCssFileParts("~/lib/Ionicons/css/ionicons.min.css");
+    Html.AppendCssFileParts("~/lib/Ionicons/css/ionicons.min.css");
+    Html.AppendCssFileParts("~/css/admin.common.css");
+    Html.AppendCssFileParts("~/css/style.css");
+    Html.AppendCssFileParts("~/lib/bootstrap/dist/css/bootstrap.min.css");
+    Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.rtl.min.css");
+    Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.default.min.css");
+    Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.common.min.css");
+    Html.AppendCssFileParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+    Html.AppendCssFileParts("~/lib/font-awesome/css/font-awesome.min.css");
+    Html.AppendCssFileParts("~/lib/typeahead/typeahead.css");
 
     //scripts
-    await Html.AppendScriptParts($"~/lib/kendo/{kendoVersion}/kendo.web.min.js");
-    await Html.AppendScriptParts("~/js/admin.common.js");
-    await Html.AppendScriptParts("~/lib/fastclick/lib/fastclick.js");
-    await Html.AppendScriptParts("~/lib/jquery-slimscroll/jquery.slimscroll.min.js");
-    await Html.AppendScriptParts("~/lib/jquery-migrate/jquery-migrate-1.2.1.min.js");
-    await Html.AppendScriptParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js");
-    await Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate.unobtrusive/jquery.validate.unobtrusive.min.js");
-    await Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate-v1.11.1/jquery.validate.min.js");
-    await Html.AppendScriptParts("~/js/adminlte.min.js");
-    await Html.AppendScriptParts("~/lib/bootstrap/dist/js/bootstrap.min.js");
-    await Html.AppendScriptParts("~/lib/jquery/jquery-1.10.2/jquery-1.10.2.min.js");
+    Html.AppendScriptParts($"~/lib/kendo/{kendoVersion}/kendo.web.min.js");
+    Html.AppendScriptParts("~/js/admin.search.js");
+    Html.AppendScriptParts("~/js/admin.navigation.js");
+    Html.AppendScriptParts("~/js/admin.common.js");
+    Html.AppendScriptParts("~/lib/typeahead/typeahead.bundle.min.js");
+    Html.AppendScriptParts("~/lib/fastclick/lib/fastclick.js");
+    Html.AppendScriptParts("~/lib/jquery-slimscroll/jquery.slimscroll.min.js");
+    Html.AppendScriptParts("~/lib/jquery-migrate/jquery-migrate-1.2.1.min.js");
+    Html.AppendScriptParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate.unobtrusive/jquery.validate.unobtrusive.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate-v1.11.1/jquery.validate.min.js");
+    Html.AppendScriptParts("~/js/adminlte.min.js");
+    Html.AppendScriptParts("~/lib/bootstrap/dist/js/bootstrap.min.js");
+    Html.AppendScriptParts("~/lib/jquery/jquery-1.10.2/jquery-1.10.2.min.js");
 
     //sidebar
     const string hideSidebarAttributeName = "HideSidebar";
@@ -46,8 +55,8 @@
     <script>
         var rootAppPath = '@(Url.Content("~/"))';
     </script>
-    @await Html.DefaultCssFiles(this.Url, ResourceLocation.Head, false)
-    @await Html.DefaultScripts(this.Url, ResourceLocation.Head, false)
+    @Html.DefaultCssFiles(this.Url, ResourceLocation.Head, false)
+    @Html.DefaultScripts(this.Url, ResourceLocation.Head, false)
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini @if (hideSidebar) {<text>sidebar-collapse</text>}">
@@ -83,7 +92,9 @@
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
-                @await Html.PartialAsync("_LoginPartial")
+
+                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) {{ "rawUrl", rawUrl } })
+
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <!-- Notifications: style can be found in dropdown.less -->
@@ -119,7 +130,9 @@
                     </div>
                 </div>
                 <script>
-                    // TODO search script
+                    $(document).ready(function () {
+                        Admin.Search.init();
+                    });
                 </script>
                 @await Html.PartialAsync("Menu")
             </section>
@@ -139,9 +152,9 @@
         </footer>
     </div>
 
-    @await Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, true)
-    @await Html.DefaultScripts(this.Url, ResourceLocation.Footer, true)
-    <a id="backTop" class="btn btn-back-top bg-teal"></a>
+    @Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, false)
+    @Html.DefaultScripts(this.Url, ResourceLocation.Footer, false)
+    <a id="backTop" class="btn btn-back-top bg-red-gradient"></a>
     <script>
     $(document).ready(function() {
         //enable "back top" arrow

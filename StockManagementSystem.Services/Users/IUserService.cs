@@ -27,6 +27,8 @@ namespace StockManagementSystem.Services.Users
 
         Task<User> GetUserByUsernameAsync(string userName);
 
+        Task<User> GetUserByEmailAsync(string email);
+
         void UpdateUser(User user);
 
         #region Identity
@@ -42,6 +44,8 @@ namespace StockManagementSystem.Services.Users
         Task SetUsername(User user, string newUsername);
 
         Task<IdentityResult> ChangePassword(User user, string requestPassword);
+
+        Task<UserLoginResults> ValidateUserAsync(string username, string password, bool isPersist);
 
         #region UserRoles
 

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace StockManagementSystem.Core
+namespace StockManagementSystem.Core.Data
 {
     public partial interface IRepository<TEntity> where TEntity : BaseEntity
     {

@@ -2,7 +2,6 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
@@ -28,18 +27,13 @@ namespace StockManagementSystem.Controllers
             IRoleModelFactory roleModelFactory,
             IRoleService roleService,
             IPermissionService permissionService,
-            IUserActivityService userActivityService,
-            ILogger<RoleController> logger)
+            IUserActivityService userActivityService)
         {
             _roleModelFactory = roleModelFactory;
             _roleService = roleService;
             _permissionService = permissionService;
             _userActivityService = userActivityService;
-
-            Logger = logger;
         }
-
-        public ILogger Logger { get; }
 
         public async Task<IActionResult> Index()
         {

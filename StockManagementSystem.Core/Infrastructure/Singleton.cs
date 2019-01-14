@@ -1,4 +1,4 @@
-﻿namespace StockManagementSystem.Core.Builder
+﻿namespace StockManagementSystem.Core.Infrastructure
 {
     public class Singleton<T> : BaseSingleton
     {

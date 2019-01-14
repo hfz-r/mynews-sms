@@ -57,21 +57,21 @@
                     </div>
                     <script>
                         $(document).ready(function() {
-                            var customerRolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
-                            customerRolesIdsInput.setOptions({
-                                customerRolesIdsInput: false,
+                            var userRolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
+                            userRolesIdsInput.setOptions({
+                                userRolesIdsInput: false,
                                 filter: "contains"
                             });
 
                             @if (Model.AvailableRoles.Count == 0)
                             {
                                 <text>
-                                    customerRolesIdsInput.setOptions({
+                                    userRolesIdsInput.setOptions({
                                         enable: false,
                                         placeholder: "No roles available"
                                     });
-                                    customerRolesIdsInput._placeholder();
-                                    customerRolesIdsInput._enable();
+                                    userRolesIdsInput._placeholder();
+                                    userRolesIdsInput._enable();
                                 </text>
                             }
                         });

@@ -1,8 +1,8 @@
 ﻿@inject StockManagementSystem.Services.Common.IGenericAttributeService GenericAttributeService
 @inject IWorkContext WorkContext
 @{
-    await Html.AppendScriptParts("~/js/chart-utils.js");
-    await Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
+    Html.AppendScriptParts("~/js/chart-utils.js");
+    Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
 }
 
 <div id="report-panel" class="row">

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Core.Data;
 
 namespace StockManagementSystem.Controllers
 {
@@ -96,16 +97,20 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                OrderLimit orderLimit = new OrderLimit();
-                orderLimit.Percentage = model.Percentage;
-                orderLimit.OrderLimitStores = new List<OrderLimitStore>();
+                OrderLimit orderLimit = new OrderLimit
+                {
+                    Percentage = model.Percentage,
+                    OrderLimitStores = new List<OrderLimitStore>()
+                };
 
                 //Add store
                 foreach (var store in model.SelectedStoreIds)
                 {
-                    OrderLimitStore orderLimitStore = new OrderLimitStore();
-                    orderLimitStore.OrderLimitId = orderLimit.Id;
-                    orderLimitStore.StoreId = store;
+                    OrderLimitStore orderLimitStore = new OrderLimitStore
+                    {
+                        OrderLimitId = orderLimit.Id,
+                        StoreId = store
+                    };
 
                     orderLimit.OrderLimitStores.Add(orderLimitStore);
                 }
@@ -193,9 +198,12 @@ namespace StockManagementSystem.Controllers
                             //new store
                             if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
                             {
-                                OrderLimitStore orderLimitStore = new OrderLimitStore();
-                                orderLimitStore.OrderLimitId = orderLimit.Id;
-                                orderLimitStore.StoreId = store.P_BranchNo; 
+                                OrderLimitStore orderLimitStore = new OrderLimitStore
+                                {
+                                    OrderLimitId = orderLimit.Id,
+                                    StoreId = store.P_BranchNo
+                                };
+
 
                                 orderLimit.OrderLimitStores.Add(orderLimitStore);
                             }

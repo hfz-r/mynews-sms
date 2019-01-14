@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Logging;
-using StockManagementSystem.Core.Builder;
+using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Web.Models;
 
 namespace StockManagementSystem.Web.Mvc.ModelBinding

@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Users;
-using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Roles;
@@ -37,8 +32,7 @@ namespace StockManagementSystem.Controllers
             IUserModelFactory userModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
-            IUserActivityService userActivityService,
-            ILogger<UserController> logger)
+            IUserActivityService userActivityService)
         {
             _userService = userService;
             _roleService = roleService;
@@ -46,11 +40,7 @@ namespace StockManagementSystem.Controllers
             _permissionService = permissionService;
             _notificationService = notificationService;
             _userActivityService = userActivityService;
-
-            Logger = logger;
         }
-
-        public ILogger Logger { get; }
 
         #region Utilities
 

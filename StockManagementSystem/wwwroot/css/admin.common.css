@@ -548,7 +548,7 @@ td.k-state-focused.k-state-selected {
     padding-top: 0;
 }
 
-.k-window-titlebar { height: 2em; }
+/*.k-window-titlebar { height: 2em; }*/
 
 /* Footer */
 
@@ -822,4 +822,11 @@ td.k-state-focused.k-state-selected {
     margin-left: 6px;
     font-size: 16px;
     font-weight: bold;
+}
+
+/* Side-bar */
+.sidebar-form {
+    border: none !important;
+    overflow: visible;
+    margin: 10px 10px 0 !important;
 }

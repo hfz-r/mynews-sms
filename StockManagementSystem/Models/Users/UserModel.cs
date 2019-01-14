@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation.Attributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StockManagementSystem.Validators.Users;
 using StockManagementSystem.Web.Models;
 using StockManagementSystem.Web.Mvc.ModelBinding;
 
 namespace StockManagementSystem.Models.Users
 {
+    [Validator(typeof(UserValidator))]
     public class UserModel : BaseEntityModel, IAclSupportedModel
     {
         public UserModel()
@@ -25,6 +28,7 @@ namespace StockManagementSystem.Models.Users
         [NoTrim]
         public string Password { get; set; }
 
+        [Display(Name = "Full name")]
         public string Name { get; set; }
 
         [Display(Name = "Admin comment")]
@@ -54,6 +58,5 @@ namespace StockManagementSystem.Models.Users
 
     public partial class SendEmailModel : BaseModel
     {
-        //TODO: wire with Azira`s module
     }
 }

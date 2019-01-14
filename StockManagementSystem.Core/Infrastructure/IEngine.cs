@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace StockManagementSystem.Core.Builder
+namespace StockManagementSystem.Core.Infrastructure
 {
     public interface IEngine
     {
