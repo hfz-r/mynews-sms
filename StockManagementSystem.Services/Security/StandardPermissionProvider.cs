@@ -47,6 +47,13 @@ namespace StockManagementSystem.Services.Security
             SystemName = "ManageOrderLimit",
             Category = "Setting"
         };
+
+        public static readonly Permission ManagePushNotification = new Permission
+        {
+            Name = "Manage Push Notification",
+            SystemName = "ManagePushNotification",
+            Category = "Push Notification"
+        };
         //TODO: other modules
 
         /// <summary>
@@ -61,7 +68,8 @@ namespace StockManagementSystem.Services.Security
                 ManageRoles,
                 ManagePermission,
                 ManageDevices,
-                ManageOrderLimit
+                ManageOrderLimit,
+                ManagePushNotification
             };
         }
 
@@ -82,7 +90,8 @@ namespace StockManagementSystem.Services.Security
                         ManageRoles,
                         ManagePermission,
                         ManageDevices,
-                        ManageOrderLimit
+                        ManageOrderLimit,
+                        ManagePushNotification
                     }
                 },
                 new DefaultPermission

@@ -1,17 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StockManagementSystem.Core.Domain.PushNotification;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using StockManagementSystem.Core.Domain.PushNotifications;
 
-namespace StockManagementSystem.Data.Mapping.PushNotification
+namespace StockManagementSystem.Data.Mapping.PushNotifications
 {
     public class PushNotificationStoreMap : EntityTypeConfiguration<PushNotificationStore>
     {
         public override void Configure(EntityTypeBuilder<PushNotificationStore> builder)
         {
-            builder.ToTable("PushNotificationStores");
+            builder.ToTable("PushNotificationStore");
             builder.HasKey(pushNotificationStore => pushNotificationStore.Id);
 
             builder.HasOne(s => s.Store)
@@ -19,7 +16,7 @@ namespace StockManagementSystem.Data.Mapping.PushNotification
                 .HasForeignKey(s => s.StoreId)
                 .IsRequired();
 
-            builder.HasOne(e => e.PushNotifications)
+            builder.HasOne(e => e.PushNotification)
                 .WithMany(p => p.PushNotificationStores)
                 .HasForeignKey(e => e.PushNotificationId)
                 .IsRequired();

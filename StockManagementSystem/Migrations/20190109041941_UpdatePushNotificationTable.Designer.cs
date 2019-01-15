@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockManagementSystem.Data;
 
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    partial class ObjectContextModelSnapshot : ModelSnapshot
+    [Migration("20190109041941_UpdatePushNotificationTable")]
+    partial class UpdatePushNotificationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -324,13 +326,13 @@ namespace StockManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(256);
 
+                    b.Property<string>("IsShift");
+
                     b.Property<string>("ModifiedBy");
 
                     b.Property<DateTime?>("ModifiedOnUtc");
 
                     b.Property<int>("NotificationCategoryId");
-
-                    b.Property<string>("StockTakeNo");
 
                     b.Property<string>("Title")
                         .IsRequired()

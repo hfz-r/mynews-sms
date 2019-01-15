@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 using StockManagementSystem.Models.Devices;
 using StockManagementSystem.Models.OrderLimits;
+using StockManagementSystem.Models.PushNotifications;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
@@ -20,6 +22,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateUserMaps();
             CreateDeviceMaps();
             CreateOrderLimitMaps();
+            CreatePushNotificationMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -112,6 +115,20 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<OrderLimitModel, OrderLimit>()
                 .ForMember(entity => entity.Percentage, options => options.Ignore())
                 .ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create push notification maps
+        /// </summary>
+        protected virtual void CreatePushNotificationMaps()
+        {
+            CreateMap<PushNotification, PushNotificationModel>()
+                .ForMember(model => model.StoreName, options => options.Ignore())
+                .ForMember(model => model.CategoryName, options => options.Ignore());
+            CreateMap<PushNotificationModel, PushNotification>()
+                .ForMember(entity => entity.Title, options => options.Ignore())
+                .ForMember(entity => entity.Desc, options => options.Ignore())
+                .ForMember(entity => entity.PushNotificationStores, options => options.Ignore());
         }
 
         public int Order => 0;

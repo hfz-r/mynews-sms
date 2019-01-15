@@ -69,7 +69,6 @@ namespace StockManagementSystem.Factories
                     var orderLimitsModel = orderLimit.ToModel<OrderLimitModel>();
 
                     orderLimitsModel.Percentage = orderLimit.Percentage;
-                    //orderLimitsModel.SelectedStoreId = orderLimit.StoreId;*/
                     orderLimitsModel.StoreName = String.Join(", ", orderLimit.OrderLimitStores.Select(store => store.Store.P_Name));
                     orderLimitsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                     orderLimitsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);

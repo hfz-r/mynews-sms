@@ -27,7 +27,7 @@ namespace StockManagementSystem.Services.OrderLimits
         
         public Task<IPagedList<OrderLimit>> GetOrderLimitsAsync(
             int[] storeIds = null,
-            float percentage = 0,
+            float? percentage = 0,
             int pageIndex = 0,
             int pageSize = int.MaxValue,
             bool getOnlyTotalCount = false)

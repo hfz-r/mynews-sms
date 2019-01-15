@@ -11,7 +11,7 @@ namespace StockManagementSystem.Services.OrderLimits
         void DeleteOrderLimit(OrderLimit orderLimit);
         Task<ICollection<OrderLimit>> GetAllOrderLimitsAsync();
         Task<OrderLimit> GetOrderLimitByIdAsync(int orderLimitId);
-        Task<IPagedList<OrderLimit>> GetOrderLimitsAsync(int[] storeIds = null, float percentage = 0, int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false);
+        Task<IPagedList<OrderLimit>> GetOrderLimitsAsync(int[] storeIds = null, float? percentage = 0, int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false);
         Task InsertOrderLimit(OrderLimit orderLimit);
         void UpdateOrderLimit(OrderLimit orderLimit);
         void DeleteOrderLimitStore(int Id, Store store);

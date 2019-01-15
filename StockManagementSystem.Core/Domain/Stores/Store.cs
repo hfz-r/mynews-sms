@@ -1,5 +1,5 @@
 ﻿using StockManagementSystem.Core.Domain.Devices;
-using StockManagementSystem.Core.Domain.PushNotification;
+using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Settings;
 using System;
 using System.Collections.Generic;

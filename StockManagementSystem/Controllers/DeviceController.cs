@@ -57,7 +57,7 @@ namespace StockManagementSystem.Controllers
         #endregion
 
         #region Manage Device
-        
+
         public async Task<IActionResult> Index()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
@@ -168,7 +168,7 @@ namespace StockManagementSystem.Controllers
                         await _deviceService.SetSerialNo(device, model.SerialNo);
                     else
                         device.SerialNo = model.SerialNo;
-                    
+
                     _deviceService.UpdateDevice(device);
 
                     _notificationService.SuccessNotification("Device has been updated successfully.");
@@ -216,7 +216,7 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("EditDevice", new { id = device.Id });
             }
         }
-        
+
         #endregion
 
         #region Device Tracking
@@ -233,19 +233,5 @@ namespace StockManagementSystem.Controllers
         }
 
         #endregion
-
-        #region Private Method
-
-        private DeviceViewModel GetAllDevice()
-        {
-            DeviceViewModel model = new DeviceViewModel
-            {
-                Device = _deviceRepository.Table.ToList()
-            };
-
-            return model;
-        }
-
-        #endregion  
     }
 }

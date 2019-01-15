@@ -1,0 +1,135 @@
+﻿@model PushNotificationModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="Title" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="Description" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="SelectedNotificationCategoryIds" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedNotificationCategoryIds" asp-items="Model.AvailableNotificationCategories" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var notificationCategoryIdsInput = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)')
+                                .kendoDropDownList({
+                                    autoClose: false,
+                                    filter: "contains",
+                                    change: function () {
+                                        onChange();
+                                    },
+                                    dataBound: onChange()
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableNotificationCategories.Count == 0)
+                            {
+                                <text>
+                                    notificationCategoryIdsInput.placeholder = "No notification category available";
+                                    notificationCategoryIdsInput.enable = false;
+                                </text>
+                            }
+                        });
+
+                        function onChange(e) {
+                            var selected = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val();
+                            if (selected == "1") //Stock Take
+                                $("#stocktake-display").show();
+                            else
+                                $("#stocktake-display").attr("style", "display: none;");
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group" id="stocktake-display">
+                <div class="col-md-3">
+                    <label asp-for="StockTakeNo" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <input asp-for="StockTakeNo" class="form-control" maxlength="4" />
+                    <span asp-validation-for="StockTakeNo"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-3">
+                    <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+                </div>
+                <div class="col-md-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
+                                .kendoMultiSelect({
+                                    autoClose: false,
+                                    filter: "contains"
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableStores.Count == 0)
+                            {
+                                <text>
+                                    storesIdsInput.placeholder = "No stores available";
+                                    storesIdsInput.enable = false;
+                                </text>
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-text-row">@Model.CreatedOn</div>
+                    </div>
+                </div>
+            }
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-text-row">@Model.LastActivityDate</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

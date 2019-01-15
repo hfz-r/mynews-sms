@@ -1,9 +1,6 @@
 ﻿using StockManagementSystem.Core.Domain.Stores;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace StockManagementSystem.Core.Domain.PushNotification
+namespace StockManagementSystem.Core.Domain.PushNotifications
 {
     public class PushNotificationStore : Entity
     {
@@ -13,7 +10,7 @@ namespace StockManagementSystem.Core.Domain.PushNotification
 
         public bool? IsHHTDownloaded { get; set; }
 
-        public virtual PushNotifications PushNotifications { get; set; }
+        public virtual PushNotification PushNotification { get; set; }
 
         public virtual Store Store { get; set; }
     }
