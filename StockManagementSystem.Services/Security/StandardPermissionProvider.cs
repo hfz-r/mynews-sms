@@ -54,6 +54,13 @@ namespace StockManagementSystem.Services.Security
             SystemName = "ManagePushNotification",
             Category = "Push Notification"
         };
+
+        public static readonly Permission ManageLocation = new Permission
+        {
+            Name = "Manage Locations",
+            SystemName = "ManageLocation",
+            Category = "Setting"
+        };
         //TODO: other modules
 
         /// <summary>
@@ -69,7 +76,8 @@ namespace StockManagementSystem.Services.Security
                 ManagePermission,
                 ManageDevices,
                 ManageOrderLimit,
-                ManagePushNotification
+                ManagePushNotification,
+                ManageLocation
             };
         }
 
@@ -91,7 +99,8 @@ namespace StockManagementSystem.Services.Security
                         ManagePermission,
                         ManageDevices,
                         ManageOrderLimit,
-                        ManagePushNotification
+                        ManagePushNotification,
+                        ManageLocation
                     }
                 },
                 new DefaultPermission
