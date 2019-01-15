@@ -131,6 +131,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.Title, options => options.Ignore())
                 .ForMember(entity => entity.Desc, options => options.Ignore())
                 .ForMember(entity => entity.PushNotificationStores, options => options.Ignore());
+        }
 
         /// <summary>
         /// Create order limit maps
