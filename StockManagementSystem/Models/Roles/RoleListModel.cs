@@ -3,7 +3,7 @@
 namespace StockManagementSystem.Models.Roles
 {
     /// <summary>
-    /// Represents a customer role list model
+    /// Represents a user role list model
     /// </summary>
     public class RoleListModel : BasePagedListModel<RoleModel>
     {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Identity;
 
 namespace StockManagementSystem.Services.Roles

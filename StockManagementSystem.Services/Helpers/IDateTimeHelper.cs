@@ -17,7 +17,7 @@ namespace StockManagementSystem.Services.Helpers
         DateTime ConvertToUtcTime(DateTime dt, DateTimeKind sourceDateTimeKind);
         DateTime ConvertToUtcTime(DateTime dt, TimeZoneInfo sourceTimeZone);
         TimeZoneInfo FindTimeZoneById(string id);
-        Task<TimeZoneInfo> GetCustomerTimeZone(User user);
+        Task<TimeZoneInfo> GetUserTimeZone(User user);
         ReadOnlyCollection<TimeZoneInfo> GetSystemTimeZones();
     }
 }

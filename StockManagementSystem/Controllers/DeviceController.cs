@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Factories;
@@ -9,16 +8,12 @@ using StockManagementSystem.Services.Devices;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Web.Controllers;
-using StockManagementSystem.Web.Kendoui;
-using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
+using StockManagementSystem.Core.Data;
 
 namespace StockManagementSystem.Controllers
 {

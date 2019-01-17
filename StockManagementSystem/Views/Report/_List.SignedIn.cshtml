@@ -1,0 +1,148 @@
+﻿@model SignedInLogSearchModel
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="LastLoginFrom"/>
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="LastLoginFrom"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="LastLoginTo"/>
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="LastLoginTo"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="LastIpAddress"/>
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="LastIpAddress"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <button type="button" id="search-signedin-log" class="btn btn-primary btn-search">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="signedinlog-grid"></div>
+
+                    <style>
+                        .custom-button {
+                            color: #444444;
+                            padding-right: 10px;
+                            font-size: 1.5em;
+                        }
+                    </style>
+
+                    <script>
+
+                        $(document).ready(function() {
+                            $("#signedinlog-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("ListSignedIn", "Report"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    LastLoginFrom: $('#@Html.IdFor(model => model.LastLoginFrom)').val(),
+                                                    LastLoginTo: $('#@Html.IdFor(model => model.LastLoginTo)').val(),
+                                                    LastIpAddress: $('#@Html.IdFor(model => model.LastIpAddress)').val()
+                                                };
+                                                addAntiForgeryToken(data);
+                                                return data;
+                                            }
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                LastLoginDate: { type: "date" }
+                                            }
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                filterable: true,
+                                resizable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "UserId",
+                                        title: "User",
+                                        width: 200,
+                                        template: '<a href="@Url.Content("~/User/Edit/")#=UserId#">#:Email#</a>'
+                                    },
+                                    {
+                                        field: "LastIpAddress",
+                                        title: "Last IP address",
+                                        width: 150
+                                    },
+                                    {
+                                        field: "LastLoginDate",
+                                        title: "Last login",
+                                        width: 200,
+                                        type: "date",
+                                        format: "{0:G}"
+                                    }
+                                ]
+                            });
+
+                            $('#search-signedin-log').click(function () {
+                                var grid = $('#signedinlog-grid').data('kendoGrid');
+                                grid.dataSource.page(1);
+                                return false;
+                            });
+                        });
+
+                    </script>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

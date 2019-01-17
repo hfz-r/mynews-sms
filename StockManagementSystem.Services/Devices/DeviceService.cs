@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Stores;
 

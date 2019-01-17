@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Builder;
+using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Web.Kendoui;
 using StockManagementSystem.Web.Mvc.Filters;
 using StockManagementSystem.Web.UI;
 
 namespace StockManagementSystem.Web.Controllers
 {
+    [AntiForgery]
     [AuthorizeUser]
     [SaveLastActivity]
     [SaveIpAddress]

@@ -1,0 +1,316 @@
+﻿@model ActivityLogSearchModel
+
+<section class="content-header clearfix">
+    <div class="pull-right">
+        <a asp-action="ClearAll" class="btn bg-red-gradient btn-sm"><i class="fa fa-trash-o"></i> Clear</a>
+
+        <div class="btn-group">
+            <button type="button" class="btn bg-yellow-gradient btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                View charts <span class="caret"></span>
+            </button>
+            <ul id="charts" class="dropdown-menu">
+                <li><a href="#" id="piechart">Pie Chart</a></li>
+                <li class="divider"></li>
+                <li><a href="#" id="barchart">Bar Chart</a></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="CreatedOnFrom" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="CreatedOnFrom" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="CreatedOnTo" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="CreatedOnTo" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="IpAddress" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="IpAddress" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="ActivityLogTypeId" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_select asp-for="ActivityLogTypeId" asp-items="Model.ActivityLogType" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <button type="button" id="search-activity-log" class="btn btn-primary btn-search">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="activitylog-grid"></div>
+
+                    <style>
+                        .custom-button {
+                            color: #444444;
+                            padding-right: 10px;
+                            font-size: 1.5em;
+                        }
+
+                        #activitylog-grid .k-grid-toolbar {
+                            padding: .6em 1.3em .6em .4em;
+                        }
+
+                        .category-label {
+                            vertical-align: middle;
+                            padding-right: .5em;
+                        }
+
+                        #category {
+                            vertical-align: middle;
+                        }
+
+                        .toolbar {
+                            float: right;
+                        }
+                    </style>
+
+                    <script type="text/x-kendo-template" id="template">
+                        <div class="toolbar">
+                            <label class="category-label" for="category">Show activity by category:</label>
+                            <input type="search" id="category" style="width: 150px" />
+                        </div>
+                    </script>
+
+                    <script>
+                        $(document).ready(function() {
+                            var grid = $("#activitylog-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("ListLogs", "Report"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+                                                    CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+                                                    IpAddress: $('#@Html.IdFor(model => model.IpAddress)').val(),
+                                                    ActivityLogTypeId: $('#ActivityLogTypeId').val()
+                                                };
+                                                addAntiForgeryToken(data);
+                                                return data;
+                                            }
+                                        },
+                                        destroy: {
+                                            url: "@Html.Raw(Url.Action("AcivityLogDelete", "Report"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                CreatedOn: { type: "date" },
+                                                EntityName: { type: "string" }
+                                            }
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                filterable: true,
+                                resizable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                toolbar: kendo.template($("#template").html()),
+                                editable: {
+                                    confirmation: "Are you sure you want to delete this item?",
+                                    mode: "inline"
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "ActivityLogTypeName",
+                                        title: "Activity log type",
+                                        width: 200
+                                    }, {
+                                        field: "UserId",
+                                        title: "User",
+                                        width: 100,
+                                        template: '<a href="@Url.Content("~/User/Edit/")#=UserId#">#:UserEmail#</a>'
+                                    }, {
+                                        field: "IpAddress",
+                                        title: "IP address",
+                                        width: 150
+                                    }, {
+                                        field: "Comment",
+                                        title: "Message"
+                                    }, {
+                                        field: "CreatedOn",
+                                        title: "Created on",
+                                        width: 200,
+                                        type: "date",
+                                        format: "{0:G}"
+                                    }, {
+                                        template:
+                                            "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" }
+                                    }
+                                ]
+                            });
+
+                            //toolbar
+                            var dropDown = grid.find("#category").kendoDropDownList({
+                                dataTextField: "EntityName",
+                                dataValueField: "Id",
+                                autoBind: false,
+                                optionLabel: "All",
+                                dataSource: {
+                                    type: "json",
+                                    serverFiltering: true,
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("EntityGroupList", "Report"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    }
+                                },
+                                change: function() {
+                                    var value = this.text();
+                                    if (value && value !== "All") {
+                                        grid.data("kendoGrid").dataSource
+                                            .filter({ field: "EntityName", operator: "eq", value: value });
+                                    } else {
+                                        grid.data("kendoGrid").dataSource.filter({});
+                                    }
+                                }
+                            });
+
+                            $('#search-activity-log').click(function() {
+                                var grid = $('#activitylog-grid').data('kendoGrid');
+                                grid.dataSource.page(1); //new search. Set page size to 1
+                                return false;
+                            });
+
+                            $("#activitylog-grid").on("click",
+                                ".custom-button",
+                                function(e) {
+                                    e.preventDefault();
+
+                                    var row = $(this).closest("tr");
+                                    $("#activitylog-grid").data("kendoGrid").removeRow(row);
+                                });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--View charts-->
+
+<style>
+    .k-window-title {
+        font-weight: bold;
+    }
+</style>
+
+<!-- load chart on fake container -->
+<div class="hidden">
+    @await Html.PartialAsync("_List.Logs.Rpt")
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        $('ul#charts a').click(function (e) {
+            e.preventDefault();
+
+            var id = $(this).attr("id");
+            if (id === "piechart")
+                loadPieChart();
+            else if (id === "barchart")
+                loadBarChart();
+        });
+    });
+
+    function loadPieChart() {
+        var window = $('#transaction-activity-pie-box');
+
+        window.kendoWindow({
+            width: "400px",
+            height: "480px",
+            title: "Activity Statistic using Pie Chart",
+            visible: false,
+            resizable: false,
+            modal: true,
+            actions: [ "Close" ]
+        }).data("kendoWindow");
+
+        window.data("kendoWindow").center().open();
+    }
+
+    function loadBarChart() {
+        var window = $('#transaction-activity-bar-box');
+
+        window.kendoWindow({
+            width: "400px",
+            height: "480px",
+            title: "Activity Statistic using Stacked Bar Chart  ",
+            visible: false,
+            resizable: false,
+            modal: true,
+            actions: [ "Close" ]
+        }).data("kendoWindow");
+
+        window.data("kendoWindow").center().open();
+    }
+
+</script>

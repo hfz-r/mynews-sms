@@ -6,21 +6,21 @@
 
             <div class="form-group">
                 <div class="col-md-3">
-                    <label asp-for="Email" class="control-label pull-right"></label>
+                    <_label asp-for="Email"/>
                 </div>
                 <div class="col-md-9">
-                    <input asp-for="Email" class="form-control"/>
+                    <_editor asp-for="Email"/>
                     <span asp-validation-for="Email"></span>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-md-3">
-                    <label asp-for="Password" class="control-label pull-right"></label>
+                    <_label asp-for="Password"/>
                 </div>
                 <div class="col-md-9">
                     <div class="input-group">
-                        <input asp-for="Password" class="form-control"/>
+                        <_editor asp-for="Password"/>
                         <div class="input-group-btn">
                             @if (Model.Id > 0)
                             {
@@ -36,38 +36,42 @@
 
             <div class="form-group">
                 <div class="col-md-3">
-                    <label asp-for="Name" class="control-label pull-right"></label>
+                    <_label asp-for="Name"/>
                 </div>
                 <div class="col-md-9">
-                    <input asp-for="Name" class="form-control"/>
+                    <_editor asp-for="Name"/>
                     <span asp-validation-for="Name"></span>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-md-3">
-                    <label asp-for="SelectedRoleIds" class="control-label pull-right"></label>
+                    <_label asp-for="SelectedRoleIds"/>
                 </div>
                 <div class="col-md-9">
                     <div class="input-group input-group-required">
-                        <select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true"></select>
+                        <_select asp-for="SelectedRoleIds"  asp-items="Model.AvailableRoles" asp-multiple="true"/>
                         <div class="input-group-btn">
-                            <required/>
+                            <_required/>
                         </div>
                     </div>
                     <script>
                         $(document).ready(function() {
-                            var rolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)')
-                                .kendoMultiSelect({
-                                    autoClose: false,
-                                    filter: "contains"
-                                }).data("kendoMultiSelect");
+                            var userRolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
+                            userRolesIdsInput.setOptions({
+                                userRolesIdsInput: false,
+                                filter: "contains"
+                            });
 
                             @if (Model.AvailableRoles.Count == 0)
                             {
                                 <text>
-                                    rolesIdsInput.placeholder = "No roles available";
-                                    rolesIdsInput.enable = false;
+                                    userRolesIdsInput.setOptions({
+                                        enable: false,
+                                        placeholder: "No roles available"
+                                    });
+                                    userRolesIdsInput._placeholder();
+                                    userRolesIdsInput._enable();
                                 </text>
                             }
                         });
@@ -77,10 +81,10 @@
 
             <div class="form-group">
                 <div class="col-md-3">
-                    <label asp-for="AdminComment" class="control-label pull-right"></label>
+                    <_label asp-for="AdminComment"/>
                 </div>
                 <div class="col-md-9">
-                    <textarea asp-for="AdminComment" class="form-control"></textarea>
+                    <_textarea asp-for="AdminComment"/>
                     <span asp-validation-for="AdminComment"></span>
                 </div>
             </div>
@@ -89,7 +93,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <label asp-for="LastIpAddress" class="control-label pull-right"></label>
+                        <_label asp-for="LastIpAddress"/>
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.LastIpAddress</div>
@@ -100,7 +104,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                        <_label asp-for="CreatedOn"/>
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.CreatedOn</div>
@@ -111,7 +115,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                        <_label asp-for="LastActivityDate"/>
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.LastActivityDate</div>

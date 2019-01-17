@@ -8,7 +8,7 @@ using StockManagementSystem.Web.Extensions;
 
 namespace StockManagementSystem.Web.TagHelpers
 {
-    [HtmlTargetElement("tabs", Attributes = IdAttributeName)]
+    [HtmlTargetElement("_tabs", Attributes = IdAttributeName)]
     public class TabsTagHelper : TagHelper
     {
         private const string IdAttributeName = "id";
@@ -123,7 +123,7 @@ namespace StockManagementSystem.Web.TagHelpers
         }
     }
 
-    [HtmlTargetElement("tab", ParentTag = "tabs", Attributes = NameAttributeName)]
+    [HtmlTargetElement("_tab", ParentTag = "_tabs", Attributes = NameAttributeName)]
     public class TabTagHelper : TagHelper
     {
         private const string NameAttributeName = "asp-name";
@@ -209,7 +209,7 @@ namespace StockManagementSystem.Web.TagHelpers
             var tabContent = new TagBuilder("div");
             tabContent.AddCssClass("tab-pane");
             tabContent.Attributes.Add("id", Name);
-            tabContent.InnerHtml.AppendHtml(output.GetChildContentAsync().Result.GetContent());
+            tabContent.InnerHtml.AppendHtml(output.GetChildContentAsync().GetAwaiter().GetResult().GetContent());
 
             //active class
             var itemClass = string.Empty;

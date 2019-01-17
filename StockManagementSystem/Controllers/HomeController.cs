@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StockManagementSystem.Web.Controllers;
 
 namespace StockManagementSystem.Controllers
 {
-    [Authorize]
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         public IActionResult Index()
         {

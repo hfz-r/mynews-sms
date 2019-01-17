@@ -4,12 +4,16 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Infrastructure;
+using StockManagementSystem.Core.Infrastructure.DependencyManagement;
 using StockManagementSystem.Data;
+using StockManagementSystem.Services.Authentication;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Devices;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Locations;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.OrderLimits;
 using StockManagementSystem.Services.PushNotifications;
@@ -49,8 +53,7 @@ namespace StockManagementSystem.Web.Infrastructure
 
             // services
             builder.RegisterType<EmailSender>().As<IEmailSender>().InstancePerLifetimeScope();
-            builder.RegisterType<StartupTime>().As<IStartupTime>()
-                .InstancePerLifetimeScope(); // startup time? for what?
+            builder.RegisterType<StartupTime>().As<IStartupTime>().InstancePerLifetimeScope(); // startup time? for what?
             builder.RegisterType<PageHeadBuilder>().As<IPageHeadBuilder>().InstancePerLifetimeScope();
             builder.RegisterType<UserService>().As<IUserService>().InstancePerLifetimeScope();
             builder.RegisterType<RoleService>().As<IRoleService>().InstancePerLifetimeScope();
@@ -64,6 +67,9 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
+            builder.RegisterType<UserActivityService>().As<IUserActivityService>().InstancePerLifetimeScope();
+            builder.RegisterType<CookieAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
+            builder.RegisterType<DefaultLogger>().As<ILogger>().InstancePerLifetimeScope();
 
             // mvc context accessor
             builder.RegisterType<ActionContextAccessor>().As<IActionContextAccessor>().InstancePerLifetimeScope();

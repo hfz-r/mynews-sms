@@ -1,0 +1,8 @@
+﻿@{
+    var hidePanel = (bool)ViewData["hidePanel"];
+}
+<div class="inline">
+    <button class="btn btn-xs btn-info btn-flat margin-r-5" @if (hidePanel) { <text> disabled="disabled" </text> } data-chart-role="toggle-chart" data-chart-period="year">Year</button>
+    <button class="btn btn-xs btn-info btn-flat margin-r-5" @if (hidePanel) { <text> disabled="disabled" </text> } data-chart-role="toggle-chart" data-chart-period="month">Month</button>
+    <button class="btn btn-xs btn-info btn-flat" @if (hidePanel) { <text> disabled="disabled" </text> } data-chart-role="toggle-chart" data-chart-period="week">Week</button>
+</div>

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Data.Extensions;
 

@@ -2,9 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
-using StockManagementSystem.Core.Builder;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Services.Security;
 
@@ -95,7 +93,7 @@ namespace StockManagementSystem.Web.Menu
             {
                 var service = EngineContext.Current.Resolve<IPermissionService>();
                 siteMapNode.Visible = permissionNames.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries)
-                    .Any(permissionName => service.AuthorizeAsync(permissionName.Trim()).Result);
+                    .Any(permissionName => service.AuthorizeAsync(permissionName.Trim()).GetAwaiter().GetResult());
             }
             else
             {

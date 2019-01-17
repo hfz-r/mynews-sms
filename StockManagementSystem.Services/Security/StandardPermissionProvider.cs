@@ -31,7 +31,14 @@ namespace StockManagementSystem.Services.Security
         {
             Name = "Manage Permission",
             SystemName = "ManagePermission",
-            Category = "User Management"
+            Category = "User Management Configuration"
+        };
+
+        public static readonly Permission ManageActivityLog = new Permission
+        {
+            Name = "Manage Activity Log",
+            SystemName = "ManageActivityLog",
+            Category = "User Management Configuration"
         };
 
         public static readonly Permission ManageDevices = new Permission
@@ -74,6 +81,7 @@ namespace StockManagementSystem.Services.Security
                 ManageUsers,
                 ManageRoles,
                 ManagePermission,
+                ManageActivityLog,
                 ManageDevices,
                 ManageOrderLimit,
                 ManagePushNotification,
@@ -98,6 +106,7 @@ namespace StockManagementSystem.Services.Security
                         ManageRoles,
                         ManagePermission,
                         ManageDevices,
+                        ManageActivityLog,
                         ManageOrderLimit,
                         ManagePushNotification,
                         ManageLocation

@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Identity;
 
 namespace StockManagementSystem.Services.Users
@@ -14,6 +16,8 @@ namespace StockManagementSystem.Services.Users
         private readonly ICacheManager _cacheManager;
         private readonly IStaticCacheManager _staticCacheManager;
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly IOptions<IdentityOptions> _identityOptions;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<UserRole> _userRoleRepository;
 
@@ -21,26 +25,25 @@ namespace StockManagementSystem.Services.Users
             ICacheManager cacheManager,
             IStaticCacheManager staticCacheManager,
             UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IOptions<IdentityOptions> identityOptions,
             IRepository<UserRole> userRoleRepository,
             IRepository<User> userRepository)
         {
             _cacheManager = cacheManager;
             _staticCacheManager = staticCacheManager;
             _userManager = userManager;
+            _signInManager = signInManager;
+            _identityOptions = identityOptions;
             _userRoleRepository = userRoleRepository;
             _userRepository = userRepository;
         }
 
-        public async Task<User> GetUserByUsernameAsync(string userName)
-        {
-            if (userName == null)
-                throw new ArgumentNullException(nameof(userName));
-
-            var user = await _userRepository.Table.FirstOrDefaultAsync(u => u.UserName == userName);
-            return user;
-        }
-
         public Task<IPagedList<User>> GetUsersAsync(
+            DateTime? createdFromUtc = null,
+            DateTime? createdToUtc = null,
+            DateTime? lastLoginFrom = null,
+            DateTime? lastLoginTo = null,
             int[] roleIds = null,
             string email = null,
             string username = null,
@@ -51,6 +54,17 @@ namespace StockManagementSystem.Services.Users
             bool getOnlyTotalCount = false)
         {
             var query = _userRepository.Table;
+
+            //search by created on
+            if (createdFromUtc.HasValue)
+                query = query.Where(c => createdFromUtc.Value <= c.CreatedOnUtc);
+            if (createdToUtc.HasValue)
+                query = query.Where(c => createdToUtc.Value >= c.CreatedOnUtc);
+            //search by last login
+            if (lastLoginFrom.HasValue)
+                query = query.Where(c => lastLoginFrom.Value <= c.LastLoginDateUtc);
+            if (lastLoginTo.HasValue)
+                query = query.Where(c => lastLoginTo.Value >= c.LastLoginDateUtc);
 
             if (roleIds != null && roleIds.Length > 0)
             {
@@ -93,6 +107,24 @@ namespace StockManagementSystem.Services.Users
                 return null;
 
             var user = await _userRepository.Table.FirstOrDefaultAsync(c => c.UserGuid == userGuid);
+            return user;
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return null;
+
+            var user = await _userRepository.Table.FirstOrDefaultAsync(e => e.Email == email);
+            return user;
+        }
+
+        public async Task<User> GetUserByUsernameAsync(string userName)
+        {
+            if (userName == null)
+                throw new ArgumentNullException(nameof(userName));
+
+            var user = await _userRepository.Table.FirstOrDefaultAsync(u => u.UserName == userName);
             return user;
         }
 
@@ -154,6 +186,9 @@ namespace StockManagementSystem.Services.Users
             user.Email = newEmail;
             await _userManager.UpdateAsync(user);
 
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+
             if (string.IsNullOrEmpty(oldEmail) ||
                 oldEmail.Equals(newEmail, StringComparison.InvariantCultureIgnoreCase))
                 return;
@@ -173,6 +208,9 @@ namespace StockManagementSystem.Services.Users
             user.UserName = newUsername;
 
             await _userManager.UpdateAsync(user);
+
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
         }
 
         public async Task<IdentityResult> ChangePassword(User user, string requestPassword)
@@ -188,6 +226,42 @@ namespace StockManagementSystem.Services.Users
             return await _userManager.UpdateAsync(user);
         }
 
+        public async Task<UserLoginResults> ValidateUserAsync(string username, string password, bool isPersist)
+        {
+            var user = await GetUserByUsernameAsync(username);
+            if (user == null)
+                return UserLoginResults.UserNotExist;
+            if (!user.IsRegistered())
+                return UserLoginResults.NotRegistered;
+            if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                return UserLoginResults.LockedOut;
+
+            var result = await _signInManager.PasswordSignInAsync(username, password, isPersist, false);
+            if (!result.Succeeded)
+            {
+                user.AccessFailedCount++;
+
+                if (_identityOptions.Value.Lockout.MaxFailedAccessAttempts > 0 && user.AccessFailedCount >=
+                    _identityOptions.Value.Lockout.MaxFailedAccessAttempts)
+                {
+                    user.AccessFailedCount = 0;
+                    user.LockoutEnd = DateTimeOffset.UtcNow.Add(_identityOptions.Value.Lockout.DefaultLockoutTimeSpan);
+                }
+
+                await UpdateUserAsync(user);
+
+                return UserLoginResults.WrongPassword;
+            }
+
+            //update login details
+            user.AccessFailedCount = 0;
+            user.LockoutEnd = null;
+            user.LastLoginDateUtc = DateTime.UtcNow;
+            await UpdateUserAsync(user);
+
+            return UserLoginResults.Successful;
+        }
+
         #region UserRoles
 
         public async Task AddUserRoles(User user, string[] roles)
@@ -199,6 +273,9 @@ namespace StockManagementSystem.Services.Users
                 return;
 
             await _userManager.AddToRolesAsync(user, roles);
+
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
         }
 
         public async Task RemoveUserRole(User user, string role)
@@ -210,6 +287,9 @@ namespace StockManagementSystem.Services.Users
                 throw new ArgumentNullException(nameof(role));
 
             await _userManager.RemoveFromRoleAsync(user, role);
+
+            _cacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
+            _staticCacheManager.RemoveByPattern(UserDefaults.UsersPatternCacheKey);
         }
 
         #endregion

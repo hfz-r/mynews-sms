@@ -5,12 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Data.Extensions;
 
 namespace StockManagementSystem.Services.Security
 {
+    /// <summary>
+    /// Represent access control list 
+    /// </summary>
+    /// <remarks>Will be used by modules which affected by role</remarks>
     public class AclService : IAclService
     {
         private readonly IRepository<AclRecord> _aclRecordRepository;

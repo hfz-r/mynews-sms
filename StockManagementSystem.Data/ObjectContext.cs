@@ -52,6 +52,34 @@ namespace StockManagementSystem.Data
         }
 
         /// <summary>
+        /// Executes the given SQL against the database
+        /// </summary>
+        public async Task<int> ExecuteSqlCommandAsync(RawSqlString sql, bool doNotEnsureTransaction = false, int? timeout = null, params object[] parameters)
+        {
+            //set specific command timeout
+            var previousTimeout = Database.GetCommandTimeout();
+            Database.SetCommandTimeout(timeout);
+
+            int result;
+            if (!doNotEnsureTransaction)
+            {
+                //use with transaction
+                using (var transaction = await Database.BeginTransactionAsync())
+                {
+                    result = await Database.ExecuteSqlCommandAsync(sql, parameters);
+                    transaction.Commit();
+                }
+            }
+            else
+                result = await Database.ExecuteSqlCommandAsync(sql, parameters);
+
+            //return previous timeout back
+            Database.SetCommandTimeout(previousTimeout);
+
+            return result;
+        }
+
+        /// <summary>
         /// Detach an entity from the context
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>

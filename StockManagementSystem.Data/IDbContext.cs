@@ -23,6 +23,9 @@ namespace StockManagementSystem.Data
         /// <returns>A set for the given entity type</returns>
         DbSet<TEntity> Set<TEntity>() where TEntity : BaseEntity;
 
+        Task<int> ExecuteSqlCommandAsync(RawSqlString sql, bool doNotEnsureTransaction = false, int? timeout = null,
+            params object[] parameters);
+
         /// <summary>
         /// Detach an entity from the context
         /// </summary>

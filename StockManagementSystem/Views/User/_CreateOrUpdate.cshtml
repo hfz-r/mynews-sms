@@ -2,11 +2,14 @@
 
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
-
 <section class="content">
     <div class="form-horizontal">
-        <tabs id="user-edit">
-            <tab asp-name="tab-info" asp-title="User info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</tab>
-        </tabs>
+        <_tabs id="user-edit">
+            <_tab asp-name="tab-info" asp-title="User info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</_tab>
+            @if (Model.Id > 0)
+            {
+                <_tab asp-name="tab-activitylog" asp-title="Activity log">@await Html.PartialAsync("_CreateOrUpdate.ActivityLog", Model)</_tab>
+            }
+        </_tabs>
     </div>
 </section>
