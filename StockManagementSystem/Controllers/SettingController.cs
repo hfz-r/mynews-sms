@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Items;
 using StockManagementSystem.Core.Domain.Settings;
