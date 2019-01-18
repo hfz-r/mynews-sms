@@ -8,16 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+      <Compile Remove="Migrations\20181226114021_AddCategoryAndNotificationTable.cs" />
+      <Compile Remove="Migrations\20181228083905_AddPushNotificationStoresTable.cs" />
+      <Compile Remove="Migrations\20181231074401_InitialCreate.cs" />
+      <Compile Remove="Migrations\20181231074401_InitialCreate.Designer.cs" />
+      <Compile Remove="Migrations\20190102041345_InitialCreate.cs" />
+      <Compile Remove="Migrations\20190102041345_InitialCreate.Designer.cs" />
+      <Compile Remove="Migrations\20190102044342_InitialCreate.cs" />
+      <Compile Remove="Migrations\20190102044342_InitialCreate.Designer.cs" />
+      <Compile Remove="Migrations\20190109041941_UpdatePushNotificationTable.cs" />
+      <Compile Remove="Migrations\20190109041941_UpdatePushNotificationTable.Designer.cs" />
+      <Compile Remove="Migrations\20190110012221_UpdatePushNotificationField.cs" />
+      <Compile Remove="Migrations\20190110012221_UpdatePushNotificationField.Designer.cs" />
       <Compile Remove="Models\Devices\DeviceViewModel.cs" />
       <Compile Remove="Models\PushNotifications\AddNotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\EditNotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\NotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\PushNotificationViewModel.cs" />
       <Content Remove="Views\PushNotification\AddNotification.cshtml" />
-      <Compile Include="Migrations\20190109041941_UpdatePushNotificationTable.cs" />
-      <Compile Include="Migrations\20190109041941_UpdatePushNotificationTable.Designer.cs" />
-      <Compile Include="Migrations\20190110012221_UpdatePushNotificationField.cs" />
-      <Compile Include="Migrations\20190110012221_UpdatePushNotificationField.Designer.cs" />
       <None Update="Views\sitemap.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

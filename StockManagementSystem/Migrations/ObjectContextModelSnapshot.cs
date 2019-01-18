@@ -293,7 +293,28 @@ namespace StockManagementSystem.Migrations
                     b.ToTable("UserTokens");
                 });
 
-            modelBuilder.Entity("StockManagementSystem.Core.Domain.PushNotifications.NotificationCategory", b =>
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Items.Item", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CreatedBy");
+
+                    b.Property<DateTime>("CreatedOnUtc");
+
+                    b.Property<string>("ModifiedBy");
+
+                    b.Property<DateTime?>("ModifiedOnUtc");
+
+                    b.Property<string>("P_Desc");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Item");
+                });
+
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.ActivityLog", b =>
                 {
                     b.Property<int>("Id")
@@ -349,6 +370,39 @@ namespace StockManagementSystem.Migrations
                     b.ToTable("ActivityLogType");
                 });
 
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("CreatedOnUtc");
+
+                    b.Property<string>("FullMessage");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(200);
+
+                    b.Property<int>("LogLevelId");
+
+                    b.Property<string>("PageUrl");
+
+                    b.Property<string>("ReferrerUrl");
+
+                    b.Property<string>("ShortMessage")
+                        .IsRequired();
+
+                    b.Property<int?>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Log");
+                });
+
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.PushNotifications.NotificationCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -385,7 +439,9 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<int>("NotificationCategoryId");
 
-                    b.Property<string>("StockTakeNo");
+                    b.Property<string>("StockTakeNo")
+                        .IsRequired()
+                        .HasMaxLength(4);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -500,6 +556,29 @@ namespace StockManagementSystem.Migrations
                     b.ToTable("Approval");
                 });
 
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Settings.FormatSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(450)
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Format")
+                        .HasMaxLength(10);
+
+                    b.Property<int>("Length");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(150);
+
+                    b.Property<string>("Prefix")
+                        .HasMaxLength(1);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FormatSetting");
+                });
+
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Settings.OrderLimit", b =>
                 {
                     b.Property<int>("Id")
@@ -569,11 +648,14 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<DateTime?>("ModifiedOnUtc");
 
-                    b.Property<int>("ShelfLocationFormatId");
+                    b.Property<int?>("ShelfLocationFormatId")
+                        .IsRequired();
 
                     b.Property<int>("StoreId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
 
                     b.HasIndex("ShelfLocationFormatId");
 
@@ -589,29 +671,11 @@ namespace StockManagementSystem.Migrations
                         .HasMaxLength(450)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Name1")
-                        .HasMaxLength(100);
+                    b.Property<string>("Name")
+                        .HasMaxLength(50);
 
-                    b.Property<string>("Name2")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("Name3")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("Name4")
-                        .HasMaxLength(100);
-
-                    b.Property<string>("Prefix1")
-                        .HasMaxLength(10);
-
-                    b.Property<string>("Prefix2")
-                        .HasMaxLength(10);
-
-                    b.Property<string>("Prefix3")
-                        .HasMaxLength(10);
-
-                    b.Property<string>("Prefix4")
-                        .HasMaxLength(10);
+                    b.Property<string>("Prefix")
+                        .HasMaxLength(1);
 
                     b.HasKey("Id");
 
@@ -727,6 +791,14 @@ namespace StockManagementSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.Log", b =>
+                {
+                    b.HasOne("StockManagementSystem.Core.Domain.Identity.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("StockManagementSystem.Core.Domain.PushNotifications.PushNotification", b =>
                 {
                     b.HasOne("StockManagementSystem.Core.Domain.PushNotifications.NotificationCategory", "NotificationCategory")
@@ -784,6 +856,11 @@ namespace StockManagementSystem.Migrations
 
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Settings.ShelfLocation", b =>
                 {
+                    b.HasOne("StockManagementSystem.Core.Domain.Items.Item", "Items")
+                        .WithMany("ShelfLocations")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("StockManagementSystem.Core.Domain.Settings.ShelfLocationFormat", "ShelfLocationFormats")
                         .WithMany("ShelfLocations")
                         .HasForeignKey("ShelfLocationFormatId")
