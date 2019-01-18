@@ -255,29 +255,33 @@ namespace StockManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var user = await _userService.GetUserByEmailAsync(model.Email);
 
                 if (user == null)
                 {
+                    ModelState.AddModelError(string.Empty, "Unknown user with this email");
+                    _notificationService.ErrorNotification("Unknown user with this email");
                     // If user does not exist or is not confirmed.
-                    return View("ForgotPassword");
+                    return View("ForgotPassword", model);
                 }
-                else
+
+                if (user.Email == model.Email)
                 {
                     //Generate password token
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                     //Create URL with above token
-                    var callbackUrl = Url.Action("ResetPassword", "Account", new {userId = user.Id, code = code},
+                    var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code },
                         protocol: HttpContext.Request.Scheme);
-
-                    _notificationService.SuccessNotification("Successfully sent password to email!");
 
                     //Call send email methods
                     await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                         "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
 
-                    return View("ForgotPassword");
+                    ModelState.AddModelError(string.Empty, "Successfully sent password to email!");
+                    _notificationService.SuccessNotification("Successfully sent password to email!");
+
+                    return View("ForgotPassword", model);
                 }
             }
             // If we got this far, something failed, redisplay form
