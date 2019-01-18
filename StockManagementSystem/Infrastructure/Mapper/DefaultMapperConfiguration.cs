@@ -14,6 +14,7 @@ using StockManagementSystem.Models.Locations;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
+using StockManagementSystem.Models.Setting;
 
 namespace StockManagementSystem.Infrastructure.Mapper
 {
@@ -200,7 +201,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
         }
 
         /// <summary>
-        /// Create order limit maps
+        /// Create shelf location format maps
         /// </summary>
         protected virtual void CreateShelfLocationFormatMaps()
         {
@@ -209,6 +210,19 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.Prefix, options => options.Ignore())
                 .ForMember(entity => entity.Name, options => options.Ignore())
                 .ForMember(entity => entity.ShelfLocations, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create format setting maps
+        /// </summary>
+        protected virtual void CreateFormatSettingMaps()
+        {
+            CreateMap<FormatSetting, FormatSettingModel>();
+            CreateMap<FormatSettingModel, FormatSetting>()
+                .ForMember(entity => entity.Format, options => options.Ignore())
+                .ForMember(entity => entity.Prefix, options => options.Ignore())
+                .ForMember(entity => entity.Name, options => options.Ignore())
+                .ForMember(entity => entity.Length, options => options.Ignore());
         }
 
         public int Order => 0;
