@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Security;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
@@ -22,37 +22,38 @@ namespace StockManagementSystem.Controllers
         private readonly ISecurityModelFactory _securityModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
+        private readonly IUserActivityService _userActivityService;
         private readonly IWorkContext _workContext;
+        private readonly ILogger _logger;
 
         public SecurityController(
             IRoleService roleService,
             ISecurityModelFactory securityModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
+            IUserActivityService userActivityService,
             IWorkContext workContext,
-            ILogger<SecurityController> logger )
+            ILogger logger)
         {
             _roleService = roleService;
             _securityModelFactory = securityModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
+            _userActivityService = userActivityService;
             _workContext = workContext;
-
-            Logger = logger;
+            _logger = logger;
         }
-
-        public ILogger Logger { get; }
 
         public IActionResult AccessDenied(string pageUrl)
         {
             var currentUser = _workContext.CurrentUser;
             if (currentUser == null || !User.Identity.IsAuthenticated)
             {
-                Logger.LogWarning($"Access denied to anonymous request on {pageUrl}");
+                _logger.Information($"Access denied to anonymous request on {pageUrl}");
                 return View();
             }
 
-            Logger.LogWarning($"Access denied to user #{currentUser.Email} '{currentUser.Email}' on {pageUrl}");
+            _logger.Information($"Access denied to user #{currentUser.Email} '{currentUser.Email}' on {pageUrl}");
 
             return View();
         }
@@ -104,6 +105,8 @@ namespace StockManagementSystem.Controllers
                     }
                 }
             }
+
+            await _userActivityService.InsertActivityAsync("EditPermission", "Edited a permissions", new Permission());
 
             _notificationService.SuccessNotification("The permission has been updated successfully");
 

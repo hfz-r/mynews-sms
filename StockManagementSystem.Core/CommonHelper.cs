@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using StockManagementSystem.Core.Infrastructure;
 
@@ -29,11 +30,60 @@ namespace StockManagementSystem.Core
         }
 
         /// <summary>
+        /// Ensure that a string doesn't exceed maximum allowed length
+        /// </summary>
+        public static string EnsureMaximumLength(string str, int maxLength, string postfix = null)
+        {
+            if (string.IsNullOrEmpty(str))
+                return str;
+
+            if (str.Length <= maxLength)
+                return str;
+
+            var pLen = postfix?.Length ?? 0;
+
+            var result = str.Substring(0, maxLength - pLen);
+            if (!string.IsNullOrEmpty(postfix))
+            {
+                result += postfix;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Verifies that string is an valid IP-Address
         /// </summary>
         public static bool IsValidIpAddress(string ipAddress)
         {
             return IPAddress.TryParse(ipAddress, out IPAddress _);
+        }
+
+        /// <summary>
+        /// Get private fields property value
+        /// </summary>
+        public static object GetPrivateFieldValue(object target, string fieldName)
+        {
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), "The assignment target cannot be null.");
+
+            if (string.IsNullOrEmpty(fieldName))
+                throw new ArgumentNullException(nameof(fieldName), "The field name cannot be null or empty.");
+
+            var t = target.GetType();
+            FieldInfo fi = null;
+            while (t != null)
+            {
+                fi = t.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                if (fi != null)
+                    break;
+
+                t = t.BaseType;
+            }
+            if (fi == null)
+                throw new Exception($"Field '{fieldName}' not found in type hierarchy.");
+
+            return fi.GetValue(target);
         }
 
         #region Converts a value to a destination type.

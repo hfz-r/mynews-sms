@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Stores;
 using System;

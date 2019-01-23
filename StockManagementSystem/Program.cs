@@ -3,8 +3,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using StockManagementSystem.Data;
+using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem
 {
@@ -24,7 +24,7 @@ namespace StockManagementSystem
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger>();
-                    logger.LogError(ex, "An error occurred when seeding the data.");
+                    logger.Information("An error occurred when seeding the data.", ex);
                 }
             }
 

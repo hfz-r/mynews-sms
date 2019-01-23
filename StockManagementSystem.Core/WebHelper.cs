@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using StockManagementSystem.Core.Infrastructure;
@@ -20,6 +21,8 @@ namespace StockManagementSystem.Core
             _fileProvider = fileProvider;
         }
 
+        #region Utilities
+
         protected virtual bool IsRequestAvailable()
         {
             if (_httpContextAccessor?.HttpContext == null)
@@ -36,6 +39,16 @@ namespace StockManagementSystem.Core
             }
 
             return true;
+        }
+
+        #endregion
+
+        public virtual string GetUrlReferrer()
+        {
+            if (!IsRequestAvailable())
+                return string.Empty;
+
+            return _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Referer];
         }
 
         public virtual string GetCurrentIpAddress()
@@ -148,8 +161,18 @@ namespace StockManagementSystem.Core
             return appLocation;
         }
 
-        public virtual string CurrentRequestProtocol => IsCurrentConnectionSecured() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
+        public virtual bool IsStaticResource()
+        {
+            if (!IsRequestAvailable())
+                return false;
 
+            string path = _httpContextAccessor.HttpContext.Request.Path;
+
+            var contentTypeProvider = new FileExtensionContentTypeProvider();
+            return contentTypeProvider.TryGetContentType(path, out string _);
+        }
+
+        public virtual string CurrentRequestProtocol => IsCurrentConnectionSecured() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;
 
         public virtual string GetRawUrl(HttpRequest request)
         {

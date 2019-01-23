@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Web.Mvc.Filters
@@ -38,12 +39,15 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get, StringComparison.InvariantCultureIgnoreCase))
                     return;
 
+                if (!DataSettingsManager.DatabaseIsInstalled)
+                    return;
+
                 //get current IP address
                 var currentIpAddress = _webHelper.GetCurrentIpAddress();
                 if (string.IsNullOrEmpty(currentIpAddress))
                     return;
 
-                //update customer's IP address
+                //update user's IP address
                 if (!currentIpAddress.Equals(_workContext.CurrentUser.LastIpAddress, StringComparison.InvariantCultureIgnoreCase))
                 {
                     _workContext.CurrentUser.LastIpAddress = currentIpAddress;

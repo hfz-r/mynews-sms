@@ -1,5 +1,5 @@
 ﻿using System;
-using StockManagementSystem.Core.Builder;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +8,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using StackExchange.Profiling.Storage;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Data;
+using StockManagementSystem.Services.Authentication;
+using StockManagementSystem.Services.Logging;
+using StockManagementSystem.Web.Validators;
 using StockManagementSystem.Web.Mvc.ModelBinding;
 
 namespace StockManagementSystem.Web.Infrastructure.Extensions
@@ -26,7 +31,7 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             var engine = EngineContext.Create();
             engine.Initialize(services);
             var serviceProvider = engine.ConfigureServices(services, configuration);
-
+         
             return serviceProvider;
         }
 
@@ -40,7 +45,7 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             services.AddAntiforgery(options =>
             {
                 options.Cookie.Name = ".sms.antiforgery";
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = DataSettingsManager.DatabaseIsInstalled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
             });
         }
 
@@ -50,7 +55,7 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             {
                 options.Cookie.Name = ".sms.session";
                 options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SecurePolicy = DataSettingsManager.DatabaseIsInstalled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
             });
         }
 
@@ -58,12 +63,13 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
         {
             services.AddDbContext<ObjectContext>(optionsBuilder =>
             {
+                var dataSettings = DataSettingsManager.LoadSettings();
+                if (!dataSettings?.IsValid ?? true)
+                    return;
+
                 optionsBuilder.UseLazyLoadingProxies();
-                optionsBuilder.UseSqlServer(configuration.GetConnectionString("Default"), builder =>
-                {
-                    builder.MigrationsAssembly("StockManagementSystem");
-                    builder.UseRowNumberForPaging();
-                });
+                optionsBuilder.UseSqlServer(dataSettings.DataConnectionString,
+                    builder => builder.MigrationsAssembly("StockManagementSystem"));
             });
         }
 
@@ -74,11 +80,11 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
                 options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
 
-            mvcBuilder.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            mvcBuilder.SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             mvcBuilder.AddCookieTempDataProvider(options =>
             {
-                options.Cookie.Name = "sms.tempdata";
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.Name = ".sms.tempdata";
+                options.Cookie.SecurePolicy = DataSettingsManager.DatabaseIsInstalled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
             });
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it
@@ -89,6 +95,13 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             mvcBuilder.AddMvcOptions(
                 options => options.ModelBinderProviders.Insert(0, new DefaultModelBinderProvider()));
 
+            //add fluent validation
+            mvcBuilder.AddFluentValidation(configuration =>
+            {
+                configuration.ValidatorFactoryType = typeof(ValidatorFactory);
+                configuration.ImplicitlyValidateChildProperties = true;
+            });
+
             return mvcBuilder;
         }
 
@@ -97,13 +110,13 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             services.AddMiniProfiler(miniProfilerOptions =>
             {
                 //use memory cache provider for storing each result
-                (miniProfilerOptions.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
+                ((MemoryCacheStorage) miniProfilerOptions.Storage).CacheDuration = TimeSpan.FromMinutes(60);
 
                 //TODO: setup miniprofiler
             }).AddEntityFramework();
         }
 
-        public static void AddIdentity(this IServiceCollection services)
+        public static void AddDefaultAuthentication(this IServiceCollection services)
         {
             services.AddIdentity<User, Role>()
                 .AddCustomStores()
@@ -121,22 +134,41 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
                 // Lockout settings
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
-                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User settings
                 options.User.RequireUniqueEmail = true;
             });
 
-            services.ConfigureApplicationCookie(options =>
+            //set default authentication schemes
+            var authenticationBuilder = services.AddAuthentication(options =>
             {
-                // Cookie settings
-                options.Cookie.HttpOnly = true;
-                options.Cookie.Expiration = TimeSpan.FromDays(150);
-                options.LoginPath = "/Account/Login";
-                options.AccessDeniedPath = "/Account/AccessDenied";
-                options.SlidingExpiration = true;
+                options.DefaultScheme = AuthenticationDefaults.AuthenticationScheme;
+                options.DefaultSignInScheme = AuthenticationDefaults.ExternalAuthenticationScheme;
             });
+
+            //add main cookie authentication
+            authenticationBuilder.AddCookie(AuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.Cookie.Name = ".sms.authentication";
+                options.Cookie.HttpOnly = true;
+                options.LoginPath = AuthenticationDefaults.LoginPath;
+                options.AccessDeniedPath = AuthenticationDefaults.AccessDeniedPath;
+                options.Cookie.SecurePolicy = DataSettingsManager.DatabaseIsInstalled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
+            });
+
+            //add external authentication
+            authenticationBuilder.AddCookie(AuthenticationDefaults.ExternalAuthenticationScheme, options =>
+            {
+                options.Cookie.Name = ".sms.externalauthentication";
+                options.Cookie.HttpOnly = true;
+                options.LoginPath = AuthenticationDefaults.LoginPath;
+                options.AccessDeniedPath = AuthenticationDefaults.AccessDeniedPath;
+                options.Cookie.SecurePolicy = DataSettingsManager.DatabaseIsInstalled ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.None;
+            });
+
+            //TODO: register and configure external authentication; facebook, twitter, etc.
         }
     }
 }

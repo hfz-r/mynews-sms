@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace StockManagementSystem.Web.TagHelpers
 {
-    [HtmlTargetElement("required", TagStructure = TagStructure.WithoutEndTag)]
+    [HtmlTargetElement("_required", TagStructure = TagStructure.WithoutEndTag)]
     public class RequiredTagHelper : TagHelper
     {
         public override void Process(TagHelperContext context, TagHelperOutput output)

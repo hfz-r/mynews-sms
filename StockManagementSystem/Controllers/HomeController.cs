@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using StockManagementSystem.Services.Messages;
@@ -20,6 +20,10 @@ using StockManagementSystem.Services.Roles;
 namespace StockManagementSystem.Controllers
 {
     [Authorize]
+using StockManagementSystem.Web.Controllers;
+
+namespace StockManagementSystem.Controllers
+{
     public class HomeController : BaseController
     {
         private readonly UserManager<User> _userManager;

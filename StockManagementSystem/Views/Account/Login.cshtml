@@ -1,89 +1,52 @@
-﻿@using System.Collections.Generic
-@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Http.Authentication
-@using StockManagementSystem.Core.Domain.Identity
-@model StockManagementSystem.Models.Account.LoginViewModel
-@inject SignInManager<User> SignInManager
-
+﻿@model StockManagementSystem.Models.Account.LoginViewModel
 @{
+    Layout = "_AccountLayout";
     ViewData["Title"] = "Login";
-    Layout = null;
 }
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Stock Management System</title>
-
-    <environment include="Development">
-        <!-- Bootstrap -->
-        <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" media="all" id="bootstraps" />
-        <!-- Font Awesome -->
-        <link href="~/lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-        <!-- Ionicons -->
-        <link rel="stylesheet" href="~/lib/Ionicons/css/ionicons.min.css">
-        <!-- Theme style -->
-        <link rel="stylesheet" href="~/css/style.css" type="text/css" media="all" id="styles" />
-    </environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/style.min.css" asp-append-version="true" />
-    </environment>
-</head>
-
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <img src="~/images/MainMenu_Logo.png" alt="Logo">
-        </div>
-        <!-- /.login-logo -->
-        <div class="login-box-body">
-            <h3 class="login-box-msg">Login into your account</h3>
-
-            <form id="login-form" asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" role="form">
-                <div class="form-group">
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
-                        <input asp-for="UserName" class="form-control" autocomplete="off" autofocus placeholder="Username" />
-                    </div>
-                    <span asp-validation-for="UserName" class="text-danger"></span>
-
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
-                        <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password" />
-                    </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <a asp-controller="Account" asp-action="ForgotPassword" id="fgtPass">Forgot Password?</a>
-                </div>
-                <div class="row">
-                    <!-- /.col -->
-                    <div class="col-xs-6">
-                        <a asp-controller="Account" asp-action="Register" title="Manage" id="Register" class="btn btn-default btn-block btn-flat">
-                            Register
-                        </a>
-                    </div>
-                    <div class="col-xs-6">
-                        <button id="loginClick" href="#" type="submit" class="btn btn-primary btn-block btn-flat">
-                            Login
-                        </button>
-                    </div>
-                    <!-- /.col -->
-                </div>
-            </form>
-        </div>
-        <!-- /.login-box-body -->
+<div class="login-box">
+    <div class="login-logo">
+        <img src="@Url.Content("~/images/MainMenu_Logo.png")" alt="Logo"/>
     </div>
-</body>
+    <!-- /.login-logo -->
+    <div class="login-box-body">
+        <h3 class="login-box-msg">Login into your account</h3>
 
-<script type="text/javascript">
-</script>
+        <form id="login-form" asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+            <!--validation-->
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                    <input asp-for="UserName" class="form-control" autocomplete="off" autofocus placeholder="Username"/>
+                </div>
+                <span asp-validation-for="UserName" class="text-danger"></span>
 
-@section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-}
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
+                    <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password"/>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <a asp-controller="Account" asp-action="ForgotPassword" id="fgtPass">Forgot Password?</a>
+            </div>
+            <div class="row">
+                <!-- /.col -->
+                <div class="col-xs-6">
+                    <a asp-controller="Account" asp-action="Register" title="Manage" id="Register" class="btn btn-default btn-block btn-flat">
+                        Register
+                    </a>
+                </div>
+                <div class="col-xs-6">
+                    <button id="loginClick" href="#" type="submit" class="btn btn-primary btn-block btn-flat">
+                        Login
+                    </button>
+                </div>
+                <!-- /.col -->
+            </div>
+        </form>
+    </div>
+    <!-- /.login-box-body -->
+</div>

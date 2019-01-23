@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation.Attributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StockManagementSystem.Validators.Users;
 using StockManagementSystem.Web.Models;
 using StockManagementSystem.Web.Mvc.ModelBinding;
 
 namespace StockManagementSystem.Models.Users
 {
+    [Validator(typeof(UserValidator))]
     public class UserModel : BaseEntityModel, IAclSupportedModel
     {
         public UserModel()
         {
             SelectedRoleIds = new List<int>();
             AvailableRoles = new List<SelectListItem>();
+            UserActivityLogSearchModel = new UserActivityLogSearchModel();
         }
 
         public string Username { get; set; }
@@ -24,6 +28,7 @@ namespace StockManagementSystem.Models.Users
         [NoTrim]
         public string Password { get; set; }
 
+        [Display(Name = "Full name")]
         public string Name { get; set; }
 
         [Display(Name = "Admin comment")]
@@ -46,20 +51,12 @@ namespace StockManagementSystem.Models.Users
 
         public IList<SelectListItem> AvailableRoles { get; set; }
 
+        public UserActivityLogSearchModel UserActivityLogSearchModel { get; set; }
+
         public SendEmailModel SendEmail { get; set; }
     }
 
     public partial class SendEmailModel : BaseModel
     {
-        public string Subject { get; set; }
-
-        public string Body { get; set; }
-
-        [Display(Name = "Send immediately")]
-        public bool SendImmediately { get; set; }
-
-        [Display(Name = "Planned date of sending")]
-        //[UIHint("DateTimeNullable")]
-        public DateTime? DontSendBeforeDate { get; set; }
     }
 }

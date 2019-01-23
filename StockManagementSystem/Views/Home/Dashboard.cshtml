@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Dashboard";
 }
 
@@ -17,6 +17,7 @@
 </section>
 
 <section class="content">
+
     <!-- Panels -->
     <div class="box box-default box">
         <div class="box-header with-border">
@@ -36,6 +37,13 @@
         </div>
     </div>
     <div class="box box-default box">
+    
+    @if (User.Identity.IsAuthenticated && User.IsInRole("Administrators"))
+    {
+        @await Component.InvokeAsync("TransActivityPanel")
+    }
+
+    @*<div class="box box-danger">
         <div class="box-header with-border">
             <h3 class="box-title">Actions</h3>
             <div class="box-tools pull-right">
@@ -50,6 +58,8 @@
                     @await Component.InvokeAsync("PanelMasterComponent")
                 </div>
             </div>
+        <div id="approval">
+            @await Component.InvokeAsync("PanelTxnApprovalComponent")
         </div>
     </div>
     @*Phase 2 Development*@
@@ -67,6 +77,8 @@
             </div>
         </div>*@
 </section>
+<_alert asp-alert-id="loadTAPieRptAlert" asp-alert-message="Failed to load (pie chart) transaction activity report." />
+<_alert asp-alert-id="loadTABarRptAlert" asp-alert-message="Failed to load (bar chart) transaction activity report." />
 
 @section scripts{
     <script type="text/javascript">
@@ -76,7 +88,7 @@
         $(document).on('click', '#btn-refresh-server', function(e) {
             $('#server').load('@Url.Action("PanelServerComponent", "Home")');
         });
-        
+
         $(document).on('click', '#btn-refresh-approval', function (e) {
             $('#approval').load('@Url.Action("PanelTxnApprovalComponent", "Home")');
         });

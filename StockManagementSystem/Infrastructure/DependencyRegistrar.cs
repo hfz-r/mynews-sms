@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using StockManagementSystem.Core.Infrastructure;
+using StockManagementSystem.Core.Infrastructure.DependencyManagement;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Web.Factories;
 
@@ -17,6 +18,7 @@ namespace StockManagementSystem.Infrastructure
             builder.RegisterType<LocationModelFactory>().As<ILocationModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<SecurityModelFactory>().As<ISecurityModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<AclSupportedModelFactory>().As<IAclSupportedModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<ReportModelFactory>().As<IReportModelFactory>().InstancePerLifetimeScope();
         }
 
         public int Order

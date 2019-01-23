@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Identity;
 
 namespace StockManagementSystem.Web.Identity

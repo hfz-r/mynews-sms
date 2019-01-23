@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Roles;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Web.Controllers;
@@ -23,21 +21,19 @@ namespace StockManagementSystem.Controllers
         private readonly IRoleModelFactory _roleModelFactory;
         private readonly IRoleService _roleService;
         private readonly IPermissionService _permissionService;
+        private readonly IUserActivityService _userActivityService;
 
         public RoleController(
             IRoleModelFactory roleModelFactory,
             IRoleService roleService,
             IPermissionService permissionService,
-            ILogger<RoleController> logger)
+            IUserActivityService userActivityService)
         {
             _roleModelFactory = roleModelFactory;
             _roleService = roleService;
             _permissionService = permissionService;
-
-            Logger = logger;
+            _userActivityService = userActivityService;
         }
-
-        public ILogger Logger { get; }
 
         public async Task<IActionResult> Index()
         {
@@ -73,6 +69,7 @@ namespace StockManagementSystem.Controllers
             role = model.ToEntity(role);
 
             await _roleService.InsertRoleAsync(role);
+            await _userActivityService.InsertActivityAsync("AddNewRole", $"Added a new role ('{role.Name}')", role);
 
             return new NullJsonResult();
         }
@@ -95,6 +92,7 @@ namespace StockManagementSystem.Controllers
             role = model.ToEntity(role);
 
             await _roleService.UpdateRoleAsync(role);
+            await _userActivityService.InsertActivityAsync("EditRole", $"Edited a user role ('{role.Name}')", role);
 
             return new NullJsonResult();
         }
@@ -106,6 +104,7 @@ namespace StockManagementSystem.Controllers
 
             var role = await _roleService.GetRoleByIdAsync(id) ?? throw new ArgumentException("No role found with the specified id", nameof(id));
             await _roleService.DeleteRoleAsync(role);
+            await _userActivityService.InsertActivityAsync("DeleteRole", $"Deleted a user role ('{role.Name}')", role);
 
             return new NullJsonResult();
         }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Services.Security;
 
 namespace StockManagementSystem.Web.Mvc.Filters
@@ -49,10 +50,12 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
                     return;
 
+                if (!DataSettingsManager.DatabaseIsInstalled)
+                    return;
+
                 if (filterContext.Filters.Any(filter => filter is AuthorizeUserFilter))
                 {
-                    var permission = Task.Run(() => _permissionService.AuthorizeAsync(StandardPermissionProvider.AccessPanel));
-                    if (!permission.Result)
+                    if (!_permissionService.AuthorizeAsync(StandardPermissionProvider.AccessPanel).GetAwaiter().GetResult())
                         filterContext.Result = new ChallengeResult();
                 }
             }

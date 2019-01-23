@@ -5,6 +5,7 @@ using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Services.Helpers;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Factories;
@@ -19,17 +20,20 @@ namespace StockManagementSystem.Factories
     {
         private readonly IUserService _userService;
         private readonly IRoleService _roleService;
+        private readonly IUserActivityService _userActivityService;
         private readonly IAclSupportedModelFactory _aclSupportedModelFactory;
         private readonly IDateTimeHelper _dateTimeHelper;
 
         public UserModelFactory(
             IUserService userService,
             IRoleService roleService,
+            IUserActivityService userActivityService,
             IAclSupportedModelFactory aclSupportedModelFactory,
             IDateTimeHelper dateTimeHelper)
         {
             _userService = userService;
             _roleService = roleService;
+            _userActivityService = userActivityService;
             _aclSupportedModelFactory = aclSupportedModelFactory;
             _dateTimeHelper = dateTimeHelper;
         }
@@ -120,6 +124,8 @@ namespace StockManagementSystem.Factories
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
                 model.SelectedRoleIds = user.UserRoles.Select(map => map.RoleId).ToList();
+
+                PrepareUserActivityLogSearchModel(model.UserActivityLogSearchModel, user);
             }
             else
             {
@@ -128,8 +134,68 @@ namespace StockManagementSystem.Factories
                 if (registeredRole != null)
                     model.SelectedRoleIds.Add(registeredRole.Id);
             }
-            //prepare model customer roles
+            //prepare model user roles
             await _aclSupportedModelFactory.PrepareModelRoles(model);
+
+            return model;
+        }
+
+        public UserActivityLogSearchModel PrepareUserActivityLogSearchModel(UserActivityLogSearchModel searchModel, User user)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            searchModel.UserId = user.Id;
+            searchModel.SetGridPageSize();
+
+            return searchModel;
+        }
+
+        public async Task<UserActivityLogListModel> PrepareUserActivityLogListModel(UserActivityLogSearchModel searchModel, User user)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            var activityLog = _userActivityService.GetAllActivities(
+                userId: user.Id, 
+                pageIndex: searchModel.Page - 1,
+                pageSize: searchModel.PageSize);
+
+            var model = new UserActivityLogListModel
+            {
+                Data = activityLog.Select(logItem =>
+                {
+                    var userActivityLogModel = logItem.ToModel<UserActivityLogModel>();
+                    userActivityLogModel.ActivityLogTypeName = logItem.ActivityLogType.Name;
+                    userActivityLogModel.CreatedOn =  _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc);
+
+                    return userActivityLogModel;
+                }),
+                Total = activityLog.TotalCount
+            };
+
+            // sort
+            if (searchModel.Sort != null && searchModel.Sort.Any())
+            {
+                foreach (var s in searchModel.Sort)
+                {
+                    model.Data = await model.Data.Sort(s.Field, s.Dir);
+                }
+            }
+
+            // filter
+            if (searchModel.Filter != null && searchModel.Filter.Filters != null && searchModel.Filter.Filters.Any())
+            {
+                var filter = searchModel.Filter;
+                model.Data = await model.Data.Filter(filter);
+                model.Total = model.Data.Count();
+            }
 
             return model;
         }

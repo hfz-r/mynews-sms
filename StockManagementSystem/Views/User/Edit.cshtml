@@ -10,8 +10,11 @@
 <form asp-controller="User" asp-action="Edit" method="post">
     <section class="content-header clearfix">
         <h1 class="pull-left">
-            <a asp-action="Index"><i class="fa fa-arrow-circle-left"></i></a>
             @ViewBag.Title - @Model.Name
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="Index">back to user list</a>
+            </small>
         </h1>
         <div class="pull-right">
             <div class="ui-group-buttons">
@@ -31,4 +34,4 @@
     </section>
     @await Html.PartialAsync("_CreateOrUpdate", Model)
 </form>
-<delete-confirmation asp-model-id="@Model.Id" asp-action="Delete" asp-button-id="user-delete"/>
+<_delete-confirmation asp-model-id="@Model.Id" asp-action="Delete" asp-button-id="user-delete"/>
