@@ -314,9 +314,7 @@ namespace StockManagementSystem.Migrations
 
                     b.ToTable("Item");
                 });
-
-<<<<<<< HEAD
-=======
+            
             modelBuilder.Entity("StockManagementSystem.Core.Domain.Logging.ActivityLog", b =>
                 {
                     b.Property<int>("Id")

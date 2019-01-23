@@ -26,12 +26,9 @@
       <Compile Remove="Models\PushNotifications\NotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\PushNotificationViewModel.cs" />
       <Content Remove="Views\PushNotification\AddNotification.cshtml" />
-<<<<<<< HEAD
       <Compile Include="Migrations\20190123021215_AddTable.cs" />
       <Compile Include="Migrations\20190123021215_AddTable.Designer.cs" />
       <Compile Include="Migrations\ObjectContextModelSnapshot.cs" />
-=======
->>>>>>> 4bb8a4c674be668e424f817ea11a7a3c7ef2a336
       <None Update="Views\sitemap.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
