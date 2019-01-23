@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace StockManagementSystem.Migrations
 {
-    public partial class AddFormatSettingTable : Migration
+    public partial class UpdateTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

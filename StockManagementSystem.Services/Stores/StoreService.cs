@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StockManagementSystem.Core.Data;
+using System.Linq;
 
 namespace StockManagementSystem.Services.Stores
 {

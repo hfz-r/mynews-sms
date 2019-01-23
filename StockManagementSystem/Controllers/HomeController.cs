@@ -19,11 +19,6 @@ using StockManagementSystem.Services.Roles;
 
 namespace StockManagementSystem.Controllers
 {
-    [Authorize]
-using StockManagementSystem.Web.Controllers;
-
-namespace StockManagementSystem.Controllers
-{
     public class HomeController : BaseController
     {
         private readonly UserManager<User> _userManager;
@@ -56,7 +51,7 @@ namespace StockManagementSystem.Controllers
             _iconfiguration = iconfiguration;
             _logger = loggerFactory.CreateLogger<HomeController>();
         }
-        
+
         #endregion
         public IActionResult Index()
         {
@@ -73,7 +68,7 @@ namespace StockManagementSystem.Controllers
         {
             return View();
         }
-        
+
         public IActionResult PanelServerComponent()
         {
             return ViewComponent("PanelServerComponent");
@@ -258,6 +253,5 @@ namespace StockManagementSystem.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
-
     }
 }
