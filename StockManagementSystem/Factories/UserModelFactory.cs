@@ -39,10 +39,11 @@ namespace StockManagementSystem.Factories
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            //prepare role selectlist = default = registered
-            var defaultRole = await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName);
-            if (defaultRole != null)
-                searchModel.SelectedRoleIds.Add(defaultRole.Id);
+            //Commented on 23 Jan 2019, myNEWS have own roles.
+            ////prepare role selectlist = default = registered 
+            //var defaultRole = await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName);
+            //if (defaultRole != null)
+            //    searchModel.SelectedRoleIds.Add(defaultRole.Id);
 
             await _aclSupportedModelFactory.PrepareModelRoles(searchModel);
 

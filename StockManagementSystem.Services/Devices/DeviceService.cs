@@ -31,6 +31,16 @@ namespace StockManagementSystem.Services.Devices
             return device;
         }
 
+        public Task<ICollection<Device>> GetDevicesByStoreIdAsync(int storeID)
+        {
+            if (storeID == 0)
+                throw new ArgumentNullException(nameof(storeID));
+
+            var devices = _deviceRepository.Table.Where(u => u.StoreId == storeID);
+
+            return Task.FromResult<ICollection<Device>>(new List<Device>(devices.ToList()));
+        }
+
         public Task<IPagedList<Device>> GetDevicesAsync(
             int[] storeIds = null,
             string serialNo = null,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using StockManagementSystem.Core;
@@ -18,12 +19,14 @@ namespace StockManagementSystem.Services.Users
             int pageSize = int.MaxValue,
             bool getOnlyTotalCount = false);
 
-
+        List<User> GetUsers();
         Task<User> GetUserByGuidAsync(Guid userGuid);
 
         Task<User> GetUserByUsernameAsync(string userName);
 
         void UpdateUser(User user);
+
+        void DeleteUser(List<User> users);
 
         #region Identity
 

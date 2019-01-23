@@ -9,6 +9,7 @@ namespace StockManagementSystem.Factories
         Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device);
         Task<DeviceSearchModel> PrepareDeviceSearchModel(DeviceSearchModel searchModel);
         Task<DeviceListModel> PrepareDeviceListModel(DeviceSearchModel searchModel);
+        Task<DeviceModel> PrepareDeviceListbyStoreModel(int storeID);
         Task<DeviceModel> PrepareDeviceListModel();
     }
 }

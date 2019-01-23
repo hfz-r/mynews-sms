@@ -1,0 +1,19 @@
+﻿@using StockManagementSystem.Services.Common
+@model StockManagementSystem.Models.System.ServerViewModel
+@inject IStartupTime app
+<!-- small box -->
+    <div class="panel-body">
+        <div class="small-box bg-green-gradient">
+            <div class="inner">
+                <h3><sup style="font-size: 20px">Master Data Download</sup></h3>
+
+                <p>&nbsp;</p>
+            </div>
+            <div class="icon">
+                <i class="glyphicon glyphicon-download"></i>
+            </div>
+            <a href="@Url.Action("DownloadMasterData", "Home")" class="small-box-footer">
+                Click here to download now! <i class="fa fa-download"></i>
+            </a>
+        </div>
+    </div>

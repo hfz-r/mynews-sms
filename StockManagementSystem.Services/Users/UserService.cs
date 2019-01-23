@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -94,6 +95,20 @@ namespace StockManagementSystem.Services.Users
 
             var user = await _userRepository.Table.FirstOrDefaultAsync(c => c.UserGuid == userGuid);
             return user;
+        }
+
+        public List<User> GetUsers()
+        {
+            var user = _userRepository.Table.ToList();
+            return user;
+        }
+
+        public virtual void DeleteUser(List<User> users)
+        {
+            if (users == null)
+                throw new ArgumentNullException(nameof(users));
+
+            _userRepository.Delete(users);
         }
 
         #region Identity 
