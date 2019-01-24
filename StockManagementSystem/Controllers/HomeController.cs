@@ -202,7 +202,7 @@ namespace StockManagementSystem.Controllers
                             UserName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_no"].ToString().ToLower()),
                             Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_name"].ToString().ToLower()),
                             AdminComment = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["role"].ToString().ToLower()),
-                            Email = reader["email"].ToString(),
+                            Email = reader["email"].ToString().Trim(),
                         });
                     }
                 }

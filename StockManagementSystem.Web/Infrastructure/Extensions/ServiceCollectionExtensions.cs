@@ -138,7 +138,7 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
                 options.Lockout.AllowedForNewUsers = true;
 
                 // User settings
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = false;
             });
 
             //set default authentication schemes
