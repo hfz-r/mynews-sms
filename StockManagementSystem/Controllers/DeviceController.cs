@@ -88,6 +88,7 @@ namespace StockManagementSystem.Controllers
                 Device device = new Device();
                 device.ModelNo = model.ModelNo;
                 device.StoreId = model.SelectedStoreId;
+                device.Status = "0"; // default to offline
 
                 //Serial No
                 if (!string.IsNullOrWhiteSpace(model.SerialNo))
