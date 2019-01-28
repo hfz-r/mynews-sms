@@ -29,6 +29,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateOrderLimitMaps();
             CreatePushNotificationMaps();
             CreateShelfLocationFormatMaps();
+            CreateFormatSettingMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -223,6 +224,13 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.Prefix, options => options.Ignore())
                 .ForMember(entity => entity.Name, options => options.Ignore())
                 .ForMember(entity => entity.Length, options => options.Ignore());
+
+            CreateMap<FormatSetting, BarcodeModel>();
+            CreateMap<BarcodeModel, FormatSetting>()
+                .ForMember(entity => entity.Prefix, options => options.Ignore());
+            //.ForMember(entity => entity.Name, options => options.Ignore())
+            //.ForMember(entity => entity.Format, options => options.Ignore())
+            //.ForMember(entity => entity.Length, options => options.Ignore());
         }
 
         public int Order => 0;

@@ -68,6 +68,14 @@ namespace StockManagementSystem.Services.Security
             SystemName = "ManageLocation",
             Category = "Setting"
         };
+
+        public static readonly Permission ManageFormatSetting = new Permission
+        {
+            Name = "Manage Format Setting",
+            SystemName = "ManageFormatSetting",
+            Category = "Setting"
+        };
+
         //TODO: other modules
 
         /// <summary>
@@ -85,7 +93,8 @@ namespace StockManagementSystem.Services.Security
                 ManageDevices,
                 ManageOrderLimit,
                 ManagePushNotification,
-                ManageLocation
+                ManageLocation,
+                ManageFormatSetting
             };
         }
 
@@ -109,7 +118,9 @@ namespace StockManagementSystem.Services.Security
                         ManageActivityLog,
                         ManageOrderLimit,
                         ManagePushNotification,
-                        ManageLocation
+                        ManageLocation,
+                        ManageFormatSetting
+
                     }
                 },
                 new DefaultPermission

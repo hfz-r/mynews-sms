@@ -29,8 +29,8 @@ namespace StockManagementSystem.Web.Validators
                           "</ul>";
 
             var options = ruleBuilder
-                .NotEmpty().WithMessage("Password is required.")
-                .Matches(regExp).WithMessage(message);
+                .NotEmpty().WithMessage("Password is required.");
+                //.Matches(regExp).WithMessage(message);
 
             return options;
         }

@@ -19,6 +19,7 @@ using StockManagementSystem.Services.OrderLimits;
 using StockManagementSystem.Services.PushNotifications;
 using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Settings;
 using StockManagementSystem.Services.Stores;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.UI;
@@ -61,6 +62,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<OrderLimitService>().As<IOrderLimitService>().InstancePerLifetimeScope();
             builder.RegisterType<PushNotificationService>().As<IPushNotificationService>().InstancePerLifetimeScope();
             builder.RegisterType<LocationService>().As<ILocationService>().InstancePerLifetimeScope();
+            builder.RegisterType<FormatSettingService>().As<IFormatSettingService>().InstancePerLifetimeScope();
             builder.RegisterType<StoreService>().As<IStoreService>().InstancePerLifetimeScope();
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<NotificationService>().As<INotificationService>().InstancePerLifetimeScope();

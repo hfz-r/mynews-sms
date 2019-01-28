@@ -209,7 +209,7 @@ namespace StockManagementSystem.Controllers
                     AccessFailedCount = 0,
                     LockoutEnd = null,
                     LastActivityDateUtc = DateTime.UtcNow,
-                    LastLoginDateUtc = DateTime.UtcNow,
+                    //LastLoginDateUtc = DateTime.UtcNow,
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
@@ -255,14 +255,18 @@ namespace StockManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var user = await _userService.GetUserByEmailAsync(model.Email);
+                //var user = await _userManager.FindByEmailAsync(model.Email);
 
                 if (user == null)
                 {
+                    ModelState.AddModelError(string.Empty, "Unknown user with this email");
+                    _notificationService.ErrorNotification("Unknown user with this email");
                     // If user does not exist or is not confirmed.
                     return View("ForgotPassword");
                 }
-                else
+
+                if (user.Email == model.Email)
                 {
                     //Generate password token
                     var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -276,6 +280,9 @@ namespace StockManagementSystem.Controllers
                     //Call send email methods
                     await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                         "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
+
+                    ModelState.AddModelError(string.Empty, "Successfully sent link reset password to email!");
+                    _notificationService.SuccessNotification("Successfully sent link reset password to email!");
 
                     return View("ForgotPassword");
                 }

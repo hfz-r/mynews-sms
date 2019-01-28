@@ -1,51 +1,20 @@
-﻿@model LocationSearchModel
-
-@{
-    //page title
-    ViewBag.Title = "Location";
-    //active menu item (system name)
-    Html.SetActiveMenuItemSystemName("setting.location");
-}
-@*<form asp-controller="Setting" asp-action="Location" method="post">*@
-<section class="content-header clearfix">
-    <h1 class="pull-left">@ViewBag.Title</h1>
-    <ol class="breadcrumb pull-right">
-        <li class="#">
-            <a href="@Url.Action("Index", "Home")">
-                <i class="glyphicon glyphicon-home"></i>
-            </a>
-        </li>
-        <li class="#">
-            <a href="#">
-                <i class="fa fa-wrench"></i>
-            </a>
-        </li>
-        <li class="breadcrumb-item active">
-            <a href="@Url.Action("Location", "Setting")">@ViewBag.Title</a>
-        </li>
-    </ol>
-</section>
+﻿@model ShelfSearchModel
 
 <section class="content">
     <div class="form-horizontal">
         <div class="panel-group">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    @*<button class="k-button" id="btnExport" asp-action="ExportTemplate"><span class="glyphicon btn-glyphicon glyphicon-export img-circle text-warning"></span>Export Template</button>*@
-                    <div id="grid">
-                    </div>
-                    <style>
-                        .hidden {
-                            display: none;
-                        }
+                    <div id="grid"></div>
 
+                    <style>
                         .custom-button {
                             color: #444444;
                             padding-right: 10px;
                             font-size: 1.5em;
                         }
                     </style>
-                    <script src="~/lib/kendo/2014.1.318/jszip.min.js"></script>
+
                     <script>
                         $(document).ready(function() {
                             var grid = $("#grid").kendoGrid({
@@ -53,25 +22,25 @@
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Raw(Url.Action("ListLocation", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("ListShelf", "Setting"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         },
                                         create: {
-                                            url: "@Html.Raw(Url.Action("AddLocation", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("AddShelf", "Setting"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         },
                                         update: {
-                                            url: "@Html.Raw(Url.Action("UpdateLocation", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("Updateshelf", "Setting"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         },
                                         destroy: {
-                                            url: "@Html.Raw(Url.Action("DeleteLocation", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("DeleteShelf", "Setting"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
@@ -123,16 +92,7 @@
                                         text: "Add",
                                         iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
                                     }
-                                    //,
-                                    //{
-                                    //    name: "excel",
-                                    //    text: "Export Template",
-                                    //    iconClass: "glyphicon btn-glyphicon glyphicon-export img-circle text-warning",
-                                    //}
                                 ],
-                                //excel: {
-                                //    allPages: true
-                                //},
                                 scrollable: false,
                                 columns: [
                                     {

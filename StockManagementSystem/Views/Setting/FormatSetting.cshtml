@@ -1,0 +1,35 @@
+﻿@model FormatSettingContainerModel
+
+@{
+    ViewBag.Title = "Format Setting";
+    Html.SetActiveMenuItemSystemName("setting.format");
+}
+
+
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cogs"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a asp-action="FormatSetting">@ViewBag.Title</a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="form-horizontal">
+        <_tabs id="format-setting-tabs">
+            <_tab asp-name="shelf-format" asp-title="Shelf Location Format" asp-default="true">@await Html.PartialAsync("_List.Shelf", Model.ListShelfFormat)</_tab>
+            <_tab asp-name="barcode-format" asp-title="Barcode Format">@await Html.PartialAsync("_List.Barcode", Model.ListBarcodeFormat)</_tab>
+        </_tabs>
+    </div>
+</section>

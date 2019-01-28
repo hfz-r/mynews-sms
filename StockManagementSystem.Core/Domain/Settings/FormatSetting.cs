@@ -12,6 +12,6 @@ namespace StockManagementSystem.Core.Domain.Settings
 
         public string Name { get; set; }
 
-        public int Length { get; set; }
+        public int? Length { get; set; }
     }
 }

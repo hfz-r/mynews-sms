@@ -1,0 +1,205 @@
+﻿@model BarcodeSearchModel
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="barcode-grid"></div>
+
+                    <style>
+                        .custom-button {
+                            color: #444444;
+                            padding-right: 10px;
+                            font-size: 1.5em;
+                        }
+
+                        #barcode-grid .k-grid-toolbar {
+                            padding: .6em 1.3em .6em .4em;
+                        }
+
+                        #barcode-grid .k-grid tbody tr {
+                            cursor: move;
+                        }
+                    </style>
+
+                    <script>
+                        $(document).ready(function () {
+                            var grid = $("#barcode-grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("ListBarcode", "Setting"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                Id: { type: "number" },
+                                                Name: { type: "string" },
+                                                Length: { type: "number" }
+                                            }
+                                        }
+                                    },
+                                    error: function (e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: true
+                                },
+                                filterable: true,
+                                resizable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                            @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "Id",
+                                        title: "Id",
+                                        width: 100
+                                    },
+                                    {
+                                        field: "Name",
+                                        title: "Name",
+                                        width: 300
+                                    },
+                                    {
+                                        field: "Length",
+                                        title: "Length",
+                                        width: 100
+                                    }
+                                    //,
+                                    //{
+                                    //    template:
+                                    //        '<button onclick="return up(\'#=uid#\')"><span class="glyphicon glyphicon-chevron-up"></span></button>' +
+                                    //        '<button onclick="return down(\'#=uid#\')"><span class="glyphicon glyphicon-chevron-down"></span></button>',
+                                    //    headerAttributes: { style: "text-align:center" },
+                                    //    attributes: { style: "text-align:center" },
+                                    //    width: 10
+                                    //}
+                                ]
+                            }).data("kendoGrid");
+                            
+                            grid.table.kendoSortable({
+                                filter: ">tbody >tr", //:not(.k-grid-edit-row)
+                                hint: function (element) {
+                                    return $("<span>Drag here!</span>")
+                                        .css("color", "#FF0000");
+                                },                        
+                                cursor: "move",
+                                placeholder: function (element) {
+                                    return element.clone().addClass("k-state-hover").css("opacity", 0.65);
+                                },
+                                container: "#barcode-grid tbody",
+                                
+                                //change: onChange // wired to db
+                                
+                                change: function (e) {
+                                    var skip = grid.dataSource.skip(),
+                                        oldIndex = e.oldIndex + skip,
+                                        newIndex = e.newIndex + skip,
+                                        data = grid.dataSource.data(),
+                                        dataItem = grid.dataSource.getByUid(e.item.data("uid"));
+
+                                grid.dataSource.remove(dataItem);
+                                grid.dataSource.insert(newIndex, dataItem);
+                            }
+                            });
+                        });
+
+                        function onChange(e) {                          
+
+                            var skip = grid.dataSource.skip(),
+                                        oldIndex = e.oldIndex + skip,
+                                        newIndex = e.newIndex + skip,
+                                        data = grid.dataSource.data(),
+                                        dataItem = grid.dataSource.getByUid(e.item.data("uid"));
+
+                                grid.dataSource.remove(dataItem);
+                                grid.dataSource.insert(newIndex, dataItem);
+
+
+                            //var grid = e.sender.element.data("kendoGrid"),
+                            //    oldIndex = e.oldIndex, //the old position
+                            //    newIndex = e.newIndex, //the new position
+                            //    dataItem = grid.dataSource.getByUid(e.item.data("uid")); //retrieve moved dataItem
+
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("UpdateBarcode", "Setting")',
+                                dataType: "json",
+                                //data: {'test':test},
+                                data: function () {
+                                    var data = {
+                                        oldIndex: oldIndex,
+                                        newIndex: newIndex,
+                                        dataItem: dataItem
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                },
+                                //data: { //send the data and update the order of the items on the server
+                                //    oldIndex: oldIndex,
+                                //    newIndex: newIndex,
+                                //    dataItem: dataItem
+                                //},
+                                success: function (response) {
+                                    grid.dataSource.read(); //refresh the Grid
+                                }
+                            });
+                        }
+                                //function up(uid) {
+                                //    var grid = $("#barcode-grid").data("kendoGrid");
+                                //    var dataItem = grid.dataSource.getByUid(uid);
+                                //    var index = grid.dataSource.indexOf(dataItem);
+                                //    var newIndex = Math.max(0, index - 1);
+
+                                //    if (newIndex != index) {
+                                //        grid.dataSource.remove(dataItem);
+                                //        grid.dataSource.insert(newIndex, dataItem);
+                                //    }
+
+                                //    return false;
+                                //}
+
+                                //function down(uid) {
+                                //    var grid = $("#barcode-grid").data("kendoGrid");
+                                //    var dataItem = grid.dataSource.getByUid(uid);
+                                //    var index = grid.dataSource.indexOf(dataItem);
+                                //    var newIndex = Math.min(grid.dataSource.total() - 1, index + 1);
+
+                                //    if (newIndex != index) {
+                                //        grid.dataSource.remove(dataItem);
+                                //        grid.dataSource.insert(newIndex, dataItem);
+                                //    }
+
+                                //    return false;
+                                //}
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
