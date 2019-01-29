@@ -31,7 +31,7 @@
     </section>
     @await Html.PartialAsync("_CreateOrUpdatePushNotification", Model)
 </form>
-<delete-confirmation asp-model-id="@Model.Id" asp-action="DeleteNotification" asp-button-id="pushNotification-delete" />
+<_delete-confirmation asp-model-id="@Model.Id" asp-action="DeleteNotification" asp-button-id="pushNotification-delete" />
 
 
 @*@model StockManagementSystem.Models.PushNotification.EditNotificationViewModel

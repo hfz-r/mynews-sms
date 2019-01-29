@@ -43,7 +43,7 @@ namespace StockManagementSystem.Factories
             var stores = await _storeService.GetStoresAsync();
             searchModel.AvailableStores = stores.Select(store => new SelectListItem
             {
-                Text = store.P_Name,
+                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
             
@@ -79,7 +79,7 @@ namespace StockManagementSystem.Factories
                     pushNotificationsModel.Title = pushNotification.Title;
                     pushNotificationsModel.Description = pushNotification.Desc;
                     pushNotificationsModel.StockTakeNo = pushNotification.StockTakeNo;
-                    pushNotificationsModel.StoreName = String.Join(", ", pushNotification.PushNotificationStores.Select(store => store.Store.P_Name));
+                    pushNotificationsModel.StoreName = String.Join(", ", pushNotification.PushNotificationStores.Select(store => store.Store.P_BranchNo + " - " + store.Store.P_Name));
                     pushNotificationsModel.CategoryName = String.Join(", ", pushNotification.NotificationCategory.Name);
                     pushNotificationsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(pushNotification.CreatedOnUtc, DateTimeKind.Utc);
                     pushNotificationsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(pushNotification.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -145,7 +145,7 @@ namespace StockManagementSystem.Factories
             var stores = await _storeService.GetStoresAsync();
             model.AvailableStores = stores.Select(store => new SelectListItem
             {
-                Text = store.P_Name,
+                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
 

@@ -46,7 +46,7 @@ namespace StockManagementSystem.Factories
             var stores = await _storeService.GetStoresAsync();
             searchModel.AvailableStores = stores.Select(store => new SelectListItem
             {
-                Text = store.P_Name,
+                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
 
@@ -73,7 +73,7 @@ namespace StockManagementSystem.Factories
                     devicesModel.SerialNo = device.SerialNo;
                     devicesModel.ModelNo = device.ModelNo;
                     devicesModel.SelectedStoreId = device.StoreId;
-                    devicesModel.StoreName = device.Store.P_Name;
+                    devicesModel.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
                     devicesModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
                     devicesModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
@@ -135,7 +135,7 @@ namespace StockManagementSystem.Factories
                 model.Id = device.Id;
                 model.SerialNo = device.SerialNo;
                 model.ModelNo = device.ModelNo;
-                model.StoreName = device.Store.P_Name;
+                model.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
                 model.SelectedStoreId = device.StoreId;
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -145,7 +145,7 @@ namespace StockManagementSystem.Factories
             var stores = await _storeService.GetStoresAsync();
             model.AvailableStores = stores.Select(store => new SelectListItem
             {
-                Text = store.P_Name,
+                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
 
