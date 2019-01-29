@@ -219,12 +219,12 @@ namespace StockManagementSystem.Infrastructure.Mapper
         /// </summary>
         protected virtual void CreateFormatSettingMaps()
         {
-            CreateMap<FormatSetting, FormatSettingModel>();
-            CreateMap<FormatSettingModel, FormatSetting>()
+            CreateMap<FormatSetting, ShelfModel>();
+            CreateMap<ShelfModel, FormatSetting>()
                 .ForMember(entity => entity.Format, options => options.Ignore())
                 .ForMember(entity => entity.Prefix, options => options.Ignore())
-                .ForMember(entity => entity.Name, options => options.Ignore())
-                .ForMember(entity => entity.Length, options => options.Ignore());
+                .ForMember(entity => entity.Name, options => options.Ignore());
+                //.ForMember(entity => entity.Length, options => options.Ignore());
 
             CreateMap<FormatSetting, BarcodeModel>();
             CreateMap<BarcodeModel, FormatSetting>()
