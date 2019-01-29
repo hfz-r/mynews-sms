@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Models.Devices;
+using StockManagementSystem.Models.Setting;
 
 namespace StockManagementSystem.Factories
 {
@@ -11,5 +12,7 @@ namespace StockManagementSystem.Factories
         Task<DeviceListModel> PrepareDeviceListModel(DeviceSearchModel searchModel);
         Task<DeviceModel> PrepareDeviceListbyStoreModel(int storeID);
         Task<DeviceModel> PrepareDeviceListModel();
+        Task<DeviceTrackingContainerModel> PrepareDeviceTrackingContainerModel(DeviceTrackingContainerModel deviceTrackingContainerModel);
+        Task<MapDeviceListModel> PrepareMapDeviceListingModel(MapDeviceSearchModel searchModel);
     }
 }

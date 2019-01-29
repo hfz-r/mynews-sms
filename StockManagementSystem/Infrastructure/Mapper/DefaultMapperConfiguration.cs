@@ -30,6 +30,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreatePushNotificationMaps();
             CreateShelfLocationFormatMaps();
             CreateFormatSettingMaps();
+            CreateDeviceTrackingMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -231,6 +232,20 @@ namespace StockManagementSystem.Infrastructure.Mapper
             //.ForMember(entity => entity.Name, options => options.Ignore())
             //.ForMember(entity => entity.Format, options => options.Ignore())
             //.ForMember(entity => entity.Length, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create format setting maps
+        /// </summary>
+        protected virtual void CreateDeviceTrackingMaps()
+        {
+            CreateMap<Device, MapDeviceModel>();
+            CreateMap<MapDeviceModel, Device>()
+                .ForMember(entity => entity.SerialNo, options => options.Ignore())
+                .ForMember(entity => entity.ModelNo, options => options.Ignore())
+                .ForMember(entity => entity.StoreId, options => options.Ignore())
+                .ForMember(entity => entity.Status, options => options.Ignore())
+                .ForMember(entity => entity.Store, options => options.Ignore());          
         }
 
         public int Order => 0;

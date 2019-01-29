@@ -1,0 +1,121 @@
+﻿@model MapDeviceSearchModel
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div id="grid"></div>
+
+                    <style>
+                        .custom-button {
+                            color: #444444;
+                            padding-right: 10px;
+                            font-size: 1.5em;
+                        }
+                    </style>
+
+                    <script>
+                        $(document).ready(function() {
+                            var grid = $("#grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("MapList", "Device"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                Id: { editable: false, type: "number" },
+                                                SerialNo: { editable: false, type: "string"},
+                                                ModelNo: { editable: false, type: "string"},
+                                                StoreName: { editable: false, type: "string"},
+                                                SelectedStoreId: { editable: false, type: "number"},
+                                                Status: { editable: false, type: "string"}
+                                            }
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true,
+                                    sort: { field: "Id", dir: "asc" }
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                filterable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                scrollable: false,
+                                columns: [
+                                     {
+                                        field: "SerialNo",
+                                        title: "Serial No",
+                                        width: 230
+                                    },
+                                    {
+                                        field: "ModelNo",
+                                        title: "Model No",
+                                        width: 220
+                                    },
+                                    {
+                                        field: "SelectedStoreId",
+                                        title: "Store",
+                                        template: "#=StoreName#",
+                                        type: "string",
+                                        width: 300,
+                                        editor: function (container, option) { // use a dropdownlist as an editor
+                                            // create an input element with id and name set as the bound field (brandId)
+                                            var input = $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            // append to the editor container
+                                            input.appendTo(container);
+
+                                            // initialize a dropdownlist
+                                            input.kendoDropDownList({
+                                                dataTextField: "Text",
+                                                dataValueField: "Value",
+                                                dataSource: datasource,
+                                                optionLabel: " ",
+                                            }).appendTo(container)
+                                        }
+                                    },
+                                    {
+                                        field: "Status",
+                                        title: "Status",
+                                        width: 220
+                                    },
+                                    {
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        width: 10
+                                    }
+                                ]
+                            }).data("kendoGrid");
+                        });
+
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -2,9 +2,11 @@
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Devices;
+using StockManagementSystem.Models.Setting;
 using StockManagementSystem.Services.Devices;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Stores;
+using StockManagementSystem.Web.Extensions;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using System;
 using System.Linq;
@@ -30,6 +32,8 @@ namespace StockManagementSystem.Factories
             _storeService = storeService;
             _dateTimeHelper = dateTimeHelper;
         }
+
+        #region Manage Device
 
         public async Task<DeviceSearchModel> PrepareDeviceSearchModel(DeviceSearchModel searchModel)
         {
@@ -147,5 +151,79 @@ namespace StockManagementSystem.Factories
 
             return await Task.FromResult(model);
         }
+
+        #endregion
+
+        #region Device Tracking
+
+        public async Task<DeviceTrackingContainerModel> PrepareDeviceTrackingContainerModel(
+            DeviceTrackingContainerModel deviceTrackingContainerModel)
+        {
+            if (deviceTrackingContainerModel == null)
+                throw new ArgumentNullException(nameof(deviceTrackingContainerModel));
+
+            //prepare nested models
+            await PrepareMapDeviceListingModel(deviceTrackingContainerModel.DeviceListing);
+            await PrepareMapDeviceModel();
+
+            return deviceTrackingContainerModel;
+        }
+
+        public async Task<MapDeviceListModel> PrepareMapDeviceListingModel(MapDeviceSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            var mapList = await _deviceService.GetAllDevicesAsync();
+
+            if (mapList == null)
+                throw new ArgumentNullException(nameof(mapList));
+
+            var model = new MapDeviceListModel
+            {
+                Data = mapList.PaginationByRequestModel(searchModel).Select(mapLst =>
+                {
+                    var mapListModel = mapLst.ToModel<MapDeviceModel>();
+                    mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
+                    mapListModel.Status = (mapLst.Status == null || mapLst.Status == "0" || mapLst.Longitude == null 
+                    || mapLst.Latitude == null || mapLst.Longitude == "0" || mapLst.Latitude == "0") ? "Offline" : "Online" ;
+                    return mapListModel;
+                }),
+                Total = mapList.Count
+            };
+
+            // sort
+            if (searchModel.Sort != null && searchModel.Sort.Any())
+            {
+                foreach (var s in searchModel.Sort)
+                {
+                    model.Data = await model.Data.Sort(s.Field, s.Dir);
+                }
+            }
+
+            // filter
+            if (searchModel.Filter != null && searchModel.Filter.Filters != null && searchModel.Filter.Filters.Any())
+            {
+                var filter = searchModel.Filter;
+                model.Data = await model.Data.Filter(filter);
+                model.Total = model.Data.Count();
+            }
+
+            return model;
+        }
+
+        public async Task<DeviceModel> PrepareMapDeviceModel()
+        {
+            var devices = await _deviceService.GetAllDevicesAsync();
+
+            var model = new DeviceModel
+            {
+                Devices = devices
+            };
+
+            return model;
+        }
+
+        #endregion
     }
 }

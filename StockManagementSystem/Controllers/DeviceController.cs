@@ -14,6 +14,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Models.Setting;
 
 namespace StockManagementSystem.Controllers
 {
@@ -217,17 +218,26 @@ namespace StockManagementSystem.Controllers
 
         #region Device Tracking
 
-        [HttpGet]
         public async Task<IActionResult> DeviceTracking()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
                 return AccessDeniedView();
 
-            var model = await _deviceModelFactory.PrepareDeviceListModel();
+            var model = await _deviceModelFactory.PrepareDeviceTrackingContainerModel(new DeviceTrackingContainerModel());
 
+            model.DeviceMap = await _deviceModelFactory.PrepareDeviceListModel();
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> MapList(MapDeviceSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
+                return AccessDeniedKendoGridJson();
+
+            var model = await _deviceModelFactory.PrepareMapDeviceListingModel(searchModel);
+            return Json(model);
+        }
         #endregion
     }
 }

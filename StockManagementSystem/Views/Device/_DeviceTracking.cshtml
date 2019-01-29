@@ -1,0 +1,14 @@
+﻿@*@model DeviceModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <_tabs id="map-tabs">
+            <_tab asp-name="device-list" asp-title="Device Map list" asp-default="true">@await Html.PartialAsync("_ListDevice.Info", Model)</_tab>
+            <_tab asp-name="device-map" asp-title="Map">@await Html.PartialAsync("_MapDevice.Info", Model)</_tab>
+         
+        </_tabs>
+    </div>
+</section>*@
