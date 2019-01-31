@@ -16,6 +16,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
 using StockManagementSystem.Services.Roles;
+using Geocoding;
+using Geocoding.Google;
 
 namespace StockManagementSystem.Controllers
 {
@@ -119,14 +121,27 @@ namespace StockManagementSystem.Controllers
                         });
                     }
                 }
-
                 var StoreList = _storeService.GetStores();
                 _storeService.DeleteStore(StoreList);
 
                 if (stores != null && stores.Count > 0)
                 {
+                    IGeocoder geocoder = new GoogleGeocoder() { ApiKey = _iconfiguration["APIKey"].ToString() };
+
                     foreach (var item in stores)
                     {
+                        if (!string.IsNullOrEmpty(item.P_Addr1) && !string.IsNullOrEmpty(item.P_PostCode) && !string.IsNullOrEmpty(item.P_State) && !string.IsNullOrEmpty(item.P_Country))
+                        {
+                            string address = item.P_Addr1 + item.P_Addr2 + item.P_Addr3 + item.P_PostCode + item.P_City + item.P_State + item.P_Country;
+                            IEnumerable<Address> addresses = await geocoder.GeocodeAsync(address);
+
+                            if (addresses != null && addresses.Count() > 0)
+                            {
+                                item.Latitude = addresses.First().Coordinates.Latitude;
+                                item.Longitude = addresses.First().Coordinates.Longitude;
+                            }
+                        }
+
                         await _storeService.InsertStore(item);
                     }
                 }

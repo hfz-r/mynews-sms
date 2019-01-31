@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StockManagementSystem.Data;
 
 namespace StockManagementSystem.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    partial class ObjectContextModelSnapshot : ModelSnapshot
+    [Migration("20190129085752_AddLocationStoreTable")]
+    partial class AddLocationStoreTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,9 +59,9 @@ namespace StockManagementSystem.Migrations
 
                     b.Property<DateTime?>("EndDate");
 
-                    b.Property<double>("Latitude");
+                    b.Property<string>("Latitude");
 
-                    b.Property<double>("Longitude");
+                    b.Property<string>("Longitude");
 
                     b.Property<string>("ModelNo")
                         .IsRequired()

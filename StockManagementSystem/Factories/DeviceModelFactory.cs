@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Devices;
@@ -22,15 +23,18 @@ namespace StockManagementSystem.Factories
         private readonly IDeviceService _deviceService;
         private readonly IStoreService _storeService;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IConfiguration _iconfiguration;
 
         public DeviceModelFactory(
             IDeviceService deviceService,
             IStoreService storeService,
-            IDateTimeHelper dateTimeHelper)
+            IDateTimeHelper dateTimeHelper,
+            IConfiguration iconfiguration)
         {
             _deviceService = deviceService;
             _storeService = storeService;
             _dateTimeHelper = dateTimeHelper;
+            _iconfiguration = iconfiguration;
         }
 
         #region Manage Device
@@ -121,9 +125,29 @@ namespace StockManagementSystem.Factories
             var model = new DeviceModel
             {
                 Devices = devices
-            };            
+            };
+
+            foreach (var item in model.Devices)
+            {
+                double distance = getDistance(item.Latitude, item.Longitude, item.Store.Latitude, item.Store.Longitude) / 1000; //returns in KM
+                if (distance > Convert.ToDouble(_iconfiguration["OutofRadarRadius"]))
+                {
+                    item.Status = "2";
+                }
+            }
 
             return model;
+        }
+
+        private double getDistance(double latitude, double longitude, double otherLatitude, double otherLongitude)
+        {
+            var d1 = latitude * (Math.PI / 180.0);
+            var num1 = longitude * (Math.PI / 180.0);
+            var d2 = otherLatitude * (Math.PI / 180.0);
+            var num2 = otherLongitude * (Math.PI / 180.0) - num1;
+            var d3 = Math.Pow(Math.Sin((d2 - d1) / 2.0), 2.0) + Math.Cos(d1) * Math.Cos(d2) * Math.Pow(Math.Sin(num2 / 2.0), 2.0);
+
+            return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
 
         public async Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device)
@@ -185,8 +209,13 @@ namespace StockManagementSystem.Factories
                 {
                     var mapListModel = mapLst.ToModel<MapDeviceModel>();
                     mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
-                    mapListModel.Status = (mapLst.Status == null || mapLst.Status == "0" || mapLst.Longitude == null 
-                    || mapLst.Latitude == null || mapLst.Longitude == "0" || mapLst.Latitude == "0") ? "Offline" : "Online" ;
+
+                    double distance = getDistance(mapLst.Store.Latitude, mapLst.Store.Longitude, mapLst.Latitude, mapLst.Longitude);
+                    if (distance > Convert.ToDouble(_iconfiguration["OutofRadarRadius"]))
+                    {
+                        mapLst.Status = "2";
+                    }
+                    mapListModel.Status = (mapLst.Status == null || mapLst.Status == "0" ) ? "Offline" : mapLst.Status == "1" ? "Online" : mapLst.Status == "2" ? "Out of radar" : "N/A";
                     return mapListModel;
                 }),
                 Total = mapList.Count

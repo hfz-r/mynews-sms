@@ -39,6 +39,10 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public string P_Brand { get; set; }
 
+        public double Longitude { get; set; }
+
+        public double Latitude { get; set; }
+
         public virtual ICollection<Device> Device { get; set; }
 
         public virtual ICollection<PushNotificationStore> PushNotificationStores { get; set; }
