@@ -114,13 +114,13 @@ namespace StockManagementSystem.Controllers
 
             return View(model);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> AddOrderLimit(OrderLimitModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
                 return AccessDeniedView();
-            
+
             if (model.SelectedStoreIds.Count == 0)
             {
                 ModelState.AddModelError(string.Empty, "Store is required to register a device");
@@ -133,6 +133,8 @@ namespace StockManagementSystem.Controllers
                 OrderLimit orderLimit = new OrderLimit
                 {
                     Percentage = model.Percentage,
+                    DaysofSales = model.DaysofSales,
+                    DaysofStock = model.DaysofStock,
                     OrderLimitStores = new List<OrderLimitStore>()
                 };
 
@@ -205,7 +207,7 @@ namespace StockManagementSystem.Controllers
                     newStores.Add(store);
             }
 
-            if(model.SelectedStoreIds.Count == 0)
+            if (model.SelectedStoreIds.Count == 0)
             {
                 _notificationService.ErrorNotification("Store is required");
                 model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
@@ -219,6 +221,8 @@ namespace StockManagementSystem.Controllers
                 try
                 {
                     orderLimit.Percentage = model.Percentage;
+                    orderLimit.DaysofSales = model.DaysofSales;
+                    orderLimit.DaysofStock = model.DaysofStock;
 
                     //stores
 
@@ -271,7 +275,7 @@ namespace StockManagementSystem.Controllers
 
             return View(model);
         }
-        
+
         public async Task<IActionResult> DeleteOrderLimit(int id)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
@@ -295,7 +299,7 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("EditOrder", new { id = orderLimit.Id });
             }
         }
-        
+
         #endregion
 
         #region Approval
@@ -309,12 +313,12 @@ namespace StockManagementSystem.Controllers
         #endregion
 
         #region Location
-        
+
         public async Task<IActionResult> Location()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageLocation))
                 return AccessDeniedView();
-            
+
             var model = await _locationModelFactory.PrepareShelfLocationFormatSearchModel(new LocationSearchModel());
             return View(model);
         }
@@ -375,7 +379,7 @@ namespace StockManagementSystem.Controllers
             shelfLocationFormat = model.ToEntity(shelfLocationFormat);
 
             _locationService.UpdateShelfLocationFormat(shelfLocationFormat);
-          
+
             return new NullJsonResult();
         }
 

@@ -15,7 +15,7 @@ namespace StockManagementSystem.Models.Setting
 
         [Required(ErrorMessage = "Percentage is required.")]
         [Display(Name = "Percentage")]
-        public double Percentage { get; set; }
+        public int Percentage { get; set; }
 
         [Display(Name = "BranchNo")]
         public int P_BranchNo { get; set; }

@@ -69,6 +69,8 @@ namespace StockManagementSystem.Factories
                     var orderLimitsModel = orderLimit.ToModel<OrderLimitModel>();
 
                     orderLimitsModel.Percentage = orderLimit.Percentage;
+                    orderLimitsModel.DaysofSales = orderLimit.DaysofSales;
+                    orderLimitsModel.DaysofStock = orderLimit.DaysofStock;
                     orderLimitsModel.StoreName = String.Join(", ", orderLimit.OrderLimitStores.Select(store => store.Store.P_BranchNo + " - " + store.Store.P_Name));
                     orderLimitsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                     orderLimitsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -118,6 +120,8 @@ namespace StockManagementSystem.Factories
 
                 model.Id = orderLimit.Id;
                 model.Percentage = orderLimit.Percentage;
+                model.DaysofSales = orderLimit.DaysofSales;
+                model.DaysofStock = orderLimit.DaysofStock;
                 model.SelectedStoreIds = orderLimit.OrderLimitStores.Select(ols => ols.StoreId).ToList();
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);

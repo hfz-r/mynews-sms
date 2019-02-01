@@ -19,7 +19,8 @@ namespace StockManagementSystem.Models.OrderLimits
         public IList<SelectListItem> AvailableStores { get; set; }
         
         [Display(Name = "Percentage")]
-        public float? SearchPercentage { get; set; }
+        [DataType("Integer")]
+        public int? SearchPercentage { get; set; }
 
     }
 }
