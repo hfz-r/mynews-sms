@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StockManagementSystem.Core.Domain.Stores;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -49,5 +50,6 @@ namespace StockManagementSystem.Core.Domain.Identity
         public virtual ICollection<UserClaim> Claims { get; set; }
         public virtual ICollection<UserToken> Tokens { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<StoreUserAssignStores> StoreUserAssignStore { get; set; }
     }
 }

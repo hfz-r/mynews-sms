@@ -1,0 +1,76 @@
+﻿@model GroupOutletModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <_label asp-for="GroupName" />
+                </div>
+                <div class="col-xs-9">
+                    <_editor asp-for="GroupName" />
+                    <span asp-validation-for="GroupName"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <_label asp-for="SelectedStoreIds" />
+                </div>
+                <div class="col-xs-9">
+                    <div class="input-group input-group-required">
+                        <_select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true" />
+                        <div class="input-group-btn">
+                            <_required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var storeIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)').data("kendoMultiSelect");
+                            storeIdsInput.setOptions({
+                                storeIdsInput: false,
+                                filter: "contains"
+                            });
+
+                            @if (Model.AvailableStores.Count == 0)
+                            {
+                                <text>
+                                        storeIdsInput.setOptions({
+                                        enable: false,
+                                        placeholder: "No stores available"
+                                    });
+                                        storeIdsInput._placeholder();
+                                        storeIdsInput._enable();
+                                </text>
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+          
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <_label asp-for="CreatedOn" />
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.CreatedOn</div>
+                    </div>
+                </div>
+            }
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <_label asp-for="LastActivityDate" />
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.LastActivityDate</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -14,6 +14,7 @@ using StockManagementSystem.Services.Devices;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Locations;
 using StockManagementSystem.Services.Logging;
+using StockManagementSystem.Services.Management;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.OrderLimits;
 using StockManagementSystem.Services.PushNotifications;
@@ -61,6 +62,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<DeviceService>().As<IDeviceService>().InstancePerLifetimeScope();
             builder.RegisterType<OrderLimitService>().As<IOrderLimitService>().InstancePerLifetimeScope();
             builder.RegisterType<PushNotificationService>().As<IPushNotificationService>().InstancePerLifetimeScope();
+            builder.RegisterType<OutletManagementService>().As<IOutletManagementService>().InstancePerLifetimeScope();
             builder.RegisterType<LocationService>().As<ILocationService>().InstancePerLifetimeScope();
             builder.RegisterType<FormatSettingService>().As<IFormatSettingService>().InstancePerLifetimeScope();
             builder.RegisterType<StoreService>().As<IStoreService>().InstancePerLifetimeScope();
