@@ -33,13 +33,14 @@
                 <a asp-controller="Account" asp-action="ForgotPassword" id="fgtPass">Forgot Password?</a>
             </div>
             <div class="row">
-                <!-- /.col -->
-                <div class="col-xs-6">
+                @*17012019 - Commented as there is create user is not allowed, only in HQ*@
+                <!-- /.col --> 
+                @*<div class="col-xs-6">
                     <a asp-controller="Account" asp-action="Register" title="Manage" id="Register" class="btn btn-default btn-block btn-flat">
                         Register
                     </a>
-                </div>
-                <div class="col-xs-6">
+                </div>*@
+                <div class="col-xs-12">
                     <button id="loginClick" href="#" type="submit" class="btn btn-primary btn-block btn-flat">
                         Login
                     </button>
