@@ -49,7 +49,7 @@ namespace StockManagementSystem.Services.PushNotifications
 
             if (pushCategoryIds != null && pushCategoryIds.Length > 0)
             {
-                query = query.Where(pn => pn.PushNotificationStores.Any(pns => pushCategoryIds.Contains(pns.PushNotificationId)));
+                query = query.Where(pn => pushCategoryIds.Contains(pn.NotificationCategoryId));
             }
 
             if (!string.IsNullOrEmpty(title))
@@ -85,7 +85,7 @@ namespace StockManagementSystem.Services.PushNotifications
         }
 
         public virtual void DeletePushNotification(PushNotification pushNotification)
-        { 
+        {
             if (pushNotification == null)
                 throw new ArgumentNullException(nameof(pushNotification));
 

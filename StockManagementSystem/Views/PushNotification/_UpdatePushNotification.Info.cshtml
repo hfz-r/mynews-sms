@@ -1,0 +1,345 @@
+﻿@model PushNotificationModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="Title" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="Description" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="SelectedNotificationCategoryIds" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedNotificationCategoryIds" asp-items="Model.AvailableNotificationCategories" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var notificationCategoryIdsInput = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)')
+                                .kendoDropDownList({
+                                    autoClose: false,
+                                    filter: "contains",
+                                    change: function () {
+                                        onChange();
+                                    },
+                                    dataBound: onChange()
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableNotificationCategories.Count == 0)
+                            {
+                                <text>
+                                    notificationCategoryIdsInput.placeholder = "No notification category available";
+                                    notificationCategoryIdsInput.enable = false;
+                                </text>
+                            }
+                        });
+
+                        function onChange(e) {
+                            var selected = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val();
+                            $("#stocktake-outlet").attr("style", "display: none;");
+                            if (selected == null) {
+                                $("#stocktake-display").attr("style", "display: none;");
+                                $("#others-outlet").attr("style", "display: none;");
+                            }
+                            else if (selected == "1") //Stock Take
+                            {
+                                $("#stocktake-display").show();
+                                $("#others-outlet").attr("style", "display: none;");
+                            }
+                            else {
+                                $("#stocktake-display").attr("style", "display: none;");
+                                $("#others-outlet").show();
+                            }
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group" id="stocktake-display">
+                <div class="col-xs-3">
+                    <label asp-for="SelectedStockTake" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedStockTake" asp-items="Model.AvailableStockTakeList" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var StockTakesInput = $('#@Html.IdFor(model => model.SelectedStockTake)')
+                                .kendoDropDownList({
+                                    autoClose: false,
+                                    filter: "contains",
+                                    optionLabel : " ",
+                                    change: function () {
+                                        onChangeStock();
+                                    },
+                                    dataBound: onChangeStock
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableStockTakeList.Count == 0)
+                            {
+                                <text>
+                                    StockTakesInput.placeholder = "No stock take is available";
+                                    StockTakesInput.enable = false;
+                                </text>
+                            }
+                        });
+
+                        function onChangeStock(e) {
+                            var pushNoti = {};
+                            pushNoti.STNo = $('#@Html.IdFor(model => model.SelectedStockTake)').val();
+                            stNo = $('#@Html.IdFor(model => model.SelectedStockTake)').val();
+                            var catId = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val();
+
+                            if (catId == 1)
+                            {
+                                $.ajax({
+                                    type: "GET",
+                                    url: '@Url.Action("GetStockTakeStores", "PushNotification")',// the method we are calling
+                                    contentType: "application/json; charset=utf-8",
+                                    data: "stockTakeNo=" + pushNoti.STNo,
+                                    dataType: "text",
+                                    success: function (result) {
+                                        //alert(result);
+                                        if (result != null) {
+                                            result = result.slice(1, -1);
+                                            $("#StoreName").val(result);
+                                            $("#stocktake-outlet").show();
+                                        }
+                                    },
+                                    error: function (xhr, status, error) {
+                                        //Ajax request failed.
+                                        var errorMessage = xhr.status + ': ' + xhr.statusText
+                                        //alert('Error - ' + errorMessage)
+
+                                    }
+
+                                });
+                            }
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group" id="others-outlet">
+                <div class="col-xs-3">
+                    <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
+                                .kendoMultiSelect({
+                                    autoClose: false,
+                                    filter: "contains"
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableStores.Count == 0)
+                            {
+                                <text>
+                                    storesIdsInput.placeholder = "No stores available";
+                                    storesIdsInput.enable = false;
+                                </text>
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group" id="stocktake-outlet">
+                <div class="col-xs-3">
+                    <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input type="text" id="StoreName" disabled="disabled" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="RemindMe" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input asp-for="RemindMe" class="checkbox" id="remindMeCheckBox" type="checkbox" onclick="remindMe()" onload="remindMe()" />
+                </div>
+                <script>
+                    function remindMe() {
+                        var checkBox = document.getElementById("remindMeCheckBox");
+                        if (checkBox.checked == true) {
+                            $("#repeat-display").show();
+                        } else {
+                            $("#repeat-display").attr("style", "display: none;");
+                        }
+                        $("#selectionDays").attr("style", "display: none;");
+                        $("#timeSelection").attr("style", "display: none;");
+                        $("#recursiveDays").attr("style", "display: none;");
+                    }
+                </script>
+            </div>
+
+            <div class="form-group" id="repeat-display" style="display: none;">
+                <div class="col-xs-3">
+                    <label asp-for="Repeat" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <div class="btn-group">
+                        <button type="button" id="daily" class="btn btn-default pull-left" onclick="dailySelected()">Daily</button>
+                        <button type="button" id="weekly" class="btn btn-default pull-left" onclick="weeklySelected()">Weekly</button>
+                        <button type="button" id="monthly" class="btn btn-default pull-left" onclick="monthlySelected()">Monthly</button>
+                        <button type="button" id="once" class="btn btn-default pull-left" onclick="onceSelected()">One Time</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="selectionDays" style="display: none;">
+                <div class="col-xs-3">
+                </div>
+                <div class="col-xs-9">
+                    <div class="btn-group">
+                        <button type="button" data-toggle="button" class="btn btn-default">Sun</button>
+                        <button type="button" data-toggle="button" class="btn btn-default">Mon</button>
+                        <button type="button" data-toggle="button" class="btn btn-default">Tue</button>
+                        <button type="button" data-toggle="button" class="btn btn-default">Wed</button>
+                        <button type="button" data-toggle="button" class="btn btn-default">Thu</button>
+                        <button type="button" data-toggle="button" class="btn btn-default">Fri</button>
+                        <button type="button" data-toggle="button" class="btn btn-default">Sat</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="timeSelection" style="display:none;">
+                <div class="col-xs-3">
+                    <label asp-for="StartTime" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input id="timepicker" value="10:00 AM" title="timepicker" style="width: 100%;" />
+                </div>
+            </div>
+            <div class="form-group" id="recursiveDays" style="display:none;">
+                <div class="col-xs-3">
+                </div>
+                <div class="col-xs-9">
+                    <label asp-for="RepeatEvery" class="control-label"></label>
+                    <input onkeypress='return validateQty(event);' step="1" style="width:100px; text-align:right;" id="repeatTimes" name="RepeatEvery" maxlength="5" min="0" max="500" />
+                    <label id="repeatLabel" class="control-label"></label>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+
+                function validateQty(event) {
+                    var key = window.event ? event.keyCode : event.which;
+                    if (event.keyCode == 8 || event.keyCode == 116
+                        || event.keyCode == 37 || event.keyCode == 39) {
+                        return true;
+                    }
+                    else if (key < 48 || key > 57) {
+                        return false;
+                    }
+                    else return true;
+                };
+
+                $(document).ready(function () {
+                    // create TimePicker from input HTML element
+                    $("#timepicker").kendoTimePicker({
+                        dateInput: true
+                    });
+                });
+                function dailySelected() {
+                    $("#daily").toggleClass("active");
+                    $("#weekly").removeClass("active");
+                    $("#monthly").removeClass("active");
+                    $("#once").removeClass("active");
+                    $("#timeSelection").show();
+                    $("#recursiveDays").attr("style", "display: none;");
+                    $("#selectionDays").attr("style", "display: none;");
+                }
+                function weeklySelected() {
+                    $("#weekly").toggleClass("active");
+                    $("#daily").removeClass("active");
+                    $("#monthly").removeClass("active");
+                    $("#once").removeClass("active");
+                    $("#selectionDays").show();
+                    $("#timeSelection").show();
+                    $("#recursiveDays").show();
+                    document.getElementById("repeatLabel").textContent = "week(s)";
+                    document.getElementById("repeatsummary").textContent = "Event will occur every week.";
+                }
+                function monthlySelected() {
+                    $("#monthly").toggleClass("active");
+                    $("#daily").removeClass("active");
+                    $("#weekly").removeClass("active");
+                    $("#once").removeClass("active");
+                    $("#selectionDays").show();
+                    $("#timeSelection").show();
+                    $("#recursiveDays").show();
+                    document.getElementById("repeatLabel").textContent = "month(s)";
+                    document.getElementById("repeatsummary").textContent = "Event will occur every month.";
+                }
+                function onceSelected() {
+                    $("#once").toggleClass("active");
+                    $("#daily").removeClass("active");
+                    $("#weekly").removeClass("active");
+                    $("#monthly").removeClass("active");
+                    $("#timeSelection").show();
+                    $("#recursiveDays").attr("style", "display: none;");
+                    $("#selectionDays").attr("style", "display: none;");
+                }
+            </script>
+
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.CreatedOn</div>
+                    </div>
+                </div>
+            }
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.LastActivityDate</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

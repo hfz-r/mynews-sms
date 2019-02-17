@@ -28,7 +28,6 @@
       <Compile Remove="Models\PushNotifications\EditNotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\NotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\PushNotificationViewModel.cs" />
-      <Content Remove="Views\PushNotification\AddNotification.cshtml" />
       <None Update="Views\sitemap.config">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
