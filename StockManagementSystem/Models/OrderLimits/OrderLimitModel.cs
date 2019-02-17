@@ -23,8 +23,8 @@ namespace StockManagementSystem.Models.OrderLimits
         [DataType("Integer")]
         public int Percentage { get; set; }
 
-        [Display(Name = "Days of Stock")]
-        [Required(ErrorMessage = "Days of Stock is required")]
+        [Display(Name = "Buffer Days")]
+        [Required(ErrorMessage = "Buffer Days is required")]
         [DataType("Integer")]
         public int DaysofStock { get; set; }
 

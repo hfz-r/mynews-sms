@@ -91,7 +91,7 @@ namespace StockManagementSystem.Models.PushNotifications
         [Display(Name = "Category")]
         public string CategoryName { get; set; }
 
-        [Display(Name = "Categories")]
+        [Display(Name = "Category")]
         [Required(ErrorMessage = "Notification Category is required")]
         public IList<int> SelectedNotificationCategoryIds { get; set; }
 
