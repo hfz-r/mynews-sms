@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Models.Users;
 
 namespace StockManagementSystem.Factories
@@ -10,7 +10,7 @@ namespace StockManagementSystem.Factories
 
         Task<UserListModel> PrepareUserListModel(UserSearchModel searchModel);
 
-        Task<UserModel> PrepareUserModel(UserModel model, User user);
+        Task<UserModel> PrepareUserModel(UserModel model, User user, bool excludeProperties = false);
 
         UserActivityLogSearchModel PrepareUserActivityLogSearchModel(UserActivityLogSearchModel searchModel, User user);
 

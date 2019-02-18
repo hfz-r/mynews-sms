@@ -95,6 +95,43 @@ namespace StockManagementSystem.Web.UI
         }
 
         /// <summary>
+        /// Add inline script element
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="location">A location of the script element</param>
+        /// <param name="script">Script</param>
+        public static void AddInlineScriptParts(this IHtmlHelper html, ResourceLocation location, string script)
+        {
+            var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
+            pageHeadBuilder.AddInlineScriptParts(location, script);
+        }
+
+        /// <summary>
+        /// Append inline script element
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="location">A location of the script element</param>
+        /// <param name="script">Script</param>
+        public static void AppendInlineScriptParts(this IHtmlHelper html, ResourceLocation location, string script)
+        {
+            var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
+            pageHeadBuilder.AppendInlineScriptParts(location, script);
+        }
+
+        /// <summary>
+        /// Generate all inline script parts
+        /// </summary>
+        /// <param name="html">HTML helper</param>
+        /// <param name="urlHelper">URL Helper</param>
+        /// <param name="location">A location of the script element</param>
+        /// <returns>Generated string</returns>
+        public static IHtmlContent DefaultInlineScripts(this IHtmlHelper html, IUrlHelper urlHelper, ResourceLocation location)
+        {
+            var pageHeadBuilder = EngineContext.Current.Resolve<IPageHeadBuilder>();
+            return new HtmlString(pageHeadBuilder.GenerateInlineScripts(urlHelper, location));
+        }
+
+        /// <summary>
         /// Add CSS element
         /// </summary>
         /// <param name="html">HTML helper</param>

@@ -1,8 +1,11 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
+using StockManagementSystem.Core.Http;
 using StockManagementSystem.Services.Authentication;
+using StockManagementSystem.Services.Tasks;
+using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Web
 {
@@ -11,15 +14,15 @@ namespace StockManagementSystem.Web
     /// </summary>
     public partial class WorkContext : IWorkContext
     {
+        private readonly IUserService _userService;
         private readonly IAuthenticationService _authenticationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private User _cachedUser;
 
-        public WorkContext(
-            IAuthenticationService authenticationService, 
-            IHttpContextAccessor httpContextAccessor)
+        public WorkContext(IUserService userService, IAuthenticationService authenticationService, IHttpContextAccessor httpContextAccessor)
         {
+            _userService = userService;
             _authenticationService = authenticationService;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -29,7 +32,7 @@ namespace StockManagementSystem.Web
         /// </summary>
         protected virtual string GetUserCookie()
         {
-            var cookieName = ".sms.user";
+            var cookieName = $"{CookieDefaults.Prefix}{CookieDefaults.UserCookie}";
             return _httpContextAccessor.HttpContext?.Request?.Cookies[cookieName];
         }
 
@@ -42,7 +45,7 @@ namespace StockManagementSystem.Web
                 return;
 
             //delete current cookie value
-            var cookieName = ".sms.user";
+            var cookieName = $"{CookieDefaults.Prefix}{CookieDefaults.UserCookie}";
             _httpContextAccessor.HttpContext.Response.Cookies.Delete(cookieName);
 
             //get date of cookie expiration
@@ -73,11 +76,52 @@ namespace StockManagementSystem.Web
                 if (_cachedUser != null)
                     return _cachedUser;
 
-                var user = _authenticationService.GetAuthenticatedUserAsync().GetAwaiter().GetResult();
-                if (user != null)
+                User user = null;
+
+                //check whether request is made by a background (schedule) task
+                if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Request.Path.Equals(
+                        new PathString($"/{TaskDefaults.ScheduleTaskPath}"), StringComparison.InvariantCultureIgnoreCase))
                 {
+                    //in this case return built-in user record for background task
+                    user = _userService.GetUserBySystemNameAsync(UserDefaults.BackgroundTaskUserName).GetAwaiter().GetResult();
+                }
+
+                if (user == null || user.Deleted || !user.Active)
+                {
+                    //try to get registered user
+                    user = _authenticationService.GetAuthenticatedUserAsync().GetAwaiter().GetResult();
+                }
+
+                if (user == null || user.Deleted || !user.Active)
+                {
+                    //get guest user
+                    var userCookie = GetUserCookie();
+                    if (!string.IsNullOrEmpty(userCookie))
+                    {
+                        if (Guid.TryParse(userCookie, out Guid userGuid))
+                        {
+                            //get user from cookie (should not be registered)
+                            var userByCookie = _userService.GetUserByGuidAsync(userGuid).GetAwaiter().GetResult();
+                            if (userByCookie != null && !userByCookie.IsRegistered())
+                                user = userByCookie;
+                        }
+                    }
+                }
+
+                if (user == null || user.Deleted || !user.Active)
+                {
+                    //create guest if not exists
+                    user = _userService.InsertGuestUser().GetAwaiter().GetResult();
+                }
+
+                if (!user.Deleted && user.Active)
+                {
+                    //set user cookie
                     SetUserCookie(user.UserGuid);
+
+                    //cache the found user
                     _cachedUser = user;
+
                 }
 
                 return _cachedUser;

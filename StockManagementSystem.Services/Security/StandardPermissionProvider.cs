@@ -1,59 +1,38 @@
 ﻿using System.Collections.Generic;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Security
 {
     public class StandardPermissionProvider : IPermissionProvider
     {
-        public static readonly Permission AccessPanel = new Permission
-        {
-            Name = "Access panel",
-            SystemName = "AccessPanel",
-            Category = "Standard"
-        };
+        public static readonly Permission AccessPanel =
+            new Permission { Name = "Access panel", SystemName = "AccessPanel", Category = "Standard" };
 
-        public static readonly Permission ManageUsers = new Permission
-        {
-            Name = "Manage Users",
-            SystemName = "ManageUsers",
-            Category = "User Management"
-        };
+        public static readonly Permission ManageUsers =
+            new Permission { Name = "Manage Users", SystemName = "ManageUsers", Category = "User Management" };
 
-        public static readonly Permission ManageRoles = new Permission
-        {
-            Name = "Manage Roles",
-            SystemName = "ManageRoles",
-            Category = "User Management"
-        };
+        public static readonly Permission ManageActivityLog =
+            new Permission { Name = "Manage Activity Log", SystemName = "ManageActivityLog", Category = "Configuration" };
 
-        public static readonly Permission ManagePermission = new Permission
-        {
-            Name = "Manage Permission",
-            SystemName = "ManagePermission",
-            Category = "User Management Configuration"
-        };
+        public static readonly Permission ManageDevices =
+            new Permission { Name = "Manage Devices", SystemName = "ManageDevices", Category = "Device Management" };
 
-        public static readonly Permission ManageActivityLog = new Permission
-        {
-            Name = "Manage Activity Log",
-            SystemName = "ManageActivityLog",
-            Category = "User Management Configuration"
-        };
+        public static readonly Permission ManageReports =
+            new Permission { Name = "Manage Report", SystemName = "ManageReports", Category = "Device Management" };
 
-        public static readonly Permission ManageDevices = new Permission
-        {
-            Name = "Manage Devices",
-            SystemName = "ManageDevices",
-            Category = "Device Management"
-        };
+        public static readonly Permission ManageOrderLimit =
+            new Permission { Name = "Manage Stock Order Limits", SystemName = "ManageOrderLimit", Category = "Configuration" };
 
-        public static readonly Permission ManageOrderLimit = new Permission
-        {
-            Name = "Manage Stock Order Limits",
-            SystemName = "ManageOrderLimit",
-            Category = "Setting"
-        };
+        public static readonly Permission ManageAcl = 
+            new Permission { Name = "Manage ACL", SystemName = "ManageAcl", Category = "Configuration" };
+
+        public static readonly Permission ManagePlugins =
+            new Permission { Name = "Manage Plugins", SystemName = "ManagePlugins", Category = "Configuration" };
+
+        public static readonly Permission ManageMaintenance = 
+            new Permission { Name = "Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration" };
+
         //TODO: other modules
 
         /// <summary>
@@ -65,11 +44,13 @@ namespace StockManagementSystem.Services.Security
             {
                 AccessPanel,
                 ManageUsers,
-                ManageRoles,
-                ManagePermission,
                 ManageActivityLog,
                 ManageDevices,
-                ManageOrderLimit
+                ManageReports,
+                ManageOrderLimit,
+                ManageAcl,
+                ManagePlugins,
+                ManageMaintenance,
             };
         }
 
@@ -82,35 +63,44 @@ namespace StockManagementSystem.Services.Security
             {
                 new DefaultPermission
                 {
-                    RoleSystemName = IdentityDefaults.AdministratorsRoleName,
+                    RoleSystemName = UserDefaults.AdministratorsRoleName,
                     Permissions = new[]
                     {
                         AccessPanel,
                         ManageUsers,
-                        ManageRoles,
-                        ManagePermission,
                         ManageDevices,
+                        ManageReports,
                         ManageActivityLog,
-                        ManageOrderLimit
+                        ManageOrderLimit,
+                        ManageAcl,
+                        ManagePlugins,
+                        ManageMaintenance,
                     }
                 },
                 new DefaultPermission
                 {
-                    RoleSystemName = IdentityDefaults.ManagerRoleName,
+                    RoleSystemName = UserDefaults.ManagersRoleName,
                     Permissions = new[]
                     {
                         AccessPanel,
-                        ManagePermission,
+                        ManageUsers,
+                        ManageDevices,
+                        ManageReports,
+                        ManageOrderLimit,
                     }
                 },
                 new DefaultPermission
                 {
-                    RoleSystemName = IdentityDefaults.RegisteredRoleName,
+                    RoleSystemName = UserDefaults.RegisteredRoleName,
                     Permissions = new[]
                     {
                         AccessPanel,
                     }
-                }
+                },
+                new DefaultPermission
+                {
+                    RoleSystemName = UserDefaults.GuestsRoleName,
+                },
             };
         }
     }

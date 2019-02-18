@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Security
 {

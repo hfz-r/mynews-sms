@@ -25,8 +25,26 @@ namespace StockManagementSystem.Models.Users
         [Display(Name = "Username")]
         public string SearchUsername { get; set; }
 
-        [Display(Name = "Name")]
-        public string SearchName { get; set; }
+        public bool UsernamesEnabled { get; set; }
+
+        [Display(Name = "First name")]
+        public string SearchFirstName { get; set; }
+
+        [Display(Name = "Last name")]
+        public string SearchLastName { get; set; }
+
+        [Display(Name = "Date of birth")]
+        public string SearchDayOfBirth { get; set; }
+
+        [Display(Name = "Date of birth")]
+        public string SearchMonthOfBirth { get; set; }
+
+        public bool DateOfBirthEnabled { get; set; }
+
+        [Display(Name = "Phone")]
+        public string SearchPhone { get; set; }
+
+        public bool PhoneEnabled { get; set; }
 
         [Display(Name = "IP address")]
         public string SearchIpAddress { get; set; }

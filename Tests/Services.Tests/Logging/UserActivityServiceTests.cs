@@ -4,14 +4,15 @@ using Moq;
 using NUnit.Framework;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Logging;
 using Tests;
 
 namespace Services.Tests.Logging
 {
-    public class UserActivityServiceTests
+    public class UserActivityServiceTests : ServiceTest
     {
         private IStaticCacheManager _cacheManager;
         private Mock<IRepository<ActivityLog>> _activityLogRepository;
@@ -24,7 +25,7 @@ namespace Services.Tests.Logging
         private Mock<IWebHelper> _webHelper;
 
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {
             _activityType1 = new ActivityLogType
             {
@@ -44,13 +45,15 @@ namespace Services.Tests.Logging
             {
                 Id = 1,
                 Email = "test1@test1.com",
-                UserName = "TestUser1"
+                Username = "TestUser1",
+                Deleted = false,
             };
             _user2 = new User
             {
                 Id = 2,
                 Email = "test2@test2.com",
-                UserName = "TestUser2",
+                Username = "TestUser2",
+                Deleted = false,
             };
             _activity1 = new ActivityLog
             {

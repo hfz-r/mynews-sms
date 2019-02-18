@@ -1,7 +1,7 @@
 ﻿namespace StockManagementSystem.Core.Domain.Security
 {
     /// <summary>
-    /// Represents an entity which supports Permissions
+    /// Represents an entity which supports permission/ACL
     /// </summary>
     public interface IAclSupported
     {

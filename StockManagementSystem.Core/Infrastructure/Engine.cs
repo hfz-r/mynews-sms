@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Infrastructure.DependencyManagement;
+using StockManagementSystem.Core.Infrastructure.Extensions;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 
 namespace StockManagementSystem.Core.Infrastructure
@@ -32,7 +34,7 @@ namespace StockManagementSystem.Core.Infrastructure
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
         /// <param name="typeFinder">Type finder</param>
-        protected virtual IServiceProvider RegisterDependencies(IServiceCollection services, ITypeFinder typeFinder)
+        protected virtual IServiceProvider RegisterDependencies(DefaultConfig defaultConfig, IServiceCollection services, ITypeFinder typeFinder)
         {
             var containerBuilder = new ContainerBuilder();
 
@@ -51,7 +53,7 @@ namespace StockManagementSystem.Core.Infrastructure
 
             //register all provided dependencies
             foreach (var dependencyRegistrar in instances)
-                dependencyRegistrar.Register(containerBuilder, typeFinder);
+                dependencyRegistrar.Register(containerBuilder, typeFinder, defaultConfig);
 
             //populate Autofac container builder with the set of registered service descriptors
             containerBuilder.Populate(services);
@@ -89,6 +91,11 @@ namespace StockManagementSystem.Core.Infrastructure
             var provider = services.BuildServiceProvider();
             var hostingEnvironment = provider.GetRequiredService<IHostingEnvironment>();
             CommonHelper.DefaultFileProvider = new FileProviderHelper(hostingEnvironment);
+
+            //initialize plugins
+            var defaultConfig = provider.GetRequiredService<DefaultConfig>();
+            var mvcCoreBuilder = services.AddMvcCore();
+            mvcCoreBuilder.PartManager.InitializePlugins(defaultConfig);
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services, IConfiguration configuration)
@@ -107,7 +114,8 @@ namespace StockManagementSystem.Core.Infrastructure
 
             AddAutoMapper(services, typeFinder);
 
-            RegisterDependencies(services, typeFinder);
+            var defaultConfig = services.BuildServiceProvider().GetService<DefaultConfig>();
+            RegisterDependencies(defaultConfig, services, typeFinder);
 
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
@@ -143,12 +151,12 @@ namespace StockManagementSystem.Core.Infrastructure
 
         public T Resolve<T>() where T : class
         {
-            return (T)GetServiceProvider().GetRequiredService(typeof(T));
+            return (T)Resolve(typeof(T));
         }
 
         public object Resolve(Type type)
         {
-            return GetServiceProvider().GetRequiredService(type);
+            return GetServiceProvider().GetService(type);
         }
 
         public IEnumerable<T> ResolveAll<T>()
@@ -168,7 +176,7 @@ namespace StockManagementSystem.Core.Infrastructure
                     {
                         var service = Resolve(parameter.ParameterType);
                         if (service == null)
-                            throw new Exception("Unknown dependency");
+                            throw new DefaultException("Unknown dependency");
                         return service;
                     });
 
@@ -181,7 +189,7 @@ namespace StockManagementSystem.Core.Infrastructure
                 }
             }
 
-            throw new Exception("No constructor was found that had all the dependencies satisfied.", innerException);
+            throw new DefaultException("No constructor was found that had all the dependencies satisfied.", innerException);
         }
 
         public virtual IServiceProvider ServiceProvider => _serviceProvider;

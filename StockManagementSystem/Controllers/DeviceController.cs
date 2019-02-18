@@ -85,9 +85,11 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                Device device = new Device();
-                device.ModelNo = model.ModelNo;
-                device.StoreId = model.SelectedStoreId;
+                var device = new Device
+                {
+                    ModelNo = model.ModelNo,
+                    StoreId = model.SelectedStoreId
+                };
 
                 //Serial No
                 if (!string.IsNullOrWhiteSpace(model.SerialNo))

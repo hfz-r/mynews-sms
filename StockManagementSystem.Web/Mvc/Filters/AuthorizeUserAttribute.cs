@@ -9,7 +9,7 @@ using StockManagementSystem.Services.Security;
 namespace StockManagementSystem.Web.Mvc.Filters
 {
     /// <summary>
-    /// Represents a filter attribute that confirms access to the panel
+    /// Represents a filter attribute that confirms access
     /// </summary>
     public class AuthorizeUserAttribute : TypeFilterAttribute
     {
@@ -44,8 +44,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 var actionFilter = filterContext.ActionDescriptor.FilterDescriptors
                     .Where(fd => fd.Scope == FilterScope.Action)
                     .Select(fd => fd.Filter)
-                    .OfType<AuthorizeUserAttribute>()
-                    .FirstOrDefault();
+                    .OfType<AuthorizeUserAttribute>().FirstOrDefault();
 
                 if (actionFilter?.IgnoreFilter ?? _ignoreFilter)
                     return;

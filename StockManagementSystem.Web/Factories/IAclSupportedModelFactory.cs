@@ -7,7 +7,7 @@ namespace StockManagementSystem.Web.Factories
 {
     public interface IAclSupportedModelFactory
     {
-        Task PrepareModelRoles<TModel>(TModel model) where TModel : IAclSupportedModel;
+        void PrepareModelRoles<TModel>(TModel model) where TModel : IAclSupportedModel;
 
         Task PrepareModelRoles<TModel, TEntity>(TModel model, TEntity entity, bool ignorePermissionMappings)
             where TModel : IAclSupportedModel where TEntity : BaseEntity, IAclSupported;

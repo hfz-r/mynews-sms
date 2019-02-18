@@ -5,19 +5,19 @@ using System.Threading.Tasks;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Security;
-using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Factories
 {
     public class SecurityModelFactory : ISecurityModelFactory
     {
-        private readonly IRoleService _roleService;
+        private readonly IUserService _userService;
         private readonly IPermissionService _permissionService;
 
-        public SecurityModelFactory(IRoleService roleService, IPermissionService permissionService)
+        public SecurityModelFactory(IUserService userService, IPermissionService permissionService)
         {
-            _roleService = roleService;
+            _userService = userService;
             _permissionService = permissionService;
         }
 
@@ -26,7 +26,7 @@ namespace StockManagementSystem.Factories
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            var roles = await _roleService.GetRolesAsync();
+            var roles = _userService.GetRoles();
             model.AvailableRoles = roles.Select(role => role.ToModel<RoleModel>()).ToList();
 
             foreach (var permission in await _permissionService.GetAllPermissions())

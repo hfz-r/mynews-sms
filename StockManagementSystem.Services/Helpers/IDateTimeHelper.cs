@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Helpers
 {
     public interface IDateTimeHelper
     {
         TimeZoneInfo CurrentTimeZone { get; set; }
+        TimeZoneInfo DefaultStoreTimeZone { get; set; }
 
         DateTime ConvertToUserTime(DateTime dt);
         DateTime ConvertToUserTime(DateTime dt, DateTimeKind sourceDateTimeKind);

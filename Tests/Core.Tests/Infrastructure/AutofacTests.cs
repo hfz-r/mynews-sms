@@ -13,7 +13,7 @@ namespace Core.Tests.Infrastructure
         public class Foo2 : IFoo { }
         public class Foo3 : IFoo { }
 
-        [Test]
+        [Test(Description = "To make sure older Autofac.dll isn't picked up")]
         public void EnumerablesFromDifferentLifetimeScopesShouldReturnDifferentCollections()
         {
             var rootBuilder = new ContainerBuilder();

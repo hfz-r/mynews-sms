@@ -17,6 +17,9 @@ namespace StockManagementSystem.Data.Mapping.Stores
             builder.Ignore(x => x.Id);
             builder.HasKey(s => s.P_BranchNo);
 
+            builder.Property(store => store.Url).HasMaxLength(400).IsRequired();
+            builder.Property(store => store.Hosts).HasMaxLength(1000);
+
             base.Configure(builder);
         }
     }

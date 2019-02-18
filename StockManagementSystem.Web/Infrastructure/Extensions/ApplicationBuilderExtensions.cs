@@ -6,13 +6,17 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Net.Http.Headers;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Http;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Services.Authentication;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
+using StockManagementSystem.Web.Mvc.Routing;
 
 namespace StockManagementSystem.Web.Infrastructure.Extensions
 {
@@ -25,15 +29,17 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
         public static void UseDefaultExceptionHandler(this IApplicationBuilder application)
         {
+            var defaultConfig = EngineContext.Current.Resolve<DefaultConfig>();
             var hostingEnvironment = EngineContext.Current.Resolve<IHostingEnvironment>();
-            if (hostingEnvironment.IsDevelopment())
+            var useDetailedExceptionPage = defaultConfig.DisplayFullErrorStack || hostingEnvironment.IsDevelopment();
+            if (useDetailedExceptionPage)
             {
                 application.UseDeveloperExceptionPage();
-                application.UseDatabaseErrorPage();
             }
             else
             {
-                application.UseExceptionHandler("/Home/Error");
+                //or use special exception handler
+                application.UseExceptionHandler("/errorpage.htm");
             }
 
             application.UseExceptionHandler(handler =>
@@ -124,15 +130,41 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
         public static void UseDefaultStaticFiles(this IApplicationBuilder application)
         {
+            var fileProvider = EngineContext.Current.Resolve<IFileProviderHelper>();
+
             var hostingEnvironment = EngineContext.Current.Resolve<IHostingEnvironment>();
             var cachePeriod = hostingEnvironment.IsDevelopment() ? "600" : "604800";
-            application.UseStaticFiles(new StaticFileOptions
+
+            Action<StaticFileResponseContext> staticFileResponse = (context) =>
             {
-                OnPrepareResponse = ctx =>
+                if (DataSettingsManager.DatabaseIsInstalled)
                 {
-                    ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={cachePeriod}");
+                    context.Context.Response.Headers.Append(HeaderNames.CacheControl, $"public, max-age={cachePeriod}");
                 }
-            });
+            };
+
+            //common static files
+            application.UseStaticFiles(new StaticFileOptions { OnPrepareResponse = staticFileResponse });
+
+            //plugins static files
+            var staticFileOptions = new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(fileProvider.MapPath(@"Plugins")),
+                RequestPath = new PathString("/Plugins"),
+                OnPrepareResponse = staticFileResponse
+            };
+
+            application.UseStaticFiles(staticFileOptions);
+        }
+
+        public static void UseKeepAlive(this IApplicationBuilder application)
+        {
+            application.UseMiddleware<KeepAliveMiddleware>();
+        }
+
+        public static void UseInstallUrl(this IApplicationBuilder application)
+        {
+            application.UseMiddleware<InstallUrlMiddleware>();
         }
 
         public static void UseDefaultAuthentication(this IApplicationBuilder application)
@@ -146,11 +178,9 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
         public static void UseDefaultMvc(this IApplicationBuilder application)
         {
-            application.UseMvc(routes =>
+            application.UseMvc(routeBuilder =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                EngineContext.Current.Resolve<IRoutePublisher>().RegisterRoutes(routeBuilder);
             });
         }
 

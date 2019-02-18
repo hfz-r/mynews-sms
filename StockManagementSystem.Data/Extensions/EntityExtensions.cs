@@ -1,5 +1,6 @@
 ﻿using System;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Caching;
 
 namespace StockManagementSystem.Data.Extensions
 {
@@ -27,6 +28,11 @@ namespace StockManagementSystem.Data.Extensions
                 throw new ArgumentNullException(nameof(entity));
 
             Type type = null;
+            
+            //cachable entity (get the base entity type)
+            if (entity is IEntityForCaching)
+                type = ((IEntityForCaching)entity).GetType().BaseType;
+
             //EF proxy
             if (entity.IsProxy())
                 type = entity.GetType().BaseType;

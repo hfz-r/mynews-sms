@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Logging;
-using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Factories;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Web.Kendoui.Extensions;
+using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Stores;
 
 namespace StockManagementSystem.Factories
 {
@@ -18,42 +19,55 @@ namespace StockManagementSystem.Factories
     /// </summary>
     public class UserModelFactory : IUserModelFactory
     {
+        private readonly UserSettings _userSettings;
         private readonly IUserService _userService;
-        private readonly IRoleService _roleService;
         private readonly IUserActivityService _userActivityService;
+        private readonly IBaseModelFactory _baseModelFactory;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IAclSupportedModelFactory _aclSupportedModelFactory;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IStoreService _storeService;
 
         public UserModelFactory(
+            UserSettings userSettings,
             IUserService userService,
-            IRoleService roleService,
             IUserActivityService userActivityService,
+            IBaseModelFactory baseModelFactory,
+            IGenericAttributeService genericAttributeService,
             IAclSupportedModelFactory aclSupportedModelFactory,
-            IDateTimeHelper dateTimeHelper)
+            IDateTimeHelper dateTimeHelper,
+            IStoreService storeService)
         {
+            _userSettings = userSettings;
             _userService = userService;
-            _roleService = roleService;
             _userActivityService = userActivityService;
+            _baseModelFactory = baseModelFactory;
+            _genericAttributeService = genericAttributeService;
             _aclSupportedModelFactory = aclSupportedModelFactory;
             _dateTimeHelper = dateTimeHelper;
+            _storeService = storeService;
         }
 
-        public async Task<UserSearchModel> PrepareUserSearchModel(UserSearchModel searchModel)
+        public Task<UserSearchModel> PrepareUserSearchModel(UserSearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            //prepare role selectlist = default = registered
-            var defaultRole = await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName);
-            if (defaultRole != null)
-                searchModel.SelectedRoleIds.Add(defaultRole.Id);
+            searchModel.UsernamesEnabled = _userSettings.UsernamesEnabled;
+            searchModel.DateOfBirthEnabled = _userSettings.DateOfBirthEnabled;
+            searchModel.PhoneEnabled = _userSettings.PhoneEnabled;
 
-            await _aclSupportedModelFactory.PrepareModelRoles(searchModel);
+            var registeredRole = _userService.GetRoleBySystemName(UserDefaults.RegisteredRoleName);
+            if (registeredRole != null)
+                searchModel.SelectedRoleIds.Add(registeredRole.Id);
+
+            //prepare available user roles
+            _aclSupportedModelFactory.PrepareModelRoles(searchModel);
 
             //prepare page parameters
             searchModel.SetGridPageSize();
 
-            return searchModel;
+            return Task.FromResult(searchModel);
         }
 
         public async Task<UserListModel> PrepareUserListModel(UserSearchModel searchModel)
@@ -61,11 +75,19 @@ namespace StockManagementSystem.Factories
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
+            //get parameters to filter customers
+            int.TryParse(searchModel.SearchDayOfBirth, out var dayOfBirth);
+            int.TryParse(searchModel.SearchMonthOfBirth, out var monthOfBirth);
+
             var users = await _userService.GetUsersAsync(
                 roleIds: searchModel.SelectedRoleIds.ToArray(),
                 email: searchModel.SearchEmail,
                 username: searchModel.SearchUsername,
-                name: searchModel.SearchName,
+                firstName: searchModel.SearchFirstName,
+                lastName: searchModel.SearchLastName,
+                dayOfBirth: dayOfBirth,
+                monthOfBirth: monthOfBirth,
+                phone: searchModel.SearchPhone,
                 ipAddress: searchModel.SearchIpAddress,
                 pageIndex: searchModel.Page - 1,
                 pageSize: searchModel.PageSize);
@@ -76,12 +98,12 @@ namespace StockManagementSystem.Factories
                 {
                     var userModel = user.ToModel<UserModel>();
 
-                    userModel.Email = user.Email;
-                    userModel.Username = user.UserName;
-                    userModel.Name = user.Name;
-                    userModel.UserRolesName = String.Join(", ", user.UserRoles.Select(role => role.Role.Name));
+                    userModel.Email = user.IsRegistered() ? user.Email : "Guest";
+                    userModel.FullName = _userService.GetUserFullNameAsync(user).GetAwaiter().GetResult();
+                    userModel.Phone = _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.PhoneAttribute).GetAwaiter().GetResult();
                     userModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
-                    userModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
+                    userModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.LastActivityDateUtc, DateTimeKind.Utc);
+                    userModel.UserRolesName = String.Join(", ", user.UserRoles.Select(role => role.Role.Name));
 
                     return userModel;
                 }),
@@ -108,33 +130,70 @@ namespace StockManagementSystem.Factories
             return model;
         }
 
-        public async Task<UserModel> PrepareUserModel(UserModel model, User user)
+        /// <summary>
+        /// Prepare user model
+        /// </summary>
+        /// <param name="model">User model</param>
+        /// <param name="user">User</param>
+        /// <param name="excludeProperties">Whether to exclude populating of some properties of model</param>
+        /// <returns></returns>
+        public async Task<UserModel> PrepareUserModel(UserModel model, User user, bool excludeProperties = false)
         {
             if (user != null)
             {
                 model = model ?? new UserModel();
 
                 model.Id = user.Id;
-                model.Email = user.Email;
-                model.Username = user.UserName;
-                model.Name = user.Name;
-                model.AdminComment = user.AdminComment;
-                model.LastIpAddress = user.LastIpAddress;
-                model.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
-                model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
-                model.SelectedRoleIds = user.UserRoles.Select(map => map.RoleId).ToList();
-
+                //whether to fill in some of properties
+                if (!excludeProperties)
+                {
+                    model.Email = user.Email;
+                    model.Username = user.Username;
+                    model.AdminComment = user.AdminComment;
+                    model.Active = user.Active;
+                    model.FirstName = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.FirstNameAttribute);
+                    model.LastName = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.LastNameAttribute);
+                    model.Gender = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.GenderAttribute);
+                    model.DateOfBirth = await _genericAttributeService.GetAttributeAsync<DateTime?>(user, UserDefaults.DateOfBirthAttribute);
+                    model.Phone = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.PhoneAttribute);
+                    model.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
+                    model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.LastActivityDateUtc, DateTimeKind.Utc);
+                    model.LastIpAddress = user.LastIpAddress;
+                    model.LastVisitedPage = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.LastVisitedPageAttribute);
+                    model.SelectedRoleIds = user.UserRoles.Select(map => map.RoleId).ToList();
+                    model.RegisteredInStore = (await _storeService.GetStoresAsync())
+                                              .FirstOrDefault(store => store.P_BranchNo == user.RegisteredInStoreId)
+                                              ?.P_Name ?? String.Empty;
+                }
+                //prepare nested search models
                 PrepareUserActivityLogSearchModel(model.UserActivityLogSearchModel, user);
             }
             else
             {
-                //precheck Registered Role 
-                var registeredRole = await _roleService.GetRoleBySystemNameAsync(IdentityDefaults.RegisteredRoleName);
-                if (registeredRole != null)
-                    model.SelectedRoleIds.Add(registeredRole.Id);
+                //whether to fill in some of properties
+                if (!excludeProperties)
+                {
+                    //precheck Registered Role 
+                    var registeredRole = _userService.GetRoleBySystemName(UserDefaults.RegisteredRoleName);
+                    if (registeredRole != null)
+                        model.SelectedRoleIds.Add(registeredRole.Id);
+                }
             }
+
+            model.UsernamesEnabled = _userSettings.UsernamesEnabled;
+            model.GenderEnabled = _userSettings.GenderEnabled;
+            model.DateOfBirthEnabled = _userSettings.DateOfBirthEnabled;
+            model.PhoneEnabled = _userSettings.PhoneEnabled;
+
+            //set default values for the new model
+            if (user == null)
+                model.Active = true;
+
             //prepare model user roles
-            await _aclSupportedModelFactory.PrepareModelRoles(model);
+            _aclSupportedModelFactory.PrepareModelRoles(model);
+
+            //prepare available time zones
+            await _baseModelFactory.PrepareTimeZones(model.AvailableTimeZones, false);
 
             return model;
         }
@@ -162,7 +221,7 @@ namespace StockManagementSystem.Factories
                 throw new ArgumentNullException(nameof(user));
 
             var activityLog = _userActivityService.GetAllActivities(
-                userId: user.Id, 
+                userId: user.Id,
                 pageIndex: searchModel.Page - 1,
                 pageSize: searchModel.PageSize);
 
@@ -172,7 +231,7 @@ namespace StockManagementSystem.Factories
                 {
                     var userActivityLogModel = logItem.ToModel<UserActivityLogModel>();
                     userActivityLogModel.ActivityLogTypeName = logItem.ActivityLogType.Name;
-                    userActivityLogModel.CreatedOn =  _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc);
+                    userActivityLogModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc);
 
                     return userActivityLogModel;
                 }),

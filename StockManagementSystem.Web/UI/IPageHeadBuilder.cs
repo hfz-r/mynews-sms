@@ -18,7 +18,8 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        void AddScriptParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle, bool isAsync);
+        void AddScriptParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle,
+            bool isAsync);
 
         /// <summary>
         /// Append script element
@@ -28,7 +29,8 @@ namespace StockManagementSystem.Web.UI
         /// <param name="debugSrc">Script path (full debug version). If empty, then minified version will be used</param>
         /// <param name="excludeFromBundle">A value indicating whether to exclude this script from bundling</param>
         /// <param name="isAsync">A value indicating whether to add an attribute "async" or not for js files</param>
-        void AppendScriptParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle, bool isAsync);
+        void AppendScriptParts(ResourceLocation location, string src, string debugSrc, bool excludeFromBundle,
+            bool isAsync);
 
         /// <summary>
         /// Generate all script parts
@@ -38,6 +40,28 @@ namespace StockManagementSystem.Web.UI
         /// <param name="bundleFiles">A value indicating whether to bundle script elements</param>
         /// <returns>Generated string</returns>
         string GenerateScripts(IUrlHelper urlHelper, ResourceLocation location, bool bundleFiles);
+
+        /// <summary>
+        /// Add inline script element
+        /// </summary>
+        /// <param name="location">A location of the script element</param>
+        /// <param name="script">Script</param>
+        void AddInlineScriptParts(ResourceLocation location, string script);
+
+        /// <summary>
+        /// Append inline script element
+        /// </summary>
+        /// <param name="location">A location of the script element</param>
+        /// <param name="script">Script</param>
+        void AppendInlineScriptParts(ResourceLocation location, string script);
+
+        /// <summary>
+        /// Generate all inline script parts
+        /// </summary>
+        /// <param name="urlHelper">URL Helper</param>
+        /// <param name="location">A location of the script element</param>
+        /// <returns>Generated string</returns>
+        string GenerateInlineScripts(IUrlHelper urlHelper, ResourceLocation location);
 
         /// <summary>
         /// Add CSS element

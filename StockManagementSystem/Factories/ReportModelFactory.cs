@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Logging;
+using StockManagementSystem.Models.Reports;
 using StockManagementSystem.Services.Helpers;
-using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Kendoui.Extensions;
 
@@ -14,32 +16,33 @@ namespace StockManagementSystem.Factories
 {
     public class ReportModelFactory : IReportModelFactory
     {
+        private readonly IBaseModelFactory _baseModelFactory;
         private readonly IUserService _userService;
-        private readonly IUserActivityService _userActivityService;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IRepository<Transaction> _transRepository;
 
         public ReportModelFactory(
+            IBaseModelFactory baseModelFactory,
             IUserService userService,
-            IUserActivityService userActivityService,
-            IDateTimeHelper dateTimeHelper)
+            IDateTimeHelper dateTimeHelper,
+            IRepository<Transaction> transRepository)
         {
+            _baseModelFactory = baseModelFactory;
             _userService = userService;
-            _userActivityService = userActivityService;
             _dateTimeHelper = dateTimeHelper;
+            _transRepository = transRepository;
         }
 
-        public async Task<ActivityLogContainerModel> PrepareActivityLogContainerModel(
-            ActivityLogContainerModel activityLogContainerModel)
+        public async Task<ReportContainerModel> PrepareReportContainerModel(ReportContainerModel reportContainerModel)
         {
-            if (activityLogContainerModel == null)
-                throw new ArgumentNullException(nameof(activityLogContainerModel));
+            if (reportContainerModel == null)
+                throw new ArgumentNullException(nameof(reportContainerModel));
 
             //prepare nested models
-            await PrepareSignedInLogSearchModel(activityLogContainerModel.ListSignedIn);
-            await PrepareActivityLogSearchModel(activityLogContainerModel.ListLogs);
-            activityLogContainerModel.ListTypes = await PrepareActivityLogTypeModels();
+            await PrepareSignedInLogSearchModel(reportContainerModel.ListSignedIn);
+            await PrepareTransActivitySearchModel(reportContainerModel.ListTransActivity);
 
-            return activityLogContainerModel;
+            return reportContainerModel;
         }
 
         public async Task<SignedInLogSearchModel> PrepareSignedInLogSearchModel(SignedInLogSearchModel searchModel)
@@ -52,92 +55,17 @@ namespace StockManagementSystem.Factories
             return await Task.FromResult(searchModel);
         }
 
-        public async Task<ActivityLogSearchModel> PrepareActivityLogSearchModel(ActivityLogSearchModel searchModel)
+        public async Task<TransActivitySearchModel> PrepareTransActivitySearchModel(TransActivitySearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
             //prepare selectlist
-            var availableActivityTypes = await _userActivityService.GetAllActivityTypesAsync();
-            foreach (var activityType in availableActivityTypes)
-            {
-                searchModel.ActivityLogType.Add(new SelectListItem
-                {
-                    Value = activityType.Id.ToString(),
-                    Text = activityType.Name
-                });
-            }
+            await _baseModelFactory.PrepareBranches(searchModel.Branches);
 
-            //insert "all" at first
-            searchModel.ActivityLogType.Insert(0, new SelectListItem {Text = "All", Value = "0"});
             searchModel.SetGridPageSize();
 
-            return searchModel;
-        }
-
-        public async Task<IList<ActivityLogTypeModel>> PrepareActivityLogTypeModels()
-        {
-            var availableActivityTypes = await _userActivityService.GetAllActivityTypesAsync();
-            var models = availableActivityTypes.Select(activityType => activityType.ToModel<ActivityLogTypeModel>())
-                .ToList();
-
-            return models;
-        }
-
-        public async Task<ActivityLogListModel> PrepareActivityLogListModel(ActivityLogSearchModel searchModel)
-        {
-            if (searchModel == null)
-                throw new ArgumentNullException(nameof(searchModel));
-
-            var startDateValue = searchModel.CreatedOnFrom == null
-                ? null
-                : (DateTime?) _dateTimeHelper.ConvertToUtcTime(searchModel.CreatedOnFrom.Value,
-                    _dateTimeHelper.CurrentTimeZone);
-            var endDateValue = searchModel.CreatedOnTo == null
-                ? null
-                : (DateTime?) _dateTimeHelper
-                    .ConvertToUtcTime(searchModel.CreatedOnTo.Value, _dateTimeHelper.CurrentTimeZone).AddDays(1);
-
-            var activityLog = _userActivityService.GetAllActivities(
-                createdOnFrom: startDateValue,
-                createdOnTo: endDateValue,
-                activityLogTypeId: searchModel.ActivityLogTypeId,
-                ipAddress: searchModel.IpAddress,
-                pageIndex: searchModel.Page - 1,
-                pageSize: searchModel.PageSize);
-
-            var model = new ActivityLogListModel
-            {
-                Data = activityLog.Select(logItem =>
-                {
-                    var logItemModel = logItem.ToModel<ActivityLogModel>();
-                    logItemModel.ActivityLogTypeName = logItem.ActivityLogType.Name;
-                    logItemModel.UserEmail = logItem.User.Email;
-                    logItemModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(logItem.CreatedOnUtc, DateTimeKind.Utc);
-
-                    return logItemModel;
-                }),
-                Total = activityLog.TotalCount
-            };
-
-            // sort
-            if (searchModel.Sort != null && searchModel.Sort.Any())
-            {
-                foreach (var s in searchModel.Sort)
-                {
-                    model.Data = await model.Data.Sort(s.Field, s.Dir);
-                }
-            }
-
-            // filter
-            if (searchModel.Filter?.Filters != null && searchModel.Filter.Filters.Any())
-            {
-                var filter = searchModel.Filter;
-                model.Data = await model.Data.Filter(filter);
-                model.Total = model.Data.Count();
-            }
-
-            return model;
+            return await Task.FromResult(searchModel);
         }
 
         public async Task<SignedInLogListModel> PrepareSignedInLogListModel(SignedInLogSearchModel searchModel)
@@ -194,6 +122,32 @@ namespace StockManagementSystem.Factories
                 model.Data = await model.Data.Filter(filter);
                 model.Total = model.Data.Count();
             }
+
+            return model;
+        }
+
+        public async Task<IEnumerable<TransActivityModel>> PrepareListTransActivity(TransActivitySearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            var query = _transRepository.Table;
+
+            if (searchModel.CreatedOnFrom.HasValue)
+                query = query.Where(item => searchModel.CreatedOnFrom.Value <= item.CreatedOnUtc);
+            if (searchModel.CreatedOnTo.HasValue)
+                query = query.Where(item => searchModel.CreatedOnTo.Value >= item.CreatedOnUtc);
+            if (searchModel.BranchId.HasValue && searchModel.BranchId.Value > 0)
+                query = query.Where(item => searchModel.BranchId.Value == item.BranchId);
+
+            var model = (await query.ToListAsync()).Select(q =>
+            {
+                var m = q.ToModel<TransActivityModel>();
+                m.Branch = q.Branch.Name;
+                m.CreatedOn = q.CreatedOnUtc;
+
+                return m;
+            });
 
             return model;
         }

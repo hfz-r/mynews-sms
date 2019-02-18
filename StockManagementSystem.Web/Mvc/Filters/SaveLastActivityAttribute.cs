@@ -44,7 +44,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 if (_workContext.CurrentUser.LastActivityDateUtc.AddMinutes(1.0) < DateTime.UtcNow)
                 {
                     _workContext.CurrentUser.LastActivityDateUtc = DateTime.UtcNow;
-                    _userService.UpdateUser(_workContext.CurrentUser);
+                    _userService.UpdateUserAsync(_workContext.CurrentUser).GetAwaiter().GetResult();
                 }
             }
 

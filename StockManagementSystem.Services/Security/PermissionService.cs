@@ -6,33 +6,33 @@ using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
-using StockManagementSystem.Services.Roles;
+using StockManagementSystem.Core.Domain.Users;
+using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Services.Security
 {
     public class PermissionService : IPermissionService
     {
         private readonly ICacheManager _cacheManager;
-        private readonly IStaticCacheManager _staticCacheManager;
-        private readonly IRoleService _roleService;
+        private readonly IUserService _userService;
         private readonly IWorkContext _workContext;
+        private readonly IStaticCacheManager _staticCacheManager;
         private readonly IRepository<Permission> _permissionRepository;
         private readonly IRepository<PermissionRoles> _permissionRolesRepository;
 
         public PermissionService(
             ICacheManager cacheManager,
-            IStaticCacheManager staticCacheManager,
-            IRoleService roleService,
+            IUserService userService,
             IWorkContext workContext,
+            IStaticCacheManager staticCacheManager,
             IRepository<Permission> permissionRepository,
             IRepository<PermissionRoles> permissionRolesRepository)
         {
             _cacheManager = cacheManager;
-            _staticCacheManager = staticCacheManager;
-            _roleService = roleService;
+            _userService = userService;
             _workContext = workContext;
+            _staticCacheManager = staticCacheManager;
             _permissionRepository = permissionRepository;
             _permissionRolesRepository = permissionRolesRepository;
         }
@@ -148,45 +148,45 @@ namespace StockManagementSystem.Services.Security
             var permissions = permissionProvider.GetPermissions();
             var defaultPermissions = permissionProvider.GetDefaultPermissions();
 
-            foreach (var p in permissions)
+            foreach (var permission in permissions)
             {
-                var permission = GetPermissionBySystemName(p.SystemName);
-                if (permission != null)
+                var permission1 = GetPermissionBySystemName(permission.SystemName);
+                if (permission1 != null)
                     continue;
 
-                permission = new Permission
+                //new permission (install it)
+                permission1 = new Permission
                 {
-                    Name = p.Name,
-                    SystemName = p.SystemName,
-                    Category = p.Category,
+                    Name = permission.Name,
+                    SystemName = permission.SystemName,
+                    Category = permission.Category,
                 };
 
                 foreach (var defaultPermission in defaultPermissions)
                 {
-                    var role = await _roleService.GetRoleBySystemNameAsync(defaultPermission.RoleSystemName);
+                    var role = _userService.GetRoleBySystemName(defaultPermission.RoleSystemName);
                     if (role == null)
                     {
                         //new role (save it)
                         role = new Role
                         {
                             Name = defaultPermission.RoleSystemName,
+                            Active = true,
                             SystemName = defaultPermission.RoleSystemName,
                         };
-                        await _roleService.InsertRoleAsync(role);
+                        await _userService.InsertRoleAsync(role);
                     }
 
-                    var defaultMappingProvided =
-                        defaultPermission.Permissions.Any(dp => dp.SystemName == permission.SystemName);
-                    var mappingExists =
-                        role.PermissionRoles.Any(pr => pr.Permission.SystemName == permission.SystemName);
+                    var defaultMappingProvided = defaultPermission.Permissions.Any(dp => dp.SystemName == permission1.SystemName);
+                    var mappingExists = role.PermissionRoles.Any(pr => pr.Permission.SystemName == permission1.SystemName);
 
                     if (defaultMappingProvided && !mappingExists)
                     {
-                        permission.PermissionRoles.Add(new PermissionRoles {Role = role});
+                        permission1.PermissionRoles.Add(new PermissionRoles {Role = role});
                     }
                 }
 
-                InsertPermission(permission);
+                InsertPermission(permission1);
             }
         }
 
@@ -234,7 +234,7 @@ namespace StockManagementSystem.Services.Security
             if (string.IsNullOrEmpty(permissionSystemName))
                 return false;
 
-            var roles = user.UserRoles.Select(r => r.Role).ToList();
+            var roles = user.Roles.Where(r => r.Active);
             foreach (var role in roles)
                 if (await AuthorizeAsync(permissionSystemName, role.Id))
                     return true;

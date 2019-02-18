@@ -120,7 +120,11 @@ $(document).ajaxStart(function() {
     $('#ajaxBusy').hide();
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
+    $('.multi-store-override-option').each(function (k, v) {
+        checkOverriddenStoreValue(v, $(v).attr('data-for-input-selector'));
+    });
+
     // intercept all events of pressing the Enter button in the search bar
     $("div.panel-search").keypress(function(event) {
         if (event.which == 13 || event.keyCode == 13) {
@@ -129,13 +133,44 @@ $(document).ready(function() {
         }
     });
 
-    //pressing Enter in the tablex should not lead to any action
+    //pressing Enter in the table should not lead to any action
     $("div[id$='-grid']").keypress(function (event) {
         if (event.which == 13 || event.keyCode == 13) {
             return false;
         }
     });
 });
+
+function checkAllOverriddenStoreValue(item) {
+    $('.multi-store-override-option').each(function (k, v) {
+        $(v).attr('checked', item.checked);
+        checkOverriddenStoreValue(v, $(v).attr('data-for-input-selector'));
+    });
+}
+
+function checkOverriddenStoreValue(obj, selector) {
+    var elementsArray = selector.split(",");
+    if (!$(obj).is(':checked')) {
+        $(selector).attr('disabled', true);
+        //Kendo UI elements are enabled/disabled some other way
+        $.each(elementsArray, function (key, value) {
+            var kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+            if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                kenoduiElement.enable(false);
+            }
+        });
+    }
+    else {
+        $(selector).removeAttr('disabled');
+        //Kendo UI elements are enabled/disabled some other way
+        $.each(elementsArray, function (key, value) {
+            var kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+            if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                kenoduiElement.enable();
+            }
+        });
+    };
+}
 
 // collapsable panel
 $(document).on('click', '.panel-heading span.clickable',

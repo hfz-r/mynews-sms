@@ -19,6 +19,5 @@
         public static string GenericAttributePatternCacheKey => "common.genericattribute.";
 
         #endregion
-
     }
 }

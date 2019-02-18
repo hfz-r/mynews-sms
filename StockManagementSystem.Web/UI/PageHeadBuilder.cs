@@ -252,6 +252,61 @@ namespace StockManagementSystem.Web.UI
         }
 
         /// <summary>
+        /// Add inline script element
+        /// </summary>
+        /// <param name="location">A location of the script element</param>
+        /// <param name="script">Script</param>
+        public virtual void AddInlineScriptParts(ResourceLocation location, string script)
+        {
+            if (!_inlineScriptParts.ContainsKey(location))
+                _inlineScriptParts.Add(location, new List<string>());
+
+            if (string.IsNullOrEmpty(script))
+                return;
+
+            _inlineScriptParts[location].Add(script);
+        }
+
+        /// <summary>
+        /// Append inline script element
+        /// </summary>
+        /// <param name="location">A location of the script element</param>
+        /// <param name="script">Script</param>
+        public virtual void AppendInlineScriptParts(ResourceLocation location, string script)
+        {
+            if (!_inlineScriptParts.ContainsKey(location))
+                _inlineScriptParts.Add(location, new List<string>());
+
+            if (string.IsNullOrEmpty(script))
+                return;
+
+            _inlineScriptParts[location].Insert(0, script);
+        }
+
+        /// <summary>
+        /// Generate all inline script parts
+        /// </summary>
+        /// <param name="urlHelper">URL Helper</param>
+        /// <param name="location">A location of the script element</param>
+        /// <returns>Generated string</returns>
+        public virtual string GenerateInlineScripts(IUrlHelper urlHelper, ResourceLocation location)
+        {
+            if (!_inlineScriptParts.ContainsKey(location) || _inlineScriptParts[location] == null)
+                return "";
+
+            if (!_inlineScriptParts.Any())
+                return "";
+
+            var result = new StringBuilder();
+            foreach (var item in _inlineScriptParts[location])
+            {
+                result.Append(item);
+                result.Append(Environment.NewLine);
+            }
+            return result.ToString();
+        }
+
+        /// <summary>
         /// Add CSS element
         /// </summary>
         /// <param name="location">A location of the script element</param>

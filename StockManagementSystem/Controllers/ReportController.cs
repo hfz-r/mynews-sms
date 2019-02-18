@@ -5,150 +5,46 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Transactions;
+using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Logging;
 using StockManagementSystem.Models.Reports;
 using StockManagementSystem.Services.Helpers;
+using StockManagementSystem.Services.Installation;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Web.Controllers;
-using StockManagementSystem.Web.Mvc;
 
 namespace StockManagementSystem.Controllers
 {
     public class ReportController : BaseController
     {
         private readonly IReportModelFactory _reportModelFactory;
-        private readonly IUserActivityService _userActivityService;
         private readonly IPermissionService _permissionService;
-        private readonly INotificationService _notificationService;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ReportController(
             IReportModelFactory reportModelFactory,
-            IUserActivityService userActivityService,
             IPermissionService permissionService,
-            INotificationService notificationService,
             IDateTimeHelper dateTimeHelper,
             IHttpContextAccessor httpContextAccessor)
         {
             _reportModelFactory = reportModelFactory;
-            _userActivityService = userActivityService;
             _permissionService = permissionService;
-            _notificationService = notificationService;
             _dateTimeHelper = dateTimeHelper;
             _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IActionResult> Index()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReports))
                 return AccessDeniedView();
 
-            var model = await _reportModelFactory.PrepareActivityLogContainerModel(new ActivityLogContainerModel());
-
-            return View(model);
-        }
-
-        public async Task<IActionResult> ListTypes()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedView();
-
-            var model = await _reportModelFactory.PrepareActivityLogTypeModels();
-
-            return View(model);
-        }
-
-        [HttpPost, ActionName("ListTypes")]
-        public async Task<IActionResult> SaveTypes(IFormCollection form)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedView();
-
-            await _userActivityService.InsertActivityAsync("EditActivityLogTypes", "Edited activity log types");
-
-            var selectedActivityTypesIds = form["checkbox_activity_types"]
-                .SelectMany(value => value.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                .Select(idString => int.TryParse(idString, out var id) ? id : 0)
-                .Distinct().ToList();
-
-            var activityTypes = await _userActivityService.GetAllActivityTypesAsync();
-            foreach (var activityType in activityTypes)
-            {
-                activityType.Enabled = selectedActivityTypesIds.Contains(activityType.Id);
-                await _userActivityService.UpdateActivityTypeAsync(activityType);
-            }
-
-            _notificationService.SuccessNotification("The types have been updated successfully.");
-
-            SaveSelectedTabName();
-
-            return RedirectToAction("Index");
-        }
-
-        public async Task<IActionResult> ListLogs()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedView();
-
-            var model = await _reportModelFactory.PrepareActivityLogSearchModel(new ActivityLogSearchModel());
-
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> ListLogs(ActivityLogSearchModel searchModel)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedKendoGridJson();
-
-            var model = await _reportModelFactory.PrepareActivityLogListModel(searchModel);
-
-            return Json(model);
-        }
-
-        public async Task<IActionResult> AcivityLogDelete(int id)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedView();
-
-            var logItem = await _userActivityService.GetActivityByIdAsync(id)
-                ?? throw new ArgumentException("No activity log found with the specified id", nameof(id));
-
-            await _userActivityService.DeleteActivityAsync(logItem);
-            await _userActivityService.InsertActivityAsync("DeleteActivityLog", "Deleted activity log", logItem);
-
-            return new NullJsonResult();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> EntityGroupList()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedKendoGridJson();
-
-            var entities = (await _userActivityService.GetActivitiesByEntityNameAsync())
-                .Where(u => !string.IsNullOrWhiteSpace(u.EntityName))
-                .GroupBy(u => u.EntityName)
-                .Select(u => new ActivityLogModel
-                {
-                    Id = u.First().Id,
-                    EntityName = u.First().EntityName
-                })
-                .OrderBy(u => u.EntityName);
-
-            return Json(entities);
-        }
-
-        public async Task<IActionResult> ListSignedIn()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedView();
-
-            var model = await _reportModelFactory.PrepareSignedInLogSearchModel(new SignedInLogSearchModel());
+            var model = await _reportModelFactory.PrepareReportContainerModel(new ReportContainerModel());
 
             return View(model);
         }
@@ -156,7 +52,7 @@ namespace StockManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> ListSignedIn(SignedInLogSearchModel searchModel)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReports))
                 return AccessDeniedKendoGridJson();
 
             var model = await _reportModelFactory.PrepareSignedInLogListModel(searchModel);
@@ -164,71 +60,56 @@ namespace StockManagementSystem.Controllers
             return Json(model);
         }
 
-        public async Task<IActionResult> ClearAll()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
-                return AccessDeniedView();
-
-            await _userActivityService.ClearAllActivitiesAsync();
-            await _userActivityService.InsertActivityAsync("DeleteActivityLog", "Deleted activity log");
-
-            return RedirectToAction("Index");
-        }
-
         #region Charts
 
-        public async Task<IActionResult> GetTransActivityPieData()
+        public async Task<IActionResult> RenderTransActivityPieChart(TransActivitySearchModel searchModel)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers) ||
-                !await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReports))
                 return AccessDeniedView();
 
-            var total = (await _userActivityService.GetActivitiesByEntityNameAsync())
-                .Where(u => !string.IsNullOrEmpty(u.EntityName)).ToList();
+            var model = await _reportModelFactory.PrepareListTransActivity(searchModel);
 
-            var activities = _userActivityService.GetAllActivities()
-                .Where(e => !string.IsNullOrWhiteSpace(e.EntityName))
-                .GroupBy(activity => activity.EntityName)
-                .Select(e => new
+            var trans = model
+                .GroupBy(x => x.Category).Select(x => new
                 {
-                    entity = e.Key,
-                    value = ((float)e.Count() / total.Count() * 100).ToString("F")
+                    entity = x.Key,
+                    value = ((float) x.Count() / model.Count() * 100).ToString("F")
                 });
 
-            return Json(activities);
+            return Json(trans);
         }
 
-        public async Task<IActionResult> GetTransActivityStackedBarData(string period)
+        public async Task<IActionResult> RenderTransActivityBarChart(TransActivitySearchModel searchModel, string period)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers) ||
-                !await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReports))
                 return AccessDeniedView();
+
+            var model = await _reportModelFactory.PrepareListTransActivity(searchModel);
 
             var stacked = new List<TransActivityStackedBarModel>();
 
-            var searchEntities = (await _userActivityService.GetActivitiesByEntityNameAsync())
-                .Where(u => !string.IsNullOrEmpty(u.EntityName))
-                .GroupBy(u => u.EntityName)
-                .Select(u => u.First());
+            var trans = model
+                .GroupBy(x => x.Category)
+                .Select(x => x.First());
 
-            foreach (var entity in searchEntities.ToList())
+            foreach (var tran in trans.ToList())
             {
                 stacked.Add(new TransActivityStackedBarModel
                 {
-                    stacked = entity.EntityName,
-                    datasets = GetDataSet(period, entity.EntityName)
+                    stacked = tran.Category,
+                    datasets = GetTransActivityDataSet(period, tran.Category, model)
                 });
             }
 
             return Json(stacked);
         }
 
-        public List<DataSet> GetDataSet(string period, string name)
+        public List<DataSet> GetTransActivityDataSet(string period, string category, IEnumerable<TransActivityModel> models)
         {
             var result = new List<DataSet>();
+            var query = models.AsQueryable();
 
             var nowDt = _dateTimeHelper.ConvertToUserTime(DateTime.Now);
-            var timeZone = _dateTimeHelper.CurrentTimeZone;
             var features = _httpContextAccessor.HttpContext?.Features?.Get<IRequestCultureFeature>();
             var culture = features?.RequestCulture.Culture;
 
@@ -237,16 +118,15 @@ namespace StockManagementSystem.Controllers
                 case "year":
                     var yearAgoDt = nowDt.AddYears(-1).AddMonths(1);
                     var yearToSearch = new DateTime(yearAgoDt.Year, yearAgoDt.Month, 1);
-                    for (int i = 0; i <= 12; i++)
+                    for (var i = 0; i <= 12; i++)
                     {
+                        query = query.Where(item => yearToSearch <= item.CreatedOn);
+                        query = query.Where(item => yearToSearch.AddMonths(1) >= item.CreatedOn);
+
                         result.Add(new DataSet
                         {
                             label = yearToSearch.Date.ToString("Y", culture),
-                            data = _userActivityService.GetAllActivities(
-                                    createdOnFrom: _dateTimeHelper.ConvertToUtcTime(yearToSearch, timeZone),
-                                    createdOnTo: _dateTimeHelper.ConvertToUtcTime(yearToSearch.AddMonths(1), timeZone),
-                                    entityName: name)
-                                .TotalCount.ToString()
+                            data = query.Count(item => item.Category == category).ToString()
                         });
 
                         yearToSearch = yearToSearch.AddMonths(1);
@@ -256,16 +136,15 @@ namespace StockManagementSystem.Controllers
                 case "month":
                     var monthAgoDt = nowDt.AddDays(-30);
                     var monthToSearch = new DateTime(monthAgoDt.Year, monthAgoDt.Month, monthAgoDt.Day);
-                    for (int i = 0; i <= 30; i++)
+                    for (var i = 0; i <= 30; i++)
                     {
+                        query = query.Where(item => monthToSearch <= item.CreatedOn);
+                        query = query.Where(item => monthToSearch.AddDays(1) >= item.CreatedOn);
+
                         result.Add(new DataSet
                         {
                             label = monthToSearch.Date.ToString("M", culture),
-                            data = _userActivityService.GetAllActivities(
-                                    createdOnFrom: _dateTimeHelper.ConvertToUtcTime(monthToSearch, timeZone),
-                                    createdOnTo: _dateTimeHelper.ConvertToUtcTime(monthToSearch.AddDays(1), timeZone),
-                                    entityName: name)
-                                .TotalCount.ToString()
+                            data = query.Count(item => item.Category == category).ToString()
                         });
 
                         monthToSearch = monthToSearch.AddDays(1);
@@ -277,14 +156,13 @@ namespace StockManagementSystem.Controllers
                     var weekToSearch = new DateTime(weekAgoDt.Year, weekAgoDt.Month, weekAgoDt.Day);
                     for (var i = 0; i <= 7; i++)
                     {
+                        query = query.Where(item => weekToSearch <= item.CreatedOn);
+                        query = query.Where(item => weekToSearch.AddDays(1) >= item.CreatedOn);
+
                         result.Add(new DataSet
                         {
                             label = weekToSearch.Date.ToString("d dddd", culture),
-                            data = _userActivityService.GetAllActivities(
-                                    createdOnFrom: _dateTimeHelper.ConvertToUtcTime(weekToSearch, timeZone),
-                                    createdOnTo: _dateTimeHelper.ConvertToUtcTime(weekToSearch.AddDays(1), timeZone),
-                                    entityName: name)
-                                .TotalCount.ToString()
+                            data = query.Count(item => item.Category == category).ToString()
                         });
 
                         weekToSearch = weekToSearch.AddDays(1);

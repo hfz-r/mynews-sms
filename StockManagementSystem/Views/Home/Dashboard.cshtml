@@ -1,7 +1,11 @@
-﻿@{
+﻿@using StockManagementSystem.Services.Security
+@inject IPermissionService permissionService
+@{
     ViewBag.Title = "Dashboard";
-}
 
+    var canManageActivityLog = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog);
+}
+<_antiforgery-token/>
 <section class="content-header clearfix">
     <h1 class="fa fa-dashboard">&nbsp;Dashboard</h1>
     <ol class="breadcrumb">
@@ -28,32 +32,42 @@
             </div>
         </div>
     </div>
-    
-    @if (User.Identity.IsAuthenticated && User.IsInRole("Administrators"))
+
+    @if (canManageActivityLog)
     {
         @await Component.InvokeAsync("TransActivityPanel")
     }
 
     @*Phase 2 Development*@
     @*<div class="box box-danger">
-        <div class="box-header with-border">
-            <h3 class="box-title">Pending Transaction for Approval</h3>
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                    <i class="fa fa-minus"></i>
-                </button>
+            <div class="box-header with-border">
+                <h3 class="box-title">Pending Transaction for Approval</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
             </div>
-        </div>
-        <div id="approval">
-            @await Component.InvokeAsync("PanelTxnApprovalComponent")
-        </div>
-    </div>*@
+            <div id="approval">
+                @await Component.InvokeAsync("PanelTxnApprovalComponent")
+            </div>
+        </div>*@
 </section>
 <_alert asp-alert-id="loadTAPieRptAlert" asp-alert-message="Failed to load (pie chart) transaction activity report." />
 <_alert asp-alert-id="loadTABarRptAlert" asp-alert-message="Failed to load (bar chart) transaction activity report." />
 
 @section scripts{
     <script type="text/javascript">
+        // Make the dashboard widgets sortable Using jquery UI
+        $('.connectedSortable').sortable({
+            placeholder         : 'sort-highlight',
+            connectWith         : '.connectedSortable',
+            handle              : '.box-header, .nav-tabs',
+            forcePlaceholderSize: true,
+            zIndex              : 999999
+        });
+        $('.connectedSortable .box-header, .connectedSortable .nav-tabs-custom').css('cursor', 'move');
+
         $('.dashboard-panel-container').sortable({ tolerance: 'pointer' });
         $(".dashboard-panel-container").disableSelection();
 

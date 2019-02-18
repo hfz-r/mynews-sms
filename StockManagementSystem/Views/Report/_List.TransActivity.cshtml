@@ -1,0 +1,63 @@
+﻿@model TransActivitySearchModel
+
+@{
+    Html.AppendScriptParts("~/js/chart-utils.js");
+    Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
+}
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default panel-search">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="CreatedOnFrom" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="CreatedOnFrom" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="CreatedOnTo" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_editor asp-for="CreatedOnTo" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <_label asp-for="BranchId" />
+                                </div>
+                                <div class="col-md-8">
+                                    <_select asp-for="BranchId" asp-items="Model.Branches" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <button type="button" id="search-transactivity" class="btn btn-primary btn-search">
+                                        <i class="fa fa-search"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <_tabs id="transactivity-charts-tabs">
+                        <_tab asp-name="transactivity-pie" asp-title="Pie Chart" asp-default="true">@await Html.PartialAsync("_PieChart")</_tab>
+                        <_tab asp-name="transactivity-bar" asp-title="Bar Chart">@await Html.PartialAsync("_BarChart")</_tab>
+                    </_tabs>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<_alert asp-alert-id="pieChartErrorAlert" asp-alert-message="Failed to load (pie chart) transaction activity report." />
+<_alert asp-alert-id="barChartErrorAlert" asp-alert-message="Failed to load (bar chart) transaction activity report." />

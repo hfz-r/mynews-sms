@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation.Attributes;
+using StockManagementSystem.Validators.Users;
+using StockManagementSystem.Web.Models;
 
 namespace StockManagementSystem.Models.Account
 {
-    public class ForgotPasswordViewModel
+    [Validator(typeof(ForgotPasswordValidator))]
+    public class ForgotPasswordViewModel : BaseModel
     {
-        [Required]
-        [EmailAddress]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Your email address")]
         public string Email { get; set; }
+
+        public string Result { get; set; }
     }
 }

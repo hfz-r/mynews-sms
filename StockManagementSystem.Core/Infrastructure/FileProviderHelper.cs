@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -148,6 +149,11 @@ namespace StockManagementSystem.Core.Infrastructure
             return Path.Combine(allPaths.ToArray());
         }
 
+        public virtual DirectorySecurity GetAccessControl(string path)
+        {
+            return new DirectoryInfo(path).GetAccessControl();
+        }
+
         public virtual DateTime GetCreationTime(string path)
         {
             return File.GetCreationTime(path);
@@ -234,7 +240,13 @@ namespace StockManagementSystem.Core.Infrastructure
 
         public virtual string ReadAllText(string path, Encoding encoding)
         {
-            return File.ReadAllText(path, encoding);
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                using (var streamReader = new StreamReader(fileStream, encoding))
+                {
+                    return streamReader.ReadToEnd();
+                }
+            }
         }
 
         public virtual void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Authentication
 {

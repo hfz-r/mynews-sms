@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Core;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Models.Roles;
-using StockManagementSystem.Services.Roles;
+using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Extensions;
 
 namespace StockManagementSystem.Factories
 {
     public class RoleModelFactory : IRoleModelFactory
     {
-        private readonly IRoleService _roleService;
+        private readonly IUserService _userService;
 
-        public RoleModelFactory(
-            IRoleService roleService)
+        public RoleModelFactory(IUserService userService)
         {
-            _roleService = roleService;
+            _userService = userService;
         }
 
-        public async Task<RoleSearchModel> PrepareRoleSearchModel(RoleSearchModel searchModel)
+        public Task<RoleSearchModel> PrepareRoleSearchModel(RoleSearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
@@ -27,7 +27,7 @@ namespace StockManagementSystem.Factories
             //prepare page parameters
             searchModel.SetGridPageSize();
 
-            return await Task.FromResult(searchModel);
+            return Task.FromResult(searchModel);
         }
 
         public async Task<RoleListModel> PrepareRoleListModel(RoleSearchModel searchModel)
@@ -35,10 +35,7 @@ namespace StockManagementSystem.Factories
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            var roles = await _roleService.GetRolesAsync();
-
-            if (roles == null)
-                throw new ArgumentNullException(nameof(roles));
+            var roles = _userService.GetRoles(true);
 
             var model = new RoleListModel
             {

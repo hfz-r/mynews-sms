@@ -15,7 +15,7 @@ namespace StockManagementSystem.Web.Validators
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="dbContext">Database context</param>
         /// <param name="filterStringPropertyNames">Properties to skip</param>
-        protected virtual void SetDatabaseValidationRules<TEntity>(IDbContext dbContext, params string[] filterStringPropertyNames) 
+        protected void SetDatabaseValidationRules<TEntity>(IDbContext dbContext, params string[] filterStringPropertyNames) 
             where TEntity : BaseEntity
         {
             SetStringPropertiesMaxLength<TEntity>(dbContext, filterStringPropertyNames);

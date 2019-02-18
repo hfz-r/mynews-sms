@@ -48,6 +48,12 @@ namespace StockManagementSystem.Web.Infrastructure
             //use static files feature
             application.UseDefaultStaticFiles();
 
+            //check whether requested page is keep alive page
+            application.UseKeepAlive();
+
+            //use database installation checker
+            application.UseInstallUrl();
+
             //use HTTP session
             application.UseSession();
 

@@ -65,7 +65,7 @@ namespace StockManagementSystem.Services.Common
         /// <summary>
         /// Get attributes
         /// </summary>
-        public async Task<IList<GenericAttribute>> GetAttributesForEntityAsync(int entityId, string keyGroup)
+        public virtual async Task<IList<GenericAttribute>> GetAttributesForEntityAsync(int entityId, string keyGroup)
         {
             var key = string.Format(CommonDefaults.GenericAttributeCacheKey, entityId, keyGroup);
             return await _cacheManager.Get(key, async () =>
@@ -81,7 +81,7 @@ namespace StockManagementSystem.Services.Common
         /// <summary>
         /// Save attribute value
         /// </summary>
-        public async Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value)
+        public async Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value, int storeId = 0)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -91,7 +91,9 @@ namespace StockManagementSystem.Services.Common
 
             var keyGroup = entity.GetUnproxiedEntityType().Name;
 
-            var props = await GetAttributesForEntityAsync(entity.Id, keyGroup);
+            var props = (await GetAttributesForEntityAsync(entity.Id, keyGroup))
+                .Where(x => x.StoreId == storeId)
+                .ToList();
             var prop = props.FirstOrDefault(ga => ga.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase));
 
             var valueStr = CommonHelper.To<string>(value);
@@ -120,7 +122,8 @@ namespace StockManagementSystem.Services.Common
                     EntityId = entity.Id,
                     Key = key,
                     KeyGroup = keyGroup,
-                    Value = valueStr
+                    Value = valueStr,
+                    StoreId = storeId
                 };
 
                 await InsertAttribute(prop);
@@ -130,7 +133,7 @@ namespace StockManagementSystem.Services.Common
         /// <summary>
         /// Get an attribute of an entity
         /// </summary>
-        public async Task<T> GetAttributeAsync<T>(BaseEntity entity, string key)
+        public async Task<T> GetAttributeAsync<T>(BaseEntity entity, string key, int storeId = 0)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -138,11 +141,15 @@ namespace StockManagementSystem.Services.Common
             var keyGroup = entity.GetUnproxiedEntityType().Name;
 
             var props = await GetAttributesForEntityAsync(entity.Id, keyGroup);
+            if (props == null)
+                return default(T);
+
+            props = props.Where(x => x.StoreId == storeId).ToList();
             if (!props.Any())
                 return default(T);
 
             var prop = props.FirstOrDefault(ga => ga.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase));
-            if (prop == null || string.IsNullOrEmpty(prop.Value))
+            if (string.IsNullOrEmpty(prop?.Value))
                 return default(T);
 
             return CommonHelper.To<T>(prop.Value);

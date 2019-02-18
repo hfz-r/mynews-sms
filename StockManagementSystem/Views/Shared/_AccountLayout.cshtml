@@ -1,8 +1,11 @@
 ﻿@{
+    Html.AppendCssFileParts("~/css/admin.common.css");
     Html.AppendCssFileParts("~/css/style.css");
     Html.AppendCssFileParts("~/lib/bootstrap/dist/css/bootstrap.min.css");
     Html.AppendCssFileParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
     Html.AppendCssFileParts("~/lib/font-awesome/css/font-awesome.min.css");
+
+    Html.AppendScriptParts(ResourceLocation.Footer, "~/js/admin.common.js");
 
     Html.AppendScriptParts("~/lib/jquery-migrate/jquery-migrate-1.2.1.min.js");
     Html.AppendScriptParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js");
@@ -28,11 +31,13 @@
             margin-top: 5px;
         }
     </style>
+    @Html.DefaultInlineScripts(this.Url, ResourceLocation.Head)
 </head>
 <body class="hold-transition login-page">
 @await Html.PartialAsync("Notifications")
 @RenderBody()
 @Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, true)
 @Html.DefaultScripts(this.Url, ResourceLocation.Footer, true)
+@Html.DefaultInlineScripts(this.Url, ResourceLocation.Footer)
 </body>
 </html>

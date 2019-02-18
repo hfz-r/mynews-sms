@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Logging
 {

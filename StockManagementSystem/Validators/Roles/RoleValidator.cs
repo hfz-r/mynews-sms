@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Data;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Web.Validators;

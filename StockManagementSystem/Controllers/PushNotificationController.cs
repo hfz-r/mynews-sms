@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.PushNotification;
 using StockManagementSystem.Models.PushNotification;
 using StockManagementSystem.Core.Domain.Stores;
-using Microsoft.Extensions.Logging;
-using System.Collections.ObjectModel;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Controllers
 {
@@ -22,6 +17,7 @@ namespace StockManagementSystem.Controllers
         private readonly IRepository<PushNotificationStore> _pushNotificationStoreRepository;
         private readonly IRepository<Store> _storeRepository;
         private readonly ILogger _logger;
+        private readonly IWorkContext _workContext;
 
         #region Constructor
 
@@ -30,13 +26,15 @@ namespace StockManagementSystem.Controllers
             IRepository<PushNotifications> pushNotifications,
             IRepository<PushNotificationStore> pushNotificationStore,
             IRepository<Store> store,
-            ILoggerFactory loggerFactory)
+            ILogger logger,
+            IWorkContext workContext)
         {
             this._notificationCategoryRepository = notificationCategory;
             this._pushNotificationsRepository = pushNotifications;
             this._pushNotificationStoreRepository = pushNotificationStore;
             this._storeRepository = store;
-            _logger = loggerFactory.CreateLogger<PushNotificationController>();
+            this._logger = logger;
+            this._workContext = workContext;
         }
 
         #endregion
@@ -95,7 +93,7 @@ namespace StockManagementSystem.Controllers
                         Title = model.Title,
                         Desc = model.Desc,
                         CreatedOnUtc = DateTime.UtcNow,
-                        CreatedBy = User.Identity.Name,
+                        CreatedBy = _workContext.CurrentUser.Username,
                         IsShift = model.IsShift.ToString(),
                         NotificationCategoryId = model.NotificationCategoryId
                     };
@@ -105,12 +103,12 @@ namespace StockManagementSystem.Controllers
                     {
                         PushNotificationId = pushNotifications.Id,
                         StoreId = model.StoreId,
-                        CreatedBy = User.Identity.Name,
+                        CreatedBy = _workContext.CurrentUser.Username,
                         CreatedOnUtc = DateTime.UtcNow
                     };
                     _pushNotificationStoreRepository.Insert(pushNotificationStore);
-                    _logger.LogInformation(3, "PushNotificationStore(" + pushNotificationStore.Id + ") added successfully.");
-                    return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
+                    _logger.Information("PushNotificationStore(" + pushNotificationStore.Id + ") added successfully.");
+                    return RedirectToAction(nameof(Notification), "PushNotification");
                 }
                 return View("AddNotification", model);
             }
@@ -153,7 +151,7 @@ namespace StockManagementSystem.Controllers
                     pushNotificationStore.ModifiedOnUtc = DateTime.UtcNow;
 
                     _pushNotificationStoreRepository.Update(pushNotificationStore);
-                    _logger.LogInformation(3, "PushNotificationStore(" + pushNotificationStore.Id + ") edited successfully.");
+                    _logger.Information("PushNotificationStore(" + pushNotificationStore.Id + ") edited successfully.");
                     return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
                 }
                 // If we got this far, something failed, redisplay form
@@ -163,7 +161,7 @@ namespace StockManagementSystem.Controllers
             {
                 AddErrors(ex.Message);
             }
-            return RedirectToAction(nameof(PushNotificationController.Notification), "PushNotification");
+            return RedirectToAction(nameof(Notification), "PushNotification");
         }
 
         //

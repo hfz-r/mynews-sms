@@ -60,6 +60,36 @@ namespace StockManagementSystem.Core
         }
 
         /// <summary>
+        /// Generate random digit code
+        /// </summary>
+        public static string GenerateRandomDigitCode(int length)
+        {
+            var random = new Random();
+            var str = string.Empty;
+            for (var i = 0; i < length; i++)
+                str = string.Concat(str, random.Next(10).ToString());
+            return str;
+        }
+
+        /// <summary>
+        /// Convert enum for front-end
+        /// </summary>
+        public static string ConvertEnum(string str)
+        {
+            if (string.IsNullOrEmpty(str)) return string.Empty;
+            var result = string.Empty;
+            foreach (var c in str)
+                if (c.ToString() != c.ToString().ToLower())
+                    result += " " + c.ToString();
+                else
+                    result += c.ToString();
+
+            //ensure no spaces (e.g. when the first letter is upper case)
+            result = result.TrimStart();
+            return result;
+        }
+
+        /// <summary>
         /// Get private fields property value
         /// </summary>
         public static object GetPrivateFieldValue(object target, string fieldName)

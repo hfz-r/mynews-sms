@@ -1,4 +1,4 @@
-﻿using StockManagementSystem.Core.Domain.Identity;
+﻿using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Core.Domain.Security
 {

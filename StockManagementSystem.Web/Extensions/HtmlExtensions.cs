@@ -18,7 +18,7 @@ namespace StockManagementSystem.Web.Extensions
             //keep this method synchronized with
             //"SaveSelectedTab" method of StockManagementSystem.Web\Controllers\BaseController.cs
             var tabName = string.Empty;
-            var dataKey = "sms.selected-tab-name";
+            var dataKey = "mynsms.selected-tab-name";
             if (!string.IsNullOrEmpty(dataKeyPrefix))
                 dataKey = $"-{dataKeyPrefix}";
 

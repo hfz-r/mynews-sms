@@ -1,0 +1,101 @@
+﻿@model TransActivitySearchModel
+
+@{
+    const string prefix = "transaction-activity-pie";
+}
+
+<div class="portlet">
+    <div class="portlet-title">
+        <div class="caption">
+            <i class="fa fa-pie-chart"></i>
+            <span class="caption-subject uppercase"> Overall transaction percentage viewed as pie chart</span>
+        </div>
+        <div class="actions">
+            <a href="javascript:void(0);" class="btn btn-circle">
+                <i class="fa fa-refresh"></i>
+            </a>
+        </div>
+    </div>
+    <div class="portlet-body">
+        <div id="@(prefix)-box" style="height: auto;">
+            <canvas id="@(prefix)-chart" height="100"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+
+        $('button#search-transactivity, a.btn.btn-circle').on('click',
+            function() {
+                loadDataset();
+            });
+
+        var config = {
+            type: 'doughnut',
+            data: {
+                datasets: [
+                    {
+                        data: [],
+                        label: [],
+                        backgroundColor: []
+                    }
+                ],
+                labels: []
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'left'
+                },
+                animation: {
+                    animateRotate: true
+                }
+            }
+        };
+
+        function loadDataset() {
+            var postData = {
+                CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+                CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+                BranchId: $('#BranchId').val()
+            };
+            addAntiForgeryToken(postData);
+
+            var labels = [];
+            var datas = [];
+            var colors = [];
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: '@Url.Action("RenderTransActivityPieChart", "Report")',
+                data: postData,
+                success: function(data) {
+                    for (var i = 0; i < data.length; i++) {
+                        labels.push(data[i].entity);
+                        datas.push(data[i].value);
+                        colors.push(random_rgba());
+                    }
+
+                    if (!window.myDoughnut) {
+                        config.data.labels = labels;
+                        config.data.datasets[0].data = datas;
+                        config.data.datasets[0].backgroundColor = colors;
+                        window.myDoughnut = new Chart(document.getElementById("@prefix-chart").getContext("2d"), config);
+                    } else {
+                        window.myDoughnut.config.data.labels = labels;
+                        window.myDoughnut.config.data.datasets[0].data = datas;
+                        window.myDoughnut.config.data.datasets[0].backgroundColor = colors;
+                        window.myDoughnut.update();
+                    }
+                },
+                error: function(xhr, ajaxOptions, thrownError) {
+                    $("#pieChartErrorAlert").click();
+                }
+            });
+        }
+
+        window.onload = function() { loadDataset(); };
+    });
+</script>

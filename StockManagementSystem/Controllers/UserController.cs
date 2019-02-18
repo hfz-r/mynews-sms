@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Users;
+using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
-using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Controllers;
@@ -19,27 +20,39 @@ namespace StockManagementSystem.Controllers
 {
     public class UserController : BaseController
     {
+        private readonly UserSettings _userSettings;
+        private readonly DateTimeSettings _dateTimeSettings;
         private readonly IUserService _userService;
-        private readonly IRoleService _roleService;
+        private readonly IUserRegistrationService _userRegistrationService;
         private readonly IUserModelFactory _userModelFactory;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly IUserActivityService _userActivityService;
+        private readonly IWorkContext _workContext;
 
         public UserController(
-            IUserService userService,
-            IRoleService roleService,
-            IUserModelFactory userModelFactory,
-            IPermissionService permissionService,
-            INotificationService notificationService,
-            IUserActivityService userActivityService)
+            UserSettings userSettings,
+            DateTimeSettings dateTimeSettings,
+            IUserService userService, 
+            IUserRegistrationService userRegistrationService, 
+            IUserModelFactory userModelFactory, 
+            IGenericAttributeService genericAttributeService, 
+            IPermissionService permissionService, 
+            INotificationService notificationService, 
+            IUserActivityService userActivityService, 
+            IWorkContext workContext)
         {
+            _userSettings = userSettings;
+            _dateTimeSettings = dateTimeSettings;
             _userService = userService;
-            _roleService = roleService;
+            _userRegistrationService = userRegistrationService;
             _userModelFactory = userModelFactory;
+            _genericAttributeService = genericAttributeService;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _userActivityService = userActivityService;
+            _workContext = workContext;
         }
 
         #region Utilities
@@ -49,15 +62,21 @@ namespace StockManagementSystem.Controllers
             if (roles == null)
                 throw new ArgumentNullException(nameof(roles));
 
-            //ensure user not added to 'Registered' role
-            //ensure user is in required role 'Registered'
-            var isInRegisteredRole =
-                roles.FirstOrDefault(r => r.SystemName == IdentityDefaults.RegisteredRoleName) != null;
-            if (!isInRegisteredRole)
-                return "Add user to 'Registered' role";
+            var isInGuestsRole = roles.FirstOrDefault(r => r.SystemName == UserDefaults.GuestsRoleName) != null;
+            var isInRegisteredRole = roles.FirstOrDefault(r => r.SystemName == UserDefaults.RegisteredRoleName) != null;
+            if (isInGuestsRole && isInRegisteredRole)
+                return "User cannot be in both 'Guests' and 'Registered' roles";
+            if (!isInGuestsRole && !isInRegisteredRole)
+                return "Add user to 'Guests' or 'Registered' role";
 
             //no errors
             return string.Empty;
+        }
+
+        private async Task<bool> SecondAdminAccountExists(User user)
+        {
+            var users = await _userService.GetUsersAsync(roleIds: new[] {_userService.GetRoleBySystemName(UserDefaults.AdministratorsRoleName).Id});
+            return users.Any(u => u.Active && u.Id != user.Id);
         }
 
         #endregion
@@ -89,7 +108,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             var user = await _userService.GetUserByIdAsync(id);
-            if (user == null)
+            if (user == null || user.Deleted)
                 return RedirectToAction("Index");
 
             var model = await _userModelFactory.PrepareUserModel(null, user);
@@ -105,11 +124,11 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             var user = await _userService.GetUserByIdAsync(model.Id);
-            if (user == null)
+            if (user == null || user.Deleted)
                 return RedirectToAction("Index");
 
             //validate user roles
-            var allRoles = await _roleService.GetRolesAsync();
+            var allRoles = _userService.GetRoles(true);
             var newRoles = new List<Role>();
             foreach (var role in allRoles)
             {
@@ -124,7 +143,8 @@ namespace StockManagementSystem.Controllers
                 _notificationService.ErrorNotification(rolesError);
             }
 
-            if (newRoles.Any() && newRoles.FirstOrDefault(c => c.SystemName == IdentityDefaults.RegisteredRoleName) != null && !CommonHelper.IsValidEmail(model.Email))
+            if (newRoles.Any() && newRoles.FirstOrDefault(c => c.SystemName == UserDefaults.RegisteredRoleName) != null && 
+                !CommonHelper.IsValidEmail(model.Email))
             {
                 ModelState.AddModelError(string.Empty, "Valid Email is required for user to be in 'Registered' role");
                 _notificationService.ErrorNotification("Valid Email is required for user to be in 'Registered' role");
@@ -134,34 +154,71 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
-                    user.Name = model.Name;
                     user.AdminComment = model.AdminComment;
+
+                    //prevent deactivation of the last active administrator
+                    if (!user.IsAdmin() || model.Active || await SecondAdminAccountExists(user))
+                        user.Active = model.Active;
+                    else
+                        _notificationService.ErrorNotification(
+                            "You can't deactivate the last administrator. At least one administrator account should exists.");
 
                     //email
                     if (!string.IsNullOrWhiteSpace(model.Email))
-                        await _userService.SetEmail(user, model.Email);
+                        await _userRegistrationService.SetEmailAsync(user, model.Email);
                     else
                         user.Email = model.Email;
-                 
+
+                    //username
+                    if (_userSettings.UsernamesEnabled)
+                    {
+                        if (!string.IsNullOrWhiteSpace(model.Username))
+                            await _userRegistrationService.SetUsernameAsync(user, model.Username);
+                        else
+                            user.Username = model.Username;
+                    }
+
+                    //form fields
+                    if (_dateTimeSettings.AllowUsersToSetTimeZone)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.TimeZoneIdAttribute, model.TimeZoneId);
+                    if (_userSettings.GenderEnabled)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.GenderAttribute, model.Gender);
+                    await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.FirstNameAttribute, model.FirstName);
+                    await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.LastNameAttribute, model.LastName);
+                    if (_userSettings.DateOfBirthEnabled)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.DateOfBirthAttribute, model.DateOfBirth);
+                    if (_userSettings.PhoneEnabled)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.PhoneAttribute, model.Phone);
+
                     //roles
-                    var rolesStr = new List<string>();
                     foreach (var role in allRoles)
                     {
+                        if (role.SystemName == UserDefaults.AdministratorsRoleName && !_workContext.CurrentUser.IsAdmin())
+                            continue;
+
                         if (model.SelectedRoleIds.Contains(role.Id))
                         {
-                            //new role
                             if (user.UserRoles.Count(mapping => mapping.RoleId == role.Id) == 0)
-                                rolesStr.Add(role.Name);
+                                user.AddUserRole(new UserRole{Role =  role});
                         }
                         else
                         {
+                            //prevent attempts to delete the administrator role from the user, if the user is the last active administrator
+                            if (role.SystemName == UserDefaults.AdministratorsRoleName && !await SecondAdminAccountExists(user))
+                            {
+                                _notificationService.ErrorNotification("You can't remove the Administrator role. At least one administrator account should exists.");
+                                continue;
+                            }
+
                             //remove role
                             if (user.UserRoles.Count(mapping => mapping.RoleId == role.Id) > 0)
-                                await _userService.RemoveUserRole(user, role.Name);
+                                user.RemoveUserRole(user.UserRoles.FirstOrDefault(mapping => mapping.RoleId == role.Id));
                         }
                     }
-                    await _userService.AddUserRoles(user, rolesStr.ToArray());
+
                     await _userService.UpdateUserAsync(user);
+
+                    //activity log
                     await _userActivityService.InsertActivityAsync("EditUser", $"Edited a user (ID = {user.Id})", user);
 
                     _notificationService.SuccessNotification("User has been updated successfully.");
@@ -180,7 +237,7 @@ namespace StockManagementSystem.Controllers
                 }
             }
 
-            model = await _userModelFactory.PrepareUserModel(model, user);
+            model = await _userModelFactory.PrepareUserModel(model, user, true);
 
             return View(model);
         }
@@ -196,7 +253,23 @@ namespace StockManagementSystem.Controllers
 
             try
             {
+                //prevent attempts to delete the user, if it is the last active administrator
+                if (user.IsAdmin() && !await SecondAdminAccountExists(user))
+                {
+                    _notificationService.ErrorNotification("You can't delete the last administrator. At least one administrator account should exists.");
+                    return RedirectToAction("Edit", new { id = user.Id });
+                }
+
+                //ensure that the current user cannot delete "Administrators" if he's not an admin himself
+                if (user.IsAdmin() && !_workContext.CurrentUser.IsAdmin())
+                {
+                    _notificationService.ErrorNotification("You're not allowed to delete administrators. Only administrators can do it.");
+                    return RedirectToAction("Edit", new { id = user.Id });
+                }
+
                 await _userService.DeleteUserAsync(user);
+
+                //activity log
                 await _userActivityService.InsertActivityAsync("DeleteUser", $"Deleted a user (ID = {user.Id})", user);
 
                 _notificationService.SuccessNotification("User has been deleted successfully.");
@@ -221,27 +294,23 @@ namespace StockManagementSystem.Controllers
             if (user == null)
                 return RedirectToAction("Index");
 
+            //ensure that the current user cannot delete "Administrators" if he's not an admin himself
+            if (user.IsAdmin() && !_workContext.CurrentUser.IsAdmin())
+            {
+                _notificationService.ErrorNotification("You're not allowed to delete administrators. Only administrators can do it.");
+                return RedirectToAction("Edit", new { id = user.Id });
+            }
+
             if (!ModelState.IsValid)
                 return RedirectToAction("Edit", new { id = user.Id });
 
-            try
-            {
-                if (string.IsNullOrWhiteSpace(model.Password))
-                    throw new Exception("Password is required to use this operation.");
-
-                var changePassResult = await _userService.ChangePassword(user, model.Password);
-                if (changePassResult.Succeeded)
-                    _notificationService.SuccessNotification("The password has been changed successfully.");
-                else
-                {
-                    foreach (var error in changePassResult.Errors)
-                        _notificationService.ErrorNotification($"{error.Code} - {error.Description}");
-                }
-            }
-            catch (Exception e)
-            {
-                _notificationService.ErrorNotification(e.Message);
-            }
+            var changePassRequest = new ChangePasswordRequest(model.Email, false, _userSettings.DefaultPasswordFormat, model.Password);
+            var changePassResult = await _userRegistrationService.ChangePasswordAsync(changePassRequest);
+            if (changePassResult.Success)
+                _notificationService.SuccessNotification("The password has been changed successfully.");
+            else
+                foreach (var error in changePassResult.Errors)
+                    _notificationService.ErrorNotification(error);
 
             return RedirectToAction("Edit", new { id = user.Id });
         }

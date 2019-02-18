@@ -1,24 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
+using StockManagementSystem.Core.Configuration;
+using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Http;
 using StockManagementSystem.Core.Infrastructure;
 
 namespace StockManagementSystem.Core
 {
     public class WebHelper : IWebHelper
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly HostingConfig _hostingConfig;
         private readonly IFileProviderHelper _fileProvider;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public WebHelper(IHttpContextAccessor httpContextAccessor, IFileProviderHelper fileProvider)
+        public WebHelper(HostingConfig hostingConfig, IFileProviderHelper fileProvider, IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _hostingConfig = hostingConfig;
             _fileProvider = fileProvider;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Utilities
@@ -39,6 +47,19 @@ namespace StockManagementSystem.Core
             }
 
             return true;
+        }
+
+        protected virtual bool TryWriteWebConfig()
+        {
+            try
+            {
+                _fileProvider.SetLastWriteTimeUtc(_fileProvider.MapPath(InfrastructureDefaults.WebConfigPath), DateTime.UtcNow);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion
@@ -62,7 +83,13 @@ namespace StockManagementSystem.Core
                 //first try to get IP address from the forwarded header
                 if (_httpContextAccessor.HttpContext.Request.Headers != null)
                 {
-                    var forwardedHeader = _httpContextAccessor.HttpContext.Request.Headers["X-FORWARDED-FOR"];
+                    var forwardedHttpHeaderKey = HttpDefaults.XForwardedForHeader;
+                    if (!string.IsNullOrEmpty(_hostingConfig.ForwardedHttpHeader))
+                    {
+                        forwardedHttpHeaderKey = _hostingConfig.ForwardedHttpHeader;
+                    }
+
+                    var forwardedHeader = _httpContextAccessor.HttpContext.Request.Headers[forwardedHttpHeaderKey];
                     if (!StringValues.IsNullOrEmpty(forwardedHeader))
                         result = forwardedHeader.FirstOrDefault();
                 }
@@ -101,10 +128,10 @@ namespace StockManagementSystem.Core
                 return string.Empty;
 
             // get app location
-            var appLocation = GetAppLocation(useSsl ?? IsCurrentConnectionSecured());
+            var storeLocation = GetStoreLocation(useSsl ?? IsCurrentConnectionSecured());
 
             //add local path to the URL
-            var pageUrl = $"{appLocation.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.Path}";
+            var pageUrl = $"{storeLocation.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.Path}";
 
             //add query string to the URL
             if (includeQueryString)
@@ -122,10 +149,18 @@ namespace StockManagementSystem.Core
             if (!IsRequestAvailable())
                 return false;
 
+            //use HTTP_CLUSTER_HTTPS?
+            if (_hostingConfig.UseHttpClusterHttps)
+                return _httpContextAccessor.HttpContext.Request.Headers[HttpDefaults.HttpClusterHttpsHeader].ToString().Equals("on", StringComparison.OrdinalIgnoreCase);
+
+            //use HTTP_X_FORWARDED_PROTO?
+            if (_hostingConfig.UseHttpXForwardedProto)
+                return _httpContextAccessor.HttpContext.Request.Headers[HttpDefaults.HttpXForwardedProtoHeader].ToString().Equals("https", StringComparison.OrdinalIgnoreCase);
+
             return _httpContextAccessor.HttpContext.Request.IsHttps;
         }
 
-        public virtual string GetAppHost(bool useSsl)
+        public virtual string GetStoreHost(bool useSsl)
         {
             if (!IsRequestAvailable())
                 return string.Empty;
@@ -135,30 +170,36 @@ namespace StockManagementSystem.Core
                 return string.Empty;
 
             //add scheme to the URL
-            var appHost = $"{(useSsl ? Uri.UriSchemeHttps : Uri.UriSchemeHttp)}{Uri.SchemeDelimiter}{hostHeader.FirstOrDefault()}";
+            var storeHost = $"{(useSsl ? Uri.UriSchemeHttps : Uri.UriSchemeHttp)}{Uri.SchemeDelimiter}{hostHeader.FirstOrDefault()}";
 
             //ensure that host is ended with slash
-            appHost = $"{appHost.TrimEnd('/')}/";
+            storeHost = $"{storeHost.TrimEnd('/')}/";
 
-            return appHost;
+            return storeHost;
         }
 
-        public virtual string GetAppLocation(bool? useSsl = null)
+        public virtual string GetStoreLocation(bool? useSsl = null)
         {
-            var appLocation = string.Empty;
+            var storeLocation = string.Empty;
 
             // get app host
-            var appHost = GetAppHost(useSsl ?? IsCurrentConnectionSecured());
-            if (!string.IsNullOrEmpty(appHost))
+            var storeHost = GetStoreHost(useSsl ?? IsCurrentConnectionSecured());
+            if (!string.IsNullOrEmpty(storeHost))
             {
                 //add application path base if exists
-                appLocation = IsRequestAvailable() ? $"{appHost.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.PathBase}" : appHost;
-
+                storeLocation = IsRequestAvailable() ? $"{storeHost.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.PathBase}" : storeHost;
             }
-            //ensure that URL is ended with slash
-            appLocation = $"{appLocation.TrimEnd('/')}/";
 
-            return appLocation;
+            if (string.IsNullOrEmpty(storeHost) && DataSettingsManager.DatabaseIsInstalled)
+            {
+                storeLocation = EngineContext.Current.Resolve<IStoreContext>().CurrentStore?.Url ??
+                                throw new Exception("Current store cannot be loaded");
+            }
+            
+            //ensure that URL is ended with slash
+            storeLocation = $"{storeLocation.TrimEnd('/')}/";
+
+            return storeLocation;
         }
 
         public virtual bool IsStaticResource()
@@ -170,6 +211,91 @@ namespace StockManagementSystem.Core
 
             var contentTypeProvider = new FileExtensionContentTypeProvider();
             return contentTypeProvider.TryGetContentType(path, out string _);
+        }
+
+        public virtual string ModifyQueryString(string url, string key, params string[] values)
+        {
+            if (string.IsNullOrEmpty(url))
+                return string.Empty;
+
+            if (string.IsNullOrEmpty(key))
+                return url;
+
+            //get current query parameters
+            var uri = new Uri(url);
+            var queryParameters = QueryHelpers.ParseQuery(uri.Query);
+
+            //and add passed one
+            queryParameters[key] = string.Join(",", values);
+
+            var queryBuilder = new QueryBuilder(queryParameters
+                .ToDictionary(parameter => parameter.Key, parameter => parameter.Value.FirstOrDefault()?.ToString() ?? string.Empty));
+
+            //create new URL with passed query parameters
+            url = $"{uri.GetLeftPart(UriPartial.Path)}{queryBuilder.ToQueryString()}{uri.Fragment}";
+
+            return url;
+        }
+
+        public virtual string RemoveQueryString(string url, string key, string value = null)
+        {
+            if (string.IsNullOrEmpty(url))
+                return string.Empty;
+
+            if (string.IsNullOrEmpty(key))
+                return url;
+
+            //get current query parameters
+            var uri = new Uri(url);
+            var queryParameters = QueryHelpers.ParseQuery(uri.Query)
+                .SelectMany(parameter => parameter.Value, (pair, s) => new KeyValuePair<string, string>(pair.Key, s))
+                .ToList();
+
+            if (!string.IsNullOrEmpty(value))
+            {
+                //remove a specific query parameter value if it's passed
+                queryParameters.RemoveAll(parameter =>
+                    parameter.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) &&
+                    parameter.Value.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+            }
+            else
+            {
+                //remove query parameter by the key
+                queryParameters.RemoveAll(parameter =>
+                    parameter.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            //create new URL without passed query parameters
+            url = $"{uri.GetLeftPart(UriPartial.Path)}{new QueryBuilder(queryParameters).ToQueryString()}{uri.Fragment}";
+
+            return url;
+        }
+
+        public virtual T QueryString<T>(string name)
+        {
+            if (!IsRequestAvailable())
+                return default(T);
+
+            if (StringValues.IsNullOrEmpty(_httpContextAccessor.HttpContext.Request.Query[name]))
+                return default(T);
+
+            return CommonHelper.To<T>(_httpContextAccessor.HttpContext.Request.Query[name].ToString());
+        }
+
+        public virtual void RestartAppDomain(bool makeRedirect = false)
+        {
+            //"touch" web.config to force restart
+            var success = TryWriteWebConfig();
+            if (!success)
+            {
+                throw new DefaultException(
+                    "SMS needs to be restarted due to a configuration change, but was unable to do so." +
+                    Environment.NewLine +
+                    "To prevent this issue in the future, a change to the web server configuration is required:" +
+                    Environment.NewLine +
+                    "- run the application in a full trust environment, or" + Environment.NewLine +
+                    "- give the application write access to the 'web.config' file.");
+            }
         }
 
         public virtual string CurrentRequestProtocol => IsCurrentConnectionSecured() ? Uri.UriSchemeHttps : Uri.UriSchemeHttp;

@@ -9,13 +9,13 @@ namespace StockManagementSystem.Services.Common
     {
         Task DeleteAttribute(GenericAttribute attribute);
 
-        Task<T> GetAttributeAsync<T>(BaseEntity entity, string key);
+        Task<T> GetAttributeAsync<T>(BaseEntity entity, string key, int storeId = 0);
 
         Task<IList<GenericAttribute>> GetAttributesForEntityAsync(int entityId, string keyGroup);
 
         Task InsertAttribute(GenericAttribute attribute);
 
-        Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value);
+        Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value, int storeId = 0);
 
         Task UpdateAttribute(GenericAttribute attribute);
     }

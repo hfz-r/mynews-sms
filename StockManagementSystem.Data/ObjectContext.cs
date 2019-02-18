@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -11,11 +13,11 @@ using StockManagementSystem.Data.Mapping;
 namespace StockManagementSystem.Data
 {
     /// <summary>
-    ///     Custom base object context
+    /// Represents base object context
     /// </summary>
     public partial class ObjectContext : DbContext, IDbContext
     {
-        private IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public ObjectContext(
             IHttpContextAccessor httpContextAccessor,
@@ -24,19 +26,42 @@ namespace StockManagementSystem.Data
             this._httpContextAccessor = httpContextAccessor;
         }
 
+        /// <summary>
+        /// Further configuration the model
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var typeConfigurations = Assembly.GetExecutingAssembly().GetTypes().Where(type =>
-                (type.BaseType?.IsGenericType ?? false)
-                && (type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>)));
+                (type.BaseType?.IsGenericType ?? false) &&
+                (type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>) || type.BaseType.GetGenericTypeDefinition() == typeof(QueryTypeConfiguration<>)));
 
             foreach (var typeConfiguration in typeConfigurations)
             {
-                var configuration = (IMappingConfiguration)Activator.CreateInstance(typeConfiguration);
+                var configuration = (IMappingConfiguration) Activator.CreateInstance(typeConfiguration);
                 configuration.ApplyConfiguration(modelBuilder);
             }
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        /// <summary>
+        /// Modify the input SQL query by adding passed parameters
+        /// </summary>
+        protected virtual string CreateSqlWithParameters(string sql, params object[] parameters)
+        {
+            //add parameters to sql
+            for (var i = 0; i <= (parameters?.Length ?? 0) - 1; i++)
+            {
+                if (!(parameters[i] is DbParameter parameter))
+                    continue;
+
+                sql = $"{sql}{(i > 0 ? "," : string.Empty)} @{parameter.ParameterName}";
+
+                if (parameter.Direction == ParameterDirection.InputOutput || parameter.Direction == ParameterDirection.Output)
+                    sql = $"{sql} output";
+            }
+
+            return sql;
         }
 
         #region Methods
@@ -44,11 +69,33 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Creates a DbSet that can be used to query and save instances of entity
         /// </summary>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        /// <returns>A set for the given entity type</returns>
         public new virtual DbSet<TEntity> Set<TEntity>() where TEntity : BaseEntity
         {
             return base.Set<TEntity>();
+        }
+
+        /// <summary>
+        /// Generate a script to create all tables for the current model
+        /// </summary>
+        public virtual string GenerateCreateScript()
+        {
+            return this.Database.GenerateCreateScript();
+        }
+
+        /// <summary>
+        /// Creates a LINQ query for the query type based on a raw SQL query
+        /// </summary>
+        public virtual IQueryable<TQuery> QueryFromSql<TQuery>(string sql) where TQuery : class
+        {
+            return this.Query<TQuery>().FromSql(sql);
+        }
+
+        /// <summary>
+        /// Creates a LINQ query for the entity based on a raw SQL query
+        /// </summary>
+        public virtual IQueryable<TEntity> EntityFromSql<TEntity>(string sql, params object[] parameters) where TEntity : BaseEntity
+        {
+            return this.Set<TEntity>().FromSql(CreateSqlWithParameters(sql, parameters), parameters);
         }
 
         /// <summary>
@@ -82,8 +129,6 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Detach an entity from the context
         /// </summary>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        /// <param name="entity">Entity</param>
         public virtual void Detach<TEntity>(TEntity entity) where TEntity : BaseEntity
         {
             if (entity == null)

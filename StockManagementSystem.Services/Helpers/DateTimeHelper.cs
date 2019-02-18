@@ -3,19 +3,28 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using StockManagementSystem.Core;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Configuration;
 
 namespace StockManagementSystem.Services.Helpers
 {
     public partial class DateTimeHelper : IDateTimeHelper
     {
+        private readonly DateTimeSettings _dateTimeSettings;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ISettingService _settingService;
         private readonly IWorkContext _workContext;
 
-        public DateTimeHelper(IGenericAttributeService genericAttributeService, IWorkContext workContext)
+        public DateTimeHelper(
+            DateTimeSettings dateTimeSettings,
+            IGenericAttributeService genericAttributeService, 
+            ISettingService settingService, 
+            IWorkContext workContext)
         {
+            _dateTimeSettings = dateTimeSettings;
             _genericAttributeService = genericAttributeService;
+            _settingService = settingService;
             _workContext = workContext;
         }
 
@@ -115,11 +124,14 @@ namespace StockManagementSystem.Services.Helpers
         /// </summary>
         public async Task<TimeZoneInfo> GetUserTimeZone(User user)
         {
+            if (!_dateTimeSettings.AllowUsersToSetTimeZone)
+                return DefaultStoreTimeZone;
+
             TimeZoneInfo timeZoneInfo = null;
 
             var timeZoneId = string.Empty;
             if (user != null)
-                timeZoneId = await _genericAttributeService.GetAttributeAsync<string>(user, "TimeZoneId");
+                timeZoneId = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.TimeZoneIdAttribute);
 
             try
             {
@@ -131,7 +143,38 @@ namespace StockManagementSystem.Services.Helpers
                 Debug.Write(exc.ToString());
             }
 
-            return timeZoneInfo ?? TimeZoneInfo.Local;
+            return timeZoneInfo ?? DefaultStoreTimeZone;
+        }
+
+        /// <summary>
+        /// Gets or sets a default store time zone
+        /// </summary>
+        public virtual TimeZoneInfo DefaultStoreTimeZone
+        {
+            get
+            {
+                TimeZoneInfo timeZoneInfo = null;
+                try
+                {
+                    if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultStoreTimeZoneId))
+                        timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
+                }
+                catch (Exception exc)
+                {
+                    Debug.Write(exc.ToString());
+                }
+
+                return timeZoneInfo ?? TimeZoneInfo.Local;
+            }
+            set
+            {
+                var defaultTimeZoneId = string.Empty;
+                if (value != null)
+                    defaultTimeZoneId = value.Id;
+
+                _dateTimeSettings.DefaultStoreTimeZoneId = defaultTimeZoneId;
+                _settingService.SaveSetting(_dateTimeSettings);
+            }
         }
 
         /// <summary>
@@ -142,13 +185,17 @@ namespace StockManagementSystem.Services.Helpers
             get => GetUserTimeZone(_workContext.CurrentUser).GetAwaiter().GetResult();
             set
             {
+                if (!_dateTimeSettings.AllowUsersToSetTimeZone)
+                    return;
+
                 var timeZoneId = string.Empty;
                 if (value != null)
                 {
                     timeZoneId = value.Id;
                 }
 
-                _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser, "TimeZoneId", timeZoneId);
+                _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser, 
+                    UserDefaults.TimeZoneIdAttribute, timeZoneId);
             }
         }
     }

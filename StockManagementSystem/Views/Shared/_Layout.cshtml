@@ -1,14 +1,10 @@
 ﻿@inject IWebHelper WebHelper
 @inject IWorkContext WorkContext
-@inject IHttpContextAccessor HttpContextAccessor
-@inject SignInManager<User> SignInManager
 @inject StockManagementSystem.Services.Common.IGenericAttributeService GenericAttributeService
-@using Microsoft.AspNetCore.Http
-@using StockManagementSystem.Core.Domain.Identity
 @using StockManagementSystem.Web.UI
 
 @{
-    var rawUrl = WebHelper.GetRawUrl(HttpContextAccessor.HttpContext.Request);
+    var returnUrl = WebHelper.GetRawUrl(Context.Request);
 
     var kendoVersion = "2014.1.318";
 
@@ -23,6 +19,7 @@
     Html.AppendCssFileParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
     Html.AppendCssFileParts("~/lib/font-awesome/css/font-awesome.min.css");
     Html.AppendCssFileParts("~/lib/typeahead/typeahead.css");
+    Html.AppendCssFileParts("~/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css");
 
     //scripts
     Html.AppendScriptParts($"~/lib/kendo/{kendoVersion}/kendo.web.min.js");
@@ -38,6 +35,7 @@
     Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate-v1.11.1/jquery.validate.min.js");
     Html.AppendScriptParts("~/js/adminlte.min.js");
     Html.AppendScriptParts("~/lib/bootstrap/dist/js/bootstrap.min.js");
+    Html.AppendScriptParts("~/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js");
     Html.AppendScriptParts("~/lib/jquery/jquery-1.10.2/jquery-1.10.2.min.js");
 
     //sidebar
@@ -92,9 +90,7 @@
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
-
-                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) {{ "rawUrl", rawUrl } })
-
+                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) {{ "returnUrl", returnUrl } })
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <!-- Notifications: style can be found in dropdown.less -->
@@ -146,7 +142,7 @@
 
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b>Version</b> 1.0.0 @*TO DO: Change to assembly version*@
+                <b>Version</b> 1.2.0 @*TO DO: Change to assembly version*@
             </div>
             <strong>Copyright &copy; 2018 <a href="https://www.b-excelle.com">B Excelle</a>.</strong> All rights reserved.
         </footer>
@@ -166,7 +162,7 @@
         //save sidebar preferences
         $('a.sidebar-toggle').on('click', function () {
             var collapsed = !$('body').hasClass('sidebar-collapse');
-            saveUserPreferences('@(Url.Action("SavePreference", "Preferences"))', '@hideSidebarAttributeName', collapsed);
+            saveUserPreferences('@(Url.Action("SavePreference", "Common"))', '@hideSidebarAttributeName', collapsed);
         });
 
         //bug-fix for unexpected auto-closing of grid's page size DropDownList in Chrome (Kendo grid bug)

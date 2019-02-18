@@ -1,19 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using FluentValidation.Attributes;
+using StockManagementSystem.Validators.Users;
+using StockManagementSystem.Web.Models;
+using StockManagementSystem.Web.Mvc.ModelBinding;
 
 namespace StockManagementSystem.Models.Account
 {
-    public class LoginViewModel
+    [Validator(typeof(LoginValidator))]
+    public class LoginViewModel : BaseModel
     {
-        [Required]
-        [Display(Name = "Username")]
-        public string UserName { get; set; }
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
 
-        [Required]
+        public bool UsernamesEnabled { get; set; }
+
+        [Display(Name = "Username")]
+        public string Username { get; set; }
+
         [DataType(DataType.Password)]
+        [NoTrim]
         [Display(Name = "Password")]
         public string Password { get; set; }
 

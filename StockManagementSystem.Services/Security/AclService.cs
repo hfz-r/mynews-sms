@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Data.Extensions;
 
 namespace StockManagementSystem.Services.Security
@@ -122,8 +122,7 @@ namespace StockManagementSystem.Services.Security
             return await _staticCacheManager.Get(key, async () =>
             {
                 var query = from ur in _aclRecordRepository.Table
-                    where ur.EntityId == entityId &&
-                          ur.EntityName == entityName
+                    where ur.EntityId == entityId && ur.EntityName == entityName
                     select ur.RoleId;
                 return await query.ToArrayAsync();
             });
@@ -145,10 +144,13 @@ namespace StockManagementSystem.Services.Security
             if (!entity.SubjectToAcl)
                 return true;
 
-            foreach (var role in await GetRoleIdsWithAccess(entity))
-                if (role != 0)
-                    return true;
+            foreach (var role1 in user.Roles.Where(r => r.Active))
+                foreach (var role2Id in await GetRoleIdsWithAccess(entity))
+                    if (role1.Id == role2Id)
+                        //yes, we have such permission
+                        return true;
 
+            //no permission found
             return false;
         }
     }

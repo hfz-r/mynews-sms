@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StockManagementSystem.Core;
+using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Services.Messages
 {
@@ -13,21 +13,20 @@ namespace StockManagementSystem.Services.Messages
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITempDataDictionaryFactory _tempDataDictionaryFactory;
         private readonly IWorkContext _workContext;
+        private readonly ILogger _logger;
 
         public NotificationService(
             IHttpContextAccessor httpContextAccessor,
             ITempDataDictionaryFactory tempDataDictionaryFactory,
             IWorkContext workContext,
-            ILogger<NotificationService> logger)
+            ILogger logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _tempDataDictionaryFactory = tempDataDictionaryFactory;
             _workContext = workContext;
-
-            Logger = logger;
+            _logger = logger;
         }
 
-        public ILogger Logger { get; }
 
         /// <summary>
         /// Save message into TempData
@@ -56,7 +55,7 @@ namespace StockManagementSystem.Services.Messages
                 return;
 
             var user = _workContext.CurrentUser;
-            Logger.LogError(exception.Message, exception, user);
+            _logger.Error(exception.Message, exception, user);
         }
 
         /// <summary>

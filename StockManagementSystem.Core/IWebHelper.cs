@@ -12,11 +12,19 @@ namespace StockManagementSystem.Core
 
         bool IsCurrentConnectionSecured();
 
-        string GetAppHost(bool useSsl);
+        string GetStoreHost(bool useSsl);
 
-        string GetAppLocation(bool? useSsl = null);
+        string GetStoreLocation(bool? useSsl = null);
+
+        string ModifyQueryString(string url, string key, params string[] values);
+
+        string RemoveQueryString(string url, string key, string value = null);
+
+        T QueryString<T>(string name);
 
         bool IsStaticResource();
+
+        void RestartAppDomain(bool makeRedirect = false);
 
         string CurrentRequestProtocol { get; }
 

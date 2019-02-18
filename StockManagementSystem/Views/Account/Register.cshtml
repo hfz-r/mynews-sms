@@ -1,8 +1,15 @@
-﻿@model StockManagementSystem.Models.Account.RegisterViewModel
+﻿@model RegisterViewModel
 @{
     Layout = "_AccountLayout";
+
     ViewData["Title"] = "Register";
 }
+
+<style>
+    .hide-border {
+        border: none;
+    }
+</style>
 
 <div class="login-box">
     <div class="login-logo">
@@ -12,31 +19,140 @@
     <div class="login-box-body">
         <h3 class="login-box-msg">Create a new account</h3>
 
-        <form asp-controller="Account" asp-action="Register" method="post" role="form">
+        <form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            @if (Model.GenderEnabled)
+            {
+                <div class="form-group">
+                    <div class="input-group">
+                        <label>
+                            Gender:&nbsp;&nbsp;
+                            <span class="male">
+                                <input type="radio" asp-for="Gender" value="M" checked="@(Model.Gender == "M")" id="gender-male" />
+                                <label class="forcheckbox" for="gender-male">Male</label>
+                            </span>
+                            <span class="female">
+                                <input type="radio" asp-for="Gender" value="F" checked="@(Model.Gender == "F")" id="gender-female" />
+                                <label class="forcheckbox" for="gender-female">Female</label>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            }
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon">
-                        <i class="fa fa-user fa" aria-hidden="true"></i>
+                        <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
                     </span>
-                    <input asp-for="UserName" class="form-control" autocomplete="off" autofocus placeholder="Username"/>
+                    <input asp-for="FirstName" class="form-control" placeholder="First name" />
+                    <span class="input-group-addon hide-border">
+                        <_required/>
+                    </span>
                 </div>
-                <span asp-validation-for="UserName" class="text-danger"></span>
+                <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
                     </span>
-                    <input asp-for="Email" class="form-control" autocomplete="off" placeholder="Email"/>
+                    <input asp-for="LastName"  class="form-control" placeholder="Last name" />
+                    <span class="input-group-addon hide-border">
+                        <_required />
+                    </span>
+                </div>
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            @if (Model.DateOfBirthEnabled)
+            {
+                <div class="form-group">
+                    <label>Date of birth:</label>
+
+                        <div class="inputs date-of-birth">
+                            <_date-picker asp-day-name="@Html.NameFor(x => x.DateOfBirthDay)"
+                                          asp-month-name="@Html.NameFor(x => x.DateOfBirthMonth)"
+                                          asp-year-name="@Html.NameFor(x => x.DateOfBirthYear)"
+                                          asp-begin-year="@(DateTime.Now.Year - 110)"
+                                          asp-end-year="@(DateTime.Now.Year)"
+                                          asp-selected-day="@Model.DateOfBirthDay"
+                                          asp-selected-month="@Model.DateOfBirthMonth"
+                                          asp-selected-year="@Model.DateOfBirthYear" />
+                            @if (Model.DateOfBirthRequired)
+                            {
+                                <_required />
+                            }
+                            <span asp-validation-for="DateOfBirthDay"></span>
+                            <span asp-validation-for="DateOfBirthMonth"></span>
+                            <span asp-validation-for="DateOfBirthYear"></span>
+                        </div>
+                </div>
+            }
+            <div class="form-group">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
+                    </span>
+                    <input asp-for="Email" class="form-control" placeholder="Email" />
                 </div>
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
+            @if (Model.UsernamesEnabled)
+            {
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
+                        </span>
+                        <input asp-for="Username" class="form-control" placeholder="Username" />
+                        <span class="input-group-addon hide-border">
+                            <_required />
+                        </span>
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                    @if (Model.CheckUsernameAvailabilityEnabled)
+                    {
+                        @await Html.PartialAsync("_CheckUsernameAvailability")
+                    }
+                </div>
+            }
+            @if (Model.PhoneEnabled)
+            {
+                <div class="form-group">
+                    <div class="input-group">
+                        <span class="input-group-addon">
+                            <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
+                        </span>
+                        <input asp-for="Phone" class="form-control" placeholder="Phone" />
+                        @if (Model.PhoneRequired)
+                        {
+                            <span class="input-group-addon hide-border">
+                                <_required />
+                            </span>
+                        }
+                    </div>
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+            }
+            @if (Model.AllowUsersToSetTimeZone)
+            {
+                <div class="form-group">
+                    <label>Time zone:</label>
+                    
+                    <div class="inputs">
+                        <select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones"></select>
+                        <span asp-validation-for="TimeZoneId"></span>
+                    </div>
+                </div>
+            }
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
                     </span>
-                    <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password"/>
+                    <input asp-for="Password" class="form-control" placeholder="Password" />
+                    <span class="input-group-addon hide-border">
+                        <_required />
+                    </span>
                 </div>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
@@ -45,7 +161,10 @@
                     <span class="input-group-addon">
                         <i class="fa fa-lock fa-lg" aria-hidden="true"></i>
                     </span>
-                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="off" placeholder="ConfirmPassword"/>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="ConfirmPassword" />
+                    <span class="input-group-addon hide-border">
+                        <_required />
+                    </span>
                 </div>
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>

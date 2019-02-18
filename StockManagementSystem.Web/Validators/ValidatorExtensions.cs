@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Web.Validators
 {
@@ -10,23 +11,22 @@ namespace StockManagementSystem.Web.Validators
             return ruleBuilder.SetValidator(new DecimalPropertyValidator(maxValue));
         }
 
-        //TODO: user-password setting maybe?
-        public static IRuleBuilder<T, string> IsPassword<T>(this IRuleBuilder<T, string> ruleBuilder)
+        public static IRuleBuilder<T, string> IsPassword<T>(this IRuleBuilder<T, string> ruleBuilder, UserSettings userSettings)
         {
             var regExp = "^";
-            //regExp += "(?=.*?[A-Z])"; //RequireUppercase
-            //regExp += "(?=.*?[a-z])"; //RequireLowercase
-            //regExp += "(?=.*?[0-9])"; //RequireDigit
-            //regExp += "(?=.*?[#?!@$%^&*-])"; //RequireNonAlphanumeric
-            regExp += ".{{8,}}$"; //MinLength
+            //Passwords must be at least X characters and contain the following: upper case (A-Z), lower case (a-z), number (0-9) and special character (e.g. !@#$%^&*-)
+            regExp += userSettings.PasswordRequireUppercase ? "(?=.*?[A-Z])" : "";
+            regExp += userSettings.PasswordRequireLowercase ? "(?=.*?[a-z])" : "";
+            regExp += userSettings.PasswordRequireDigit ? "(?=.*?[0-9])" : "";
+            regExp += userSettings.PasswordRequireNonAlphanumeric ? "(?=.*?[#?!@$%^&*-])" : "";
+            regExp += $".{{{userSettings.PasswordMinLength},}}$";
 
-            var message = "<p>must meet the following rules: </p><ul>" +
-                          "<li>must have at least 8 characters</li>" +
-                          //"<li>must have at least one uppercase</li>" +
-                          //"<li>must have at least one lowercase</li>" +
-                          //"<li>must have at least one digit</li>" +
-                          //"<li>must have at least one special character (e.g. #?!@$%^&*-)</li>" +
-                          "</ul>";
+            var message = string.Format("<p>must meet the following rules: </p><ul>{0}{1}{2}{3}{4}</ul>", 
+                string.Format("<li>must have at least {0} characters</li>", userSettings.PasswordMinLength),
+                userSettings.PasswordRequireUppercase ? "<li>must have at least one uppercase</li>" : "",
+                userSettings.PasswordRequireLowercase ? "<li>must have at least one lowercase</li>" : "",
+                userSettings.PasswordRequireDigit ? "<li>must have at least one digit</li>" : "",
+                userSettings.PasswordRequireNonAlphanumeric ? "<li>must have at least one special character (e.g. #?!@$%^&*-)</li>" : "");
 
             var options = ruleBuilder
                 .NotEmpty().WithMessage("Password is required.")

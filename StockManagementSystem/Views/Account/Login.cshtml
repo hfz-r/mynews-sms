@@ -1,51 +1,68 @@
-﻿@model StockManagementSystem.Models.Account.LoginViewModel
+﻿@model LoginViewModel
 @{
     Layout = "_AccountLayout";
+
     ViewData["Title"] = "Login";
 }
 
 <div class="login-box">
     <div class="login-logo">
-        <img src="@Url.Content("~/images/MainMenu_Logo.png")" alt="Logo"/>
+        <img src="@Url.Content("~/images/MainMenu_Logo.png")" alt="Logo" />
     </div>
     <!-- /.login-logo -->
     <div class="login-box-body">
         <h3 class="login-box-msg">Login into your account</h3>
 
-        <form id="login-form" asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
-            <!--validation-->
+        <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post">
+            @*<div asp-validation-summary="ModelOnly" class="message-error"></div>*@
             <div class="form-group">
-                <div class="input-group">
-                    <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
-                    <input asp-for="UserName" class="form-control" autocomplete="off" autofocus placeholder="Username"/>
-                </div>
-                <span asp-validation-for="UserName" class="text-danger"></span>
-
+                @if (Model.UsernamesEnabled)
+                {
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                        <input asp-for="Username" class="form-control" autocomplete="off" autofocus placeholder="Username" />
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                }
+                else
+                {
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-user fa" aria-hidden="true"></i></span>
+                        <input asp-for="Email" class="form-control" autocomplete="off" autofocus placeholder="Email" />
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                }
             </div>
             <div class="form-group">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="fa fa-lock fa-lg" aria-hidden="true"></i></span>
-                    <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password"/>
+                    <input asp-for="Password" class="form-control" autocomplete="off" placeholder="Password" />
                 </div>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <a asp-controller="Account" asp-action="ForgotPassword" id="fgtPass">Forgot Password?</a>
-            </div>
-            <div class="row">
-                <!-- /.col -->
-                <div class="col-xs-6">
-                    <a asp-controller="Account" asp-action="Register" title="Manage" id="Register" class="btn btn-default btn-block btn-flat">
-                        Register
-                    </a>
+                <div class="input reversed">
+                    <input asp-for="RememberMe" />
+                    <label asp-for="RememberMe"></label>
                 </div>
-                <div class="col-xs-6">
-                    <button id="loginClick" href="#" type="submit" class="btn btn-primary btn-block btn-flat">
-                        Login
-                    </button>
-                </div>
-                <!-- /.col -->
             </div>
+                <div class="form-group">
+                    <a asp-controller="Account" asp-action="ForgotPassword" id="fgtPass">Forgot Password?</a>
+                </div>
+                <div class="row">
+                    <!-- /.col -->
+                    <div class="col-xs-6">
+                        <a asp-controller="Account" asp-action="Register" title="Manage" id="Register" class="btn btn-default btn-block btn-flat">
+                            Register
+                        </a>
+                    </div>
+                    <div class="col-xs-6">
+                        <button id="loginClick" href="#" type="submit" class="btn btn-primary btn-block btn-flat">
+                            Login
+                        </button>
+                    </div>
+                    <!-- /.col -->
+                </div>
         </form>
     </div>
     <!-- /.login-box-body -->

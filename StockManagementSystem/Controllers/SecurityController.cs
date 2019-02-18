@@ -6,48 +6,46 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Security;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
-using StockManagementSystem.Services.Roles;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Controllers;
 
 namespace StockManagementSystem.Controllers
 {
     public class SecurityController : BaseController
     {
-        private readonly IRoleService _roleService;
+        private readonly IUserService _userService;
+        private readonly ILogger _logger;
         private readonly ISecurityModelFactory _securityModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
-        private readonly IUserActivityService _userActivityService;
         private readonly IWorkContext _workContext;
-        private readonly ILogger _logger;
 
         public SecurityController(
-            IRoleService roleService,
+            IUserService userService,
+            ILogger logger,
             ISecurityModelFactory securityModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
-            IUserActivityService userActivityService,
-            IWorkContext workContext,
-            ILogger logger)
+            IWorkContext workContext)
         {
-            _roleService = roleService;
+            _userService = userService;
+            _logger = logger;
             _securityModelFactory = securityModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
-            _userActivityService = userActivityService;
             _workContext = workContext;
-            _logger = logger;
         }
 
         public IActionResult AccessDenied(string pageUrl)
         {
             var currentUser = _workContext.CurrentUser;
-            if (currentUser == null || !User.Identity.IsAuthenticated)
+            if (currentUser == null || currentUser.IsGuest())
             {
                 _logger.Information($"Access denied to anonymous request on {pageUrl}");
                 return View();
@@ -60,7 +58,7 @@ namespace StockManagementSystem.Controllers
 
         public async Task<IActionResult> Permissions()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePermission))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageAcl))
                 return AccessDeniedView();
 
             var model = await _securityModelFactory.PreparePermissionRolesModel(new PermissionRolesModel());
@@ -71,11 +69,11 @@ namespace StockManagementSystem.Controllers
         [HttpPost, ActionName("Permissions")]
         public async Task<IActionResult> PermissionsSave(PermissionRolesModel model)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePermission))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageAcl))
                 return AccessDeniedView();
 
             var permissions = await _permissionService.GetAllPermissions();
-            var roles = await _roleService.GetRolesAsync();
+            var roles = _userService.GetRoles();
 
             foreach (var role in roles)
             {
@@ -105,8 +103,6 @@ namespace StockManagementSystem.Controllers
                     }
                 }
             }
-
-            await _userActivityService.InsertActivityAsync("EditPermission", "Edited a permissions", new Permission());
 
             _notificationService.SuccessNotification("The permission has been updated successfully");
 

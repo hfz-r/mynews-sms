@@ -100,7 +100,7 @@
                                                                     if ((name == view[i].Name) && (name != nameEdit) && view[i].id) {
                                                                         valid = false;
                                                                         input.attr("data-duplicate-msg", "Duplicates not allowed.");
-                                                                        break;   
+                                                                        break;
                                                                     }
                                                                 }
                                                                 return valid;
@@ -109,7 +109,8 @@
                                                         }
                                                     }
                                                 },
-                                                Description: { editable: true }
+                                                Active: { editable: true, type: "boolean" },
+                                                IsSystemRole: { editable: true, type: "boolean" }
                                             }
                                         }
                                     },
@@ -152,31 +153,52 @@
                                     {
                                         field: "Name",
                                         title: "Name",
-                                        width: 200
+                                        width: 250
                                     },
                                     {
-                                        field: "Description",
-                                        title: "Description",
-                                        width: 300
+                                        field: "Active",
+                                        title: "Active",
+                                        width: 100,
+                                        sortable: false,
+                                        filterable: false,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                                    }, {
+                                        field: "IsSystemRole",
+                                        title: "Is system role",
+                                        width: 100,
+                                        sortable: false,
+                                        filterable: false,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: '# if(IsSystemRole) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
                                     },
                                     {
                                         template:
                                             "<a href='\\#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
-                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
-                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='fa fa-check-square'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='fa fa-minus-square'></i></a>" +
                                             "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         width: 10
                                     }
                                 ],
-                                editable: "inline",
+                                editable: {
+                                    confirmation: "Are you sure you want to delete this item?",
+                                    mode: "inline"
+                                },
                                 edit: function(e) {
                                     // Change buttons visibility when the Grid enters edit mode.
                                     var editRow = e.container;
                                     editRow.find(".custom-button").toggleClass("hidden");
                                 }
                             }).data("kendoGrid");
+
+                            //Removing Column Menu
+                            grid.thead.find("[data-field=Active]>.k-header-column-menu").remove();
+                            grid.thead.find("[data-field=IsSystemRole]>.k-header-column-menu").remove();
 
                             $("#grid").on("click", ".custom-button", function(e) {
                                     var btn = $(this);
@@ -192,7 +214,7 @@
                                     } else if (btn.hasClass("destroy-button")) {
                                         var row = btn.closest("tr");
                                         grid.removeRow(row);
-                                    } 
+                                    }
                                 });
                         });
 

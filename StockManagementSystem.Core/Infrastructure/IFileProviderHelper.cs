@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.FileProviders;
@@ -33,6 +34,8 @@ namespace StockManagementSystem.Core.Infrastructure
         void FileMove(string sourceFileName, string destFileName);
 
         string GetAbsolutePath(params string[] paths);
+
+        DirectorySecurity GetAccessControl(string path);
 
         DateTime GetCreationTime(string path);
 

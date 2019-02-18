@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Web.Controllers;
 
 namespace StockManagementSystem.Controllers
@@ -16,12 +15,6 @@ namespace StockManagementSystem.Controllers
             return View();
         }
 
-        [AllowAnonymous]
-        public IActionResult Error()
-        {
-            return View();
-        }
-        
         public IActionResult PanelServerComponent()
         {
             return ViewComponent("PanelServerComponent");

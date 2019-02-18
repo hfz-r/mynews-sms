@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Factories;
@@ -16,7 +15,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Users;
+using StockManagementSystem.Services.Common;
 
 namespace StockManagementSystem.Controllers
 {
@@ -24,10 +26,12 @@ namespace StockManagementSystem.Controllers
     {
         private readonly IOrderLimitService _orderLimitService;
         private readonly IStoreService _storeService;
+        private readonly IWorkContext _workContext;
         private readonly IRepository<Approval> _approvalRepository;
         private readonly IRepository<OrderLimit> _orderLimitRepository;
         private readonly IRepository<OrderLimitStore> _orderLimitStoreRepository;
         private readonly IRepository<Store> _storeRepository;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IOrderLimitModelFactory _orderLimitModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
@@ -38,22 +42,26 @@ namespace StockManagementSystem.Controllers
         public SettingController(
             IOrderLimitService orderLimitService,
             IStoreService storeService,
+            IWorkContext workContext,
             IRepository<Approval> approvalRepository,
             IRepository<OrderLimit> orderLimitRepository,
             IRepository<OrderLimitStore> orderLimitStoreRepository,
             IRepository<Store> storeRepository,
+            IGenericAttributeService genericAttributeService,
             IOrderLimitModelFactory orderLimitModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
             ILoggerFactory loggerFactory)
         {
-            this._orderLimitService = orderLimitService;
-            this._storeService = storeService;
-            this._approvalRepository = approvalRepository;
-            this._orderLimitRepository = orderLimitRepository;
-            this._orderLimitStoreRepository = orderLimitStoreRepository;
-            this._storeRepository = storeRepository;
-            this._orderLimitModelFactory = orderLimitModelFactory;
+            _orderLimitService = orderLimitService;
+            _storeService = storeService;
+            _workContext = workContext;
+            _approvalRepository = approvalRepository;
+            _orderLimitRepository = orderLimitRepository;
+            _orderLimitStoreRepository = orderLimitStoreRepository;
+            _storeRepository = storeRepository;
+            _genericAttributeService = genericAttributeService;
+            _orderLimitModelFactory = orderLimitModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _logger = loggerFactory.CreateLogger<SettingController>();
@@ -289,5 +297,28 @@ namespace StockManagementSystem.Controllers
         {
             ModelState.AddModelError(string.Empty, result);
         }
+
+        #region Store scope
+
+        public async Task<IActionResult> ChangeStoreScopeConfiguration(int branchNo, string returnUrl = "")
+        {
+            var store = await _storeService.GetStoreByBranchNoAsync(branchNo);
+            if (store != null || branchNo == 0)
+            {
+                await _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser,
+                    UserDefaults.StoreScopeConfigurationAttribute, branchNo);
+            }
+
+            if (string.IsNullOrEmpty(returnUrl))
+                returnUrl = Url.Action("Index", "Home");
+
+            //prevent open redirection attack
+            if (!Url.IsLocalUrl(returnUrl))
+                return RedirectToAction("Index", "Home");
+
+            return Redirect(returnUrl);
+        }
+
+        #endregion
     }
 }

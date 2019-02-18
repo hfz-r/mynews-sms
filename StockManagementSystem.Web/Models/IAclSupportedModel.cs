@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace StockManagementSystem.Web.Models
 {
     /// <summary>
-    /// Represents a model which supports permission control list
+    /// Represents a model which supports permission/ACL
     /// </summary>
     public partial interface IAclSupportedModel
     {

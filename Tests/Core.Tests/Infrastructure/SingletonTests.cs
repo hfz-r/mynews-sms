@@ -1,6 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
-using StockManagementSystem.Core.Builder;
+using StockManagementSystem.Core.Infrastructure;
 
 namespace Core.Tests.Infrastructure
 {

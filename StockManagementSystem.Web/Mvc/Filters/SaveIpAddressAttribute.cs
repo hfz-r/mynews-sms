@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Web.Mvc.Filters
@@ -19,12 +20,18 @@ namespace StockManagementSystem.Web.Mvc.Filters
             private readonly IUserService _userService;
             private readonly IWebHelper _webHelper;
             private readonly IWorkContext _workContext;
+            private readonly UserSettings _userSettings;
 
-            public SaveIpAddressFilter(IUserService userService, IWebHelper webHelper, IWorkContext workContext)
+            public SaveIpAddressFilter(
+                IUserService userService, 
+                IWebHelper webHelper, 
+                IWorkContext workContext, 
+                UserSettings userSettings)
             {
                 _userService = userService;
                 _webHelper = webHelper;
                 _workContext = workContext;
+                _userSettings = userSettings;
             }
 
             public void OnActionExecuting(ActionExecutingContext context)
@@ -42,6 +49,10 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 if (!DataSettingsManager.DatabaseIsInstalled)
                     return;
 
+                //check whether we store IP addresses
+                if (!_userSettings.StoreIpAddresses)
+                    return;
+
                 //get current IP address
                 var currentIpAddress = _webHelper.GetCurrentIpAddress();
                 if (string.IsNullOrEmpty(currentIpAddress))
@@ -51,7 +62,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 if (!currentIpAddress.Equals(_workContext.CurrentUser.LastIpAddress, StringComparison.InvariantCultureIgnoreCase))
                 {
                     _workContext.CurrentUser.LastIpAddress = currentIpAddress;
-                    _userService.UpdateUser(_workContext.CurrentUser);
+                    _userService.UpdateUserAsync(_workContext.CurrentUser).GetAwaiter().GetResult();
                 }
 
             }

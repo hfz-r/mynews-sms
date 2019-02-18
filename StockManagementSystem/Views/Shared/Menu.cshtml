@@ -1,4 +1,8 @@
-﻿@using StockManagementSystem.Web.Menu
+﻿@using StockManagementSystem.Services.Plugins
+@using StockManagementSystem.Services.Security
+@using StockManagementSystem.Web.Menu
+@inject IPluginService pluginService
+@inject IPermissionService permissionService
 @{
     //load sitemap
     var siteMap = new XmlSiteMap();
@@ -6,11 +10,24 @@
 }
 <ul class="sidebar-menu" data-widget="tree">
     @{
+        //standard (default) items
         var rootNode = siteMap.RootNode;
-
-        foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
+        //plugins
+        var adminMenuPlugins = pluginService.GetPlugins<IAdminMenuPlugin>().ToList();
+        foreach (var adminMenuPlugin in adminMenuPlugins)
         {
-            @await Html.PartialAsync("_MenuItem", item);
+            adminMenuPlugin.ManageSiteMap(rootNode);
         }
+        //"Plugins" menu item should be visible when it has some child nodes
+        var pluginNode = rootNode.ChildNodes.FirstOrDefault(x => x.SystemName == "Plugin Placeholder");
+        if (pluginNode != null && pluginNode.Visible)
+        {
+            var hasManagePluginsPermission = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins);
+            pluginNode.Visible = hasManagePluginsPermission && pluginNode.ChildNodes.Any(x => x.Visible);
+        }
+    }
+    @foreach (var item in rootNode.ChildNodes.Where(x => x.Visible))
+    {
+        @await Html.PartialAsync("_MenuItem", item)
     }
 </ul>

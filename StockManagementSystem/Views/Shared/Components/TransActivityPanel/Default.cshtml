@@ -5,80 +5,96 @@
     Html.AppendScriptParts("~/lib/chartjs/Chart.min.js");
 }
 
-<div id="report-panel" class="row">
-    <div class="col-md-6">
-        @{
-            const string prefixBar = "transaction-activity-bar";
-            const string hidePanelBarAttributeName = "HideTransActivityBarPanel";
-            var hidePanelBar = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hidePanelBarAttributeName);
-        }
-        <div class="box box-default @if (hidePanelBar) { <text>collapsed-box</text> }" id="@(prefixBar)-box">
-            <div class="box-header with-border">
-                <h4 class="box-title">
-                    <i class="fa fa-bar-chart"></i> Transaction activity
-                </h4>
-                <div class="box-tools pull-right">
-                    @await Html.PartialAsync("../Report/_TransActivityBarToolbar", null, new ViewDataDictionary(ViewData) { {"hidePanel", hidePanelBar } })
-                    <button class="btn btn-box-tool margin-l-10" data-widget="collapse">
-                        @if (hidePanelBar)
-                        {
-                            <text><i class="fa fa-plus"></i></text>
-                        }
-                        else
-                        {
-                            <text><i class="fa fa-minus"></i></text>
-                        }
-                    </button>
-                    <button type="button" class="btn btn-box-tool btn-sm" data-widget="remove">
-                        <i class="fa fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="box-body">
-                @await Html.PartialAsync("../Report/TransActivityBarRpt", null, new ViewDataDictionary(ViewData)
-                {
-                    {"prefix", prefixBar},
-                    {"hidePanelAttributeName", hidePanelBarAttributeName },
-                    {"hidePanel", hidePanelBar }
-                })
-            </div>
-        </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title"><i class="glyphicon glyphicon-list"></i>&nbsp; Activity log statistics</h4>
     </div>
-    <div class="col-md-6">
-       @{
-           const string prefixPie = "transaction-activity-pie";
-           const string hidePanelPieAttributeName = "HideTransActivityPiePanel";
-           var hidePanelPie = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hidePanelPieAttributeName);
-       }
-        <div class="box box-default @if (hidePanelPie) { <text>collapsed-box</text> }" id="@(prefixPie)-box">
-            <div class="box-header with-border">
-                <h4 class="box-title">
-                    <i class="fa fa-pie-chart"></i> Transaction activity
-                </h4>
-                <div class="box-tools pull-right">
-                    <button id="refresh-btn" class="btn btn-box-tool btn-sm"><i class="fa fa-refresh"></i></button>
-                    <button class="btn btn-box-tool margin-l-10" data-widget="collapse">
-                        @if (hidePanelPie)
-                        {
-                            <text><i class="fa fa-plus"></i></text>
-                        }
-                        else
-                        {
-                            <text><i class="fa fa-minus"></i></text>
-                        }
-                    </button>
-                    <button type="button" class="btn btn-box-tool btn-sm" data-widget="remove">
-                        <i class="fa fa-times"></i>
-                    </button>
+    <div class="panel-body">
+        <section class="col-md-6 connectedSortable">
+            @{
+                const string prefixBar = "transaction-activity-bar";
+                const string hidePanelBarAttributeName = "HideTransActivityBarPanel";
+                var hidePanelBar = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hidePanelBarAttributeName);
+            }
+            <div class="box box-default @if (hidePanelBar)
+                                    {
+                                        <text>collapsed-box</text>
+                                    }" id="@(prefixBar)-box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">
+                        <i class="fa fa-bar-chart"></i> 
+                    </h4>
+                    <div class="box-tools pull-right">
+                        <button class="btn btn-box-tool btn-default margin-r-5" @if (hidePanelBar) { <text> disabled="disabled" </text> } data-chart-role="toggle-chart" data-chart-period="year">Year</button>
+                        <button class="btn btn-box-tool btn-default margin-r-5" @if (hidePanelBar) { <text> disabled="disabled" </text> } data-chart-role="toggle-chart" data-chart-period="month">Month</button>
+                        <button class="btn btn-box-tool btn-default" @if (hidePanelBar) { <text> disabled="disabled" </text> } data-chart-role="toggle-chart" data-chart-period="week">Week</button>
+                        <button class="btn btn-box-tool margin-l-10" data-widget="collapse">
+                            @if (hidePanelBar)
+                            {
+                                <text><i class="fa fa-plus"></i></text>
+                            }
+                            else
+                            {
+                                <text><i class="fa fa-minus"></i></text>
+                            }
+                        </button>
+                        <button type="button" class="btn btn-box-tool btn-sm" data-widget="remove">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    @await Html.PartialAsync("../ActivityLog/_ActivityLogBarChart", null, new ViewDataDictionary(ViewData)
+                    {
+                        {"prefix", prefixBar},
+                        {"hidePanelAttributeName", hidePanelBarAttributeName},
+                        {"hidePanel", hidePanelBar}
+                    })
                 </div>
             </div>
-            <div class="box-body">
-                @await Html.PartialAsync("../Report/TransActivityPieRpt", null, new ViewDataDictionary(ViewData)
-                {
-                    {"prefix", prefixPie},
-                    {"hidePanelAttributeName", hidePanelPieAttributeName }
-                })
+        </section>
+
+        <section class="col-md-6 connectedSortable">
+            @{
+                const string prefixPie = "transaction-activity-pie";
+                const string hidePanelPieAttributeName = "HideTransActivityPiePanel";
+                var hidePanelPie = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hidePanelPieAttributeName);
+            }
+            <div class="box box-default @if (hidePanelPie)
+                                    {
+                                        <text>collapsed-box</text>
+                                    }" id="@(prefixPie)-box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">
+                        <i class="fa fa-pie-chart"></i>
+                    </h4>
+                    <div class="box-tools pull-right">
+                        <button id="refresh-btn" class="btn btn-box-tool btn-sm">
+                            <i class="fa fa-refresh"></i>
+                        </button>
+                        <button class="btn btn-box-tool margin-l-10" data-widget="collapse">
+                            @if (hidePanelPie)
+                            {
+                                <text><i class="fa fa-plus"></i></text>
+                            }
+                            else
+                            {
+                                <text><i class="fa fa-minus"></i></text>
+                            }
+                        </button>
+                        <button type="button" class="btn btn-box-tool btn-sm" data-widget="remove">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    @await Html.PartialAsync("../ActivityLog/_ActivityLogPieChart", null, new ViewDataDictionary(ViewData)
+                    {
+                        {"prefix", prefixPie},
+                        {"hidePanelAttributeName", hidePanelPieAttributeName}
+                    })
+                </div>
             </div>
-        </div>
+        </section>
     </div>
 </div>

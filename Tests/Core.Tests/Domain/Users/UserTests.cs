@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using StockManagementSystem.Core.Domain.Identity;
+using StockManagementSystem.Core.Domain.Users;
 using Tests;
 
 namespace Core.Tests.Domain.Users
@@ -9,20 +9,23 @@ namespace Core.Tests.Domain.Users
     {
         private Role roleAdmin = new Role
         {
+            Active = true,
             Name = "Administrators",
-            SystemName = IdentityDefaults.AdministratorsRoleName
+            SystemName = UserDefaults.AdministratorsRoleName
         };
 
-        private Role roleManager = new Role
+        private Role roleGuest = new Role
         {
-            Name = "Manager",
-            SystemName = IdentityDefaults.ManagerRoleName
+            Active = true,
+            Name = "Guests",
+            SystemName = UserDefaults.GuestsRoleName
         };
 
         private Role roleRegistered = new Role
         {
+            Active = true,
             Name = "Registered",
-            SystemName = IdentityDefaults.RegisteredRoleName
+            SystemName = UserDefaults.RegisteredRoleName
         };
 
         [Test]
@@ -32,23 +35,28 @@ namespace Core.Tests.Domain.Users
 
             var userRole1 = new Role
             {
+                Active = true,
                 Name = "Test name 1",
                 SystemName = "Test system name 1"
             };
 
             var userRole2 = new Role
             {
+                Active = false,
                 Name = "Test name 2",
                 SystemName = "Test system name 2"
             };
 
-            user.UserRoles = new[]
-            {
-                new UserRole {Role = userRole1},
-                new UserRole {Role = userRole2},
-            };
+            user.AddUserRole(new UserRole {Role = userRole1});
+            user.AddUserRole(new UserRole {Role = userRole2});
 
+            user.IsInRole("Test system name 1", false).ShouldBeTrue();
             user.IsInRole("Test system name 1").ShouldBeTrue();
+
+            user.IsInRole("Test system name 2", false).ShouldBeTrue();
+            user.IsInRole("Test system name 2").ShouldBeFalse();
+
+            user.IsInRole("Test system name 3", false).ShouldBeFalse();
             user.IsInRole("Test system name 3").ShouldBeFalse();
         }
 
@@ -57,20 +65,31 @@ namespace Core.Tests.Domain.Users
         {
             var user = new User();
 
-            user.UserRoles = new[]
-            {
-                new UserRole {Role = roleRegistered},
-                new UserRole {Role = roleManager},
-            };
+            user.AddUserRole(new UserRole {Role = roleRegistered});
 
-            user.IsAdministrators().ShouldBeFalse();
+            user.AddUserRole(new UserRole { Role = roleGuest });
 
-            user.UserRoles = new[]
-            {
-                new UserRole {Role = roleAdmin},
-            };
+            user.IsAdmin().ShouldBeFalse();
 
-            user.IsAdministrators().ShouldBeTrue();
+            user.AddUserRole(new UserRole { Role = roleAdmin });
+
+            user.IsAdmin().ShouldBeTrue();
+        }
+
+        [Test]
+        public void Can_check_whether_user_is_guest()
+        {
+            var user = new User();
+
+            user.AddUserRole(new UserRole { Role = roleRegistered });
+
+            user.AddUserRole(new UserRole { Role = roleAdmin });
+
+            user.IsGuest().ShouldBeFalse();
+
+            user.AddUserRole(new UserRole { Role = roleGuest });
+
+            user.IsGuest().ShouldBeTrue();
         }
 
         [Test]
@@ -78,18 +97,13 @@ namespace Core.Tests.Domain.Users
         {
             var user = new User();
 
-            user.UserRoles = new[]
-            {
-                new UserRole {Role = roleAdmin},
-                new UserRole {Role = roleManager},
-            };
+            user.AddUserRole(new UserRole { Role = roleAdmin });
+
+            user.AddUserRole(new UserRole { Role = roleGuest });
 
             user.IsRegistered().ShouldBeFalse();
 
-            user.UserRoles = new[]
-            {
-                new UserRole {Role = roleRegistered},
-            };
+            user.AddUserRole(new UserRole { Role = roleRegistered });
 
             user.IsRegistered().ShouldBeTrue();
         }

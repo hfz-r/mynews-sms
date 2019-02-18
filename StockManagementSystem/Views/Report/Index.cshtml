@@ -1,10 +1,9 @@
-﻿@model ActivityLogContainerModel
+﻿@model ReportContainerModel
 
 @{
-    ViewBag.Title = "Activity reports";
-    Html.SetActiveMenuItemSystemName("activity.report");
+    ViewBag.Title = "Device activity reports";
+    Html.SetActiveMenuItemSystemName("device.report");
 }
-
 
 <section class="content-header clearfix">
     <h1 class="pull-left">@ViewBag.Title</h1>
@@ -16,7 +15,7 @@
         </li>
         <li class="#">
             <a href="#">
-                <i class="fa fa-cogs"></i>
+                <i class="fa fa-bar-chart"></i>
             </a>
         </li>
         <li class="breadcrumb-item active">
@@ -27,13 +26,9 @@
 
 <section class="content">
     <div class="form-horizontal">
-        <_tabs id="activity-log-tabs">
-            <_tab asp-name="signedin-log" asp-title="Signed in report" asp-default="true">@await Html.PartialAsync("_List.SignedIn", Model.ListSignedIn)</_tab>
-            <_tab asp-name="activity-log" asp-title="Activity report">@await Html.PartialAsync("_List.Logs", Model.ListLogs)</_tab>
-            @*@if (User.Identity.IsAuthenticated && User.IsInRole("Admininistrator"))
-            {
-                <_tab asp-name="activity-log-types" asp-title="Activity types">@await Html.PartialAsync("_List.LogTypes", Model.ListTypes)</_tab>
-            }*@
+        <_tabs id="device-activity-report-tabs">
+            <_tab asp-name="signedin-activity" asp-title="Signed-in activity" asp-default="true">@await Html.PartialAsync("_List.SignedIn", Model.ListSignedIn)</_tab>
+            <_tab asp-name="trnx-activity" asp-title="Transaction activity">@await Html.PartialAsync("_List.TransActivity", Model.ListTransActivity)</_tab>
         </_tabs>
     </div>
 </section>

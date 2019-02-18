@@ -1,0 +1,38 @@
+﻿@model StoreScopeConfigurationModel
+
+@inject IWebHelper webHelper
+
+@{
+    var returnUrl = webHelper.GetRawUrl(Context.Request);
+    var stores = Model.Stores.Select(store => new SelectListItem
+    {
+        Text = store.Name,
+        Value = Url.Action("ChangeStoreScopeConfiguration", "Setting", new { branchNo = store.Id, returnUrl}, webHelper.CurrentRequestProtocol),
+        Selected = store.Id.Equals(Model.StoreId)
+    }).ToList();
+
+    stores.Insert(0, new SelectListItem
+    {
+        Text = "All stores",
+        Value = Url.Action("ChangeStoreScopeConfiguration", "Setting", new { branchNo = 0, returnUrl }, webHelper.CurrentRequestProtocol),
+        Selected = 0.Equals(Model.StoreId)
+    });
+}
+
+<div class="form-group">
+    <div class="col-md-12 store-scope-configuration">
+        <div class="label-wrapper">
+            <label class="control-label"> Multi-store configuration for </label>
+        </div>
+        <_select asp-for-name="store-scope-configuration" asp-items="@stores" onchange="setLocation(this.value);" style="width: auto;min-width: 300px;" />
+        @if (Model.StoreId > 0)
+        {
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" style="margin-top: 3px;" onclick="checkAllOverriddenStoreValue(this)">
+                    <b>Check/uncheck all</b> <small>(check boxes if you want to set a custom value for this store).</small>
+                </label>
+            </div>
+        }
+    </div>
+</div>

@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Data;
 using StockManagementSystem.Data.Extensions;
 
