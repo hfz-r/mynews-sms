@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <OutputPath>..\..\StockManagementSystem\Plugins\StockManagementSystem.Api</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <OutputPath>..\..\StockManagementSystem\Plugins\StockManagementSystem.Api</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="plugin.json" />
+        <None Remove="Views\ApiSettings\_Api.Configuration.cshtml" />
+        <None Remove="Views\_ViewImports.cshtml" />
+        <None Remove="Views\ApiSettings\Index.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\_Api.Clients.List.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\Create.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\Edit.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\CreateOrUpdate.cshtml" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="plugin.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\_ViewImports.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Index.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\_Api.Configuration.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\_Api.Clients.List.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\Create.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\Edit.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\CreateOrUpdate.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper" Version="8.0.0" />
+        <PackageReference Include="IdentityServer4" Version="2.3.2" />
+        <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.7.0" />
+        <PackageReference Include="IdentityServer4.EntityFramework" Version="2.3.2" />
+        <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="2.3.1" />
+        <PackageReference Include="IdentityServer4.Storage" Version="2.3.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Rewrite" Version="2.2.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\StockManagementSystem.Core\StockManagementSystem.Core.csproj" />
+        <ProjectReference Include="..\..\StockManagementSystem.Web\StockManagementSystem.Web.csproj" />
+        <ProjectReference Include="..\..\StockManagementSystem\StockManagementSystem.csproj" />
+    </ItemGroup>
+
+    <Target Name="FilterCopyLocalItems" AfterTargets="ResolveLockFileCopyLocalProjectDeps">
+        <ItemGroup>
+            <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' != 'IdentityServer4' AND '%(Filename)' != 'IdentityServer4.Storage' AND '%(Filename)' != 'IdentityServer4.AccessTokenValidation' AND '%(Filename)' != 'IdentityServer4.EntityFramework' AND '%(Filename)' != 'IdentityServer4.EntityFramework.Storage' AND '%(Filename)' != 'Microsoft.AspNetCore.Rewrite' AND '%(Filename)' != 'IdentityModel.AspNetCore.OAuth2Introspection' AND '%(Filename)' != 'IdentityModel' AND '%(Filename)' != 'System.IdentityModel.Tokens.Jwt'" />
+        </ItemGroup>
+    </Target>
+    
+</Project>

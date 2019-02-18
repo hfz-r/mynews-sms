@@ -1,0 +1,28 @@
+﻿@model ApiConfigurationModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_override-cb asp-for="EnableApi_OverrideForStore" asp-input="EnableApi" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <_label asp-for="EnableApi"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="EnableApi" />
+                    <span asp-validation-for="EnableApi"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_override-cb asp-for="EnableLogging_OverrideForStore" asp-input="EnableLogging" asp-store-scope="@Model.ActiveStoreScopeConfiguration"/>
+                    <_label asp-for="EnableLogging"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="EnableLogging" />
+                    <span asp-validation-for="EnableLogging"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

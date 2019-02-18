@@ -1,0 +1,39 @@
+﻿@model ClientModel
+@using StockManagementSystem.Api.Models.ApiSettings.Clients
+
+@{
+    Layout = ViewNames.Layout;
+
+    ViewBag.Title = "Add a new Api client";
+    Html.SetActiveMenuItemSystemName("api.settings");
+}
+
+<form asp-controller="ApiClients" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+    <section class="content-header clearfix">
+        <h1 class="pull-left">
+            @ViewBag.Title
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="List">back to client list</a>
+            </small>
+        </h1>
+        <div class="pull-right">
+            <div class="ui-group-buttons">
+                <button type="submit" name="save" class="btn bg-blue-gradient">
+                    <i class="glyphicon glyphicon-save"></i> Save
+                </button>
+                <div class="or"></div>
+                <button type="submit" name="save-continue" class="btn bg-yellow-gradient">
+                    <i class="glyphicon glyphicon-saved"></i> Save and Continue Edit
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="form-horizontal">
+            @await Html.PartialAsync(ViewNames.ApiClientsCreateOrUpdate, Model)
+        </div>
+    </section>
+</form>
