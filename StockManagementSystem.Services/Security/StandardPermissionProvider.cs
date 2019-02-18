@@ -76,6 +76,13 @@ namespace StockManagementSystem.Services.Security
             Category = "Setting"
         };
 
+        public static readonly Permission ManageOutletManagement = new Permission
+        {
+            Name = "Manage Outlet Management",
+            SystemName = "ManageOutletManagement",
+            Category = "Outlet Management"
+        };
+
         //TODO: other modules
 
         /// <summary>
@@ -94,7 +101,8 @@ namespace StockManagementSystem.Services.Security
                 ManageOrderLimit,
                 ManagePushNotification,
                 ManageLocation,
-                ManageFormatSetting
+                ManageFormatSetting,
+                ManageOutletManagement
             };
         }
 
@@ -119,7 +127,8 @@ namespace StockManagementSystem.Services.Security
                         ManageOrderLimit,
                         ManagePushNotification,
                         ManageLocation,
-                        ManageFormatSetting
+                        ManageFormatSetting,
+                        ManageOutletManagement
 
                     }
                 },

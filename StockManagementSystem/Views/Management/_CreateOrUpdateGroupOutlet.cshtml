@@ -1,0 +1,12 @@
+﻿@model GroupOutletModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <tabs id="groupOutlet-edit">
+            <tab asp-name="tab-info" asp-title="Group outlet info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdateGroupOutlet.Info", Model)</tab>
+        </tabs>
+    </div>
+</section>

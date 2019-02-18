@@ -1,0 +1,98 @@
+﻿@model AssignUserModel
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-body">
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="SelectedStoreId" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedStoreId" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreId)')
+                                .kendoMultiSelect({
+                                    autoClose: false,
+                                    filter: "contains",
+                                    maxSelectedItems: 1
+                                }).data("kendoMultiSelect");
+
+                            @if (Model.AvailableStores.Count == 0)
+                            {
+                                <text>
+                                    storesIdsInput.placeholder = "No stores available";
+                                    storesIdsInput.enable = false;
+                                </text>
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <_label asp-for="SelectedUserIds" />
+                </div>
+                <div class="col-xs-9">
+                    <div class="input-group input-group-required">
+                        <_select asp-for="SelectedUserIds" asp-items="Model.AvailableUsers" asp-multiple="true" />
+                        <div class="input-group-btn">
+                            <_required />
+                        </div>
+                    </div>
+                    <script>
+                        $(document).ready(function() {
+                            var userIdsInput = $('#@Html.IdFor(model => model.SelectedUserIds)').data("kendoMultiSelect");
+                                userIdsInput.setOptions({
+                                userIdsInput: false,
+                                filter: "contains"
+                            });
+
+                            @if (Model.AvailableUsers.Count == 0)
+                            {
+                                <text>
+                                        userIdsInput.setOptions({
+                                        enable: false,
+                                        placeholder: "No users available"
+                                    });
+                                        userIdsInput._placeholder();
+                                        userIdsInput._enable();
+                                </text>
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.CreatedOn</div>
+                    </div>
+                </div>
+            }
+            @if (Model.Id > 0)
+            {
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.LastActivityDate</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,34 @@
+﻿@model GroupOutletModel
+
+@{
+    //page title
+    ViewBag.Title = "Edit group outlet";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Outlet Management");
+}
+
+<form asp-controller="Management" asp-action="EditGroupOutlet" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">
+            <a asp-action="Index"><i class="fa fa-arrow-circle-left"></i></a>
+            @ViewBag.Title - @Model.GroupName
+        </h1>
+        <div class="pull-right">
+            <div class="ui-group-buttons">
+                <button type="submit" name="save" class="btn bg-blue-gradient">
+                    <i class="glyphicon glyphicon-save"></i> Save
+                </button>
+                <div class="or"></div>
+                <button type="submit" name="save-continue" class="btn bg-yellow-gradient">
+                    <i class="glyphicon glyphicon-saved"></i> Save and Continue Edit
+                </button>
+            </div>
+
+            <a href="#" id="groupOutlet-delete" class="btn bg-red-gradient" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete">
+                <span class="glyphicon glyphicon-trash"></span>
+            </a>
+        </div>
+    </section>
+    @await Html.PartialAsync("_CreateOrUpdateGroupOutlet", Model)
+</form>
+<_delete-confirmation asp-model-id="@Model.Id" asp-action="DeleteGroupOutlet" asp-button-id="groupOutlet-delete" />

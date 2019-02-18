@@ -1,0 +1,255 @@
+﻿@model AssignUserSearchModel
+
+    <section class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-search">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-5">
+                                <div class="form-group">
+                                    <div class="col-xs-4">
+                                        <label asp-for="SelectedStoreId" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <select asp-for="SelectedStoreId" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                                        <script>
+                                        $(document).ready(function() {
+                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreId)')
+                                                .kendoMultiSelect({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                }).data("kendoMultiSelect");
+
+                                            @if (Model.AvailableStores.Count == 0)
+                                            {
+                                                <text>
+                                                storesIdsInput.placeholder = "No stores available";
+                                                storesIdsInput.enable = false;
+                                                </text>
+                                            }
+                                        });
+                                        </script>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <div class="col-xs-4">
+                                        <label asp-for="SelectedUserIds" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <select asp-for="SelectedUserIds" asp-items="Model.AvailableUsers" asp-multiple="true"></select>
+                                        <script>
+                                        $(document).ready(function() {
+                                            var userIdsInput = $('#@Html.IdFor(model => model.SelectedUserIds)')
+                                                .kendoMultiSelect({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                }).data("kendoMultiSelect");
+
+                                            @if (Model.AvailableUsers.Count == 0)
+                                            {
+                                                <text>
+                                                userIdsInput.placeholder = "No users available";
+                                                userIdsInput.enable = false;
+                                                </text>
+                                            }
+                                        });
+                                        </script>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2 col-xs-offset-5">
+                                <button type="button" id="search-assignUser" class="btn btn-primary btn-search">
+                                    <i class="fa fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="gridAssign"></div>
+
+                        <style>
+                            .custom-button {
+                                color: #444444;
+                                padding-right: 10px;
+                                font-size: 1.5em;
+                            }
+                        </style>
+
+                        <script>
+                        var datasource = @Html.Raw(Json.Serialize(Model.AvailableUsers));
+
+                        $(document).ready(function() {
+                            var grid = $("#gridAssign").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("AssignUserList", "Management"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    SelectedStoreId: $('#@Html.IdFor(model => model.SelectedStoreId)').val(),
+                                                    SelectedUserIds: $('#@Html.IdFor(model => model.SelectedUserIds)').val()
+                                                };
+                                                addAntiForgeryToken(data);
+                                                return data;
+                                            }
+                                        },
+                                         create: {
+                                            url: "@Html.Raw(Url.Action("AddAssignUser", "Management"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                Id: { editable: false, type: "number" },
+                                                StoreName: { type: "string" },
+                                                SelectedStoreId: { editable: true, validation: { required: true } },
+                                                User: { type: "string" },
+                                                SelectedUserIds: { editable: true, validation: { required: true } }
+                                            }
+                                        }
+                                    },
+                                    requestEnd: function (e) {
+                                        if (e.type == "create") {
+                                            this.read();
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                filterable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                toolbar: [
+                                    {
+                                        name: "create",
+                                        url: "@Html.Raw(Url.Action("AddAssignUser", "Management"))",
+                                        text: "Add",
+                                        iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
+                                    }
+                                ],
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "SelectedStoreId",
+                                        title: "Store",
+                                        template: "#=StoreName#",
+                                        type: "string",
+                                        width: 200,
+                                        editor: function (container, option) { // use a dropdownlist as an editor
+                                            // create an input element with id and name set as the bound field (brandId)
+                                            var input = $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            // append to the editor container
+                                            input.appendTo(container);
+
+                                            // initialize a dropdownlist
+                                            input.kendoDropDownList({
+                                                dataTextField: "Text",
+                                                dataValueField: "Value",
+                                                dataSource: datasource,
+                                                optionLabel: " ",
+                                            }).appendTo(container)
+                                        }
+                                    },
+                                    {
+                                        field: "SelectedUserIds",
+                                        title: "User",
+                                        template: "#=User#",
+                                        type: "string",
+                                        width: 300,
+                                        editor: function (container, option) { // use a dropdownlist as an editor
+                                            // create an input element with id and name set as the bound field (brandId)
+                                            var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            // append to the editor container
+                                            input.appendTo(container);
+
+                                            // initialize a dropdownlist multiselect
+                                            input.kendoMultiSelect({
+                                                dataTextField: "Text",
+                                                dataValueField: "Value",
+                                                dataSource: datasource,
+                                                optionLabel: " ",
+                                                autoBind: "true",
+                                                valuePrimitive: "true"
+                                            }).appendTo(container)
+                                        }
+                                    },
+                                    {
+                                        template:
+                                            "<a href='Management/EditAssignUser/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                            "<a href='Management/DeleteAssignUser/#=Id#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        width: 111
+                                    }
+                                ],
+                                editable: "inline",
+                                edit: function(e) {
+                                    // Change buttons visibility when the Grid enters edit mode.
+                                    var editRow = e.container;
+                                    editRow.find(".custom-button").toggleClass("hidden");
+                                }
+                            }).data("kendoGrid");
+
+                            $("#gridAssign").on("click", ".custom-button", function (e) {
+                                var btn = $(this);
+
+                                if (btn.hasClass("cancel-button")) {
+                                    grid.cancelRow();
+                                } else if (btn.hasClass("update-button")) {
+                                    grid.saveChanges();
+                                }
+                            });
+                        });
+                        </script>
+                        <script>
+                            $(document).ready(function () {
+                                //search button
+                                $('#search-assignUser').click(function () {
+                                    var grid = $('#gridAssign').data('kendoGrid');
+                                    grid.dataSource.page(1);
+                                    return false;
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
