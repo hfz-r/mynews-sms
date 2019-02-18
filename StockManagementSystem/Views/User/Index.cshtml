@@ -48,31 +48,31 @@
                                 <div class="col-xs-7">
                                     <_editor asp-for="SearchUsername"/>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-xs-5">
-                                    <_label asp-for="SearchName"/>
-                                </div>
-                                <div class="col-xs-7">
-                                    <_editor asp-for="SearchName"/>
-                                </div>
-                            </div>
+                            </div>                           
                         </div>
                         <div class="col-xs-5">
-                            <div class="form-group">
+                            @*<div class="form-group">
                                 <div class="col-xs-5">
                                     <_label asp-for="SearchIpAddress"/>
                                 </div>
                                 <div class="col-xs-7">
                                     <_editor asp-for="SearchIpAddress"/>
                                 </div>
+                            </div>*@
+                            <div class="form-group">
+                                <div class="col-xs-5">
+                                    <_label asp-for="SearchName" />
+                                </div>
+                                <div class="col-xs-7">
+                                    <_editor asp-for="SearchName" />
+                                </div>
                             </div>
                             <div class="form-group">
                                 <div class="col-xs-5">
-                                    <_label asp-for="SelectedRoleIds"/>
+                                    <_label asp-for="SelectedRoleIds" />
                                 </div>
                                 <div class="col-xs-7">
-                                    <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true"/>
+                                    <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true" />
                                     <script>
                                         $(document).ready(function() {
                                             var rolesIdsInput =
