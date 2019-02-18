@@ -72,7 +72,7 @@
                                     pageSize: @(Model.PageSize),
                                     serverPaging: true,
                                     serverFiltering: true,
-                                    serverSorting: true,
+                                    serverSorting: true
                                     //sort: { field: "Id", dir: "asc" }
                                 },
                                 //sortable: {
@@ -83,8 +83,8 @@
                                 columnMenu: { columns: false },
                                 pageable: {
                                     refresh: true,
-                                    pageSizes: [@(Model.AvailablePageSizes)],
-                                    @await Html.PartialAsync("_GridPagerMessages")
+                                    @*pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")*@
                                 },
                                 toolbar: [
                                     {

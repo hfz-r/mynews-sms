@@ -68,8 +68,8 @@
                                 columnMenu: { columns: false },
                                 pageable: {
                                     refresh: true,
-                                    pageSizes: [@(Model.AvailablePageSizes)],
-                                            @await Html.PartialAsync("_GridPagerMessages")
+                                    @*pageSizes: [@(Model.AvailablePageSizes)],
+                                            @await Html.PartialAsync("_GridPagerMessages")*@
                                 },
                                 scrollable: false,
                                 columns: [
