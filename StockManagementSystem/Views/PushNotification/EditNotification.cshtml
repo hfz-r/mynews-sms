@@ -1,76 +1,112 @@
-﻿@model StockManagementSystem.Models.PushNotification.EditNotificationViewModel
+﻿@model PushNotificationModel
 
 @{
-    ViewData["Title"] = "Edit Notification";
+    //page title
+    ViewBag.Title = "Edit push notification details";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Push Notification");
 }
 
-@section navigations{
-    @await Html.PartialAsync("_NavPartial")
-}
-
-<div class="content-wrapper">
-    <section class="content-header">
-        <h1 class="fa fa-exclamation-triangle">&nbsp;Push Notification</h1>
-        <ol class="breadcrumb">
-            <li class="#"><a href="#"><i class="fa fa-exclamation-triangle"></i></a></li>
-            <li class="breadcrumb-item active"><a href="@Url.Action("EditNotification", "PushNotification")">Push Notification</a></li>
-        </ol>
-    </section>
-    <!-- Main content -->
-    <section class="content">
-        <!-- Panels -->
-        <div class="box box-default">
-            <div class="box-header with-border">
-                <h3 class="box-title">Add notification</h3>
+<form asp-controller="PushNotification" asp-action="EditNotification" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">
+            <a asp-action="Index"><i class="fa fa-arrow-circle-left"></i></a>
+            @ViewBag.Title
+        </h1>
+        <div class="pull-right">
+            <div class="ui-group-buttons">
+                <button type="submit" name="save" class="btn bg-blue-gradient">
+                    <i class="glyphicon glyphicon-save"></i> Save
+                </button>
+                <div class="or"></div>
+                <button type="submit" name="save-continue" class="btn bg-yellow-gradient">
+                    <i class="glyphicon glyphicon-saved"></i> Save and Continue Edit
+                </button>
             </div>
-            <form asp-controller="PushNotification" asp-action="EditNotification" method="post" role="form">
-                <div class="box-body">
-                    <div class="form-group">
-                        <label asp-for="Title"></label>
-                        <input asp-for="Title" class="form-control" id="InputTitle" placeholder="Enter notification title">
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Desc"></label>
-                        <input asp-for="Desc" class="form-control" id="InputDesc" placeholder="Enter notification description">
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.NotificationCategoryId, new { @class = "control-label" })
-                        @Html.DropDownListFor(m => m.NotificationCategoryId, new SelectList(Model.NotificationCategories, "Id", "Name"), "", new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.NotificationCategoryId)
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.IsShift, new { @class = "control-label" })
-                        @Html.RadioButtonFor(m => m.IsShift, "Today") @Html.Label("Today")
-                        @Html.RadioButtonFor(m => m.IsShift, "Weekly") @Html.Label("Weekly")
-                        @Html.RadioButtonFor(m => m.IsShift, "Monthly") @Html.Label("Monthly")
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.StoreId, new { @class = "control-label" })
-                        @Html.DropDownListFor(m => m.StoreId, new SelectList(Model.Stores, "P_BranchNo", "P_Name"), "", new { @class = "form-control" })
-                        @Html.ValidationMessageFor(m => m.StoreId)
-                    </div>
-                </div>
-                <!-- /.box-body -->
 
-                <div class="box-footer">
-                    <button type="button" id="btn-cancel" class="btn btn-default">Cancel</button>
-                    <button type="submit" class="btn btn-info pull-right">Save</button>
-                </div>
-            </form>
+            <a href="#" id="PushNotification-delete" class="btn bg-red-gradient" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete">
+                <span class="glyphicon glyphicon-trash"></span>
+            </a>
         </div>
     </section>
-</div>
+    @await Html.PartialAsync("_CreateOrUpdatePushNotification", Model)
+</form>
+<_delete-confirmation asp-model-id="@Model.Id" asp-action="DeleteNotification" asp-button-id="pushNotification-delete" />
 
-@section scripts{
-    <script type="text/javascript">
-    $(document).ready(function () {
 
-        $('#btn-cancel').click(function (e)
-      {
-          location.href = '@Url.Content("~/PushNotification/Notification/")';
-      });
+@*@model StockManagementSystem.Models.PushNotification.EditNotificationViewModel
 
-    });
+    @{
+        ViewData["Title"] = "Edit Notification";
+    }
 
-    </script>
-}
+    @section navigations{
+        @await Html.PartialAsync("_NavPartial")
+    }
+
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1 class="fa fa-exclamation-triangle">&nbsp;Push Notification</h1>
+            <ol class="breadcrumb">
+                <li class="#"><a href="#"><i class="fa fa-exclamation-triangle"></i></a></li>
+                <li class="breadcrumb-item active"><a href="@Url.Action("EditNotification", "PushNotification")">Push Notification</a></li>
+            </ol>
+        </section>
+        <!-- Main content -->
+        <section class="content">
+            <!-- Panels -->
+            <div class="box box-default">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Add notification</h3>
+                </div>
+                <form asp-controller="PushNotification" asp-action="EditNotification" method="post" role="form">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <label asp-for="Title"></label>
+                            <input asp-for="Title" class="form-control" id="InputTitle" placeholder="Enter notification title">
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Desc"></label>
+                            <input asp-for="Desc" class="form-control" id="InputDesc" placeholder="Enter notification description">
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NotificationCategoryId, new { @class = "control-label" })
+                            @Html.DropDownListFor(m => m.NotificationCategoryId, new SelectList(Model.NotificationCategories, "Id", "Name"), "", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.NotificationCategoryId)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.IsShift, new { @class = "control-label" })
+                            @Html.RadioButtonFor(m => m.IsShift, "Today") @Html.Label("Today")
+                            @Html.RadioButtonFor(m => m.IsShift, "Weekly") @Html.Label("Weekly")
+                            @Html.RadioButtonFor(m => m.IsShift, "Monthly") @Html.Label("Monthly")
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.StoreId, new { @class = "control-label" })
+                            @Html.DropDownListFor(m => m.StoreId, new SelectList(Model.Stores, "P_BranchNo", "P_Name"), "", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.StoreId)
+                        </div>
+                    </div>
+                    <!-- /.box-body -->
+
+                    <div class="box-footer">
+                        <button type="button" id="btn-cancel" class="btn btn-default">Cancel</button>
+                        <button type="submit" class="btn btn-info pull-right">Save</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    @section scripts{
+        <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#btn-cancel').click(function (e)
+          {
+              location.href = '@Url.Content("~/PushNotification/Notification/")';
+          });
+
+        });
+
+        </script>
+    }*@

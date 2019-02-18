@@ -20,8 +20,19 @@ namespace StockManagementSystem.Models.OrderLimits
 
         [Display(Name = "Percentage")]
         [Required(ErrorMessage = "Percentage is required")]
-        public double Percentage { get; set; }
-        
+        [DataType("Integer")]
+        public int Percentage { get; set; }
+
+        [Display(Name = "Days of Stock")]
+        [Required(ErrorMessage = "Days of Stock is required")]
+        [DataType("Integer")]
+        public int DaysofStock { get; set; }
+
+        [Display(Name = "Days of Sales")]
+        [Required(ErrorMessage = "Days of Sales is required")]
+        [DataType("Integer")]
+        public int DaysofSales { get; set; }
+
         [Display(Name = "Created on")]
         public DateTime CreatedOn { get; set; }
 

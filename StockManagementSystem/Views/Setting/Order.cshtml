@@ -34,20 +34,33 @@
                         <div class="row">
                             <div class="col-xs-5">
                                 <div class="form-group">
-                                    <div class="col-xs-4">
+                                    <div class="col-xs-5">
                                         <label asp-for="SearchPercentage" class="control-label pull-right"></label>
                                     </div>
-                                    <div class="col-xs-8">
-                                        <input asp-for="SearchPercentage" class="form-control" />
+                                    <div class="col-xs-6">
+                                        <input asp-for="SearchPercentage" type="text" class="form-control" min="0" max="100" onkeypress='return validateQty(event);'/>
                                     </div>
+                                    <script>
+                                        function validateQty(event) {
+                                            var key = window.event ? event.keyCode : event.which;
+                                            if (event.keyCode == 8 || event.keyCode == 46 || event.keyCode == 116
+                                                || event.keyCode == 37 || event.keyCode == 39) {
+                                                return true;
+                                            }
+                                            else if (key < 48 || key > 57) {
+                                                return false;
+                                            }
+                                            else return true;
+                                        };
+                                    </script>
                                 </div>
                             </div>
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <div class="col-xs-4">
+                                    <div class="col-xs-5">
                                         <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
                                     </div>
-                                    <div class="col-xs-8">
+                                    <div class="col-xs-7">
                                         <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
                                         <script>
                                         $(document).ready(function() {
@@ -127,7 +140,9 @@
                                             id: "Id",
                                             fields: {
                                                 Id: { editable: false, type: "number" },
-                                                Percentage: { editable: true, validation: { required: true } },
+                                                Percentage: { type: "string", validation: { required: true, min: 1 } },
+                                                DaysofStock: { type: "string", validation: { required: true } },
+                                                DaysofSales: { type: "string", validation: { required: true} },
                                                 StoreName: { type: "string"},
                                                 SelectedStoreIds: { editable: true, validation: { required: true } }
                                             }
@@ -173,7 +188,20 @@
                                     {
                                         field: "Percentage",
                                         title: "Percentage",
-                                        width: 230
+                                        width: 230,
+                                        editor: customEditor 
+                                    },
+                                    {
+                                        field: "DaysofStock",
+                                        title: "Days of Stock",
+                                        width: 230,
+                                        editor: customEditor 
+                                    },
+                                    {
+                                        field: "DaysofSales",
+                                        title: "Days of Sales",
+                                        width: 230,
+                                        editor: customEditor 
                                     },
                                     {
                                         field: "SelectedStoreIds",
@@ -183,7 +211,7 @@
                                         width: 300,
                                         editor: function (container, option) { // use a dropdownlist as an editor
                                             // create an input element with id and name set as the bound field (brandId)
-                                            var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '">')
                                             // append to the editor container
                                             input.appendTo(container);
 
@@ -224,7 +252,19 @@
                                     grid.saveChanges();
                                 }
                             });
-                        });
+                            });
+
+                            function customEditor(container, options) {
+                                $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                                    .appendTo(container);
+
+                            }
+
+                            function isValidChar(e) {
+                                var match = e.key.match(/[0-9]/);
+                                return match ? true : false;
+                            }
+
                         </script>
                         <script>
                             $(document).ready(function () {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using StockManagementSystem.Core.Domain.Devices;
+using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
@@ -11,10 +12,13 @@ using StockManagementSystem.Models.Devices;
 using StockManagementSystem.Models.Logging;
 using StockManagementSystem.Models.OrderLimits;
 using StockManagementSystem.Models.Reports;
+using StockManagementSystem.Models.PushNotifications;
+using StockManagementSystem.Models.Locations;
 using StockManagementSystem.Models.Roles;
 using StockManagementSystem.Models.Stores;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
+using StockManagementSystem.Models.Setting;
 
 namespace StockManagementSystem.Infrastructure.Mapper
 {
@@ -29,6 +33,10 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateDeviceMaps();
             CreateOrderLimitMaps();
             CreateFakerMaps();
+            CreatePushNotificationMaps();
+            CreateShelfLocationFormatMaps();
+            CreateFormatSettingMaps();
+            CreateDeviceTrackingMaps();
 
             ForAllMaps((mapConfiguration, map) =>
             {
@@ -220,6 +228,66 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.Branch, options => options.Ignore())
                 .ForMember(entity => entity.BranchId, options => options.Ignore())
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore());
+        }
+        
+        /// <summary>
+        /// Create push notification maps
+        /// </summary>
+        protected virtual void CreatePushNotificationMaps()
+        {
+            CreateMap<PushNotification, PushNotificationModel>()
+                .ForMember(model => model.StoreName, options => options.Ignore())
+                .ForMember(model => model.CategoryName, options => options.Ignore());
+            CreateMap<PushNotificationModel, PushNotification>()
+                .ForMember(entity => entity.Title, options => options.Ignore())
+                .ForMember(entity => entity.Desc, options => options.Ignore())
+                .ForMember(entity => entity.PushNotificationStores, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create shelf location format maps
+        /// </summary>
+        protected virtual void CreateShelfLocationFormatMaps()
+        {
+            CreateMap<ShelfLocationFormat, LocationModel>();
+            CreateMap<LocationModel, ShelfLocationFormat>()
+                .ForMember(entity => entity.Prefix, options => options.Ignore())
+                .ForMember(entity => entity.Name, options => options.Ignore())
+                .ForMember(entity => entity.ShelfLocations, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create format setting maps
+        /// </summary>
+        protected virtual void CreateFormatSettingMaps()
+        {
+            CreateMap<FormatSetting, ShelfModel>();
+            CreateMap<ShelfModel, FormatSetting>()
+                .ForMember(entity => entity.Format, options => options.Ignore())
+                .ForMember(entity => entity.Prefix, options => options.Ignore())
+                .ForMember(entity => entity.Name, options => options.Ignore());
+                //.ForMember(entity => entity.Length, options => options.Ignore());
+
+            CreateMap<FormatSetting, BarcodeModel>();
+            CreateMap<BarcodeModel, FormatSetting>()
+                .ForMember(entity => entity.Prefix, options => options.Ignore());
+            //.ForMember(entity => entity.Name, options => options.Ignore())
+            //.ForMember(entity => entity.Format, options => options.Ignore())
+            //.ForMember(entity => entity.Length, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create format setting maps
+        /// </summary>
+        protected virtual void CreateDeviceTrackingMaps()
+        {
+            CreateMap<Device, MapDeviceModel>();
+            CreateMap<MapDeviceModel, Device>()
+                .ForMember(entity => entity.SerialNo, options => options.Ignore())
+                .ForMember(entity => entity.ModelNo, options => options.Ignore())
+                .ForMember(entity => entity.StoreId, options => options.Ignore())
+                .ForMember(entity => entity.Status, options => options.Ignore())
+                .ForMember(entity => entity.Store, options => options.Ignore());          
         }
 
         public int Order => 0;

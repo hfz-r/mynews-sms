@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -238,6 +238,20 @@ namespace StockManagementSystem.Services.Users
             return user;
         }
 
+        public List<User> GetUsers()
+        {
+            var user = _userRepository.Table.ToList();
+            return user;
+        }
+
+        public virtual void DeleteUser(List<User> users)
+        {
+            if (users == null)
+                throw new ArgumentNullException(nameof(users));
+
+            _userRepository.Delete(users);
+        }
+        
         /// <summary>
         /// Gets a user by email
         /// </summary>

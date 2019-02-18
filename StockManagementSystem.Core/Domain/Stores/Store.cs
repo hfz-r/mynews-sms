@@ -1,5 +1,5 @@
 ﻿using StockManagementSystem.Core.Domain.Devices;
-using StockManagementSystem.Core.Domain.PushNotification;
+using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Settings;
 using System;
 using System.Collections.Generic;
@@ -38,6 +38,10 @@ namespace StockManagementSystem.Core.Domain.Stores
         public string P_PostCode { get; set; }
 
         public string P_Brand { get; set; }
+
+        public double Longitude { get; set; }
+
+        public double Latitude { get; set; }
 
         public virtual ICollection<Device> Device { get; set; }
 

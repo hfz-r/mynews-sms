@@ -1,0 +1,71 @@
+﻿@model DeviceModel
+
+<div class="panel-group">
+    <div class="map" id="map">
+    </div>
+</div>
+
+<script>
+        function initMap() {
+            var location = { lat: 4.004, lng: 109.151};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: location
+            });
+
+            var infowindow = new google.maps.InfoWindow();
+            var marker, i;
+
+            @foreach (var item in @Model.Devices)
+            {
+                <text>
+                var pinImage, status;
+
+            if (@item.Status.ToLower() == "0") {
+                status = 'Offline';
+                pinImage = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/icons/red-dot.png");
+            }
+            else if (@item.Status.ToLower() == "1") {
+                status = 'Online';
+                pinImage = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/icons/green-dot.png");
+            }
+            else if (@item.Status.ToLower() == "2")
+            {
+                status = 'Out of radar';
+                pinImage = new google.maps.MarkerImage("http://maps.google.com/mapfiles/ms/icons/orange-dot.png");
+            }
+
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(parseFloat(@item.Latitude), parseFloat(@item.Longitude)),
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    title: '@item.Store.P_Name',
+                    icon: pinImage
+                });
+                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                    return function () {
+                        map.setZoom(15);
+                        map.setCenter(marker.getPosition());
+                            infowindow.setContent('<div id="content">' +
+                                '<div id="siteNotice">' +
+                                '</div>' +
+                                '<h4 id="firstHeading" class="firstHeading"><b>@item.Store.P_BranchNo - @item.Store.P_Name</b></h4>' +
+                                '<div id="bodyContent">' +
+                                '<p>@item.Store.P_Addr1<br>' +
+                                '@item.Store.P_Addr2' +
+                                '@item.Store.P_Addr3<br>' +
+                                '@item.Store.P_PostCode, @item.Store.P_City, @item.Store.P_State<br>' +
+                                '@item.Store.P_Country</p > ' +
+                                '</div>' +
+                                '<p>Status: ' + status + '</p > ');
+                            infowindow.open(map, marker);
+                        }
+                    })(marker, i));
+                </text>
+            }
+        }
+    </script>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8VSRHXMWqEtPk2kAL_3dNOnVeElszr-o&libraries=places&callback=initMap">
+</script>

@@ -11,6 +11,8 @@ namespace StockManagementSystem.Services.Devices
 
         Task<Device> GetDeviceBySerialNoAsync(string serialNo);
 
+        Task<ICollection<Device>> GetDevicesByStoreIdAsync(int storeID);
+
         Task<IPagedList<Device>> GetDevicesAsync(
             int[] storeIds = null,
             string serialNo = null,

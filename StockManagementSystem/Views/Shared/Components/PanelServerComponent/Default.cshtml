@@ -27,7 +27,7 @@
                 </span>
             </div>
         </div>
-        @{var uptime = @app.Uptime;}
+        @*@{var uptime = @app.Uptime;}
         <div class="row">
             <label class="col-sm-4">Uptime</label>
             <div class="col-sm-8">
@@ -35,7 +35,7 @@
                     @uptime.ToString("dd") day @uptime.ToString("hh") hour @uptime.ToString("mm") minute @uptime.ToString("ss") second
                 </span>
             </div>
-        </div>
+        </div>*@
         <div class="row">
             @Html.LabelFor(m => m.AppVersion, new { @class = "col-sm-4" })
             <div class="col-sm-8">

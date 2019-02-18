@@ -56,6 +56,7 @@ namespace StockManagementSystem.Factories
             searchModel.UsernamesEnabled = _userSettings.UsernamesEnabled;
             searchModel.DateOfBirthEnabled = _userSettings.DateOfBirthEnabled;
             searchModel.PhoneEnabled = _userSettings.PhoneEnabled;
+            //    searchModel.SelectedRoleIds.Add(defaultRole.Id);
 
             var registeredRole = _userService.GetRoleBySystemName(UserDefaults.RegisteredRoleName);
             if (registeredRole != null)

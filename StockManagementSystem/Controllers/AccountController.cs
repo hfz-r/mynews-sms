@@ -347,6 +347,9 @@ namespace StockManagementSystem.Controllers
             {
                 var user = await _userService.GetUserByEmailAsync(model.Email);
                 if (user != null && user.Active && !user.Deleted)
+                    ModelState.AddModelError(string.Empty, "Unknown user with this email");
+                    _notificationService.ErrorNotification("Unknown user with this email");
+                if (user.Email == model.Email)
                 {
                     //save token and current date
                     var passwordRecoveryToken = Guid.NewGuid();
@@ -367,6 +370,9 @@ namespace StockManagementSystem.Controllers
 
                     await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                         "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
+
+                    ModelState.AddModelError(string.Empty, "Successfully sent link reset password to email!");
+                    _notificationService.SuccessNotification("Successfully sent link reset password to email!");
 
                     model.Result = "Email with instructions has been sent to you.";
                 }

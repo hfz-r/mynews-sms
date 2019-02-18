@@ -1,0 +1,358 @@
+﻿@model PushNotificationSearchModel
+
+@{
+    //page title
+    ViewBag.Title = "Push Notification";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Push Notification");
+}
+<form asp-controller="Index" asp-action="Notification" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">@ViewBag.Title</h1>
+        <ol class="breadcrumb pull-right">
+            <li class="#">
+                <a href="@Url.Action("Index", "Home")">
+                    <i class="glyphicon glyphicon-home"></i>
+                </a>
+            </li>
+            <li class="#">
+                <a href="#">
+                    <i class="glyphicon glyphicon-phone"></i>
+                </a>
+            </li>
+            <li class="breadcrumb-item active">
+                <a href="@Url.Action("Index", "PushNotification")">@ViewBag.Title</a>
+            </li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-search">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <div class="col-xs-5">
+                                        <label asp-for="SearchTitle" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-7">
+                                        <input asp-for="SearchTitle" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <div class="col-xs-5">
+                                        <label asp-for="SearchDesc" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-7">
+                                        <input asp-for="SearchDesc" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group" id="notification-select">
+                                    <div class="col-xs-5">
+                                        <label asp-for="SelectedNotificationCategoryIds" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-7">
+                                        <select asp-for="SelectedNotificationCategoryIds" asp-items="Model.AvailableNotificationCategory" asp-multiple="true"></select>
+                                        <script>
+                                        $(document).ready(function() {
+                                            var notificationCategoryiesIdsInput = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)')
+                                                .kendoDropDownList({
+                                                    autoClose: false,
+                                                    filter: "contains",
+                                                    optionLabel: "All",
+                                                    change: function () {
+                                                        onChange();
+                                                    }
+                                                }).data("kendoMultiSelect");
+
+                                            @if (Model.AvailableNotificationCategory.Count == 0)
+                                            {
+                                                <text>
+                                                notificationCategoryiesIdsInput.placeholder = "No notification categories available";
+                                                notificationCategoryiesIdsInput.enable = false;
+                                                </text>
+                                            }
+                                            });
+
+                                            function onChange(e) {
+                                                var selected = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val();
+                                                if (selected == "1") //Stock Take
+                                                    $("#stocktake-display").show();
+                                                else
+                                                    $("#stocktake-display").attr("style", "display: none;");
+                                            }
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="form-group">
+                                    <div class="col-xs-5">
+                                        <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-7">
+                                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                                        <script>
+                                        $(document).ready(function() {
+                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
+                                                .kendoMultiSelect({
+                                                    autoClose: false,
+                                                    filter: "contains"
+                                                }).data("kendoMultiSelect");
+
+                                            @if (Model.AvailableStores.Count == 0)
+                                            {
+                                                <text>
+                                                storesIdsInput.placeholder = "No stores available";
+                                                storesIdsInput.enable = false;
+                                                </text>
+                                            }
+                                        });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6" id="stocktake-display">
+                                <div class="form-group">
+                                    <div class="col-xs-5">
+                                        <label asp-for="SearchStockTakeNo" class="control-label pull-right"></label>
+                                    </div>
+                                    <div class="col-xs-7">
+                                        <input asp-for="SearchStockTakeNo" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-2 col-xs-offset-5">
+                                <button type="button" id="search-notification" class="btn btn-primary btn-search">
+                                    <i class="fa fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="grid"></div>
+                        <style>
+                            .custom-button {
+                                color: #444444;
+                                padding-right: 10px;
+                                font-size: 1.5em;
+                            }
+                        </style>
+                        <script>
+                            var datasourceStore = @Html.Raw(Json.Serialize(Model.AvailableStores));
+                            var datasourceCategory = @Html.Raw(Json.Serialize(Model.AvailableNotificationCategory));
+
+                            $(document).ready(function () {
+                                var grid = $("#grid").kendoGrid({
+                                dataSource: {
+                                    type: "json",
+                                    transport: {
+                                        read: {
+                                            url: "@Html.Raw(Url.Action("PushNotificationList", "PushNotification"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: function() {
+                                                var data = {
+                                                    SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
+                                                    SearchTitle: $('#@Html.IdFor(model => model.SearchTitle)').val(),
+                                                    SearchDesc: $('#@Html.IdFor(model => model.SearchDesc)').val(),
+                                                    SearchStockTakeNo: $('#@Html.IdFor(model => model.SearchStockTakeNo)').val(),
+                                                    SelectedNotificationCategoryIds: $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val()
+                                                };
+                                                addAntiForgeryToken(data);
+                                                return data;
+                                            }
+                                        },
+                                        create: {
+                                            url: "@Html.Raw(Url.Action("AddNotification", "PushNotification"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        }
+                                    },
+
+                                    schema: {
+                                        data: "Data",
+                                        total: "Total",
+                                        errors: "Errors",
+                                        model: {
+                                            id: "Id",
+                                            fields: {
+                                                Id: { editable: false, type: "number" },
+                                                Title: { editable: true, validation: { required: true } },
+                                                Description: { editable: true, validation: { required: true } },
+                                                StockTakeNo: { },
+                                                StoreName: { type: "string"},
+                                                SelectedStoreIds: { editable: true, validation: { required: true } },
+                                                CategoryName: { type: "string" },
+                                                SelectedNotificationCategoryIds: { editable: true, validation: { required: true } },
+                                            }
+                                        }
+                                    },
+                                    requestEnd: function (e) {
+                                        if (e.type == "create") {
+                                            this.read();
+                                        }
+                                    },
+                                    error: function(e) {
+                                        display_kendoui_grid_error(e);
+                                        // Cancel the changes
+                                        this.cancelChanges();
+                                    },
+                                    pageSize: @(Model.PageSize),
+                                    serverPaging: true,
+                                    serverFiltering: true,
+                                    serverSorting: true
+                                },
+                                sortable: {
+                                    mode: "single",
+                                    allowUnsort: false
+                                },
+                                filterable: true,
+                                resizable: true,
+                                columnMenu: { columns: false },
+                                pageable: {
+                                    refresh: true,
+                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")
+                                },
+                                toolbar: [
+                                    {
+                                        name: "create",
+                                        url: "@Html.Raw(Url.Action("AddNotification", "Setting"))",
+                                        text: "Add",
+                                        iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
+                                    }
+                                ],
+                                scrollable: false,
+                                columns: [
+                                    {
+                                        field: "Title",
+                                        title: "Title",
+                                        width: 230
+                                    },
+                                    {
+                                        field: "Description",
+                                        title: "Description",
+                                        width: 230
+                                    },
+                                    {
+                                        field: "SelectedNotificationCategoryIds",
+                                        title: "Notification",
+                                        template: "#=CategoryName#",
+                                        type: "string",
+                                        width: 300,
+                                        editor: function (container, option) { // use a dropdownlist as an editor
+                                            // create an input element with id and name set as the bound field (brandId)
+                                            var inputCategory = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            // append to the editor container
+                                            inputCategory.appendTo(container);
+
+                                            // initialize a dropdownlist
+                                            inputCategory.kendoDropDownList({
+                                                dataTextField: "Text",
+                                                dataValueField: "Value",
+                                                dataSource: datasourceCategory,
+                                                optionLabel: " ",
+                                                autoBind: "true",
+                                                valuePrimitive: "true",
+                                                change: function () {
+                                                    onSelectionChange();
+                                                }
+                                            }).appendTo(container)
+
+                                            function onSelectionChange(e) {
+                                                var selected = inputCategory.val();
+                                                if (selected == "2") //Stock Take
+                                                {
+                                                    $('[name="StockTakeNo"]').attr("readonly", true);
+                                                }
+                                                else {
+                                                    $('[name="StockTakeNo"]').attr("readonly", false);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    {
+                                        field: "StockTakeNo",
+                                        title: "ST#",
+                                        width: 230
+                                    },
+                                    {                                        
+                                        field: "SelectedStoreIds",
+                                        title: "Store",
+                                        template: "#=StoreName#",
+                                        type: "string",
+                                        width: 300,
+                                        editor: function (container, option) { // use a dropdownlist as an editor
+                                            // create an input element with id and name set as the bound field (brandId)
+                                            var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            // append to the editor container
+                                            input.appendTo(container);
+
+                                            // initialize a dropdownlist
+                                            input.kendoMultiSelect({
+                                                dataTextField: "Text",
+                                                dataValueField: "Value",
+                                                dataSource: datasourceStore,
+                                                optionLabel: " ",
+                                                autoBind: "true",
+                                                valuePrimitive: "true"
+                                            }).appendTo(container)
+                                        }
+                                    }, {
+                                        template:
+                                            "<a href='PushNotification/EditNotification/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                            "<a href='PushNotification/DeleteNotification/#=Id#' action='DeleteNotification' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        width: 111
+                                    }
+                                ],
+                                editable: "inline",
+                                edit: function (e) {
+                                    // Change buttons visibility when the Grid enters edit mode.
+                                    var editRow = e.container;
+                                    editRow.find(".custom-button").toggleClass("hidden");
+                                }
+                                }).data("kendoGrid");
+
+                            $("#grid").on("click", ".custom-button", function (e) {
+                                var btn = $(this);
+                                if (btn.hasClass("cancel-button")) {
+                                    grid.cancelRow();
+                                } else if (btn.hasClass("update-button")) {
+                                    grid.saveChanges();
+                                }
+                            });
+                        });
+                        </script>
+                        <script>
+                            $(document).ready(function () {
+                                $("#stocktake-display").attr("style", "display: none;");
+                                //search button
+                                $('#search-notification').click(function () {
+                                    var grid = $('#grid').data('kendoGrid');
+                                    grid.dataSource.page(1);
+                                    return false;
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</form>

@@ -1,11 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core.Domain.Stores;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
+using System.Linq;
 
 namespace StockManagementSystem.Services.Stores
 {
@@ -18,6 +20,38 @@ namespace StockManagementSystem.Services.Stores
         {
             _storeRepository = storeRepository;
             _cacheManager = cacheManager;
+        }
+        
+        public virtual void UpdateStore(Store store)
+        {
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+
+            _storeRepository.Update(store);
+        }
+
+        public virtual void DeleteStore(Store store)
+        {
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+
+            _storeRepository.Delete(store);
+        }
+
+        public virtual void DeleteStore(List<Store> stores)
+        {
+            if (stores == null)
+                throw new ArgumentNullException(nameof(stores));
+
+            _storeRepository.Delete(stores);
+        }
+
+        public async Task InsertStore(Store store)
+        {
+            if (store == null)
+                throw new ArgumentNullException(nameof(store));
+
+            await _storeRepository.InsertAsync(store);
         }
 
         /// <summary>

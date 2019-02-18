@@ -6,7 +6,30 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Migrations\20181226114021_AddCategoryAndNotificationTable.cs" />
+      <Compile Remove="Migrations\20181228083905_AddPushNotificationStoresTable.cs" />
+      <Compile Remove="Migrations\20181231074401_InitialCreate.cs" />
+      <Compile Remove="Migrations\20181231074401_InitialCreate.Designer.cs" />
+      <Compile Remove="Migrations\20190102041345_InitialCreate.cs" />
+      <Compile Remove="Migrations\20190102041345_InitialCreate.Designer.cs" />
+      <Compile Remove="Migrations\20190102044342_InitialCreate.cs" />
+      <Compile Remove="Migrations\20190102044342_InitialCreate.Designer.cs" />
+      <Compile Remove="Migrations\20190109041941_UpdatePushNotificationTable.cs" />
+      <Compile Remove="Migrations\20190109041941_UpdatePushNotificationTable.Designer.cs" />
+      <Compile Remove="Migrations\20190110012221_UpdatePushNotificationField.cs" />
+      <Compile Remove="Migrations\20190110012221_UpdatePushNotificationField.Designer.cs" />
+      <Compile Remove="Migrations\20190118064530_AddFormatSettingTable.cs" />
+      <Compile Remove="Migrations\20190123021215_AddTable.cs" />
+      <Compile Remove="Migrations\20190123021215_AddTable.Designer.cs" />
+      <Compile Remove="Models\Devices\DeviceViewModel.cs" />
+      <Compile Remove="Models\PushNotifications\AddNotificationViewModel.cs" />
+      <Compile Remove="Models\PushNotifications\EditNotificationViewModel.cs" />
+      <Compile Remove="Models\PushNotifications\NotificationViewModel.cs" />
+      <Compile Remove="Models\PushNotifications\PushNotificationViewModel.cs" />
+      <Content Remove="Views\PushNotification\AddNotification.cshtml" />
         <PackageReference Include="Bower" Version="1.3.11" />
+      <PackageReference Include="Geocoding.Core" Version="4.0.1" />
+      <PackageReference Include="Geocoding.Google" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -14,6 +14,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Models.Setting;
 
 namespace StockManagementSystem.Controllers
 {
@@ -52,7 +53,7 @@ namespace StockManagementSystem.Controllers
         #endregion
 
         #region Manage Device
-        
+
         public async Task<IActionResult> Index()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
@@ -85,11 +86,10 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                var device = new Device
-                {
-                    ModelNo = model.ModelNo,
-                    StoreId = model.SelectedStoreId
-                };
+                Device device = new Device();
+                device.ModelNo = model.ModelNo;
+                device.StoreId = model.SelectedStoreId;   
+                device.Status = "0"; // default to offline
 
                 //Serial No
                 if (!string.IsNullOrWhiteSpace(model.SerialNo))
@@ -165,7 +165,7 @@ namespace StockManagementSystem.Controllers
                         await _deviceService.SetSerialNo(device, model.SerialNo);
                     else
                         device.SerialNo = model.SerialNo;
-                    
+
                     _deviceService.UpdateDevice(device);
 
                     _notificationService.SuccessNotification("Device has been updated successfully.");
@@ -213,36 +213,31 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("EditDevice", new { id = device.Id });
             }
         }
-        
+
         #endregion
 
         #region Device Tracking
 
-        [HttpGet]
         public async Task<IActionResult> DeviceTracking()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
                 return AccessDeniedView();
 
-            var model = await _deviceModelFactory.PrepareDeviceListModel();
+            var model = await _deviceModelFactory.PrepareDeviceTrackingContainerModel(new DeviceTrackingContainerModel());
 
+            model.DeviceMap = await _deviceModelFactory.PrepareDeviceListModel();
             return View(model);
         }
 
-        #endregion
-
-        #region Private Method
-
-        private DeviceViewModel GetAllDevice()
+        [HttpPost]
+        public async Task<IActionResult> MapList(MapDeviceSearchModel searchModel)
         {
-            DeviceViewModel model = new DeviceViewModel
-            {
-                Device = _deviceRepository.Table.ToList()
-            };
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
+                return AccessDeniedKendoGridJson();
 
-            return model;
+            var model = await _deviceModelFactory.PrepareMapDeviceListingModel(searchModel);
+            return Json(model);
         }
-
-        #endregion  
+        #endregion
     }
 }

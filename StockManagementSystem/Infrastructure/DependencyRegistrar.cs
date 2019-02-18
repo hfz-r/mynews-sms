@@ -20,7 +20,9 @@ namespace StockManagementSystem.Infrastructure
             builder.RegisterType<RoleModelFactory>().As<IRoleModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<DeviceModelFactory>().As<IDeviceModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<OrderLimitModelFactory>().As<IOrderLimitModelFactory>().InstancePerLifetimeScope();
-            builder.RegisterType<SettingModelFactory>().As<ISettingModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<PushNotificationModelFactory>().As<IPushNotificationModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<LocationModelFactory>().As<ILocationModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<FormatSettingModelFactory>().As<IFormatSettingModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<SecurityModelFactory>().As<ISecurityModelFactory>().InstancePerLifetimeScope();
         }
 
