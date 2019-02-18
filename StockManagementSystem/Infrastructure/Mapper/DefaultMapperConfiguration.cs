@@ -18,6 +18,8 @@ using StockManagementSystem.Models.Stores;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
 using StockManagementSystem.Models.Setting;
+using StockManagementSystem.Core.Domain.Stores;
+using StockManagementSystem.Models.Management;
 
 namespace StockManagementSystem.Infrastructure.Mapper
 {
@@ -288,6 +290,27 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.StoreId, options => options.Ignore())
                 .ForMember(entity => entity.Status, options => options.Ignore())
                 .ForMember(entity => entity.Store, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create outlet management maps
+        /// </summary>
+        protected virtual void CreateOutletManagementMaps()
+        {
+            CreateMap<StoreUserAssign, AssignUserModel>();
+            CreateMap<AssignUserModel, StoreUserAssign>()
+                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
+
+            CreateMap<StoreGrouping, GroupOutletModel>()
+                .ForMember(model => model.StoreName, options => options.Ignore())
+                .ForMember(model => model.SelectedStoreIds, options => options.Ignore())
+                .ForMember(model => model.AvailableStores, options => options.Ignore());
+            CreateMap<GroupOutletModel, StoreGrouping>()
+                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
+                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
         }
 
         /// <summary>

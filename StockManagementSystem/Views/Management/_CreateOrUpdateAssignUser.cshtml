@@ -1,0 +1,12 @@
+﻿@model AssignUserModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<section class="content">
+    <div class="form-horizontal">
+        <tabs id="assignUser-edit">
+            <tab asp-name="tab-info" asp-title="Assign user info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdateAssignUser.Info", Model)</tab>
+        </tabs>
+    </div>
+</section>

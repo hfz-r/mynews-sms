@@ -51,6 +51,10 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
 
+        public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
+
+        public virtual ICollection<StoreUserAssign> StoreUserAssigns { get; set; }
+
         #region Store context
 
         /// <summary>

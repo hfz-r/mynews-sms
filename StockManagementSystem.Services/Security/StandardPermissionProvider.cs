@@ -33,6 +33,13 @@ namespace StockManagementSystem.Services.Security
         public static readonly Permission ManageMaintenance = 
             new Permission { Name = "Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration" };
 
+        public static readonly Permission ManageOutletManagement = new Permission
+        {
+            Name = "Manage Outlet Management",
+            SystemName = "ManageOutletManagement",
+            Category = "Outlet Management"
+        };
+
         //TODO: other modules
 
         /// <summary>
@@ -51,6 +58,8 @@ namespace StockManagementSystem.Services.Security
                 ManageAcl,
                 ManagePlugins,
                 ManageMaintenance,
+                ManageFormatSetting,
+                ManageOutletManagement
             };
         }
 
@@ -75,6 +84,8 @@ namespace StockManagementSystem.Services.Security
                         ManageAcl,
                         ManagePlugins,
                         ManageMaintenance,
+                        ManageFormatSetting,
+                        ManageOutletManagement
                     }
                 },
                 new DefaultPermission
