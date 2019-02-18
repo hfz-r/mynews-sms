@@ -72,18 +72,19 @@ namespace StockManagementSystem.Controllers
             INotificationService notificationService,
             ILoggerFactory loggerFactory)
         {
-            _orderLimitService = orderLimitService;
-            _storeService = storeService;
+            this._orderLimitService = orderLimitService;
+            this._storeService = storeService;
             this._locationService = locationService;
             this._formatSettingService = formatSettingService;
-            _orderLimitRepository = orderLimitRepository;
-            _orderLimitStoreRepository = orderLimitStoreRepository;
-            _storeRepository = storeRepository;
-            _genericAttributeService = genericAttributeService;
+            this._approvalRepository = approvalRepository;
+            this._orderLimitRepository = orderLimitRepository;
+            this._orderLimitStoreRepository = orderLimitStoreRepository;
+            this._storeRepository = storeRepository;
             this._itemRepository = itemRepository;
             this._shelfLocationRepository = shelfLocationRepository;
             this._shelfLocationFormatRepository = shelfLocationFormatRepository;
             this._formatSettingRepository = formatSettingRepository;
+            this._orderLimitModelFactory = orderLimitModelFactory;
             this._locationModelFactory = locationModelFactory;
             this._formatSettingModelFactory = _formatSettingModelFactory;
             _permissionService = permissionService;

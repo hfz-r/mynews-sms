@@ -17,7 +17,7 @@ namespace StockManagementSystem.Services.Users
         IList<Role> GetRoles(bool showHidden = false);
         Task<User> GetUserByEmailAsync(string email);
         Task<User> GetUserByGuidAsync(Guid userGuid);
-
+        List<User> GetUsers();
         void DeleteUser(List<User> users);
         Task<User> GetUserByIdAsync(int userId);
         Task<User> GetUserBySystemNameAsync(string systemName);

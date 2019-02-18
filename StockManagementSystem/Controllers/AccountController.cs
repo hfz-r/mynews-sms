@@ -39,11 +39,11 @@ namespace StockManagementSystem.Controllers
             DateTimeSettings dateTimeSettings,
             IAuthenticationService authenticationService,
             IUserAccountModelFactory userAccountModelFactory,
-            IUserRegistrationService userRegistrationService, 
-            IUserService userService, 
-            IUserActivityService userActivityService, 
-            IGenericAttributeService genericAttributeService, 
-            INotificationService notificationService, 
+            IUserRegistrationService userRegistrationService,
+            IUserService userService,
+            IUserActivityService userActivityService,
+            IGenericAttributeService genericAttributeService,
+            INotificationService notificationService,
             IWorkContext workContext,
             IStoreContext storeContext,
             IEmailSender emailSender)
@@ -106,22 +106,22 @@ namespace StockManagementSystem.Controllers
                 switch (loginResult)
                 {
                     case UserLoginResults.Successful:
-                    {
-                        var user = _userSettings.UsernamesEnabled
-                            ? await _userService.GetUserByUsernameAsync(model.Username)
-                            : await _userService.GetUserByEmailAsync(model.Email);
+                        {
+                            var user = _userSettings.UsernamesEnabled
+                                ? await _userService.GetUserByUsernameAsync(model.Username)
+                                : await _userService.GetUserByEmailAsync(model.Email);
 
-                        //sign in new user
-                        await _authenticationService.SignInAsync(user, model.RememberMe);
+                            //sign in new user
+                            await _authenticationService.SignInAsync(user, model.RememberMe);
 
-                        //activity log
-                        await _userActivityService.InsertActivityAsync(user, "Login", $"Login ('{user.Username}')", user);
+                            //activity log
+                            await _userActivityService.InsertActivityAsync(user, "Login", $"Login ('{user.Username}')", user);
 
-                        if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
-                            return RedirectToRoute("HomePage");
+                            if (string.IsNullOrEmpty(returnUrl) || !Url.IsLocalUrl(returnUrl))
+                                return RedirectToRoute("HomePage");
 
-                        return Redirect(returnUrl);
-                    }
+                            return Redirect(returnUrl);
+                        }
                     case UserLoginResults.UserNotExist:
                         ModelState.AddModelError(string.Empty, "No user account found");
                         _notificationService.ErrorNotification("No user account found");
@@ -251,8 +251,8 @@ namespace StockManagementSystem.Controllers
                     model.Username = model.Username.Trim();
 
                 var registrationRequest = new UserRegistrationRequest(
-                    user, 
-                    model.Email, 
+                    user,
+                    model.Email,
                     _userSettings.UsernamesEnabled ? model.Username : model.Email,
                     model.Password,
                     _userSettings.DefaultPasswordFormat,
@@ -347,9 +347,6 @@ namespace StockManagementSystem.Controllers
             {
                 var user = await _userService.GetUserByEmailAsync(model.Email);
                 if (user != null && user.Active && !user.Deleted)
-                    ModelState.AddModelError(string.Empty, "Unknown user with this email");
-                    _notificationService.ErrorNotification("Unknown user with this email");
-                if (user.Email == model.Email)
                 {
                     //save token and current date
                     var passwordRecoveryToken = Guid.NewGuid();
@@ -362,17 +359,14 @@ namespace StockManagementSystem.Controllers
 
                     //send email
                     var callbackUrl = Url.RouteUrl("ForgotPasswordConfirm", new
-                        {
-                            token = passwordRecoveryToken.ToString(),
-                            email = model.Email,
-                        },
+                    {
+                        token = passwordRecoveryToken.ToString(),
+                        email = model.Email,
+                    },
                         protocol: HttpContext.Request.Scheme);
 
                     await _emailSender.SendEmailAsync(model.Email, "Reset Password",
                         "Please reset your password by clicking here: <a href=\"" + callbackUrl + "\">link</a>");
-
-                    ModelState.AddModelError(string.Empty, "Successfully sent link reset password to email!");
-                    _notificationService.SuccessNotification("Successfully sent link reset password to email!");
 
                     model.Result = "Email with instructions has been sent to you.";
                 }

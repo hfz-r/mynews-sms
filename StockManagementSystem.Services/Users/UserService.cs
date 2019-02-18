@@ -31,16 +31,16 @@ namespace StockManagementSystem.Services.Users
         private readonly string _entityName;
 
         public UserService(
-            UserSettings userSettings, 
+            UserSettings userSettings,
             ICacheManager cacheManager,
             IDataProvider dataProvider,
             IDbContext dbContext,
-            IGenericAttributeService genericAttributeService, 
-            IRepository<User> userRepository, 
-            IRepository<Role> roleRepository, 
-            IRepository<UserRole> userRoleRepository, 
-            IRepository<UserPassword> userPasswordRepository, 
-            IRepository<GenericAttribute> gaRepository, 
+            IGenericAttributeService genericAttributeService,
+            IRepository<User> userRepository,
+            IRepository<Role> roleRepository,
+            IRepository<UserRole> userRoleRepository,
+            IRepository<UserPassword> userPasswordRepository,
+            IRepository<GenericAttribute> gaRepository,
             IStaticCacheManager staticCacheManager)
         {
             _userSettings = userSettings;
@@ -208,8 +208,8 @@ namespace StockManagementSystem.Services.Users
                 return new List<User>();
 
             var query = from u in _userRepository.Table
-                where userIds.Contains(u.Id) && !u.Deleted
-                select u;
+                        where userIds.Contains(u.Id) && !u.Deleted
+                        select u;
             var users = await query.ToListAsync();
 
             //sort by passed identifiers
@@ -384,9 +384,9 @@ namespace StockManagementSystem.Services.Users
             return _cacheManager.Get(key, () =>
             {
                 var query = from r in _roleRepository.Table
-                    orderby r.Id
-                    where r.SystemName == systemName
-                    select r;
+                            orderby r.Id
+                            where r.SystemName == systemName
+                            select r;
                 var role = query.FirstOrDefault();
 
                 return role;
@@ -402,8 +402,8 @@ namespace StockManagementSystem.Services.Users
             return _cacheManager.Get(key, () =>
             {
                 var query = from r in _roleRepository.Table
-                    orderby r.Name
-                    where showHidden || r.Active
+                            orderby r.Name
+                            where showHidden || r.Active
                             select r;
                 var roles = query.ToList();
 
@@ -526,7 +526,7 @@ namespace StockManagementSystem.Services.Users
             if (_userSettings.PasswordRecoveryLinkDaysValid == 0)
                 return false;
 
-            var generatedDate = await _genericAttributeService.GetAttributeAsync<DateTime?>(user, 
+            var generatedDate = await _genericAttributeService.GetAttributeAsync<DateTime?>(user,
                 UserDefaults.PasswordRecoveryTokenDateGeneratedAttribute);
             if (!generatedDate.HasValue)
                 return false;
@@ -619,8 +619,8 @@ namespace StockManagementSystem.Services.Users
 
             //invoke stored procedure
             await _dbContext.ExecuteSqlCommandAsync(
-                "EXEC [DeleteGuests] @CreatedFromUtc, @CreatedToUtc, @TotalRecordsDeleted OUTPUT", 
-                false, 
+                "EXEC [DeleteGuests] @CreatedFromUtc, @CreatedToUtc, @TotalRecordsDeleted OUTPUT",
+                false,
                 null,
                 pCreatedFromUtc,
                 pCreatedToUtc,

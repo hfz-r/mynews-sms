@@ -55,7 +55,7 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             return serviceProvider;
         }
 
-        public static TConfig ConfigureStartupConfig<TConfig>(this IServiceCollection services,  IConfiguration configuration) where TConfig : class, new()
+        public static TConfig ConfigureStartupConfig<TConfig>(this IServiceCollection services, IConfiguration configuration) where TConfig : class, new()
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));

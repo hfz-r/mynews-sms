@@ -1,13 +1,11 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core.Domain.Stores;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
-using System.Linq;
 
 namespace StockManagementSystem.Services.Stores
 {

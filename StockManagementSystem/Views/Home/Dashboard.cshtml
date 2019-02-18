@@ -5,7 +5,7 @@
 
     var canManageActivityLog = await permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog);
 }
-<_antiforgery-token/>
+<_antiforgery-token />
 <section class="content-header clearfix">
     <h1 class="fa fa-dashboard">&nbsp;Dashboard</h1>
     <ol class="breadcrumb">
@@ -34,7 +34,7 @@
         </div>
         <div class=" box-body">
             <div class="dashboard-panel-container">
-                <div id="server" class="dashboard-panel col-sm-8 col-md-5">
+                <div id="server" class="dashboard-panel col-sm-6 col-md-4">
                     @await Component.InvokeAsync("PanelServerComponent")
                 </div>
             </div>
@@ -42,6 +42,12 @@
     </div>
 
     @if (canManageActivityLog)
+    {
+        @await Component.InvokeAsync("TransActivityPanel")
+    }
+
+    @*Phase 2 Development*@
+    @*<div class="box box-danger">
             <div class="box-header with-border">
                 <h3 class="box-title">Pending Transaction for Approval</h3>
                 <div class="box-tools pull-right">
@@ -52,24 +58,8 @@
             </div>
             <div id="approval">
                 @await Component.InvokeAsync("PanelTxnApprovalComponent")
-                    <div id="master" class="dashboard-panel col-sm-8 col-md-5">
-                        @await Component.InvokeAsync("PanelMasterComponent")
-                    </div>
             </div>
-
-                @*Phase 2 Development*@
-                @*<div id="approval">
-                    @await Component.InvokeAsync("PanelTxnApprovalComponent")
         </div>*@
-            </div>
-        </div>
-    </div>
-
-
-    @if (User.Identity.IsAuthenticated && User.IsInRole("Administrators"))
-    {
-        @await Component.InvokeAsync("TransActivityPanel")
-    }
 </section>
 <_alert asp-alert-id="loadTAPieRptAlert" asp-alert-message="Failed to load (pie chart) transaction activity report." />
 <_alert asp-alert-id="loadTABarRptAlert" asp-alert-message="Failed to load (bar chart) transaction activity report." />

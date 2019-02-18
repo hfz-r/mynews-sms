@@ -7,32 +7,32 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="Username"/>
+                        <_label asp-for="Username" />
                     </div>
                     <div class="col-md-9">
-                        <_editor asp-for="Username"/>
+                        <_editor asp-for="Username" />
                         <span asp-validation-for="Username"></span>
                     </div>
                 </div>
             }
 
             <div class="form-group">
-                <div class="col-xs-3">
-                    <_label asp-for="Email"/>
+                <div class="col-md-3">
+                    <_label asp-for="Email" />
                 </div>
-                <div class="col-xs-9">
-                    <_editor asp-for="Email"/>
+                <div class="col-md-9">
+                    <_editor asp-for="Email" />
                     <span asp-validation-for="Email"></span>
                 </div>
             </div>
 
             <div class="form-group">
-                <div class="col-xs-3">
-                    <_label asp-for="Password"/>
+                <div class="col-md-3">
+                    <_label asp-for="Password" />
                 </div>
-                <div class="col-xs-9">
+                <div class="col-md-9">
                     <div class="input-group">
-                        <_editor asp-for="Password"/>
+                        <_editor asp-for="Password" />
                         <div class="input-group-btn">
                             @if (Model.Id > 0)
                             {
@@ -47,14 +47,14 @@
             </div>
 
             <div class="form-group">
-                <div class="col-xs-3">
-                    <_label asp-for="SelectedRoleIds"/>
+                <div class="col-md-3">
+                    <_label asp-for="SelectedRoleIds" />
                 </div>
-                <div class="col-xs-9">
+                <div class="col-md-9">
                     <div class="input-group input-group-required">
-                        <_select asp-for="SelectedRoleIds"  asp-items="Model.AvailableRoles" asp-multiple="true"/>
+                        <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true" />
                         <div class="input-group-btn">
-                            <_required/>
+                            <_required />
                         </div>
                     </div>
                     <script>
@@ -84,7 +84,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="Gender"/>
+                        <_label asp-for="Gender" />
                     </div>
                     <div class="col-md-9">
                         <div class="raw">
@@ -108,19 +108,19 @@
             }
             <div class="form-group">
                 <div class="col-md-3">
-                    <_label asp-for="FirstName"/>
+                    <_label asp-for="FirstName" />
                 </div>
                 <div class="col-md-9">
-                    <_editor asp-for="FirstName"/>
+                    <_editor asp-for="FirstName" />
                     <span asp-validation-for="FirstName"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-md-3">
-                    <_label asp-for="LastName"/>
+                    <_label asp-for="LastName" />
                 </div>
                 <div class="col-md-9">
-                    <_editor asp-for="LastName"/>
+                    <_editor asp-for="LastName" />
                     <span asp-validation-for="LastName"></span>
                 </div>
             </div>
@@ -128,10 +128,10 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="DateOfBirth"/>
+                        <_label asp-for="DateOfBirth" />
                     </div>
                     <div class="col-md-9">
-                        <_editor asp-for="DateOfBirth"/>
+                        <_editor asp-for="DateOfBirth" />
                         <span asp-validation-for="DateOfBirth"></span>
                     </div>
                 </div>
@@ -140,20 +140,20 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="Phone"/>
+                        <_label asp-for="Phone" />
                     </div>
                     <div class="col-md-9">
-                        <_editor asp-for="Phone"/>
+                        <_editor asp-for="Phone" />
                         <span asp-validation-for="Phone"></span>
                     </div>
                 </div>
             }
             <div class="form-group">
-                <div class="col-xs-3">
-                    <_label asp-for="AdminComment"/>
+                <div class="col-md-3">
+                    <_label asp-for="AdminComment" />
                 </div>
-                <div class="col-xs-9">
-                    <_textarea asp-for="AdminComment"/>
+                <div class="col-md-9">
+                    <_textarea asp-for="AdminComment" />
                     <span asp-validation-for="AdminComment"></span>
                 </div>
             </div>
@@ -161,20 +161,20 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="TimeZoneId"/>
+                        <_label asp-for="TimeZoneId" />
                     </div>
                     <div class="col-md-9">
-                        <_select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones"/>
+                        <_select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones" />
                         <span asp-validation-for="TimeZoneId"></span>
                     </div>
                 </div>
             }
             <div class="form-group">
                 <div class="col-md-3">
-                    <_label asp-for="Active"/>
+                    <_label asp-for="Active" />
                 </div>
                 <div class="col-md-9">
-                    <_editor asp-for="Active"/>
+                    <_editor asp-for="Active" />
                     <span asp-validation-for="Active"></span>
                 </div>
             </div>
@@ -182,7 +182,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="RegisteredInStore"/>
+                        <_label asp-for="RegisteredInStore" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.RegisteredInStore</div>
@@ -192,10 +192,10 @@
             @if (Model.Id > 0)
             {
                 <div class="form-group">
-                    <div class="col-xs-3">
-                        <_label asp-for="LastIpAddress"/>
+                    <div class="col-md-3">
+                        <_label asp-for="LastIpAddress" />
                     </div>
-                    <div class="col-xs-9">
+                    <div class="col-md-9">
                         <div class="form-text-row">@Model.LastIpAddress</div>
                     </div>
                 </div>
@@ -203,10 +203,10 @@
             @if (Model.Id > 0)
             {
                 <div class="form-group">
-                    <div class="col-xs-3">
-                        <_label asp-for="CreatedOn"/>
+                    <div class="col-md-3">
+                        <_label asp-for="CreatedOn" />
                     </div>
-                    <div class="col-xs-9">
+                    <div class="col-md-9">
                         <div class="form-text-row">@Model.CreatedOn</div>
                     </div>
                 </div>
@@ -214,10 +214,10 @@
             @if (Model.Id > 0)
             {
                 <div class="form-group">
-                    <div class="col-xs-3">
-                        <_label asp-for="LastActivityDate"/>
+                    <div class="col-md-3">
+                        <_label asp-for="LastActivityDate" />
                     </div>
-                    <div class="col-xs-9">
+                    <div class="col-md-9">
                         <div class="form-text-row">@Model.LastActivityDate</div>
                     </div>
                 </div>
@@ -226,7 +226,7 @@
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="LastVisitedPage"/>
+                        <_label asp-for="LastVisitedPage" />
                     </div>
                     <div class="col-md-9">
                         <div class="form-text-row">@Model.LastVisitedPage</div>

@@ -1,8 +1,0 @@
-﻿{
-  "FriendlyName": "Api",
-  "SystemName": "StockManagementSystem.Api",
-  "Version": "1.0.1",
-  "Author": "hfz-r",
-  "FileName": "StockManagementSystem.Api.dll",
-  "Description": "Provide Restful API"
-}
