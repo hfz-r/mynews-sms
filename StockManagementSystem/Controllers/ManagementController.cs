@@ -87,11 +87,24 @@ namespace StockManagementSystem.Controllers
 
         #region Assign User
 
-        public async Task<IActionResult> GetStoreAssignUser()
-        {
-            var model = await _managementModelFactory.PrepareAssignUserSearchModel(new AssignUserSearchModel());
+        //public async Task<IActionResult> AssignUserList()
+        //{
+        //    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
+        //        return AccessDeniedView();
 
-            return View(model);
+        //    var model = await _managementModelFactory.PrepareAssignUserSearchModel(new AssignUserSearchModel());
+
+        //    return View(model);
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> AssignUserList(AssignUserSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
+                return AccessDeniedKendoGridJson();
+
+            var model = await _managementModelFactory.PrepareAssignUserListModel(searchModel);
+            return Json(model);
         }
 
         [HttpPost]
@@ -105,17 +118,18 @@ namespace StockManagementSystem.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Store is required");
                 _notificationService.ErrorNotification("Store is required");
-                return new NullJsonResult();
             }
 
             try
             {
+                //Store
                 StoreUserAssign storeUserAssign = new StoreUserAssign
                 {
                     StoreId = model.SelectedStoreId,
                     StoreUserAssignStore = new List<StoreUserAssignStores>()
                 };
-     
+
+                //Add user
                 foreach (var user in model.SelectedUserIds)
                 {
                     StoreUserAssignStores storeUserAssignStores = new StoreUserAssignStores
@@ -126,7 +140,7 @@ namespace StockManagementSystem.Controllers
 
                     storeUserAssign.StoreUserAssignStore.Add(storeUserAssignStores);
                 }
-                
+
                 await _outletManagementService.InsertAssignUser(storeUserAssign);
 
                 return new NullJsonResult();
@@ -140,26 +154,6 @@ namespace StockManagementSystem.Controllers
             }
         }
 
-        public async Task<IActionResult> AssignUserList()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
-                return AccessDeniedView();
-
-            var model = await _managementModelFactory.PrepareAssignUserSearchModel(new AssignUserSearchModel());
-
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AssignUserList(AssignUserSearchModel searchModel)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
-                return AccessDeniedKendoGridJson();
-
-            var model = await _managementModelFactory.PrepareAssignUserListModel(searchModel);
-            return Json(model);
-        }
-
         public async Task<IActionResult> EditAssignUser(int id)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
@@ -167,7 +161,7 @@ namespace StockManagementSystem.Controllers
 
             var assignUser = await _outletManagementService.GetAssignUserByIdAsync(id);
             if (assignUser == null)
-                return RedirectToAction("Index");
+                return RedirectToAction("AssignUserList");
 
             var model = await _managementModelFactory.PrepareAssignUserModel(null, assignUser);
 
@@ -285,22 +279,15 @@ namespace StockManagementSystem.Controllers
 
         #region Group Outlet
 
-        public async Task<IActionResult> GetStore()
-        {
-            var model = await _managementModelFactory.PrepareGroupOutletSearchModel(new GroupOutletSearchModel());
+        //public async Task<IActionResult> GroupOutletList()
+        //{
+        //    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
+        //        return AccessDeniedView();
 
-            return View(model);
-        }
+        //    var model = await _managementModelFactory.PrepareGroupOutletSearchModel(new GroupOutletSearchModel());
 
-        public async Task<IActionResult> GroupOutletList()
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
-                return AccessDeniedView();
-
-            var model = await _managementModelFactory.PrepareGroupOutletSearchModel(new GroupOutletSearchModel());
-
-            return View(model);
-        }
+        //    return View(model);
+        //}
 
         [HttpPost]
         public async Task<IActionResult> GroupOutletList(GroupOutletSearchModel searchModel)
@@ -322,7 +309,6 @@ namespace StockManagementSystem.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Store is required");
                 _notificationService.ErrorNotification("Store is required");
-                return new NullJsonResult();
             }
 
             try
@@ -416,7 +402,7 @@ namespace StockManagementSystem.Controllers
                         if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                         {
                             //new store
-                            if (groupOutlet.StoreGroupingStore.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                            if (groupOutlet.StoreGroupingStore.Count(map => map.StoreId == store.P_BranchNo) == 0)
                             {
                                 StoreGroupingStores storeGroupingStores = new StoreGroupingStores
                                 {

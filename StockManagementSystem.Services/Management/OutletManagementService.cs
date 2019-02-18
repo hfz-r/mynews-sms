@@ -37,25 +37,6 @@ namespace StockManagementSystem.Services.Management
         }
 
         #region Assign User
-
-        public Task<ICollection<StoreUserAssign>> GetAssignUsersByStoreIdAsync(int storeID)
-        {
-            if (storeID == 0)
-                throw new ArgumentNullException(nameof(storeID));
-
-            var assignUsers = _storeUserAssignRepository.Table.Where(u => u.StoreId == storeID);
-
-            return Task.FromResult<ICollection<StoreUserAssign>>(new List<StoreUserAssign>(assignUsers.ToList()));
-        }
-
-        public Task<ICollection<StoreUserAssignStores>> GetAssignUserByUserIdAsync(int userID)
-        {
-            if (userID == 0)
-                throw new ArgumentNullException(nameof(userID));
-
-            var users = _storeUserAssignStoresRepository.Table.Where(u => u.UserId == userID);
-            return Task.FromResult<ICollection<StoreUserAssignStores>>(new List<StoreUserAssignStores>(users.ToList()));
-        }
         
         public Task<IPagedList<StoreUserAssign>> GetAssignUsersAsync(
             int[] storeIds = null,
@@ -70,6 +51,7 @@ namespace StockManagementSystem.Services.Management
             if (storeIds != null && storeIds.Length > 0)
             {
                 query = query.Join(_storeRepository.Table, x => x.StoreId, y => y.P_BranchNo,
+                //query = query.Join(_storeRepository.Table, x => x.Id, y => y.P_BranchNo,
                         (x, y) => new { StoreUserAssign = x, Store = y })
                     .Where(z => storeIds.Contains(z.Store.P_BranchNo))
                     .Select(z => z.StoreUserAssign)
@@ -85,10 +67,10 @@ namespace StockManagementSystem.Services.Management
                     .Distinct();
             }
 
-            if (storeIds != null && storeIds.Length > 0)
-            {
-                query = query.Where(aus => aus.StoreUserAssignStore.Any(saus => storeIds.Contains(saus.StoreUserAssignId)));
-            }
+            //if (storeIds != null && storeIds.Length > 0)
+            //{
+            //    query = query.Where(aus => aus.StoreUserAssignStore.Any(saus => storeIds.Contains(saus.StoreUserAssignId)));
+            //}
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
 
@@ -231,7 +213,7 @@ namespace StockManagementSystem.Services.Management
             if (assignUserId == 0)
                 throw new ArgumentNullException(nameof(assignUserId));
 
-            var assignUser = await _storeUserAssignRepository.Table.FirstOrDefaultAsync(u => u.StoreId == assignUserId);
+            var assignUser = await _storeUserAssignRepository.Table.FirstOrDefaultAsync(u => u.Id == assignUserId);
             return assignUser;
         }
 
