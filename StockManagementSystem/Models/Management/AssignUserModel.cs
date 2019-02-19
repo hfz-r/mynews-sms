@@ -22,7 +22,6 @@ namespace StockManagementSystem.Models.Management
         public int SelectedStoreId { get; set; }
 
         [Display(Name = "Store")]
-        [Required(ErrorMessage = "Store is required")]
         public string StoreName { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
