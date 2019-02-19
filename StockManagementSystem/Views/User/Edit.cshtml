@@ -10,11 +10,8 @@
 <form asp-controller="User" asp-action="Edit" method="post">
     <section class="content-header clearfix">
         <h1 class="pull-left">
+            <a asp-action="Index"><i class="fa fa-arrow-circle-left"></i></a>
             @ViewBag.Title - @Model.Name
-            <small>
-                <i class="fa fa-arrow-circle-left"></i>
-                <a asp-action="Index">back to user list</a>
-            </small>
         </h1>
         <div class="pull-right">
             <div class="ui-group-buttons">
@@ -26,7 +23,7 @@
                     <i class="glyphicon glyphicon-saved"></i> Save and Continue Edit
                 </button>
             </div>
-           
+
             <a href="#" id="user-delete" class="btn bg-red-gradient" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete">
                 <span class="glyphicon glyphicon-trash"></span>
             </a>
