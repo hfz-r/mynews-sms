@@ -22,5 +22,14 @@ namespace Api.Tests.SerializersTests.TestObjects
 
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((FirstProperty != null ? FirstProperty.GetHashCode() : 0) * 397) ^
+                       (SecondProperty != null ? SecondProperty.GetHashCode() : 0);
+            }
+        }
     }
 }

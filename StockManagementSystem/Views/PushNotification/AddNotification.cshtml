@@ -1,0 +1,25 @@
+﻿@model PushNotificationModel
+
+@{
+    //page title
+    ViewBag.Title = "Add new push notification";
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Push Notification");
+}
+
+<form asp-controller="PushNotification" asp-action="AddNotification" method="post">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">
+            <a asp-action="Index"><i class="fa fa-arrow-circle-left"></i></a>
+            @ViewBag.Title
+        </h1>
+        <div class="pull-right">
+            <div class="ui-group-buttons">
+                <button type="submit" name="save" class="btn bg-blue-gradient">
+                    <i class="glyphicon glyphicon-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </section>
+    @await Html.PartialAsync("_CreatePushNotification", Model)
+</form>

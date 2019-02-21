@@ -1,0 +1,12 @@
+﻿@model PushNotificationModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <tabs id="pushNotification-create">
+            <tab asp-name="tab-info" asp-title="PushNotification info" asp-default="true">@await Html.PartialAsync("_CreatePushNotification.Info", Model)</tab>
+        </tabs>
+    </div>
+</section>

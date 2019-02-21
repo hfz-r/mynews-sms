@@ -11,7 +11,7 @@ using StockManagementSystem.Data.Extensions;
 
 namespace StockManagementSystem.Services.Common
 {
-    public partial class GenericAttributeService : IGenericAttributeService
+    public class GenericAttributeService : IGenericAttributeService
     {
         private readonly ICacheManager _cacheManager;
         private readonly IRepository<GenericAttribute> _genericAttributeRepository;
@@ -33,6 +33,21 @@ namespace StockManagementSystem.Services.Common
 
             await _genericAttributeRepository.DeleteAsync(attribute);
 
+            _cacheManager.RemoveByPattern(CommonDefaults.GenericAttributePatternCacheKey);
+        }
+
+        /// <summary>
+        /// Deletes an attributes
+        /// </summary>
+        /// <param name="attributes">Attributes</param>
+        public async Task DeleteAttributes(IList<GenericAttribute> attributes)
+        {
+            if (attributes == null)
+                throw new ArgumentNullException(nameof(attributes));
+
+            await _genericAttributeRepository.DeleteAsync(attributes);
+
+            //cache
             _cacheManager.RemoveByPattern(CommonDefaults.GenericAttributePatternCacheKey);
         }
 
@@ -81,7 +96,7 @@ namespace StockManagementSystem.Services.Common
         /// <summary>
         /// Save attribute value
         /// </summary>
-        public async Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value, int storeId = 0)
+        public async Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value, int tenantId = 0)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -92,7 +107,7 @@ namespace StockManagementSystem.Services.Common
             var keyGroup = entity.GetUnproxiedEntityType().Name;
 
             var props = (await GetAttributesForEntityAsync(entity.Id, keyGroup))
-                .Where(x => x.StoreId == storeId)
+                .Where(x => x.TenantId == tenantId)
                 .ToList();
             var prop = props.FirstOrDefault(ga => ga.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase));
 
@@ -123,7 +138,7 @@ namespace StockManagementSystem.Services.Common
                     Key = key,
                     KeyGroup = keyGroup,
                     Value = valueStr,
-                    StoreId = storeId
+                    TenantId = tenantId
                 };
 
                 await InsertAttribute(prop);
@@ -133,7 +148,7 @@ namespace StockManagementSystem.Services.Common
         /// <summary>
         /// Get an attribute of an entity
         /// </summary>
-        public async Task<T> GetAttributeAsync<T>(BaseEntity entity, string key, int storeId = 0)
+        public async Task<T> GetAttributeAsync<T>(BaseEntity entity, string key, int tenantId = 0)
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -144,7 +159,7 @@ namespace StockManagementSystem.Services.Common
             if (props == null)
                 return default(T);
 
-            props = props.Where(x => x.StoreId == storeId).ToList();
+            props = props.Where(x => x.TenantId == tenantId).ToList();
             if (!props.Any())
                 return default(T);
 

@@ -38,5 +38,18 @@ namespace Api.Tests.SerializersTests.TestObjects
 
             return false;
         }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (StringProperty != null ? StringProperty.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IntProperty;
+                hashCode = (hashCode * 397) ^ BoolProperty.GetHashCode();
+                hashCode = (hashCode * 397) ^ (ListOfSimpleTypes != null ? ListOfSimpleTypes.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (SimpleTypes != null ? SimpleTypes.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
     }
 }

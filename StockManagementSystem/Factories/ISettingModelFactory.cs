@@ -7,6 +7,6 @@ namespace StockManagementSystem.Factories
     {
         Task<SettingModeModel> PrepareSettingModeModel(string modeName);
 
-        Task<StoreScopeConfigurationModel> PrepareStoreScopeConfigurationModel();
+        Task<TenantScopeConfigurationModel> PrepareTenantScopeConfigurationModel();
     }
 }

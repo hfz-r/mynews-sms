@@ -36,8 +36,8 @@
 <body class="hold-transition login-page">
 @await Html.PartialAsync("Notifications")
 @RenderBody()
-@Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, true)
-@Html.DefaultScripts(this.Url, ResourceLocation.Footer, true)
+@Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, false)
+@Html.DefaultScripts(this.Url, ResourceLocation.Footer, false)
 @Html.DefaultInlineScripts(this.Url, ResourceLocation.Footer)
 </body>
 </html>

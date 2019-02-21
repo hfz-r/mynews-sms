@@ -1,11 +1,13 @@
-﻿using StockManagementSystem.Services.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using StockManagementSystem.Services.Tasks.Scheduling;
 
 namespace StockManagementSystem.Services.Logging
 {
     /// <summary>
     /// Represents a task to clear [Log] table
     /// </summary>
-    public class ClearLogTask : IScheduleTask
+    public class ClearLogTask : IScheduledTask
     {
         private readonly ILogger _logger;
 
@@ -14,9 +16,11 @@ namespace StockManagementSystem.Services.Logging
             _logger = logger;
         }
 
-        public void Execute()
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _logger.ClearLog();
+            await _logger.ClearLog();
         }
+
+        public string Schedule => "0 */2 * * *";
     }
 }

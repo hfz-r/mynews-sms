@@ -178,14 +178,14 @@
                     <span asp-validation-for="Active"></span>
                 </div>
             </div>
-            @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.RegisteredInStore))
+            @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.RegisteredInTenant))
             {
                 <div class="form-group">
                     <div class="col-md-3">
-                        <_label asp-for="RegisteredInStore" />
+                        <_label asp-for="RegisteredInTenant" />
                     </div>
                     <div class="col-md-9">
-                        <div class="form-text-row">@Model.RegisteredInStore</div>
+                        <div class="form-text-row">@Model.RegisteredInTenant</div>
                     </div>
                 </div>
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using StockManagementSystem.Core.Domain.Stores;
 
 namespace StockManagementSystem.Core.Domain.Users
 {
@@ -64,9 +65,9 @@ namespace StockManagementSystem.Core.Domain.Users
         public DateTime LastActivityDateUtc { get; set; }
 
         /// <summary>
-        ///  Gets or sets the store identifier in which user registered
+        ///  Gets or sets the tenant identifier in which user registered
         /// </summary>
-        public int RegisteredInStoreId { get; set; }
+        public int RegisteredInTenantId { get; set; }
 
         #region Navigation properties
 
@@ -77,6 +78,8 @@ namespace StockManagementSystem.Core.Domain.Users
             get => _userRoles ?? (_userRoles = new List<UserRole>());
             protected set => _userRoles = value;
         }
+
+        public virtual ICollection<StoreUserAssignStores> StoreUserAssignStore { get; set; }
 
         #endregion
 

@@ -4,7 +4,6 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Http;
 using StockManagementSystem.Services.Authentication;
-using StockManagementSystem.Services.Tasks;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Web
@@ -79,8 +78,7 @@ namespace StockManagementSystem.Web
                 User user = null;
 
                 //check whether request is made by a background (schedule) task
-                if (_httpContextAccessor.HttpContext == null || _httpContextAccessor.HttpContext.Request.Path.Equals(
-                        new PathString($"/{TaskDefaults.ScheduleTaskPath}"), StringComparison.InvariantCultureIgnoreCase))
+                if (_httpContextAccessor.HttpContext == null)
                 {
                     //in this case return built-in user record for background task
                     user = _userService.GetUserBySystemNameAsync(UserDefaults.BackgroundTaskUserName).GetAwaiter().GetResult();

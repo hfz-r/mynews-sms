@@ -5,16 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
-using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Transactions;
-using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Logging;
 using StockManagementSystem.Models.Reports;
 using StockManagementSystem.Services.Helpers;
-using StockManagementSystem.Services.Installation;
-using StockManagementSystem.Services.Logging;
-using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Web.Controllers;
 

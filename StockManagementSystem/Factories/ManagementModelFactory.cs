@@ -73,7 +73,7 @@ namespace StockManagementSystem.Factories
             var users = await _userService.GetUsersAsync();
             searchModel.AvailableUsers = users.Select(user => new SelectListItem
             {
-                Text = user.UserName,
+                Text = user.Username,
                 Value = user.Id.ToString()
             }).ToList();
 
@@ -105,7 +105,7 @@ namespace StockManagementSystem.Factories
                     assignUsersModel.StoreName = assignUser.Store.P_BranchNo + " - " + assignUser.Store.P_Name;
                     assignUsersModel.SelectedUserIds = assignUser.StoreUserAssignStore.Select(map => map.UserId).ToList();
                     ////assignUsersModel.SelectedUserIds = assignUser.StoreUserAssignStore.Contains(user => user.UserId);
-                    assignUsersModel.User = String.Join(", ", assignUser.StoreUserAssignStore.Select(user => user.User.UserName));
+                    assignUsersModel.User = String.Join(", ", assignUser.StoreUserAssignStore.Select(user => user.User.Username));
                     assignUsersModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(assignUser.CreatedOnUtc, DateTimeKind.Utc);
                     assignUsersModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(assignUser.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
@@ -167,8 +167,8 @@ namespace StockManagementSystem.Factories
                 model.Id = storeUserAssign.Id;
                 model.StoreName = storeUserAssign.Store.P_BranchNo + " - " + storeUserAssign.Store.P_Name;
                 model.SelectedStoreId = storeUserAssign.StoreId;
-                model.User = storeUserAssign.StoreUserAssignStore.Select(map => map.User.UserName).ToString();
-                model.User = storeUserAssign.StoreUserAssignStore.Select(map => map.User.UserName).ToString();
+                model.User = storeUserAssign.StoreUserAssignStore.Select(map => map.User.Username).ToString();
+                model.User = storeUserAssign.StoreUserAssignStore.Select(map => map.User.Username).ToString();
                 model.SelectedUserIds = storeUserAssign.StoreUserAssignStore.Select(map => map.UserId).ToList();
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(storeUserAssign.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(storeUserAssign.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -187,7 +187,7 @@ namespace StockManagementSystem.Factories
             var users = await _userService.GetUsersAsync();
             model.AvailableUsers = users.Select(user => new SelectListItem
             {
-                Text = user.UserName,
+                Text = user.Username,
                 Value = user.Id.ToString()
             }).ToList();
 

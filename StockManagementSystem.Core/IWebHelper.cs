@@ -12,9 +12,9 @@ namespace StockManagementSystem.Core
 
         bool IsCurrentConnectionSecured();
 
-        string GetStoreHost(bool useSsl);
+        string GetHost(bool useSsl);
 
-        string GetStoreLocation(bool? useSsl = null);
+        string GetLocation(bool? useSsl = null);
 
         string ModifyQueryString(string url, string key, params string[] values);
 

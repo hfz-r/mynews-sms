@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using StockManagementSystem.Core.Domain.Stores;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace StockManagementSystem.Data.Mapping.Stores
 {
@@ -16,9 +12,6 @@ namespace StockManagementSystem.Data.Mapping.Stores
             builder.ToTable("Store");
             builder.Ignore(x => x.Id);
             builder.HasKey(s => s.P_BranchNo);
-
-            builder.Property(store => store.Url).HasMaxLength(400).IsRequired();
-            builder.Property(store => store.Hosts).HasMaxLength(1000);
 
             base.Configure(builder);
         }

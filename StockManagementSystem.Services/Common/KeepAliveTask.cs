@@ -1,14 +1,16 @@
 ﻿using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Http;
-using StockManagementSystem.Services.Tasks;
+using StockManagementSystem.Services.Tasks.Scheduling;
 
 namespace StockManagementSystem.Services.Common
 {
     /// <summary>
     /// Represents a task for keeping the site alive
     /// </summary>
-    public class KeepAliveTask : IScheduleTask
+    public class KeepAliveTask : IScheduledTask
     {
         private readonly IWebHelper _webHelper;
 
@@ -17,13 +19,16 @@ namespace StockManagementSystem.Services.Common
             this._webHelper = webHelper;
         }
 
-        public void Execute()
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var keepAliveUrl = $"{_webHelper.GetStoreLocation()}{HttpDefaults.KeepAlivePath}";
+            var keepAliveUrl = $"{_webHelper.GetLocation()}{HttpDefaults.KeepAlivePath}";
+
             using (var wc = new WebClient())
             {
-                wc.DownloadString(keepAliveUrl);
+                await wc.DownloadStringTaskAsync(keepAliveUrl);
             }
         }
+
+        public string Schedule => "*/5 * * * *";
     }
 }

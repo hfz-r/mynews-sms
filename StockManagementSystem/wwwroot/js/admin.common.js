@@ -121,8 +121,8 @@ $(document).ajaxStart(function() {
 });
 
 $(document).ready(function () {
-    $('.multi-store-override-option').each(function (k, v) {
-        checkOverriddenStoreValue(v, $(v).attr('data-for-input-selector'));
+    $('.multi-tenant-override-option').each(function (k, v) {
+        checkOverriddenTenantValue(v, $(v).attr('data-for-input-selector'));
     });
 
     // intercept all events of pressing the Enter button in the search bar
@@ -141,14 +141,14 @@ $(document).ready(function () {
     });
 });
 
-function checkAllOverriddenStoreValue(item) {
-    $('.multi-store-override-option').each(function (k, v) {
+function checkAllOverriddenTenantValue(item) {
+    $('.multi-tenant-override-option').each(function (k, v) {
         $(v).attr('checked', item.checked);
-        checkOverriddenStoreValue(v, $(v).attr('data-for-input-selector'));
+        checkOverriddenTenantValue(v, $(v).attr('data-for-input-selector'));
     });
 }
 
-function checkOverriddenStoreValue(obj, selector) {
+function checkOverriddenTenantValue(obj, selector) {
     var elementsArray = selector.split(",");
     if (!$(obj).is(':checked')) {
         $(selector).attr('disabled', true);

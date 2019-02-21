@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Management;
@@ -18,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Controllers
 {

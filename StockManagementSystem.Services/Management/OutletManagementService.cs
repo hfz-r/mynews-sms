@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Core.Domain.Stores;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Management
 {

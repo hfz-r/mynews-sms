@@ -21,7 +21,7 @@ namespace StockManagementSystem.Core.Http
         {
             if (!DataSettingsManager.DatabaseIsInstalled)
             {
-                var keepAliveUrl = $"{webHelper.GetStoreLocation()}{HttpDefaults.KeepAlivePath}";
+                var keepAliveUrl = $"{webHelper.GetLocation()}{HttpDefaults.KeepAlivePath}";
 
                 if (webHelper.GetThisPageUrl(false).StartsWith(keepAliveUrl, StringComparison.InvariantCultureIgnoreCase))
                     return;

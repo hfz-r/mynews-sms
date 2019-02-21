@@ -25,10 +25,7 @@ namespace StockManagementSystem.Web.Infrastructure
             application.UsePageNotFound();
         }
 
-        public int Order
-        {
-            //error handlers should be loaded first
-            get { return 0; }
-        }
+        //error handlers should be loaded first
+        public int Order => 0;
     }
 }

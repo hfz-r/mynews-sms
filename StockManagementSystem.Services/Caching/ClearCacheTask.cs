@@ -1,12 +1,14 @@
-﻿using StockManagementSystem.Core.Caching;
-using StockManagementSystem.Services.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using StockManagementSystem.Core.Caching;
+using StockManagementSystem.Services.Tasks.Scheduling;
 
 namespace StockManagementSystem.Services.Caching
 {
     /// <summary>
-    /// Clear cache scheduled task implementation
+    /// Represent a task to clear cache
     /// </summary>
-    public class ClearCacheTask : IScheduleTask
+    public class ClearCacheTask : IScheduledTask
     {
         private readonly IStaticCacheManager _staticCacheManager;
 
@@ -15,9 +17,13 @@ namespace StockManagementSystem.Services.Caching
             _staticCacheManager = staticCacheManager;
         }
 
-        public void Execute()
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _staticCacheManager.Clear();
+
+            await Task.Delay(5000, cancellationToken);
         }
+
+        public string Schedule => "*/10 * * * *";
     }
 }

@@ -61,8 +61,8 @@ namespace StockManagementSystem.Models.Users
         [Display(Name = "Phone")]
         public string Phone { get; set; }
 
-        [Display(Name = "Registered in the store")]
-        public string RegisteredInStore { get; set; }
+        [Display(Name = "Registered in the tenant")]
+        public string RegisteredInTenant { get; set; }
 
         [Display(Name = "Admin comment")]
         public string AdminComment { get; set; }

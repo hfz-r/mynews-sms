@@ -16,7 +16,6 @@ using StockManagementSystem.Data;
 using StockManagementSystem.Services.Authentication;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Plugins;
-using StockManagementSystem.Services.Tasks;
 using StockManagementSystem.Web.Validators;
 using StockManagementSystem.Web.Mvc.ModelBinding;
 
@@ -40,11 +39,6 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
             if (!DataSettingsManager.DatabaseIsInstalled)
                 return serviceProvider;
-
-            //implement schedule tasks
-            //database is already installed, so start scheduled tasks
-            TaskManager.Instance.Initialize();
-            TaskManager.Instance.Start();
 
             //log application start
             engine.Resolve<ILogger>().Information("Application started");

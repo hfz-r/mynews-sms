@@ -35,32 +35,32 @@ namespace Core.Tests
         [Test]
         public void Can_get_appHost_without_ssl()
         {
-            _webHelper.GetStoreHost(false).ShouldEqual("http://www.Example.com/");
+            _webHelper.GetHost(false).ShouldEqual("http://www.Example.com/");
         }
 
         [Test]
         public void Can_get_appHost_with_ssl()
         {
-            _webHelper.GetStoreHost(true).ShouldEqual("https://www.Example.com/");
+            _webHelper.GetHost(true).ShouldEqual("https://www.Example.com/");
         }
 
         [Test]
         public void Can_get_appLocation_without_ssl()
         {
-            _webHelper.GetStoreLocation(false).ShouldEqual("http://www.Example.com/");
+            _webHelper.GetLocation(false).ShouldEqual("http://www.Example.com/");
         }
 
         [Test]
         public void Can_get_appLocation_with_ssl()
         {
-            _webHelper.GetStoreLocation(true).ShouldEqual("https://www.Example.com/");
+            _webHelper.GetLocation(true).ShouldEqual("https://www.Example.com/");
         }
 
         [Test]
         public void Can_get_appLocation_in_virtual_directory()
         {
             _httpContext.Request.PathBase = "/smspath";
-            _webHelper.GetStoreLocation(false).ShouldEqual("http://www.Example.com/smspath/");
+            _webHelper.GetLocation(false).ShouldEqual("http://www.Example.com/smspath/");
         }
 
         [Test]

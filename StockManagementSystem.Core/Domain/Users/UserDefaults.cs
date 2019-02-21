@@ -4,9 +4,9 @@
     {
         #region System roles
 
-        public static string AdministratorsRoleName => "Administrators";
+        public static string SysAdminRoleName => "SysAdmin";
 
-        public static string ManagersRoleName => "Managers";
+        public static string AdministratorsRoleName => "Administrators";
 
         public static string RegisteredRoleName => "Registered";
 
@@ -71,9 +71,9 @@
         public static string LastVisitedPageAttribute => "LastVisitedPage";
 
         /// <summary>
-        /// Gets a name of generic attribute to store the value of 'StoreScopeConfiguration'
+        /// Gets a name of generic attribute to store the value of 'TenantScopeConfiguration'
         /// </summary>
-        public static string StoreScopeConfigurationAttribute => "StoreScopeConfiguration";
+        public static string TenantScopeConfigurationAttribute => "TenantScopeConfiguration";
 
         #endregion
     }

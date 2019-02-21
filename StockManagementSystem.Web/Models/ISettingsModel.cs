@@ -6,8 +6,8 @@
     public interface ISettingsModel
     {
         /// <summary>
-        /// Gets or sets an active store scope configuration (store identifier)
+        /// Gets or sets an active tenant scope configuration (tenant identifier)
         /// </summary>
-        int ActiveStoreScopeConfiguration { get; set; }
+        int ActiveTenantScopeConfiguration { get; set; }
     }
 }

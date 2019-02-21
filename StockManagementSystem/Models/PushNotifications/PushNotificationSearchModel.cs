@@ -18,12 +18,12 @@ namespace StockManagementSystem.Models.PushNotifications
         [Display(Name = "Store")]
         public IList<int> SelectedStoreIds { get; set; }
 
-        [Display(Name = "Notification Category")]
+        [Display(Name = "Category")]
         public IList<int> SelectedNotificationCategoryIds { get; set; }
 
         public IList<SelectListItem> AvailableNotificationCategory { get; set; }
 
-        public IList<SelectListItem> AvailableStores { get; set; }        
+        public IList<SelectListItem> AvailableStores { get; set; }
 
         [Display(Name = "Title")]
         public string SearchTitle { get; set; }

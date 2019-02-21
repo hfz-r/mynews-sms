@@ -18,7 +18,7 @@ namespace StockManagementSystem.Core.Http
         {
             if (!DataSettingsManager.DatabaseIsInstalled)
             {
-                var installUrl = $"{webHelper.GetStoreLocation()}{HttpDefaults.InstallPath}";
+                var installUrl = $"{webHelper.GetLocation()}{HttpDefaults.InstallPath}";
                 if (!webHelper.GetThisPageUrl(false)
                     .StartsWith(installUrl, StringComparison.InvariantCultureIgnoreCase))
                 {

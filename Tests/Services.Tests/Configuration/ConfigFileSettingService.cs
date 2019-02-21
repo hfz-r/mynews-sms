@@ -22,7 +22,7 @@ namespace Services.Tests.Configuration
             throw new InvalidOperationException("Get setting by id is not supported");
         }
 
-        public override T GetSettingByKey<T>(string key, T defaultValue = default(T), int storeId = 0, bool loadSharedValueIfNotFound = false)
+        public override T GetSettingByKey<T>(string key, T defaultValue = default(T), int tenantId = 0, bool loadSharedValueIfNotFound = false)
         {
             if (string.IsNullOrEmpty(key))
                 return defaultValue;
@@ -30,10 +30,10 @@ namespace Services.Tests.Configuration
             var settings = GetAllSettingsAsync().GetAwaiter().GetResult();
             key = key.Trim().ToLowerInvariant();
 
-            var setting = settings.FirstOrDefault(x => x.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.StoreId == storeId);
-            if (setting == null && storeId > 0 && loadSharedValueIfNotFound)
+            var setting = settings.FirstOrDefault(x => x.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.TenantId == tenantId);
+            if (setting == null && tenantId > 0 && loadSharedValueIfNotFound)
             {
-                setting = settings.FirstOrDefault(x => x.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.StoreId == 0);
+                setting = settings.FirstOrDefault(x => x.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase) && x.TenantId == 0);
             }
 
             if (setting != null)
@@ -47,7 +47,7 @@ namespace Services.Tests.Configuration
             throw new InvalidOperationException("Deleting settings is not supported");
         }
 
-        public override void SetSetting<T>(string key, T value, int storeId = 0, bool clearCache = true)
+        public override void SetSetting<T>(string key, T value, int tenantId = 0, bool clearCache = true)
         {
             throw new NotImplementedException();
         }

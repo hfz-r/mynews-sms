@@ -156,8 +156,8 @@ namespace StockManagementSystem.Services.Helpers
                 TimeZoneInfo timeZoneInfo = null;
                 try
                 {
-                    if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultStoreTimeZoneId))
-                        timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultStoreTimeZoneId);
+                    if (!string.IsNullOrEmpty(_dateTimeSettings.DefaultTimeZoneId))
+                        timeZoneInfo = FindTimeZoneById(_dateTimeSettings.DefaultTimeZoneId);
                 }
                 catch (Exception exc)
                 {
@@ -172,7 +172,7 @@ namespace StockManagementSystem.Services.Helpers
                 if (value != null)
                     defaultTimeZoneId = value.Id;
 
-                _dateTimeSettings.DefaultStoreTimeZoneId = defaultTimeZoneId;
+                _dateTimeSettings.DefaultTimeZoneId = defaultTimeZoneId;
                 _settingService.SaveSetting(_dateTimeSettings);
             }
         }

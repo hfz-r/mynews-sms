@@ -9,15 +9,15 @@ using StockManagementSystem.Web.Extensions;
 namespace StockManagementSystem.Web.TagHelpers
 {
     /// <summary>
-    /// override-store-checkbox tag helper
+    /// override-tenant-checkbox tag helper
     /// </summary>
-    [HtmlTargetElement("_override-cb", Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
-    public class OverrideStoreCheckboxTagHelper : TagHelper
+    [HtmlTargetElement("_override-checkbox", Attributes = ForAttributeName, TagStructure = TagStructure.WithoutEndTag)]
+    public class OverrideTenantCheckboxTagHelper : TagHelper
     {
         private const string ForAttributeName = "asp-for";
         private const string InputAttributeName = "asp-input";
         private const string Input2AttributeName = "asp-input2";
-        private const string StoreScopeAttributeName = "asp-store-scope";
+        private const string TenantScopeAttributeName = "asp-tenant-scope";
         private const string ParentContainerAttributeName = "asp-parent-container";
 
         private readonly IHtmlHelper _htmlHelper;
@@ -41,10 +41,10 @@ namespace StockManagementSystem.Web.TagHelpers
         public ModelExpression Input2 { set; get; }
 
         /// <summary>
-        ///The store scope
+        ///The tenant scope
         /// </summary>
-        [HtmlAttributeName(StoreScopeAttributeName)]
-        public int StoreScope { set; get; }
+        [HtmlAttributeName(TenantScopeAttributeName)]
+        public int TenantScope { set; get; }
 
         /// <summary>
         /// Parent container
@@ -56,7 +56,7 @@ namespace StockManagementSystem.Web.TagHelpers
         [ViewContext]
         public ViewContext ViewContext { get; set; }
 
-        public OverrideStoreCheckboxTagHelper(IHtmlHelper htmlHelper)
+        public OverrideTenantCheckboxTagHelper(IHtmlHelper htmlHelper)
         {
             _htmlHelper = htmlHelper;
         }
@@ -72,8 +72,8 @@ namespace StockManagementSystem.Web.TagHelpers
             //clear the output
             output.SuppressOutput();
 
-            //render only when a certain store is chosen
-            if (StoreScope > 0)
+            //render only when a certain tenant is chosen
+            if (TenantScope > 0)
             {
                 //contextualize IHtmlHelper
                 var viewContextAware = _htmlHelper as IViewContextAware;
@@ -85,7 +85,7 @@ namespace StockManagementSystem.Web.TagHelpers
                 if (Input2 != null)
                     dataInputIds.Add(_htmlHelper.Id(Input2.Name));
 
-                const string cssClass = "multi-store-override-option";
+                const string cssClass = "multi-tenant-override-option";
 
                 var dataInputSelector = "";
                 if (!string.IsNullOrEmpty(ParentContainer))
@@ -93,7 +93,7 @@ namespace StockManagementSystem.Web.TagHelpers
                 if (dataInputIds.Any())
                     dataInputSelector = "#" + string.Join(", #", dataInputIds);
 
-                var onClick = $"checkOverriddenStoreValue(this, '{dataInputSelector}')";
+                var onClick = $"checkOverriddenTenantValue(this, '{dataInputSelector}')";
 
                 var htmlAttributes = new
                 {

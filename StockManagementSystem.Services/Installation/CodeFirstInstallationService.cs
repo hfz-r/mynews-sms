@@ -6,8 +6,7 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Domain.Security;
-using StockManagementSystem.Core.Domain.Stores;
-using StockManagementSystem.Core.Domain.Tasks;
+using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure;
@@ -25,11 +24,9 @@ namespace StockManagementSystem.Services.Installation
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User> _userRepository;
-        private readonly IRepository<UserPassword> _userPasswordRepository;
-        private readonly IRepository<ScheduleTask> _scheduleTaskRepository;
-        private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Branch> _branchRepository;
         private readonly IRepository<Transaction> _transRepository;
+        private readonly IRepository<Tenant> _tenantRepository;
         private readonly IWebHelper _webHelper;
 
         public CodeFirstInstallationService(
@@ -38,11 +35,9 @@ namespace StockManagementSystem.Services.Installation
             IRepository<ActivityLogType> activityLogTypeRepository,
             IRepository<Role> roleRepository,
             IRepository<User> userRepository,
-            IRepository<UserPassword> userPasswordRepository,
-            IRepository<ScheduleTask> scheduleTaskRepository,
-            IRepository<Store> storeRepository,
             IRepository<Branch> branchRepository,
             IRepository<Transaction> transRepository,
+            IRepository<Tenant> tenantRepository,
             IWebHelper webHelper)
         {
             _genericAttributeService = genericAttributeService;
@@ -50,30 +45,28 @@ namespace StockManagementSystem.Services.Installation
             _activityLogTypeRepository = activityLogTypeRepository;
             _roleRepository = roleRepository;
             _userRepository = userRepository;
-            _userPasswordRepository = userPasswordRepository;
-            _scheduleTaskRepository = scheduleTaskRepository;
-            _storeRepository = storeRepository;
             _branchRepository = branchRepository;
             _transRepository = transRepository;
+            _tenantRepository = tenantRepository;
             _webHelper = webHelper;
         }
 
-        protected void InstallStores()
+        protected void InstallTenants()
         {
-            var storeUrl = _webHelper.GetStoreLocation(false);
-            var stores = new List<Store>
+            var url = _webHelper.GetLocation(false);
+            var tenants = new List<Tenant>
             {
-                new Store
+                new Tenant
                 {
-                    P_BranchNo = 1,
-                    P_Name = "Default Store",
-                    Url = storeUrl,
+                    Name = "Tenant",
+                    Url = url,
                     SslEnabled = false,
-                    Hosts = "defaultstore.com,www.defaultstore.com",
+                    Hosts = "site.com,www.site.com",
+                    DisplayOrder = 1,
                 }
             };
 
-            _storeRepository.Insert(stores);
+            _tenantRepository.Insert(tenants);
         }
 
         protected void InstallSettings()
@@ -108,33 +101,33 @@ namespace StockManagementSystem.Services.Installation
 
             settingService.SaveSetting(new SecuritySettings
             {
-                ForceSslForAllPages = true,
+                ForceSslForAllPages = false,
                 EncryptionKey = CommonHelper.GenerateRandomDigitCode(16),
                 EnableXsrfProtection = true,
             });
 
             settingService.SaveSetting(new DateTimeSettings
             {
-                DefaultStoreTimeZoneId = string.Empty,
+                DefaultTimeZoneId = string.Empty,
                 AllowUsersToSetTimeZone = false
             });
         }
 
         protected void InstallUsersAndRoles(string defaultUserEmail, string defaultUsername, string defaultUserPassword)
         {
+            var urSysAdmin = new Role
+            {
+                Name = "SysAdmin",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = UserDefaults.SysAdminRoleName,
+            };
             var urAdministrator = new Role
             {
                 Name = "Administrators",
                 Active = true,
                 IsSystemRole = true,
                 SystemName = UserDefaults.AdministratorsRoleName,
-            };
-            var urManager = new Role
-            {
-                Name = "Managers",
-                Active = true,
-                IsSystemRole = true,
-                SystemName = UserDefaults.ManagersRoleName,
             };
             var urRegistered = new Role
             {
@@ -151,137 +144,43 @@ namespace StockManagementSystem.Services.Installation
                 SystemName = UserDefaults.GuestsRoleName,
             };
 
-            var roles = new List<Role> { urAdministrator, urManager, urRegistered, urGuests };
+            var roles = new List<Role> { urSysAdmin, urAdministrator, urRegistered, urGuests };
             _roleRepository.Insert(roles);
 
-            //default store 
-            var defaultStore = _storeRepository.Table.FirstOrDefault();
+            //default tenant 
+            var defaultTenant = _tenantRepository.Table.FirstOrDefault();
 
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            if (defaultTenant == null)
+                throw new Exception("No default tenant could be loaded");
 
-            var storeBranchNo = defaultStore.P_BranchNo;
+            var tenantId = defaultTenant.Id;
 
-            //admin user
             var adminUser = new User
             {
                 UserGuid = Guid.NewGuid(),
                 Email = defaultUserEmail,
                 Username = defaultUsername,
                 Active = true,
+                IsSystemAccount = true,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
                 LastLoginDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeBranchNo,
+                RegisteredInTenantId = tenantId,
             };
 
-            adminUser.AddUserRole(new UserRole { Role = urAdministrator });
+            adminUser.AddUserRole(new UserRole { Role = urSysAdmin });
             adminUser.AddUserRole(new UserRole { Role = urRegistered });
 
             _userRepository.Insert(adminUser);
             //set default user name
-            _genericAttributeService.SaveAttributeAsync(adminUser, UserDefaults.FirstNameAttribute, "John").GetAwaiter().GetResult();
-            _genericAttributeService.SaveAttributeAsync(adminUser, UserDefaults.LastNameAttribute, "Katak").GetAwaiter().GetResult();
+            _genericAttributeService.SaveAttributeAsync(adminUser, UserDefaults.FirstNameAttribute, "Brian").GetAwaiter().GetResult();
+            _genericAttributeService.SaveAttributeAsync(adminUser, UserDefaults.LastNameAttribute, "Eno").GetAwaiter().GetResult();
 
-            //set hashed admin password
+            //set hashed password
             var userRegistrationService = EngineContext.Current.Resolve<IUserRegistrationService>();
             userRegistrationService.ChangePasswordAsync(new ChangePasswordRequest(defaultUserEmail, false,
                     PasswordFormat.Hashed, defaultUserPassword, null, UserServiceDefaults.DefaultHashedPasswordFormat))
                 .GetAwaiter().GetResult();
-
-            //manager user
-            var managerDefaultEmail = "manager@mynewstore.com";
-            var managerDefaultUserName = "mgr";
-            var managerUser = new User
-            {
-                UserGuid = Guid.NewGuid(),
-                Email = managerDefaultEmail,
-                Username = managerDefaultUserName,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                LastLoginDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeBranchNo,
-            };
-
-            managerUser.AddUserRole(new UserRole { Role = urManager });
-            managerUser.AddUserRole(new UserRole { Role = urRegistered });
-
-            _userRepository.Insert(managerUser);
-
-            //set manager name
-            _genericAttributeService.SaveAttributeAsync(managerUser, UserDefaults.FirstNameAttribute, "Nicky").GetAwaiter().GetResult();
-            _genericAttributeService.SaveAttributeAsync(managerUser, UserDefaults.LastNameAttribute, "Santos").GetAwaiter().GetResult();
-
-            //set manager password
-            _userPasswordRepository.Insert(new UserPassword
-            {
-                User = managerUser,
-                Password = "mgr123",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
-
-            //second user
-            var secondUserEmail = "steve_gates@user.com";
-            var secondUser = new User
-            {
-                UserGuid = Guid.NewGuid(),
-                Email = secondUserEmail,
-                Username = secondUserEmail,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeBranchNo,
-            };
-
-            secondUser.AddUserRole(new UserRole { Role = urRegistered });
-
-            _userRepository.Insert(secondUser);
-            //set default user name
-            _genericAttributeService.SaveAttributeAsync(secondUser, UserDefaults.FirstNameAttribute, "Steve").GetAwaiter().GetResult();
-            _genericAttributeService.SaveAttributeAsync(secondUser, UserDefaults.LastNameAttribute, "Gates").GetAwaiter().GetResult();
-
-            //set user password
-            _userPasswordRepository.Insert(new UserPassword
-            {
-                User = secondUser,
-                Password = "123456",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
-
-            //third user
-            var thirdUserEmail = "arthur_holmes@nothing.com";
-            var thirdUser = new User
-            {
-                UserGuid = Guid.NewGuid(),
-                Email = thirdUserEmail,
-                Username = thirdUserEmail,
-                Active = true,
-                CreatedOnUtc = DateTime.UtcNow,
-                LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeBranchNo,
-            };
-
-            thirdUser.AddUserRole(new UserRole { Role = urRegistered });
-
-            _userRepository.Insert(thirdUser);
-            //set default user name
-            _genericAttributeService.SaveAttributeAsync(thirdUser, UserDefaults.FirstNameAttribute, "Arthur").GetAwaiter().GetResult();
-            _genericAttributeService.SaveAttributeAsync(thirdUser, UserDefaults.LastNameAttribute, "Holmes").GetAwaiter().GetResult();
-
-            //set user password
-            _userPasswordRepository.Insert(new UserPassword
-            {
-                User = thirdUser,
-                Password = "123456",
-                PasswordFormat = PasswordFormat.Clear,
-                PasswordSalt = string.Empty,
-                CreatedOnUtc = DateTime.UtcNow
-            });
 
             //built-in user for background tasks
             var backgroundTaskUser = new User
@@ -294,10 +193,10 @@ namespace StockManagementSystem.Services.Installation
                 SystemName = UserDefaults.BackgroundTaskUserName,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInStoreId = storeBranchNo,
+                RegisteredInTenantId = tenantId,
             };
 
-            backgroundTaskUser.AddUserRole(new UserRole {Role = urGuests});
+            backgroundTaskUser.AddUserRole(new UserRole { Role = urGuests });
             _userRepository.Insert(backgroundTaskUser);
         }
 
@@ -395,6 +294,42 @@ namespace StockManagementSystem.Services.Installation
                     Enabled = true,
                     Name = "Edit api client"
                 },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DownloadStore",
+                    Enabled = true,
+                    Name = "Master table download - [Store]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ClearStore",
+                    Enabled = true,
+                    Name = "Clear Master table data from [Store]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DownloadRole",
+                    Enabled = true,
+                    Name = "Master table download - [Role]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ClearRole",
+                    Enabled = true,
+                    Name = "Clear Master table data from [Role]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DownloadUser",
+                    Enabled = true,
+                    Name = "Master table download - [User]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ClearUser",
+                    Enabled = true,
+                    Name = "Clear Master table data from [User]"
+                },
             };
             _activityLogTypeRepository.Insert(activityLogTypes);
         }
@@ -429,48 +364,6 @@ namespace StockManagementSystem.Services.Installation
                 User = defaultUser,
                 IpAddress = "127.0.0.1"
             });
-        }
-
-        protected void InstallScheduleTasks()
-        {
-            var tasks = new List<ScheduleTask>
-            {
-                new ScheduleTask
-                {
-                    Name = "Keep alive",
-                    Seconds = 300,
-                    Type = "StockManagementSystem.Services.Common.KeepAliveTask, StockManagementSystem.Services",
-                    Enabled = true,
-                    StopOnError = false
-                },
-                new ScheduleTask
-                {
-                    Name = "Delete guests",
-                    Seconds = 600,
-                    Type = "StockManagementSystem.Services.Users.DeleteGuestsTask, StockManagementSystem.Services",
-                    Enabled = true,
-                    StopOnError = false
-                },
-                new ScheduleTask
-                {
-                    Name = "Clear cache",
-                    Seconds = 600,
-                    Type = "StockManagementSystem.Services.Caching.ClearCacheTask, StockManagementSystem.Services",
-                    Enabled = false,
-                    StopOnError = false
-                },
-                new ScheduleTask
-                {
-                    Name = "Clear log",
-                    //60 minutes
-                    Seconds = 3600,
-                    Type = "StockManagementSystem.Services.Logging.ClearLogTask, StockManagementSystem.Services",
-                    Enabled = false,
-                    StopOnError = false
-                },
-            };
-
-            _scheduleTaskRepository.Insert(tasks);
         }
 
         #region Faker data
@@ -533,11 +426,10 @@ namespace StockManagementSystem.Services.Installation
 
         public void InstallData(string defaultUserEmail, string defaultUsername, string defaultUserPassword, bool installSampleData = true)
         {
-            InstallStores();
+            InstallTenants();
             InstallSettings();
             InstallUsersAndRoles(defaultUserEmail, defaultUsername, defaultUserPassword);
             InstallActivityLogTypes();
-            InstallScheduleTasks();
 
             if (!installSampleData)
                 return;

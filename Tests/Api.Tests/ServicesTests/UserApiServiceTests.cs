@@ -9,7 +9,7 @@ using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
-using StockManagementSystem.Core.Domain.Stores;
+using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Users;
 using Tests;
 
@@ -20,10 +20,10 @@ namespace Api.Tests.ServicesTests
     {
         private Mock<IRepository<User>> _userRepository;
         private Mock<IRepository<GenericAttribute>> _genericAttributeRepository;
-        private Mock<IStoreContext> _storeContext;
+        private Mock<ITenantContext> _tenantContext;
         private UserApiService _userApiService;
         private DateTime _baseDate;
-        private Store _store;
+        private Tenant _tenant;
 
         [SetUp]
         public void SetUp()
@@ -41,7 +41,7 @@ namespace Api.Tests.ServicesTests
                 Email = "user1@test.com",
                 Active = true,
                 CreatedOnUtc = _baseDate.AddMonths(4),
-                RegisteredInStoreId = 0,
+                RegisteredInTenantId = 0,
             };
 
             var user2 = new User
@@ -51,7 +51,7 @@ namespace Api.Tests.ServicesTests
                 Email = "user2@test.com",
                 Active = true,
                 CreatedOnUtc = _baseDate.AddMonths(8),
-                RegisteredInStoreId = 0,
+                RegisteredInTenantId = 0,
             };
 
             var mockUsers = new List<User> { user1, user2 }.AsQueryable().BuildMockDbSet();
@@ -70,7 +70,7 @@ namespace Api.Tests.ServicesTests
                 Key = "FirstName",
                 Value = "John",
                 EntityId = 1,
-                StoreId = 0,
+                TenantId = 0,
             };
 
             var genericAttibute2 = new GenericAttribute()
@@ -80,7 +80,7 @@ namespace Api.Tests.ServicesTests
                 Key = "LastName",
                 Value = "Babuci",
                 EntityId = 1,
-                StoreId = 0,
+                TenantId = 0,
             };
 
             var genericAttibute3 = new GenericAttribute()
@@ -90,7 +90,7 @@ namespace Api.Tests.ServicesTests
                 Key = "FirstName",
                 Value = "Brian",
                 EntityId = 2,
-                StoreId = 0,
+                TenantId = 0,
             };
 
             var genericAttibute4 = new GenericAttribute()
@@ -100,7 +100,7 @@ namespace Api.Tests.ServicesTests
                 Key = "LastName",
                 Value = "Eno",
                 EntityId = 2,
-                StoreId = 0,
+                TenantId = 0,
             };
 
             var mockGenericAttributes = new List<GenericAttribute> { genericAttibute1, genericAttibute2, genericAttibute3, genericAttibute4 }
@@ -109,23 +109,23 @@ namespace Api.Tests.ServicesTests
 
             #endregion
 
-            #region Store
+            #region Tenant
 
-            _store = new Store
+            _tenant = new Tenant
             {
-                P_BranchNo = 123,
-                P_Name = "MyStore",
-                Url = "localhost/mystore",
+                Name = "Test Tenant",
+                Url = "localhost/mytenant",
                 SslEnabled = false,
-                Hosts = "mystore.com",
+                Hosts = "mytenant.com",
+                DisplayOrder = 1,
             };
-            _storeContext = new Mock<IStoreContext>();
-            _storeContext.Setup(x => x.CurrentStore).Returns(_store);
+            _tenantContext = new Mock<ITenantContext>();
+            _tenantContext.Setup(x => x.CurrentTenant).Returns(_tenant);
 
             #endregion
 
             _userApiService = new UserApiService(_userRepository.Object, _genericAttributeRepository.Object,
-                _storeContext.Object);
+                _tenantContext.Object);
 
             AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<User, UserDto>();
         }

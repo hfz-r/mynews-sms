@@ -22,9 +22,6 @@ namespace StockManagementSystem.Web.Infrastructure
         {
         }
 
-        public int Order
-        {
-            get { return 10; }
-        }
+        public int Order => 10;
     }
 }

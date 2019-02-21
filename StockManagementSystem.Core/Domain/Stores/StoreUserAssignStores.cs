@@ -1,7 +1,4 @@
-﻿using StockManagementSystem.Core.Domain.Identity;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Core.Domain.Stores
 {

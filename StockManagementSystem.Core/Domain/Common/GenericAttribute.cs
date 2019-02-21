@@ -23,8 +23,8 @@
         public string Value { get; set; }
 
         /// <summary>
-        /// Gets or sets the store identifier
+        /// Gets or sets the tenant identifier
         /// </summary>
-        public int StoreId { get; set; }
+        public int TenantId { get; set; }
     }
 }

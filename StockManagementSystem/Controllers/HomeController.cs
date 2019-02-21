@@ -2,55 +2,53 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Web.Controllers;
-using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
 using StockManagementSystem.Core.Domain.Stores;
 using System.Collections.Generic;
 using System;
 using StockManagementSystem.Services.Stores;
 using System.Threading.Tasks;
-using StockManagementSystem.Core.Domain.Identity;
 using StockManagementSystem.Services.Users;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using System.Threading;
-using StockManagementSystem.Services.Roles;
 using Geocoding;
 using Geocoding.Google;
+using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Users;
+using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Controllers
 {
     public class HomeController : BaseController
     {
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
-        private readonly IRoleService _roleService;
         private readonly IStoreService _storeService;
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _iconfiguration;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IRepository<UserPassword> _userPasswordRepository;
         private readonly ILogger _logger;
 
         #region Constructor
 
         public HomeController(
-            UserManager<User> userManager,
-            RoleManager<Role> roleManager,
-            IRoleService roleService,
             IStoreService storeService,
             IUserService userService,
             INotificationService notificationService,
-            ILoggerFactory loggerFactory,
-            IConfiguration iconfiguration)
+            IConfiguration iconfiguration,
+            IGenericAttributeService genericAttributeService,
+            IRepository<UserPassword> userPasswordRepository,
+            ILogger logger)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _roleService = roleService;
             _storeService = storeService;
             _userService = userService;
             _notificationService = notificationService;
             _iconfiguration = iconfiguration;
-            _logger = loggerFactory.CreateLogger<HomeController>();
+            _genericAttributeService = genericAttributeService;
+            _userPasswordRepository = userPasswordRepository;
+            _logger = logger;
         }
 
         #endregion
@@ -164,14 +162,14 @@ namespace StockManagementSystem.Controllers
                 }
                 connection.Close();
 
-                var RoleList = await _roleService.GetRolesAsync();
+                var RoleList = _userService.GetRoles();
                 foreach (var itemRoleDelete in RoleList)
                 {
                     if (!itemRoleDelete.Name.ToLower().Contains("admin") &&
                         !itemRoleDelete.Name.ToLower().Contains("manager") &&
                         !itemRoleDelete.Name.ToLower().Contains("registered"))
                     {
-                        await _roleService.DeleteRoleAsync(itemRoleDelete);
+                        await _userService.DeleteRoleAsync(itemRoleDelete);
                     }
                 }
 
@@ -183,10 +181,10 @@ namespace StockManagementSystem.Controllers
                             !itemRoleAdd.Name.Contains("Manager") &&
                             !itemRoleAdd.Name.Contains("Registered"))
                         {
-                            await _roleService.InsertRoleAsync(itemRoleAdd);
+                            await _userService.InsertRoleAsync(itemRoleAdd);
                         }
                     }
-                    _logger.LogInformation(3, "Role created successfully.");
+                    _logger.Information("Role created successfully.");
                 }
 
 
@@ -199,53 +197,65 @@ namespace StockManagementSystem.Controllers
                 sSQL = "SELECT [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] ";
                 sSQL += "FROM [dbo].[btb_HHT_Staff]";
 
+                var UserList = _userService.GetUsers();
+                var filterList = UserList.Where(x => !(x.Username.Contains("Admin"))).ToList();
+                if (filterList != null && filterList.Count() > 0)
+                {
+                    _userService.DeleteUser(filterList);
+                }
+
                 using (SqlCommand command = new SqlCommand(sSQL, connection))
                 {
                     SqlDataReader reader = command.ExecuteReader();
 
                     while (reader.Read())
                     {
-                        users.Add(new User()
+                        if (!string.IsNullOrEmpty(reader["email"].ToString()))
                         {
-                            UserName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_no"].ToString().ToLower()),
-                            Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_name"].ToString().ToLower()),
-                            AdminComment = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["role"].ToString().ToLower()),
-                            Email = reader["email"].ToString().Trim(),
-                        });
-                    }
-                }
-                connection.Close();
-
-                var UserList = _userService.GetUsers();
-                var filterList = UserList.Where(x => !(x.Name.Contains("Admin"))).ToList();
-                if (filterList != null && filterList.Count() > 0)
-                {
-                    _userService.DeleteUser(filterList);
-                }
-
-                if (users != null && users.Count > 0)
-                {
-                    foreach (var item in users)
-                    {
-                        if (!string.IsNullOrEmpty(item.Email))
-                        {
-                            var role = item.AdminComment;
-                            item.AdminComment = null;
-
-                            var result = await _userManager.CreateAsync(item, "password123");
-                            if (result.Succeeded)
+                            var user = new User
                             {
-                                var userRole = string.IsNullOrEmpty(role) ? "Outlet" : role == "Admin" ? "Administrators" : role;
-                                await _userManager.AddToRoleAsync(item, userRole);
+                                UserGuid = Guid.NewGuid(),
+                                Username = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_no"].ToString().ToLower()),
+                                Email = reader["email"].ToString().Trim(),
+                                //AdminComment = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["role"].ToString().ToLower()),
+                                //Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_name"].ToString().ToLower()),
+                                Active = true,
+                                CreatedOnUtc = DateTime.UtcNow,
+                            };
+
+                            var getRoleStr = string.IsNullOrEmpty(reader["role"].ToString())
+                                ? "Outlet" : reader["role"].ToString() == "Admin"
+                                    ? "Administrators" : reader["role"].ToString();
+                            var role = _userService.GetRoleBySystemName(getRoleStr);
+
+                            user.AddUserRole(new UserRole { Role = role });
+
+                            try
+                            {
+                                await _userService.InsertUserAsync(user);
+                                await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.FirstNameAttribute,
+                                    reader["staff_name"].ToString());
+
+                                _userPasswordRepository.Insert(new UserPassword
+                                {
+                                    User = user,
+                                    Password = "password123",
+                                    PasswordFormat = PasswordFormat.Clear,
+                                    PasswordSalt = string.Empty,
+                                    CreatedOnUtc = DateTime.UtcNow
+                                });
                             }
-                            else
+                            catch
                             {
-                                AddErrors(result);
+                                // ignored
                             }
                         }
                     }
-                    _logger.LogInformation(3, "Users created a new account with default password(password123).");
                 }
+
+                _logger.Information("Users created a new account with default password(password123).");
+
+                connection.Close();
 
                 #endregion
             }

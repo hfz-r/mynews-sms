@@ -64,10 +64,7 @@ namespace StockManagementSystem.Web.Infrastructure
             application.UseStartupTime();
         }
 
-        public int Order
-        {
-            //common services should be loaded after error handlers
-            get { return 100; }
-        }
+        //common services should be loaded after error handlers
+        public int Order => 100;
     }
 }

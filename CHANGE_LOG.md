@@ -9,11 +9,11 @@
 - Install module
   - replace seeder on existing application.
   - covered-up waiting time on application first-load startup.
-  - helps prepared database and overcome previous issues (database not loaded on seeded)
-  - introduced dynamic admin configuration rather than **hard-coded (anti-pattern)**
+  - helps prepared database and overcome previous issues (database not loaded on startup)
+  - introduced sysadmin configuration
     ```
     With some of modules need to configure first such as API Settings,
-    (others still hard-coded), admin will be the highest in role`s
+    (others still hard-coded), sysadmin will be the highest in role`s
     hierarchy and have controls over it.
     ```
 
@@ -25,9 +25,6 @@
    - approach: Restful plugin-based 
    - [documentation](https://documenter.getpostman.com/view/4900831/RztrHRUB)
 
-- Session context
-  - to log the application traffics
-  - **Registered** for user with identity (accounts) and **Guests** for others.
-    ```
-    Guests, cache, logs (disabled) will be clear by task-scheduler not more than 1440 minutes
-    ```
+-- **21-02-2019**
+
+- added DownloadMasterData to background worker and scheduled tasks.

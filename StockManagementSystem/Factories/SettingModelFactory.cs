@@ -3,40 +3,29 @@ using System.Threading.Tasks;
 using StockManagementSystem.Core;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Setting;
-using StockManagementSystem.Models.Stores;
+using StockManagementSystem.Models.Tenants;
 using StockManagementSystem.Services.Common;
-using StockManagementSystem.Services.Configuration;
-using StockManagementSystem.Services.Helpers;
-using StockManagementSystem.Services.Stores;
+using StockManagementSystem.Services.Tenants;
 
 namespace StockManagementSystem.Factories
 {
     public class SettingModelFactory : ISettingModelFactory
     {
-        private readonly IBaseModelFactory _baseModelFactory;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IGenericAttributeService _genericAttributeService;
-        private readonly ISettingService _settingService;
-        private readonly IStoreService _storeService;
-        private readonly IStoreContext _storeContext;
+        private readonly ITenantService _tenantService;
         private readonly IWorkContext _workContext;
+        private readonly ITenantContext _tenantContext;
 
         public SettingModelFactory(
-            IBaseModelFactory baseModelFactory, 
-            IDateTimeHelper dateTimeHelper, 
             IGenericAttributeService genericAttributeService, 
-            ISettingService settingService,
-            IStoreService storeService,
-            IStoreContext storeContext,
-            IWorkContext workContext)
+            ITenantService tenantService,
+            IWorkContext workContext,
+            ITenantContext tenantContext)
         {
-            _baseModelFactory = baseModelFactory;
-            _dateTimeHelper = dateTimeHelper;
             _genericAttributeService = genericAttributeService;
-            _settingService = settingService;
-            _storeService = storeService;
-            _storeContext = storeContext;
+            _tenantService = tenantService;
             _workContext = workContext;
+            _tenantContext = tenantContext;
         }
 
         public async Task<SettingModeModel> PrepareSettingModeModel(string modeName)
@@ -51,25 +40,17 @@ namespace StockManagementSystem.Factories
         }
 
         /// <summary>
-        /// Prepare store scope configuration model
+        /// Prepare tenant scope configuration model
         /// </summary>
-        public async Task<StoreScopeConfigurationModel> PrepareStoreScopeConfigurationModel()
+        public async Task<TenantScopeConfigurationModel> PrepareTenantScopeConfigurationModel()
         {
-            var storeScopeModel = new StoreScopeConfigurationModel
+            var model = new TenantScopeConfigurationModel
             {
-                Stores = (await _storeService.GetStoresAsync()).Select(store =>
-                {
-                    var model = store.ToModel<StoreModel>();
-                    model.Id = store.P_BranchNo;
-                    model.Name = store.P_Name;
-
-                    return model;
-
-                }).ToList(),
-                StoreId = _storeContext.ActiveStoreScopeConfiguration
+                Tenants = (await _tenantService.GetTenantsAsync()).Select(t => t.ToModel<TenantModel>()).ToList(),
+                TenantId = _tenantContext.ActiveTenantScopeConfiguration
             };
 
-            return storeScopeModel;
+            return model;
         }
     }
 }

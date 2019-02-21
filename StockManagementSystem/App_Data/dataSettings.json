@@ -1,5 +1,5 @@
 ﻿{
   "DataProvider": "sqlserver",
-  "DataConnectionString": "Data Source=ESD-LOAN1;Initial Catalog=ESD_myNEWS_NEW;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=p@ssw0rd",
+  "DataConnectionString": "Data Source=ESD-HAFIZ;Initial Catalog=ESD_myNEWS;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=p@ssw0rd",
   "RawDataSettings": {}
 }

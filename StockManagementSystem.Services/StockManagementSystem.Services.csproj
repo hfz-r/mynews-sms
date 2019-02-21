@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Geocoding.Core" Version="4.0.1" />
+    <PackageReference Include="Geocoding.Google" Version="4.0.1" />
     <PackageReference Include="MimeKit" Version="2.1.2" />
     <PackageReference Include="Bogus" Version="25.0.4" />
   </ItemGroup>

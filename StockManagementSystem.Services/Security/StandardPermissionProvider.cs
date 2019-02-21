@@ -24,6 +24,18 @@ namespace StockManagementSystem.Services.Security
         public static readonly Permission ManageOrderLimit =
             new Permission { Name = "Manage Stock Order Limits", SystemName = "ManageOrderLimit", Category = "Configuration" };
 
+        public static readonly Permission ManagePushNotification = 
+            new Permission { Name = "Manage Push Notification", SystemName = "ManagePushNotification", Category = "Push Notification" };
+
+        public static readonly Permission ManageLocation = 
+            new Permission { Name = "Manage Locations",  SystemName = "ManageLocation", Category = "Setting" };
+
+        public static readonly Permission ManageFormatSetting = 
+            new Permission { Name = "Manage Format Setting",  SystemName = "ManageFormatSetting", Category = "Setting"  };
+
+        public static readonly Permission ManageOutletManagement =
+            new Permission { Name = "Manage Outlet Management", SystemName = "ManageOutletManagement", Category = "Outlet Management" };
+
         public static readonly Permission ManageAcl = 
             new Permission { Name = "Manage ACL", SystemName = "ManageAcl", Category = "Configuration" };
 
@@ -32,13 +44,6 @@ namespace StockManagementSystem.Services.Security
 
         public static readonly Permission ManageMaintenance = 
             new Permission { Name = "Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration" };
-
-        public static readonly Permission ManageOutletManagement = new Permission
-        {
-            Name = "Manage Outlet Management",
-            SystemName = "ManageOutletManagement",
-            Category = "Outlet Management"
-        };
 
         //TODO: other modules
 
@@ -55,11 +60,13 @@ namespace StockManagementSystem.Services.Security
                 ManageDevices,
                 ManageReports,
                 ManageOrderLimit,
+                ManagePushNotification,
+                ManageLocation,
+                ManageFormatSetting,
+                ManageOutletManagement,
                 ManageAcl,
                 ManagePlugins,
                 ManageMaintenance,
-                ManageFormatSetting,
-                ManageOutletManagement
             };
         }
 
@@ -70,6 +77,27 @@ namespace StockManagementSystem.Services.Security
         {
             return new[]
             {
+                //TODO: disable sysadmin for others
+                new DefaultPermission
+                {
+                    RoleSystemName = UserDefaults.SysAdminRoleName,
+                    Permissions = new[]
+                    {
+                        AccessPanel,
+                        ManageUsers,
+                        ManageActivityLog,
+                        ManageDevices,
+                        ManageReports,
+                        ManageOrderLimit,
+                        ManagePushNotification,
+                        ManageLocation,
+                        ManageFormatSetting,
+                        ManageOutletManagement,
+                        ManageAcl,
+                        ManagePlugins,
+                        ManageMaintenance,
+                    }
+                },
                 new DefaultPermission
                 {
                     RoleSystemName = UserDefaults.AdministratorsRoleName,
@@ -79,25 +107,12 @@ namespace StockManagementSystem.Services.Security
                         ManageUsers,
                         ManageDevices,
                         ManageReports,
-                        ManageActivityLog,
                         ManageOrderLimit,
-                        ManageAcl,
-                        ManagePlugins,
-                        ManageMaintenance,
+                        ManagePushNotification,
+                        ManageLocation,
                         ManageFormatSetting,
-                        ManageOutletManagement
-                    }
-                },
-                new DefaultPermission
-                {
-                    RoleSystemName = UserDefaults.ManagersRoleName,
-                    Permissions = new[]
-                    {
-                        AccessPanel,
-                        ManageUsers,
-                        ManageDevices,
-                        ManageReports,
-                        ManageOrderLimit,
+                        ManageOutletManagement,
+                        ManageAcl,
                     }
                 },
                 new DefaultPermission
@@ -106,6 +121,13 @@ namespace StockManagementSystem.Services.Security
                     Permissions = new[]
                     {
                         AccessPanel,
+                        ManageDevices,
+                        ManageReports,
+                        ManageOrderLimit,
+                        ManagePushNotification,
+                        ManageLocation,
+                        ManageFormatSetting,
+                        ManageOutletManagement,
                     }
                 },
                 new DefaultPermission

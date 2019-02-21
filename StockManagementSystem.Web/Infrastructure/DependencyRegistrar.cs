@@ -29,7 +29,7 @@ using StockManagementSystem.Services.PushNotifications;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Services.Settings;
 using StockManagementSystem.Services.Stores;
-using StockManagementSystem.Services.Tasks;
+using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Mvc.Routing;
 using StockManagementSystem.Web.UI;
@@ -64,11 +64,11 @@ namespace StockManagementSystem.Web.Infrastructure
             // static cache manager
             builder.RegisterType<MemoryCacheManager>().As<ILocker>().As<IStaticCacheManager>().SingleInstance();
 
+            //tenant context
+            builder.RegisterType<TenantContext>().As<ITenantContext>().InstancePerLifetimeScope();
+
             // work context
             builder.RegisterType<WorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
-
-            //store context
-            builder.RegisterType<StoreContext>().As<IStoreContext>().InstancePerLifetimeScope();
 
             // services
             builder.RegisterType<EmailSender>().As<IEmailSender>().InstancePerLifetimeScope();
@@ -88,11 +88,11 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
+            builder.RegisterType<TenantService>().As<ITenantService>().InstancePerLifetimeScope();
             builder.RegisterType<UserActivityService>().As<IUserActivityService>().InstancePerLifetimeScope();
             builder.RegisterType<EncryptionService>().As<IEncryptionService>().InstancePerLifetimeScope();
             builder.RegisterType<CookieAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultLogger>().As<ILogger>().InstancePerLifetimeScope();
-            builder.RegisterType<ScheduleTaskService>().As<IScheduleTaskService>().InstancePerLifetimeScope();
             builder.RegisterType<RoutePublisher>().As<IRoutePublisher>().SingleInstance();
             builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
 
@@ -133,8 +133,8 @@ namespace StockManagementSystem.Web.Infrastructure
             return RegistrationBuilder
                 .ForDelegate((context, parameters) =>
                 {
-                    var currentStoreId = context.Resolve<IStoreContext>().CurrentStore.P_BranchNo;
-                    return context.Resolve<ISettingService>().LoadSetting<TSettings>(currentStoreId);
+                    var currentTenantId = context.Resolve<ITenantContext>().CurrentTenant.Id;
+                    return context.Resolve<ISettingService>().LoadSetting<TSettings>(currentTenantId);
                 })
                 .InstancePerLifetimeScope()
                 .CreateRegistration();

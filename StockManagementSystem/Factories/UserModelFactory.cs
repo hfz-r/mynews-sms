@@ -10,7 +10,7 @@ using StockManagementSystem.Web.Factories;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Services.Common;
-using StockManagementSystem.Services.Stores;
+using StockManagementSystem.Services.Tenants;
 
 namespace StockManagementSystem.Factories
 {
@@ -26,7 +26,7 @@ namespace StockManagementSystem.Factories
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IAclSupportedModelFactory _aclSupportedModelFactory;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IStoreService _storeService;
+        private readonly ITenantService _tenantService;
 
         public UserModelFactory(
             UserSettings userSettings,
@@ -36,7 +36,7 @@ namespace StockManagementSystem.Factories
             IGenericAttributeService genericAttributeService,
             IAclSupportedModelFactory aclSupportedModelFactory,
             IDateTimeHelper dateTimeHelper,
-            IStoreService storeService)
+            ITenantService tenantService)
         {
             _userSettings = userSettings;
             _userService = userService;
@@ -45,7 +45,7 @@ namespace StockManagementSystem.Factories
             _genericAttributeService = genericAttributeService;
             _aclSupportedModelFactory = aclSupportedModelFactory;
             _dateTimeHelper = dateTimeHelper;
-            _storeService = storeService;
+            _tenantService = tenantService;
         }
 
         public Task<UserSearchModel> PrepareUserSearchModel(UserSearchModel searchModel)
@@ -162,9 +162,7 @@ namespace StockManagementSystem.Factories
                     model.LastIpAddress = user.LastIpAddress;
                     model.LastVisitedPage = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.LastVisitedPageAttribute);
                     model.SelectedRoleIds = user.UserRoles.Select(map => map.RoleId).ToList();
-                    model.RegisteredInStore = (await _storeService.GetStoresAsync())
-                                              .FirstOrDefault(store => store.P_BranchNo == user.RegisteredInStoreId)
-                                              ?.P_Name ?? String.Empty;
+                    model.RegisteredInTenant = (await _tenantService.GetTenantsAsync()).FirstOrDefault(tenant => tenant.Id == user.RegisteredInTenantId)?.Name ?? String.Empty;
                 }
                 //prepare nested search models
                 PrepareUserActivityLogSearchModel(model.UserActivityLogSearchModel, user);

@@ -72,19 +72,19 @@
                                     pageSize: @(Model.PageSize),
                                     serverPaging: true,
                                     serverFiltering: true,
-                                    serverSorting: true,
-                                    sort: { field: "Id", dir: "asc" }
+                                    serverSorting: true
+                                    //sort: { field: "Id", dir: "asc" }
                                 },
-                                sortable: {
-                                    mode: "single",
-                                    allowUnsort: false
-                                },
+                                //sortable: {
+                                //    mode: "single",
+                                //    allowUnsort: false
+                                //},
                                 filterable: true,
                                 columnMenu: { columns: false },
                                 pageable: {
                                     refresh: true,
-                                    pageSizes: [@(Model.AvailablePageSizes)],
-                                    @await Html.PartialAsync("_GridPagerMessages")
+                                    @*pageSizes: [@(Model.AvailablePageSizes)],
+                                    @await Html.PartialAsync("_GridPagerMessages")*@
                                 },
                                 toolbar: [
                                     {
@@ -118,7 +118,10 @@
                                         width: 10
                                     }
                                 ],
-                                editable: "inline",
+                                editable: {
+                                    mode: "inline",
+                                    createAt: "bottom"
+                                },
                                 edit: function(e) {
                                     // Change buttons visibility when the Grid enters edit mode.
                                     var editRow = e.container;

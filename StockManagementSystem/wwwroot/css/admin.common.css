@@ -1204,7 +1204,7 @@ button, .button-1, .button-2 { cursor: pointer; }
     color: #4cb17c;
 }
 
-.store-scope-configuration .label-wrapper {
+.tenant-scope-configuration .label-wrapper {
     float: left;
     margin-right: 10px;
 }

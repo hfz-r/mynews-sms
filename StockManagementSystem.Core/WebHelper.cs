@@ -127,11 +127,11 @@ namespace StockManagementSystem.Core
             if (!IsRequestAvailable())
                 return string.Empty;
 
-            // get app location
-            var storeLocation = GetStoreLocation(useSsl ?? IsCurrentConnectionSecured());
+            // get location
+            var location = GetLocation(useSsl ?? IsCurrentConnectionSecured());
 
             //add local path to the URL
-            var pageUrl = $"{storeLocation.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.Path}";
+            var pageUrl = $"{location.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.Path}";
 
             //add query string to the URL
             if (includeQueryString)
@@ -160,7 +160,7 @@ namespace StockManagementSystem.Core
             return _httpContextAccessor.HttpContext.Request.IsHttps;
         }
 
-        public virtual string GetStoreHost(bool useSsl)
+        public virtual string GetHost(bool useSsl)
         {
             if (!IsRequestAvailable())
                 return string.Empty;
@@ -170,36 +170,36 @@ namespace StockManagementSystem.Core
                 return string.Empty;
 
             //add scheme to the URL
-            var storeHost = $"{(useSsl ? Uri.UriSchemeHttps : Uri.UriSchemeHttp)}{Uri.SchemeDelimiter}{hostHeader.FirstOrDefault()}";
+            var host = $"{(useSsl ? Uri.UriSchemeHttps : Uri.UriSchemeHttp)}{Uri.SchemeDelimiter}{hostHeader.FirstOrDefault()}";
 
             //ensure that host is ended with slash
-            storeHost = $"{storeHost.TrimEnd('/')}/";
+            host = $"{host.TrimEnd('/')}/";
 
-            return storeHost;
+            return host;
         }
 
-        public virtual string GetStoreLocation(bool? useSsl = null)
+        public virtual string GetLocation(bool? useSsl = null)
         {
-            var storeLocation = string.Empty;
+            var location = string.Empty;
 
-            // get app host
-            var storeHost = GetStoreHost(useSsl ?? IsCurrentConnectionSecured());
-            if (!string.IsNullOrEmpty(storeHost))
+            // get host
+            var host = GetHost(useSsl ?? IsCurrentConnectionSecured());
+            if (!string.IsNullOrEmpty(host))
             {
                 //add application path base if exists
-                storeLocation = IsRequestAvailable() ? $"{storeHost.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.PathBase}" : storeHost;
+                location = IsRequestAvailable() ? $"{host.TrimEnd('/')}{_httpContextAccessor.HttpContext.Request.PathBase}" : host;
             }
 
-            if (string.IsNullOrEmpty(storeHost) && DataSettingsManager.DatabaseIsInstalled)
+            if (string.IsNullOrEmpty(host) && DataSettingsManager.DatabaseIsInstalled)
             {
-                storeLocation = EngineContext.Current.Resolve<IStoreContext>().CurrentStore?.Url ??
-                                throw new Exception("Current store cannot be loaded");
+                location = EngineContext.Current.Resolve<ITenantContext>().CurrentTenant?.Url ??
+                           throw new Exception("Current tenant failed to be loaded");
             }
-            
-            //ensure that URL is ended with slash
-            storeLocation = $"{storeLocation.TrimEnd('/')}/";
 
-            return storeLocation;
+            //ensure that URL is ended with slash
+            location = $"{location.TrimEnd('/')}/";
+
+            return location;
         }
 
         public virtual bool IsStaticResource()

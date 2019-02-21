@@ -40,7 +40,7 @@ namespace StockManagementSystem.Services.Configuration
 
             public string Value { get; set; }
 
-            public int StoreId { get; set; }
+            public int TenantId { get; set; }
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace StockManagementSystem.Services.Configuration
                 //use no tracking here for performance optimization
                 //anyway records are loaded only for read-only operations
                 var query = from s in _settingRepository.TableNoTracking
-                    orderby s.Name, s.StoreId select s;
+                    orderby s.Name, s.TenantId select s;
                 var settings = query.ToList();
                 var dictionary = new Dictionary<string, IList<SettingForCaching>>();
                 foreach (var s in settings)
@@ -64,7 +64,7 @@ namespace StockManagementSystem.Services.Configuration
                         Id = s.Id,
                         Name = s.Name,
                         Value = s.Value,
-                        StoreId = s.StoreId,
+                        TenantId = s.TenantId,
                     };
                     if (!dictionary.ContainsKey(resourceName))
                     {
@@ -87,7 +87,7 @@ namespace StockManagementSystem.Services.Configuration
         /// <summary>
         /// Set setting value
         /// </summary>
-        protected void SetSetting(Type type, string key, object value, int storeId = 0, bool clearCache = true)
+        protected void SetSetting(Type type, string key, object value, int tenantId = 0, bool clearCache = true)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
@@ -97,7 +97,7 @@ namespace StockManagementSystem.Services.Configuration
 
             var allSettings = GetAllSettingsCached();
             var settingForCaching = allSettings.ContainsKey(key)
-                ? allSettings[key].FirstOrDefault(x => x.StoreId == storeId) : null;
+                ? allSettings[key].FirstOrDefault(x => x.TenantId == tenantId) : null;
             if (settingForCaching != null)
             {
                 //update
@@ -112,7 +112,7 @@ namespace StockManagementSystem.Services.Configuration
                 {
                     Name = key,
                     Value = valueStr,
-                    StoreId = storeId,
+                    TenantId = tenantId,
                 };
                 InsertSettingAsync(setting, clearCache).GetAwaiter().GetResult();
             }
@@ -174,7 +174,7 @@ namespace StockManagementSystem.Services.Configuration
         /// <summary>
         /// Get setting by key
         /// </summary>
-        public async Task<Setting> GetSettingAsync(string key, int storeId = 0, bool loadSharedValueIfNotFound = false)
+        public async Task<Setting> GetSettingAsync(string key, int tenantId = 0, bool loadSharedValueIfNotFound = false)
         {
             if (string.IsNullOrEmpty(key))
                 return null;
@@ -185,10 +185,10 @@ namespace StockManagementSystem.Services.Configuration
                 return null;
 
             var settingsByKey = settings[key];
-            var setting = settingsByKey.FirstOrDefault(x => x.StoreId == storeId);
+            var setting = settingsByKey.FirstOrDefault(x => x.TenantId == tenantId);
 
-            if (setting == null && storeId > 0 && loadSharedValueIfNotFound)
-                setting = settingsByKey.FirstOrDefault(x => x.StoreId == 0);
+            if (setting == null && tenantId > 0 && loadSharedValueIfNotFound)
+                setting = settingsByKey.FirstOrDefault(x => x.TenantId == 0);
 
             return setting != null ? await GetSettingByIdAsync(setting.Id) : null;
         }
@@ -196,7 +196,7 @@ namespace StockManagementSystem.Services.Configuration
         /// <summary>
         /// Get setting value by key
         /// </summary>
-        public virtual T GetSettingByKey<T>(string key, T defaultValue = default(T), int storeId = 0, bool loadSharedValueIfNotFound = false)
+        public virtual T GetSettingByKey<T>(string key, T defaultValue = default(T), int tenantId = 0, bool loadSharedValueIfNotFound = false)
         {
             if (string.IsNullOrEmpty(key))
                 return defaultValue;
@@ -207,10 +207,10 @@ namespace StockManagementSystem.Services.Configuration
                 return defaultValue;
 
             var settingsByKey = settings[key];
-            var setting = settingsByKey.FirstOrDefault(x => x.StoreId == storeId);
+            var setting = settingsByKey.FirstOrDefault(x => x.TenantId == tenantId);
 
-            if (setting == null && storeId > 0 && loadSharedValueIfNotFound)
-                setting = settingsByKey.FirstOrDefault(x => x.StoreId == 0);
+            if (setting == null && tenantId > 0 && loadSharedValueIfNotFound)
+                setting = settingsByKey.FirstOrDefault(x => x.TenantId == 0);
 
             return setting != null ? CommonHelper.To<T>(setting.Value) : defaultValue;
         }
@@ -218,9 +218,9 @@ namespace StockManagementSystem.Services.Configuration
         /// <summary>
         /// Set setting value
         /// </summary>
-        public virtual void SetSetting<T>(string key, T value, int storeId = 0, bool clearCache = true)
+        public virtual void SetSetting<T>(string key, T value, int tenantId = 0, bool clearCache = true)
         {
-            SetSetting(typeof(T), key, value, storeId, clearCache);
+            SetSetting(typeof(T), key, value, tenantId, clearCache);
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace StockManagementSystem.Services.Configuration
         public virtual async Task<IList<Setting>> GetAllSettingsAsync()
         {
             var query = from s in _settingRepository.Table
-                orderby s.Name, s.StoreId
+                orderby s.Name, s.TenantId
                 select s;
             var settings = await query.ToListAsync();
             return settings;
@@ -238,12 +238,12 @@ namespace StockManagementSystem.Services.Configuration
         /// <summary>
         /// Determines whether a setting exists
         /// </summary>
-        public bool SettingExists<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int storeId = 0)
+        public bool SettingExists<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int tenantId = 0)
             where T : ISettings, new()
         {
             var key = GetSettingKey(settings, keySelector);
 
-            var setting = GetSettingByKey<string>(key, storeId: storeId);
+            var setting = GetSettingByKey<string>(key, tenantId: tenantId);
 
             return setting != null;
         }
@@ -252,16 +252,18 @@ namespace StockManagementSystem.Services.Configuration
         /// Load settings
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        public T LoadSetting<T>(int storeId = 0) where T : ISettings, new()
+        /// <param name="tenantId">Tenant identifier for which settings should be loaded</param>
+        public T LoadSetting<T>(int tenantId = 0) where T : ISettings, new()
         {
-            return (T) LoadSetting(typeof(T), storeId);
+            return (T) LoadSetting(typeof(T), tenantId);
         }
 
         /// <summary>
         /// Load settings
         /// </summary>
         /// <param name="type">Type</param>
-        public ISettings LoadSetting(Type type, int storeId = 0)
+        /// <param name="tenantId">Tenant identifier for which settings should be loaded</param>
+        public ISettings LoadSetting(Type type, int tenantId = 0)
         {
             var settings = Activator.CreateInstance(type);
 
@@ -272,8 +274,8 @@ namespace StockManagementSystem.Services.Configuration
                     continue;
 
                 var key = type.Name + "." + prop.Name;
-                //load by store
-                var setting = GetSettingByKey<string>(key, storeId: storeId, loadSharedValueIfNotFound: true);
+                //load by tenant
+                var setting = GetSettingByKey<string>(key, tenantId: tenantId, loadSharedValueIfNotFound: true);
                 if (setting == null)
                     continue;
 
@@ -296,8 +298,9 @@ namespace StockManagementSystem.Services.Configuration
         /// Save settings object
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
+        /// <param name="tenantId">Tenant identifier</param>
         /// <param name="settings">Setting instance</param>
-        public void SaveSetting<T>(T settings, int storeId = 0) where T : ISettings, new()
+        public void SaveSetting<T>(T settings, int tenantId = 0) where T : ISettings, new()
         {
             /* cache will not be clear after each setting update = increased performance */
             foreach (var prop in typeof(T).GetProperties())
@@ -311,9 +314,9 @@ namespace StockManagementSystem.Services.Configuration
                 var key = typeof(T).Name + "." + prop.Name;
                 var value = prop.GetValue(settings, null);
                 if (value != null)
-                    SetSetting(prop.PropertyType, key, value, storeId, false);
+                    SetSetting(prop.PropertyType, key, value, tenantId, false);
                 else
-                    SetSetting(key, string.Empty, storeId, false);
+                    SetSetting(key, string.Empty, tenantId, false);
             }
 
             //and now clear cache
@@ -327,8 +330,9 @@ namespace StockManagementSystem.Services.Configuration
         /// <typeparam name="TPropType">Property type</typeparam>
         /// <param name="settings">Settings</param>
         /// <param name="keySelector">Key selector</param>
+        /// <param name="tenantId">Tenant ID</param>
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-        public void SaveSetting<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int storeId = 0,
+        public void SaveSetting<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int tenantId = 0,
             bool clearCache = true) where T : ISettings, new()
         {
             if (!(keySelector.Body is MemberExpression member))
@@ -345,28 +349,28 @@ namespace StockManagementSystem.Services.Configuration
             var key = GetSettingKey(settings, keySelector);
             var value = (TPropType) propInfo.GetValue(settings, null);
             if (value != null)
-                SetSetting(key, value, storeId, clearCache);
+                SetSetting(key, value, tenantId, clearCache);
             else
-                SetSetting(key, string.Empty, storeId, clearCache);
+                SetSetting(key, string.Empty, tenantId, clearCache);
         }
 
         /// <summary>
-        /// Save settings object (per store). If the setting is not overridden per store then it'll be delete
+        /// Save settings object (per tenant). If the setting is not overridden per tenant then it'll be delete
         /// </summary>
         /// <typeparam name="T">Entity type</typeparam>
         /// <typeparam name="TPropType">Property type</typeparam>
         /// <param name="settings">Settings</param>
         /// <param name="keySelector">Key selector</param>
-        /// <param name="overrideForStore">A value indicating whether to setting is overridden in some store</param>
-        /// <param name="storeId">Store ID</param>
+        /// <param name="overrideForTenant">A value indicating whether to setting is overridden in some tenant</param>
+        /// <param name="tenantId">Tenant ID</param>
         /// <param name="clearCache">A value indicating whether to clear cache after setting update</param>
-        public async Task SaveSettingOverridablePerStore<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector,
-            bool overrideForStore, int storeId = 0, bool clearCache = true) where T : ISettings, new()
+        public async Task SaveSettingOverridablePerTenant<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector,
+            bool overrideForTenant, int tenantId = 0, bool clearCache = true) where T : ISettings, new()
         {
-            if (overrideForStore || storeId == 0)
-                SaveSetting(settings, keySelector, storeId, clearCache);
-            else if (storeId > 0)
-                await DeleteSetting(settings, keySelector, storeId);
+            if (overrideForTenant || tenantId == 0)
+                SaveSetting(settings, keySelector, tenantId, clearCache);
+            else if (tenantId > 0)
+                await DeleteSetting(settings, keySelector, tenantId);
         }
 
         /// <summary>
@@ -393,14 +397,15 @@ namespace StockManagementSystem.Services.Configuration
         /// <typeparam name="TPropType">Property type</typeparam>
         /// <param name="settings">Settings</param>
         /// <param name="keySelector">Key selector</param>
-        public async Task DeleteSetting<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int storeId = 0)
+        /// <param name="tenantId">Tenant ID</param>
+        public async Task DeleteSetting<T, TPropType>(T settings, Expression<Func<T, TPropType>> keySelector, int tenantId = 0)
             where T : ISettings, new()
         {
             var key = GetSettingKey(settings, keySelector);
             key = key.Trim().ToLowerInvariant();
 
             var allSettings = GetAllSettingsCached();
-            var settingForCaching = allSettings.ContainsKey(key) ? allSettings[key].FirstOrDefault(x => x.StoreId == storeId) : null;
+            var settingForCaching = allSettings.ContainsKey(key) ? allSettings[key].FirstOrDefault(x => x.TenantId == tenantId) : null;
             if (settingForCaching == null)
                 return;
 

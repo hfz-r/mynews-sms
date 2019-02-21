@@ -5,7 +5,7 @@ using Moq;
 using NUnit.Framework;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Common;
-using StockManagementSystem.Core.Domain.Stores;
+using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Configuration;
@@ -18,12 +18,12 @@ namespace Services.Tests.Helpers
     public class DateTimeHelperTests : ServiceTest
     {
         private Mock<IWorkContext> _workContext;
-        private Mock<IStoreContext> _storeContext;
+        private Mock<ITenantContext> _tenantContext;
         private Mock<IGenericAttributeService> _genericAttributeService;
         private Mock<ISettingService> _settingService;
         private DateTimeSettings _dateTimeSettings;
         private IDateTimeHelper _dateTimeHelper;
-        private Store _store;
+        private Tenant _tenant;
 
         /// <summary>
         /// (GMT+02:00) Minsk
@@ -48,14 +48,14 @@ namespace Services.Tests.Helpers
 
             _workContext = new Mock<IWorkContext>();
 
-            _store = new Store { Id = 1 };
-            _storeContext = new Mock<IStoreContext>();
-            _storeContext.Setup(x => x.CurrentStore).Returns(_store);
+            _tenant = new Tenant { Id = 1 };
+            _tenantContext = new Mock<ITenantContext>();
+            _tenantContext.Setup(x => x.CurrentTenant).Returns(_tenant);
 
             _dateTimeSettings = new DateTimeSettings
             {
                 AllowUsersToSetTimeZone = false,
-                DefaultStoreTimeZoneId = string.Empty,
+                DefaultTimeZoneId = string.Empty,
             };
 
             _dateTimeHelper = new DateTimeHelper(_dateTimeSettings, _genericAttributeService.Object,
@@ -88,7 +88,7 @@ namespace Services.Tests.Helpers
         public void Can_get_user_timeZone_with_customTimeZones_enabled()
         {
             _dateTimeSettings.AllowUsersToSetTimeZone = true;
-            _dateTimeSettings.DefaultStoreTimeZoneId = _gmtPlus2MinskTimeZoneId;
+            _dateTimeSettings.DefaultTimeZoneId = _gmtPlus2MinskTimeZoneId;
 
             var user = new User {Id = 10};
 
@@ -104,7 +104,7 @@ namespace Services.Tests.Helpers
         public void Can_get_user_timeZone_with_customTimeZones_disabled()
         {
             _dateTimeSettings.AllowUsersToSetTimeZone = false;
-            _dateTimeSettings.DefaultStoreTimeZoneId = _gmtPlus2MinskTimeZoneId;
+            _dateTimeSettings.DefaultTimeZoneId = _gmtPlus2MinskTimeZoneId;
 
             var user = new User { Id = 10 };
 
@@ -113,7 +113,7 @@ namespace Services.Tests.Helpers
                 {
                     new GenericAttribute
                     {
-                        StoreId = 0,
+                        TenantId = 0,
                         EntityId = user.Id,
                         Key = UserDefaults.TimeZoneIdAttribute,
                         KeyGroup = "User",

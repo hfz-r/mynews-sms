@@ -24,10 +24,7 @@ namespace StockManagementSystem.Web.Infrastructure
             application.UseDefaultMvc();
         }
 
-        public int Order
-        {
-            //MVC should be loaded last
-            get { return 1000; }
-        }
+        //MVC should be loaded last
+        public int Order => 1000;
     }
 }

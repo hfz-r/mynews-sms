@@ -31,7 +31,7 @@ namespace StockManagementSystem.Controllers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly INotificationService _notificationService;
         private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
+        private readonly ITenantContext _tenantContext;
         private readonly IEmailSender _emailSender;
 
         public AccountController(
@@ -45,7 +45,7 @@ namespace StockManagementSystem.Controllers
             IGenericAttributeService genericAttributeService,
             INotificationService notificationService,
             IWorkContext workContext,
-            IStoreContext storeContext,
+            ITenantContext tenantContext,
             IEmailSender emailSender)
         {
             _userSettings = userSettings;
@@ -58,7 +58,7 @@ namespace StockManagementSystem.Controllers
             _genericAttributeService = genericAttributeService;
             _notificationService = notificationService;
             _workContext = workContext;
-            _storeContext = storeContext;
+            _tenantContext = tenantContext;
             _emailSender = emailSender;
         }
 
@@ -243,7 +243,7 @@ namespace StockManagementSystem.Controllers
                 _workContext.CurrentUser = await _userService.InsertGuestUser();
             }
             var user = _workContext.CurrentUser;
-            user.RegisteredInStoreId = _storeContext.CurrentStore.P_BranchNo;
+            user.RegisteredInTenantId = _tenantContext.CurrentTenant.Id;
 
             if (ModelState.IsValid)
             {
@@ -256,7 +256,7 @@ namespace StockManagementSystem.Controllers
                     _userSettings.UsernamesEnabled ? model.Username : model.Email,
                     model.Password,
                     _userSettings.DefaultPasswordFormat,
-                    _storeContext.CurrentStore.P_BranchNo);
+                    _tenantContext.CurrentTenant.Id);
                 var registrationResult = await _userRegistrationService.RegisterUserAsync(registrationRequest);
                 if (registrationResult.Success)
                 {
@@ -306,8 +306,7 @@ namespace StockManagementSystem.Controllers
 
             if (_userSettings.UsernamesEnabled && !string.IsNullOrWhiteSpace(username))
             {
-                if (_workContext.CurrentUser != null &&
-                    _workContext.CurrentUser.Username != null &&
+                if (_workContext.CurrentUser?.Username != null &&
                     _workContext.CurrentUser.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase))
                 {
                     statusText = "Current username";

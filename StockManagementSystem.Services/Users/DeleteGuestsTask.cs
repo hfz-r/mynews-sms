@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using StockManagementSystem.Core.Domain.Users;
-using StockManagementSystem.Services.Tasks;
+using StockManagementSystem.Services.Tasks.Scheduling;
 
 namespace StockManagementSystem.Services.Users
 {
     /// <summary>
     /// Represents a task for deleting guest users
     /// </summary>
-    public class DeleteGuestsTask : IScheduleTask
+    public class DeleteGuestsTask : IScheduledTask
     {
         private readonly UserSettings _userSettings;
         private readonly IUserService _userService;
@@ -18,14 +20,16 @@ namespace StockManagementSystem.Services.Users
             _userService = userService;
         }
 
-        public void Execute()
+        public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var olderThanMinutes = _userSettings.DeleteGuestTaskOlderThanMinutes;
 
             // Default value in case 0 is returned.  0 would effectively disable this service and harm performance.
             olderThanMinutes = olderThanMinutes == 0 ? 1440 : olderThanMinutes;
 
-            _userService.DeleteGuestUsers(null, DateTime.UtcNow.AddMinutes(-olderThanMinutes)).GetAwaiter().GetResult();
+            await _userService.DeleteGuestUsers(null, DateTime.UtcNow.AddMinutes(-olderThanMinutes));
         }
+
+        public string Schedule => "*/10 * * * *";
     }
 }

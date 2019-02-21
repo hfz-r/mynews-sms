@@ -19,13 +19,15 @@ using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Settings;
 using StockManagementSystem.Models.Setting;
+using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Tenants;
 
 namespace StockManagementSystem.Controllers
 {
@@ -48,6 +50,9 @@ namespace StockManagementSystem.Controllers
         private readonly IFormatSettingModelFactory _formatSettingModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
+        private readonly IWorkContext _workContext;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ITenantService _tenantService;
         private readonly ILogger _logger;
 
         #region Constructor
@@ -67,9 +72,12 @@ namespace StockManagementSystem.Controllers
             IRepository<FormatSetting> formatSettingRepository,
             IOrderLimitModelFactory orderLimitModelFactory,
             ILocationModelFactory locationModelFactory,
-            IFormatSettingModelFactory _formatSettingModelFactory,
+            IFormatSettingModelFactory formatSettingModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
+            IWorkContext workContext,
+            IGenericAttributeService genericAttributeService,
+            ITenantService tenantService,
             ILoggerFactory loggerFactory)
         {
             this._orderLimitService = orderLimitService;
@@ -86,9 +94,12 @@ namespace StockManagementSystem.Controllers
             this._formatSettingRepository = formatSettingRepository;
             this._orderLimitModelFactory = orderLimitModelFactory;
             this._locationModelFactory = locationModelFactory;
-            this._formatSettingModelFactory = _formatSettingModelFactory;
+            this._formatSettingModelFactory = formatSettingModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
+            _workContext = workContext;
+            _genericAttributeService = genericAttributeService;
+            _tenantService = tenantService;
             _logger = loggerFactory.CreateLogger<SettingController>();
         }
 
@@ -602,22 +613,18 @@ namespace StockManagementSystem.Controllers
 
         #endregion
 
-        private void AddErrors(string result)
-        {
-            ModelState.AddModelError(string.Empty, result);
-        }
+        #region Tenant scope configuration
 
-        #region Store scope
-
-        public async Task<IActionResult> ChangeStoreScopeConfiguration(int branchNo, string returnUrl = "")
+        public async Task<IActionResult> ChangeTenantScopeConfiguration(int tenantId, string returnUrl = "")
         {
-            var store = await _storeService.GetStoreByBranchNoAsync(branchNo);
-            if (store != null || branchNo == 0)
+            var tenant = _tenantService.GetTenantById(tenantId);
+            if (tenant != null || tenantId == 0)
             {
                 await _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser,
-                    UserDefaults.StoreScopeConfigurationAttribute, branchNo);
+                    UserDefaults.TenantScopeConfigurationAttribute, tenantId);
             }
 
+            //home page
             if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = Url.Action("Index", "Home");
 

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Stores
 {
-    public class Store : BaseEntity
+    public class Store : Entity
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int P_BranchNo { get; set; }
@@ -54,29 +54,5 @@ namespace StockManagementSystem.Core.Domain.Stores
         public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
 
         public virtual ICollection<StoreUserAssign> StoreUserAssigns { get; set; }
-
-        #region Store context
-
-        /// <summary>
-        /// Gets or sets the store name
-        /// </summary>
-        //public string Name { get; set; } use P_Name instead
-
-        /// <summary>
-        /// Gets or sets the store URL
-        /// </summary>
-        public string Url { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether SSL is enabled
-        /// </summary>
-        public bool SslEnabled { get; set; }
-
-        /// <summary>
-        /// Gets or sets the comma separated list of possible HTTP_HOST values
-        /// </summary>
-        public string Hosts { get; set; }
-
-        #endregion
     }
 }

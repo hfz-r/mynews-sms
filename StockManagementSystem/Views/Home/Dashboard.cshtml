@@ -34,32 +34,42 @@
         </div>
         <div class=" box-body">
             <div class="dashboard-panel-container">
-                <div id="server" class="dashboard-panel col-sm-6 col-md-4">
+                <div id="server" class="dashboard-panel col-sm-8 col-md-5">
                     @await Component.InvokeAsync("PanelServerComponent")
                 </div>
             </div>
         </div>
     </div>
-
-    @if (canManageActivityLog)
-    {
-        @await Component.InvokeAsync("TransActivityPanel")
-    }
-
-    @*Phase 2 Development*@
-    @*<div class="box box-danger">
+    <div class="box box-default box">
+        <div class="box box-danger">
             <div class="box-header with-border">
-                <h3 class="box-title">Pending Transaction for Approval</h3>
+                <h3 class="box-title">Actions</h3>
                 <div class="box-tools pull-right">
                     <button type="button" class="btn btn-box-tool" data-widget="collapse">
                         <i class="fa fa-minus"></i>
                     </button>
                 </div>
             </div>
-            <div id="approval">
-                @await Component.InvokeAsync("PanelTxnApprovalComponent")
+            <div class=" box-body">
+                <div class="dashboard-panel-container">
+                    <div id="master" class="dashboard-panel col-sm-8 col-md-5">
+                        @await Component.InvokeAsync("PanelMasterComponent")
+                    </div>
+                </div>
+
+                @*Phase 2 Development*@
+                @*<div id="approval">
+                    @await Component.InvokeAsync("PanelTxnApprovalComponent")
+                </div>*@
             </div>
-        </div>*@
+        </div>
+    </div>
+
+     @if (canManageActivityLog)
+     {
+        @await Component.InvokeAsync("TransActivityPanel")
+     }
+
 </section>
 <_alert asp-alert-id="loadTAPieRptAlert" asp-alert-message="Failed to load (pie chart) transaction activity report." />
 <_alert asp-alert-id="loadTABarRptAlert" asp-alert-message="Failed to load (bar chart) transaction activity report." />

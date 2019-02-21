@@ -328,7 +328,7 @@ namespace StockManagementSystem.Services.Users
                 throw new ArgumentNullException(nameof(user));
 
             if (!_userSettings.UsernamesEnabled)
-                throw new DefaultException("Usernames are disabled");
+                throw new DefaultException("Username are disabled");
 
             newUsername = newUsername.Trim();
 

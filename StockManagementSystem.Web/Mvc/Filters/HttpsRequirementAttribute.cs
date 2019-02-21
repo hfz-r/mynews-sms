@@ -28,18 +28,18 @@ namespace StockManagementSystem.Web.Mvc.Filters
         private class HttpsRequirementFilter : IAuthorizationFilter
         {
             private SslRequirement _sslRequirement;
-            private readonly IStoreContext _storeContext;
+            private readonly ITenantContext _tenantContext;
             private readonly IWebHelper _webHelper;
             private readonly SecuritySettings _securitySettings;
 
             public HttpsRequirementFilter(
                 SslRequirement sslRequirement,
-                IStoreContext storeContext,
+                ITenantContext tenantContext,
                 IWebHelper webHelper, 
                 SecuritySettings securitySettings)
             {
                 _sslRequirement = sslRequirement;
-                _storeContext = storeContext;
+                _tenantContext = tenantContext;
                _webHelper = webHelper;
                _securitySettings = securitySettings;
             }
@@ -52,7 +52,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 var currentConnectionSecured = _webHelper.IsCurrentConnectionSecured();
 
                 //page should be secured, so redirect (permanent) to HTTPS version of page
-                if (useSsl && !currentConnectionSecured && _storeContext.CurrentStore.SslEnabled)
+                if (useSsl && !currentConnectionSecured && _tenantContext.CurrentTenant.SslEnabled)
                     filterContext.Result = new RedirectResult(_webHelper.GetThisPageUrl(true, true), true);
 
                 //page shouldn't be secured, so redirect (permanent) to HTTP version of page

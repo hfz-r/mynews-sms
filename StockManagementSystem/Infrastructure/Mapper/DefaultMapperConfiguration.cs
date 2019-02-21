@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
+using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure.Mapper;
@@ -14,12 +16,11 @@ using StockManagementSystem.Models.Reports;
 using StockManagementSystem.Models.PushNotifications;
 using StockManagementSystem.Models.Locations;
 using StockManagementSystem.Models.Roles;
-using StockManagementSystem.Models.Stores;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
 using StockManagementSystem.Models.Setting;
-using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Models.Management;
+using StockManagementSystem.Models.Tenants;
 
 namespace StockManagementSystem.Infrastructure.Mapper
 {
@@ -30,10 +31,10 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateRoleMaps();
             CreateUserMaps();
             CreateLoggingMaps();
-            CreateStoresMaps();
             CreateDeviceMaps();
             CreateOrderLimitMaps();
             CreateFakerMaps();
+            CreateTenantMaps();
             CreatePushNotificationMaps();
             CreateShelfLocationFormatMaps();
             CreateFormatSettingMaps();
@@ -51,7 +52,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
 
                 //exclude ActiveStoreScopeConfiguration from mapping ISettingsModel
                 if (typeof(ISettingsModel).IsAssignableFrom(mapConfiguration.DestinationType))
-                    map.ForMember(nameof(ISettingsModel.ActiveStoreScopeConfiguration), options => options.Ignore());
+                    map.ForMember(nameof(ISettingsModel.ActiveTenantScopeConfiguration), options => options.Ignore());
 
                 //exclude some properties from mapping Permission supported models
                 if (typeof(IAclSupported).IsAssignableFrom(mapConfiguration.DestinationType))
@@ -99,7 +100,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(model => model.DateOfBirthEnabled, options => options.Ignore())
                 .ForMember(model => model.DateOfBirth, options => options.Ignore())
                 .ForMember(model => model.PhoneEnabled, options => options.Ignore())
-                .ForMember(model => model.RegisteredInStore, options => options.Ignore())
+                .ForMember(model => model.RegisteredInTenant, options => options.Ignore())
                 .ForMember(model => model.TimeZoneId, options => options.Ignore())
                 .ForMember(model => model.AllowUsersToSetTimeZone, options => options.Ignore())
                 .ForMember(model => model.AvailableTimeZones, options => options.Ignore())
@@ -118,7 +119,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.SystemName, options => options.Ignore())
                 .ForMember(entity => entity.LastLoginDateUtc, options => options.Ignore())
                 .ForMember(entity => entity.UserRoles, options => options.Ignore())
-                .ForMember(entity => entity.RegisteredInStoreId, options => options.Ignore());
+                .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore());
         }
 
         /// <summary>
@@ -158,34 +159,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.Username, options => options.Ignore())
                 .ForMember(entity => entity.UserRoles, options => options.Ignore())
                 .ForMember(entity => entity.Active, options => options.Ignore())
-                .ForMember(entity => entity.RegisteredInStoreId, options => options.Ignore());
-        }
-
-        /// <summary>
-        /// Create stores maps 
-        /// </summary>
-        protected virtual void CreateStoresMaps()
-        {
-            CreateMap<Store, StoreModel>()
-                .ForMember(model => model.Name, options => options.Ignore());
-            CreateMap<StoreModel, Store>()
-                .ForMember(entity => entity.P_BranchNo, options => options.Ignore())
-                .ForMember(entity => entity.P_RecStatus, options => options.Ignore())
-                .ForMember(entity => entity.P_CompID, options => options.Ignore())
-                .ForMember(entity => entity.P_SellPriceLevel, options => options.Ignore())
-                .ForMember(entity => entity.P_AreaCode, options => options.Ignore())
-                .ForMember(entity => entity.P_Addr1, options => options.Ignore())
-                .ForMember(entity => entity.P_Addr2, options => options.Ignore())
-                .ForMember(entity => entity.P_Addr3, options => options.Ignore())
-                .ForMember(entity => entity.P_State, options => options.Ignore())
-                .ForMember(entity => entity.P_City, options => options.Ignore())
-                .ForMember(entity => entity.P_Country, options => options.Ignore())
-                .ForMember(entity => entity.P_PostCode, options => options.Ignore())
-                .ForMember(entity => entity.P_Brand, options => options.Ignore())
-                .ForMember(entity => entity.Device, options => options.Ignore())
-                .ForMember(entity => entity.PushNotificationStores, options => options.Ignore())
-                .ForMember(entity => entity.OrderLimitStores, options => options.Ignore())
-                .ForMember(entity => entity.ShelfLocations, options => options.Ignore());
+                .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore());
         }
 
         /// <summary>
@@ -231,7 +205,16 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.BranchId, options => options.Ignore())
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore());
         }
-        
+
+        /// <summary>
+        /// Represent tenant mapping entity
+        /// </summary>
+        protected virtual void CreateTenantMaps()
+        {
+            CreateMap<Tenant, TenantModel>();
+            CreateMap<TenantModel, Tenant>();
+        }
+
         /// <summary>
         /// Create push notification maps
         /// </summary>
@@ -290,27 +273,6 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.StoreId, options => options.Ignore())
                 .ForMember(entity => entity.Status, options => options.Ignore())
                 .ForMember(entity => entity.Store, options => options.Ignore());
-        }
-
-        /// <summary>
-        /// Create outlet management maps
-        /// </summary>
-        protected virtual void CreateOutletManagementMaps()
-        {
-            CreateMap<StoreUserAssign, AssignUserModel>();
-            CreateMap<AssignUserModel, StoreUserAssign>()
-                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
-
-            CreateMap<StoreGrouping, GroupOutletModel>()
-                .ForMember(model => model.StoreName, options => options.Ignore())
-                .ForMember(model => model.SelectedStoreIds, options => options.Ignore())
-                .ForMember(model => model.AvailableStores, options => options.Ignore());
-            CreateMap<GroupOutletModel, StoreGrouping>()
-                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
         }
 
         /// <summary>

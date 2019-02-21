@@ -18,10 +18,7 @@ namespace StockManagementSystem.Web.Infrastructure
             application.UseDefaultAuthentication();
         }
 
-        public int Order
-        {
-            //auth should be loaded before MVC
-            get { return 500; }
-        }
+        //auth should be loaded before MVC
+        public int Order => 500;
     }
 }
