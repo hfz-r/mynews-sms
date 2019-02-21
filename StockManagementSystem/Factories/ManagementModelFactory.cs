@@ -51,7 +51,7 @@ namespace StockManagementSystem.Factories
             var users = await _userService.GetUsersAsync();
             outletManagementContainerModel.AssignUserList.AvailableUsers = users.Select(user => new SelectListItem
             {
-                Text = user.UserName,
+                Text = user.Username,
                 Value = user.Id.ToString()
             }).ToList();
 
