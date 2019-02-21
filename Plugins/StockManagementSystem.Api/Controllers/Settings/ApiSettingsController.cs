@@ -15,8 +15,7 @@ namespace StockManagementSystem.Api.Controllers.Settings
 {
     public class ApiSettingsController : BasePluginController
     {
-        private readonly IWorkContext _workContext;
-        private readonly IStoreContext _storeContext;
+        private readonly ITenantContext _tenantContext;
         private readonly ISettingService _settingService;
         private readonly IUserActivityService _userActivityService;
         private readonly INotificationService _notificationService;
@@ -24,16 +23,14 @@ namespace StockManagementSystem.Api.Controllers.Settings
         private readonly IPermissionService _permissionService;
 
         public ApiSettingsController(
-            IWorkContext workContext,
-            IStoreContext storeContext,
+            ITenantContext tenantContext,
             ISettingService settingService, 
             IUserActivityService userActivityService, 
             INotificationService notificationService,
             IApiSettingModelFactory apiSettingModelFactory,
             IPermissionService permissionService)
         {
-            _workContext = workContext;
-            _storeContext = storeContext;
+            _tenantContext = tenantContext;
             _settingService = settingService;
             _userActivityService = userActivityService;
             _notificationService = notificationService;
@@ -58,14 +55,14 @@ namespace StockManagementSystem.Api.Controllers.Settings
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
 
-            //load settings for a chosen store scope
-            var storeScope = _storeContext.ActiveStoreScopeConfiguration;
+            //load settings for a chosen tenant scope
+            var tenantScope = _tenantContext.ActiveTenantScopeConfiguration;
             var apiSettings = model.ToEntity();
 
-            await _settingService.SaveSettingOverridablePerStore(apiSettings, x => x.EnableApi,
-                model.EnableApi_OverrideForStore, storeScope, false);
-            await _settingService.SaveSettingOverridablePerStore(apiSettings, x => x.EnableLogging,
-                model.EnableLogging_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerTenant(apiSettings, x => x.EnableApi,
+                model.EnableApi_OverrideForTenant, tenantScope, false);
+            await _settingService.SaveSettingOverridablePerTenant(apiSettings, x => x.EnableLogging,
+                model.EnableLogging_OverrideForTenant, tenantScope, false);
 
             _settingService.ClearCache();
 

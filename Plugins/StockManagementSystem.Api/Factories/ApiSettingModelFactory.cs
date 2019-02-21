@@ -15,37 +15,37 @@ namespace StockManagementSystem.Api.Factories
     {
         private readonly ISettingService _settingService;
         private readonly IClientService _clientService;
-        private readonly IStoreContext _storeContext;
+        private readonly ITenantContext _tenantContext;
 
         public ApiSettingModelFactory(
             ISettingService settingService, 
             IClientService clientService,
-            IStoreContext storeContext)
+            ITenantContext tenantContext)
         {
             _settingService = settingService;
             _clientService = clientService;
-            _storeContext = storeContext;
+            _tenantContext = tenantContext;
         }
 
         protected Task<ApiConfigurationModel> PrepareApiGeneralModel()
         {
-            //load settings for a chosen store scope
-            var storeId = _storeContext.ActiveStoreScopeConfiguration;
-            var apiSettings = _settingService.LoadSetting<ApiSettings>(storeId);
+            //load settings for a chosen tenant scope
+            var tenantId = _tenantContext.ActiveTenantScopeConfiguration;
+            var apiSettings = _settingService.LoadSetting<ApiSettings>(tenantId);
             
             //fill in model values from the entity
             var model = apiSettings.ToModel();
 
             //fill in additional values (not existing in the entity)
-            model.ActiveStoreScopeConfiguration = storeId;
+            model.ActiveTenantScopeConfiguration = tenantId;
 
             //fill in overridden values
-            if (storeId > 0)
+            if (tenantId > 0)
             {
-                model.EnableApi_OverrideForStore =
-                    _settingService.SettingExists(apiSettings, x => x.EnableApi, storeId);
-                model.EnableLogging_OverrideForStore =
-                    _settingService.SettingExists(apiSettings, x => x.EnableLogging, storeId);
+                model.EnableApi_OverrideForTenant =
+                    _settingService.SettingExists(apiSettings, x => x.EnableApi, tenantId);
+                model.EnableLogging_OverrideForTenant =
+                    _settingService.SettingExists(apiSettings, x => x.EnableLogging, tenantId);
             }
 
             return Task.FromResult(model);

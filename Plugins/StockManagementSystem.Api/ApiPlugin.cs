@@ -52,7 +52,7 @@ namespace StockManagementSystem.Api
             var pluginMainMenu = new SiteMapNode
             {
                 Title = "API Settings",
-                Url = _webHelper.GetStoreLocation() + "ApiSettings/Index",
+                Url = _webHelper.GetLocation() + "ApiSettings/Index",
                 Visible = canManagePlugin,
                 SystemName = "api.settings",
                 IconClass = "fa fa-space-shuttle"

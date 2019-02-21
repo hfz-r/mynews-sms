@@ -29,7 +29,7 @@
     <div class="form-horizontal">
         <_tabs id="format-setting-tabs">
             <_tab asp-name="shelf-format" asp-title="Shelf Location Format" asp-default="true">@await Html.PartialAsync("_List.Shelf", Model.ListShelfFormat)</_tab>
-            <_tab asp-name="barcode-format" asp-title="Barcode Format">@await Html.PartialAsync("_List.Barcode", Model.ListBarcodeFormat)</_tab>
+            <_tab asp-name="barcode-format" asp-title="RTE Barcode Format">@await Html.PartialAsync("_List.Barcode", Model.ListBarcodeFormat)</_tab>
         </_tabs>
     </div>
 </section>

@@ -22,18 +22,18 @@ namespace StockManagementSystem.Api.Services
         private const string DateOfBirth = "dateofbirth";
         private const string Gender = "gender";
 
-        private readonly IStoreContext _storeContext;
+        private readonly ITenantContext _tenantContext;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<GenericAttribute> _genericAttributeRepository;
 
         public UserApiService(
             IRepository<User> userRepository, 
             IRepository<GenericAttribute> genericAttributeRepository,
-            IStoreContext storeContext)
+            ITenantContext tenantContext)
         {
             _userRepository = userRepository;
             _genericAttributeRepository = genericAttributeRepository;
-            _storeContext = storeContext;
+            _tenantContext = tenantContext;
         }
 
         public IList<UserDto> GetUserDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
@@ -50,8 +50,8 @@ namespace StockManagementSystem.Api.Services
         public int GetUsersCount()
         {
             return _userRepository.Table.Count(user =>
-                !user.Deleted && (user.RegisteredInStoreId == 0 ||
-                                  user.RegisteredInStoreId == _storeContext.CurrentStore.P_BranchNo));
+                !user.Deleted && (user.RegisteredInTenantId == 0 ||
+                                  user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
         }
 
         public IList<UserDto> Search(string queryParams = "", string order = Configurations.DefaultOrder,
@@ -294,7 +294,7 @@ namespace StockManagementSystem.Api.Services
 
             query = query.Where(user =>
                 !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
-                (user.RegisteredInStoreId == 0 || user.RegisteredInStoreId == _storeContext.CurrentStore.P_BranchNo));
+                (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
 
             if (createdAtMin != null)
                 query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);

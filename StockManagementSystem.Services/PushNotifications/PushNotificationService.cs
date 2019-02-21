@@ -85,7 +85,7 @@ namespace StockManagementSystem.Services.PushNotifications
         }
 
         public virtual void DeletePushNotification(PushNotification pushNotification)
-        { 
+        {
             if (pushNotification == null)
                 throw new ArgumentNullException(nameof(pushNotification));
 
