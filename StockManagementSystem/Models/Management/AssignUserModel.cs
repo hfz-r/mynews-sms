@@ -11,25 +11,25 @@ namespace StockManagementSystem.Models.Management
     {
         public AssignUserModel()
         {
-            SelectedStoreId = new int();
-            AvailableStores = new List<SelectListItem>();
+            SelectedUserStoreId = new int();
+            AvailableUserStores = new List<SelectListItem>();
             SelectedUserIds = new List<int>();
             AvailableUsers = new List<SelectListItem>();
         }
 
         [Display(Name = "Store")]
         [Required(ErrorMessage = "Store is required")]
-        public int SelectedStoreId { get; set; }
+        public int SelectedUserStoreId { get; set; }
 
         [Display(Name = "Store")]
-        public string StoreName { get; set; }
+        public string UserStoreName { get; set; }
 
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableUserStores { get; set; }
 
         [Display(Name = "User")]
         public string User { get; set; }
 
-        [Display(Name = "User")]
+        [Display(Name = "Users")]
         public IList<int> SelectedUserIds { get; set; }
 
         public IList<SelectListItem> AvailableUsers { get; set; }
