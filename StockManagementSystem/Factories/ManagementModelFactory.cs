@@ -88,12 +88,12 @@ namespace StockManagementSystem.Factories
 
             var model = new AssignUserListModel
             {
-                 Data = assignUsersList.Select(assignUser =>
+                Data = assignUsersList.Select(assignUser =>
                 {
                     var assignUsersModel = assignUser.ToModel<AssignUserModel>();
 
                     assignUsersModel.UserStoreName = assignUser.Store.P_BranchNo + " - " + assignUser.Store.P_Name;
-                    assignUsersModel.User = String.Join(", ", assignUser.StoreUserAssignStore.Select(user => user.User.UserName));
+                    assignUsersModel.User = String.Join(", ", assignUser.StoreUserAssignStore.Select(user => user.User.Username));
 
                     return assignUsersModel;
                 }),
