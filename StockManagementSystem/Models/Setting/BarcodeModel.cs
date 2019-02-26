@@ -15,9 +15,13 @@ namespace StockManagementSystem.Models.Setting
         public string Prefix { get; set; }
 
         [Display(Name = "Name")]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
 
         [Display(Name = "Length")]
         public int Length { get; set; }
+
+        [Display(Name = "Sequence")]
+        public int? Sequence { get; set; }
     }
 }

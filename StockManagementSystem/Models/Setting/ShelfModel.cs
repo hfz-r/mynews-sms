@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using StockManagementSystem.Core.Domain.Items;
-using StockManagementSystem.Core.Domain.Settings;
-using StockManagementSystem.Web.Models;
-using System;
-using System.Collections.Generic;
+﻿using StockManagementSystem.Web.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace StockManagementSystem.Models.Setting
@@ -14,9 +9,12 @@ namespace StockManagementSystem.Models.Setting
         public string Format { get; set; }
 
         [Display(Name = "Prefix")]
+        [MaxLength(1)]
+        [Required(ErrorMessage = "Prefix is required")]
         public string Prefix { get; set; }
 
         [Display(Name = "Name")]
+        [Required(ErrorMessage = "Name is required")]
         public string Name { get; set; }
     }
 }

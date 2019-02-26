@@ -26,6 +26,9 @@ using System.Threading.Tasks;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Services.Settings;
 using StockManagementSystem.Models.Setting;
+using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace StockManagementSystem.Controllers
 {
@@ -48,6 +51,7 @@ namespace StockManagementSystem.Controllers
         private readonly IFormatSettingModelFactory _formatSettingModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
+        private readonly IConfiguration _iconfiguration;
         private readonly ILogger _logger;
 
         #region Constructor
@@ -70,6 +74,7 @@ namespace StockManagementSystem.Controllers
             IFormatSettingModelFactory _formatSettingModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
+            IConfiguration iconfiguration,
             ILoggerFactory loggerFactory)
         {
             this._orderLimitService = orderLimitService;
@@ -87,6 +92,7 @@ namespace StockManagementSystem.Controllers
             this._orderLimitModelFactory = orderLimitModelFactory;
             this._locationModelFactory = locationModelFactory;
             this._formatSettingModelFactory = _formatSettingModelFactory;
+            _iconfiguration = iconfiguration;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _logger = loggerFactory.CreateLogger<SettingController>();
@@ -458,6 +464,8 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
+        #region Shelf Location
+
         public async Task<IActionResult> ListShelf()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
@@ -467,7 +475,6 @@ namespace StockManagementSystem.Controllers
 
             return View(model);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> ListShelf(ShelfSearchModel searchModel)
@@ -482,11 +489,21 @@ namespace StockManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddShelf(ShelfModel model)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
-            if (!ModelState.IsValid)
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
+            if (string.IsNullOrEmpty(model.Prefix))
+            {
+                ModelState.AddModelError(string.Empty, "Prefix is required to add shelf location format.");
+                _notificationService.ErrorNotification("Prefix is required to add shelf location format.");
+                return new NullJsonResult();
+            }
+            else if (string.IsNullOrEmpty(model.Name))
+            {
+                ModelState.AddModelError(string.Empty, "Name is required to add shelf location format.");
+                _notificationService.ErrorNotification("Name is required to add shelf location format.");
+                return new NullJsonResult();
+            }
 
             try
             {
@@ -543,11 +560,15 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
-            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(id) ?? throw new ArgumentException("No prefix name found with the specified id", nameof(id));
+            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(id) ?? throw new ArgumentException("No shelf location found", nameof(id));
             _formatSettingService.DeleteShelfLocationFormat(shelfFormat);
 
             return new NullJsonResult();
         }
+
+        #endregion
+
+        #region RTE Barcode
 
         public async Task<IActionResult> ListBarcode()
         {
@@ -580,6 +601,73 @@ namespace StockManagementSystem.Controllers
 
         //    return Json(model);
         //}
+        [HttpGet]
+        public async Task<IActionResult> UpdateBarcode(string data)
+        {
+            data = data.Replace('"', ' ');
+            Regex r = new Regex(@"Name : (.+?) , Length");
+            MatchCollection mc = r.Matches(data);
+            List<string> arr = new List<string>();
+
+            foreach (Match match in mc)
+            {
+                foreach (Capture capture in match.Captures)
+                {
+                    arr.Add(capture.Value.Split(new string[] { "Name : " }, StringSplitOptions.None)[1].Split(',')[0].Trim());
+                }
+            }
+
+            var barcodeFormat = await _formatSettingService.GetAllBarcodeFormatsAsync();
+            foreach (var item in barcodeFormat)
+            {
+                for (int i = 0; i < arr.Count(); i++)
+                {
+                    if (item.Name == arr[i])
+                    {
+                        int seq = i + 1;
+                        item.Sequence = seq;
+
+                        _formatSettingService.UpdateBarcodeFormat(item);
+                    }
+                }
+            }
+
+            return new NullJsonResult();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SortBarcode(string data)
+        {
+            data = data.Replace('"', ' ');
+            Regex r = new Regex(@"Name : (.+?) , Length");
+            MatchCollection mc = r.Matches(data);
+            List<string> arr = new List<string>();
+
+            foreach (Match match in mc)
+            {
+                foreach (Capture capture in match.Captures)
+                {
+                    arr.Add(capture.Value.Split(new string[] { "Name : " }, StringSplitOptions.None)[1].Split(',')[0].Trim());
+                }
+            }
+
+            var barcodeFormat = await _formatSettingService.GetAllBarcodeFormatsAsync();
+            foreach (var item in barcodeFormat)
+            {
+                for (int i = 0; i < arr.Count(); i++)
+                {
+                    if (item.Name == arr[i])
+                    {
+                        int seq = i + 1;
+                        item.Sequence = seq;
+
+                        _formatSettingService.UpdateBarcodeFormat(item);
+                    }
+                }
+            }
+
+            return new NullJsonResult();
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateBarcode(BarcodeModel model)
@@ -592,13 +680,89 @@ namespace StockManagementSystem.Controllers
 
             var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(model.Id);
             barcodeFormat.Id = model.Id;
-
-            barcodeFormat = model.ToEntity(barcodeFormat);
+            barcodeFormat.Name = model.Name;
 
             _formatSettingService.UpdateBarcodeFormat(barcodeFormat);
 
             return new NullJsonResult();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> AddBarcode(BarcodeModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                ModelState.AddModelError(string.Empty, "Name is required to add RTE barcode format.");
+                _notificationService.ErrorNotification("Name is required to add RTE barcode format.");
+            }
+            try
+            {
+                var dataList = await _formatSettingService.GetAllBarcodeFormatsAsync();
+
+                if (dataList.Count >= 4)
+                {
+                    _notificationService.WarningNotification("Add row limit to 4 only!");
+                }
+                else
+                {
+                    int counter = dataList.Count;
+                    FormatSetting barcodeFormat = new FormatSetting();
+                    barcodeFormat.Format = "Barcode";
+                    barcodeFormat.Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]);
+                    barcodeFormat.Name = model.Name;
+                    barcodeFormat.Sequence = counter + 1;
+
+                    await _formatSettingService.InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+                }
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                _notificationService.ErrorNotification(e.Message);
+
+                return Json(e.Message);
+            }
+        }
+
+        public async Task<IActionResult> DeleteBarcode(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(id);
+            if (barcodeFormat == null)
+                return new NullJsonResult();
+
+            try
+            {
+                _formatSettingService.DeleteShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+
+                int? nextSeq = barcodeFormat.Sequence + 1;
+                if (barcodeFormat.Sequence > 1 && nextSeq <= 4)
+                {
+                    for (int? i = nextSeq; i <= 4; i++)
+                    {
+                        int? counter = i-1;
+                        var nextBarcodeFormat = await _formatSettingService.GetBarcodeFormatBySeqAsync(i);
+                        nextBarcodeFormat.Sequence = counter;
+                        _formatSettingService.UpdateBarcodeFormat(nextBarcodeFormat);
+                    }
+                }
+
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return new NullJsonResult();
+            }
+        }
+
+        #endregion
 
         #endregion
 

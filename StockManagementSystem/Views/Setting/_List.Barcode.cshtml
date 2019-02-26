@@ -13,14 +13,6 @@
                             padding-right: 10px;
                             font-size: 1.5em;
                         }
-
-                        #barcode-grid .k-grid-toolbar {
-                            padding: .6em 1.3em .6em .4em;
-                        }
-
-                        #barcode-grid .k-grid tbody tr {
-                            cursor: move;
-                        }
                     </style>
 
                     <script>
@@ -34,6 +26,24 @@
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
+                                        },
+                                        create: {
+                                            url: "@Html.Raw(Url.Action("AddBarcode", "Setting"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        },
+                                        update: {
+                                            url: "@Html.Raw(Url.Action("UpdateBarcode", "Setting"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
+                                        },
+                                        destroy: {
+                                            url: "@Html.Raw(Url.Action("DeleteBarcode", "Setting"))",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: addAntiForgeryToken
                                         }
                                     },
                                     schema: {
@@ -43,10 +53,14 @@
                                         model: {
                                             id: "Id",
                                             fields: {
-                                                Id: { type: "number" },
-                                                Name: { type: "string" },
-                                                Length: { type: "number" }
+                                                Id: { editable: false, type: "number" },
+                                                Name: { editable: true, type: "string", validation: { required: true } }
                                             }
+                                        }
+                                    },
+                                    requestEnd: function (e) {
+                                        if (e.type == "create" || e.type == "update") {
+                                            this.read();
                                         }
                                     },
                                     error: function (e) {
@@ -67,53 +81,76 @@
                                 resizable: true,
                                 columnMenu: { columns: false },
                                 pageable: {
-                                    refresh: true,
-                                    @*pageSizes: [@(Model.AvailablePageSizes)],
-                                            @await Html.PartialAsync("_GridPagerMessages")*@
+                                    refresh: true
                                 },
+                                toolbar: [
+                                    {
+                                        name: "create",
+                                        text: "Add",
+                                        iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
+                                    }
+                                ],
                                 scrollable: false,
                                 columns: [
                                     {
-                                        field: "Id",
-                                        title: "Id",
-                                        width: 100
-                                    },
-                                    {
                                         field: "Name",
                                         title: "Name",
-                                        width: 300
+                                        width: 500,
+                                        editor: customEditor,
                                     },
                                     {
-                                        field: "Length",
-                                        title: "Length",
-                                        width: 100
+                                        template:
+                                            "<a href='\\#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                            "<a href='\\#' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        width: 10
                                     }
-                                    //,
-                                    //{
-                                    //    template:
-                                    //        '<button onclick="return up(\'#=uid#\')"><span class="glyphicon glyphicon-chevron-up"></span></button>' +
-                                    //        '<button onclick="return down(\'#=uid#\')"><span class="glyphicon glyphicon-chevron-down"></span></button>',
-                                    //    headerAttributes: { style: "text-align:center" },
-                                    //    attributes: { style: "text-align:center" },
-                                    //    width: 10
-                                    //}
-                                ]
+                                ],
+                                editable: {
+                                    mode: "inline",
+                                    createAt: "bottom",
+                                    confirmation: function (model) {
+                                        return 'Are you sure that you want to delete this record?'
+                                    }
+                                },
+                                edit: function (e) {
+                                    // Change buttons visibility when the Grid enters edit mode.
+                                    var editRow = e.container;
+                                    editRow.find(".custom-button").toggleClass("hidden");
+                                }
                             }).data("kendoGrid");
-                            
+
+                            $("#barcode-grid").on("click", ".custom-button", function (e) {
+                                var btn = $(this);
+
+                                if (btn.hasClass("edit-button")) {
+                                    var row = btn.closest("tr");
+                                    grid.editRow(row);
+                                } else if (btn.hasClass("cancel-button")) {
+                                    grid.cancelRow();
+                                } else if (btn.hasClass("update-button")) {
+                                    grid.saveChanges();
+                                } else if (btn.hasClass("destroy-button")) {
+                                    var row = btn.closest("tr");
+                                    grid.removeRow(row);
+                                }
+                            });
+
                             grid.table.kendoSortable({
-                                filter: ">tbody >tr", //:not(.k-grid-edit-row)
+                                filter: ">tbody >tr:not('.k-grid-edit-row')",
                                 hint: function (element) {
                                     return $("<span>Drag here!</span>")
                                         .css("color", "#FF0000");
-                                },                        
+                                },
                                 cursor: "move",
                                 placeholder: function (element) {
                                     return element.clone().addClass("k-state-hover").css("opacity", 0.65);
                                 },
                                 container: "#barcode-grid tbody",
-                                
-                                //change: onChange // wired to db
-                                
+
                                 change: function (e) {
                                     var skip = grid.dataSource.skip(),
                                         oldIndex = e.oldIndex + skip,
@@ -121,80 +158,41 @@
                                         data = grid.dataSource.data(),
                                         dataItem = grid.dataSource.getByUid(e.item.data("uid"));
 
-                                grid.dataSource.remove(dataItem);
-                                grid.dataSource.insert(newIndex, dataItem);
-                            }
-                            });
+                                    grid.dataSource.pushDestroy(dataItem);
+                                    grid.dataSource.insert(newIndex, dataItem);
+                                    var data = JSON.stringify(grid.dataSource.data());
+
+                                    $.ajax({
+                                        type: "GET",
+                                        url: '@Url.Action("SortBarcode", "Setting")',// the method we are calling
+                                        contentType: 'application/json; charset=utf-8',
+                                        data: { data: data },
+                                        dataType: "text",
+                                        success: function (result) { },
+                                        error: function (xhr, status, error) {
+                                            //Ajax request failed.
+                                            var errorMessage = xhr.status + ': ' + xhr.statusText
+                                            //alert('Error - ' + errorMessage)
+                                        }
+                                    });
+                                }
+                                });
                         });
 
-                        function onChange(e) {                          
-
-                            var skip = grid.dataSource.skip(),
-                                        oldIndex = e.oldIndex + skip,
-                                        newIndex = e.newIndex + skip,
-                                        data = grid.dataSource.data(),
-                                        dataItem = grid.dataSource.getByUid(e.item.data("uid"));
-
-                                grid.dataSource.remove(dataItem);
-                                grid.dataSource.insert(newIndex, dataItem);
-
-
-                            //var grid = e.sender.element.data("kendoGrid"),
-                            //    oldIndex = e.oldIndex, //the old position
-                            //    newIndex = e.newIndex, //the new position
-                            //    dataItem = grid.dataSource.getByUid(e.item.data("uid")); //retrieve moved dataItem
-
-                            $.ajax({
-                                type: "POST",
-                                url: '@Url.Action("UpdateBarcode", "Setting")',
-                                dataType: "json",
-                                //data: {'test':test},
-                                data: function () {
-                                    var data = {
-                                        oldIndex: oldIndex,
-                                        newIndex: newIndex,
-                                        dataItem: dataItem
-                                    };
-                                    addAntiForgeryToken(data);
-                                    return data;
-                                },
-                                //data: { //send the data and update the order of the items on the server
-                                //    oldIndex: oldIndex,
-                                //    newIndex: newIndex,
-                                //    dataItem: dataItem
-                                //},
-                                success: function (response) {
-                                    grid.dataSource.read(); //refresh the Grid
-                                }
-                            });
+                        function customEditor(container, options) {
+                            $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                                .appendTo(container);
                         }
-                                //function up(uid) {
-                                //    var grid = $("#barcode-grid").data("kendoGrid");
-                                //    var dataItem = grid.dataSource.getByUid(uid);
-                                //    var index = grid.dataSource.indexOf(dataItem);
-                                //    var newIndex = Math.max(0, index - 1);
 
-                                //    if (newIndex != index) {
-                                //        grid.dataSource.remove(dataItem);
-                                //        grid.dataSource.insert(newIndex, dataItem);
-                                //    }
+                        function isValidChar(e) {
+                            var regex = new RegExp("^[a-zA-Z ]+$");
+                            var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+                            if (!regex.test(key)) {
+                                event.preventDefault();
+                                return false;
+                            }
+                        }
 
-                                //    return false;
-                                //}
-
-                                //function down(uid) {
-                                //    var grid = $("#barcode-grid").data("kendoGrid");
-                                //    var dataItem = grid.dataSource.getByUid(uid);
-                                //    var index = grid.dataSource.indexOf(dataItem);
-                                //    var newIndex = Math.min(grid.dataSource.total() - 1, index + 1);
-
-                                //    if (newIndex != index) {
-                                //        grid.dataSource.remove(dataItem);
-                                //        grid.dataSource.insert(newIndex, dataItem);
-                                //    }
-
-                                //    return false;
-                                //}
                     </script>
                 </div>
             </div>

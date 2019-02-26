@@ -90,6 +90,15 @@ namespace StockManagementSystem.Services.Settings
             return barcodeFormat;
         }
 
+        public async Task<FormatSetting> GetBarcodeFormatBySeqAsync(int? seqNo)
+        {
+            if (seqNo == 0)
+                throw new ArgumentNullException(nameof(seqNo));
+
+            var barcodeFormat = await _formatSettingRepository.Table.FirstOrDefaultAsync(u => u.Sequence == seqNo);
+            return barcodeFormat;
+        }
+
         #endregion
     }
 }
