@@ -9,16 +9,16 @@ namespace StockManagementSystem.Models.Management
     {
         public AssignUserSearchModel()
         {
-            SelectedStoreId = new List<int>();
-            AvailableStores = new List<SelectListItem>();
+            SelectedUserStoreId = new List<int>();
+            AvailableUserStores = new List<SelectListItem>();
             SelectedUserIds = new List<int>();
             AvailableUsers = new List<SelectListItem>();
         }
 
         [Display(Name = "Store")]
-        public IList<int> SelectedStoreId { get; set; }
+        public IList<int> SelectedUserStoreId { get; set; }
 
-        public IList<SelectListItem> AvailableStores { get; set; }
+        public IList<SelectListItem> AvailableUserStores { get; set; }
 
         [Display(Name = "User")]
         public IList<int> SelectedUserIds { get; set; }

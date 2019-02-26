@@ -8,8 +8,10 @@ using StockManagementSystem.Api.Json.ActionResults;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
@@ -19,17 +21,23 @@ namespace StockManagementSystem.Api.Controllers
         protected readonly IJsonFieldsSerializer JsonFieldsSerializer;
         protected readonly IAclService AclService;
         protected readonly IUserService UserService;
+        protected readonly ITenantMappingService TenantMappingService;
+        protected readonly ITenantService TenantService;
         protected readonly IUserActivityService UserActivityService;
 
         public BaseApiController(
             IJsonFieldsSerializer jsonFieldsSerializer,
             IAclService aclService,
             IUserService userService,
+            ITenantMappingService tenantMappingService,
+            ITenantService tenantService,
             IUserActivityService userActivityService)
         {
             JsonFieldsSerializer = jsonFieldsSerializer;
             AclService = aclService;
             UserService = userService;
+            TenantMappingService = tenantMappingService;
+            TenantService = tenantService;
             UserActivityService = userActivityService;
         }
 
@@ -91,6 +99,34 @@ namespace StockManagementSystem.Api.Controllers
                     var aclRecordToDelete = existingAclRecords.FirstOrDefault(acl => acl.RoleId == role.Id);
                     if (aclRecordToDelete != null)
                         await AclService.DeleteAclRecord(aclRecordToDelete);
+                }
+            }
+        }
+
+        protected async Task UpdateTenantMappings<TEntity>(TEntity entity, List<int> passedTenantIds)
+            where TEntity : BaseEntity, ITenantMappingSupported
+        {
+            if (passedTenantIds == null)
+                return;
+
+            entity.LimitedToTenants = passedTenantIds.Any();
+
+            var existingTenantMappings = await TenantMappingService.GetTenantMappings(entity);
+            var tenants = await TenantService.GetTenantsAsync();
+            foreach (var tenant in tenants)
+            {
+                if (passedTenantIds.Contains(tenant.Id))
+                {
+                    //new tenant
+                    if (existingTenantMappings.Count(sm => sm.TenantId == tenant.Id) == 0)
+                        await TenantMappingService.InsertTenantMapping(entity, tenant.Id);
+                }
+                else
+                {
+                    //remove tenant
+                    var tenantMappingToDelete = existingTenantMappings.FirstOrDefault(sm => sm.TenantId == tenant.Id);
+                    if (tenantMappingToDelete != null)
+                        await TenantMappingService.DeleteTenantMapping(tenantMappingToDelete);
                 }
             }
         }

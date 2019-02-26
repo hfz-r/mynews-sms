@@ -89,6 +89,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerLifetimeScope();
             builder.RegisterType<AclService>().As<IAclService>().InstancePerLifetimeScope();
             builder.RegisterType<TenantService>().As<ITenantService>().InstancePerLifetimeScope();
+            builder.RegisterType<TenantMappingService>().As<ITenantMappingService>().InstancePerLifetimeScope();
             builder.RegisterType<UserActivityService>().As<IUserActivityService>().InstancePerLifetimeScope();
             builder.RegisterType<EncryptionService>().As<IEncryptionService>().InstancePerLifetimeScope();
             builder.RegisterType<CookieAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();

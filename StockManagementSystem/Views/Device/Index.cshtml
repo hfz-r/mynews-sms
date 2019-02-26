@@ -45,13 +45,13 @@
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <div class="col-xs-4">
-                                        <label asp-for="SelectedStoreId" class="control-label pull-right"></label>
+                                        <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
                                     </div>
                                     <div class="col-xs-8">
-                                        <select asp-for="SelectedStoreId" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
                                         <script>
                                         $(document).ready(function() {
-                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreId)')
+                                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
                                                 .kendoMultiSelect({
                                                     autoClose: false,
                                                     filter: "contains"
@@ -104,7 +104,7 @@
                                             dataType: "json",
                                             data: function() {
                                                 var data = {
-                                                    SelectedStoreId: $('#@Html.IdFor(model => model.SelectedStoreId)').val(),
+                                                    SelectedStoreId: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
                                                     SearchSerialNo: $('#@Html.IdFor(model => model.SearchSerialNo)').val()
                                                 };
                                                 addAntiForgeryToken(data);
@@ -188,7 +188,7 @@
                                         width: 300,
                                         editor: function (container, option) { // use a dropdownlist as an editor
                                             // create an input element with id and name set as the bound field (brandId)
-                                            var input = $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                            var input = $('<input data-text-field="Text" data-value-field="Value" data-bind="value:' + option.field + '"/>');
                                             // append to the editor container
                                             input.appendTo(container);
 
@@ -197,8 +197,8 @@
                                                 dataTextField: "Text",
                                                 dataValueField: "Value",
                                                 dataSource: datasource,
-                                                optionLabel: " ",
-                                            }).appendTo(container)
+                                                optionLabel: " "
+                                            }).appendTo(container);
                                         }
                                     }, {
                                         template:

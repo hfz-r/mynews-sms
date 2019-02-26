@@ -4,6 +4,7 @@ using System.Linq;
 using Bogus;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Tenants;
@@ -111,6 +112,12 @@ namespace StockManagementSystem.Services.Installation
                 DefaultTimeZoneId = string.Empty,
                 AllowUsersToSetTimeZone = false
             });
+
+            settingService.SaveSetting(new RecordSettings
+            {
+                IgnoreAcl = true,
+                IgnoreTenantLimitations = true
+            });
         }
 
         protected void InstallUsersAndRoles(string defaultUserEmail, string defaultUsername, string defaultUserPassword)
@@ -196,7 +203,7 @@ namespace StockManagementSystem.Services.Installation
                 RegisteredInTenantId = tenantId,
             };
 
-            backgroundTaskUser.AddUserRole(new UserRole { Role = urGuests });
+            backgroundTaskUser.AddUserRole(new UserRole {Role = urGuests});
             _userRepository.Insert(backgroundTaskUser);
         }
 
@@ -218,6 +225,18 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "AddNewDevice",
+                    Enabled = true,
+                    Name = "Add a new device"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewItem",
+                    Enabled = true,
+                    Name = "Add a new item"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "DeleteUser",
                     Enabled = true,
                     Name = "Delete a user"
@@ -227,6 +246,18 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "DeleteRole",
                     Enabled = true,
                     Name = "Delete a role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteDevice",
+                    Enabled = true,
+                    Name = "Delete a device"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteItem",
+                    Enabled = true,
+                    Name = "Delete a item"
                 },
                 new ActivityLogType
                 {
@@ -245,6 +276,18 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "EditRole",
                     Enabled = true,
                     Name = "Edit a role"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditDevice",
+                    Enabled = true,
+                    Name = "Edit a device"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditItem",
+                    Enabled = true,
+                    Name = "Edit a item"
                 },
                 new ActivityLogType
                 {
@@ -329,6 +372,18 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "ClearUser",
                     Enabled = true,
                     Name = "Clear Master table data from [User]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DownloadItem",
+                    Enabled = true,
+                    Name = "Master table download - [Item]"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ClearItem",
+                    Enabled = true,
+                    Name = "Clear Master table data from [Item]"
                 },
             };
             _activityLogTypeRepository.Insert(activityLogTypes);

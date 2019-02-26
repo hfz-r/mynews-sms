@@ -30,5 +30,7 @@ namespace StockManagementSystem.Services.Common
         }
 
         public string Schedule => "*/5 * * * *";
+
+        public bool Enabled => true;
     }
 }

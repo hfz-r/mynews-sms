@@ -12,6 +12,7 @@ using StockManagementSystem.Api.ModelBinders;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Api.Validators;
 using StockManagementSystem.Core.Configuration;
+using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Core.Infrastructure.DependencyManagement;
@@ -41,10 +42,13 @@ namespace StockManagementSystem.Api.Infrastructure
         {
             builder.RegisterType<ClientService>().As<IClientService>().InstancePerLifetimeScope();
             builder.RegisterType<UserApiService>().As<IUserApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<DeviceApiService>().As<IDeviceApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<ItemApiService>().As<IItemApiService>().InstancePerLifetimeScope();
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonHelper>().As<IJsonHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<DtoHelper>().As<IDtoHelper>().InstancePerLifetimeScope();
 
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();
@@ -54,6 +58,7 @@ namespace StockManagementSystem.Api.Infrastructure
 
             builder.RegisterType<ApiSettingModelFactory>().As<IApiSettingModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<UserFactory>().As<IFactory<User>>().InstancePerLifetimeScope();
+            builder.RegisterType<DeviceFactory>().As<IFactory<Device>>().InstancePerLifetimeScope();
 
             builder.RegisterType<JsonPropertyMapper>().As<IJsonPropertyMapper>().InstancePerLifetimeScope();
 

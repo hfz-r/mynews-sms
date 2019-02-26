@@ -14,7 +14,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Setting;
+using StockManagementSystem.Services.Stores;
+using StockManagementSystem.Services.Tenants;
 
 namespace StockManagementSystem.Controllers
 {
@@ -23,6 +26,8 @@ namespace StockManagementSystem.Controllers
         private readonly IDeviceService _deviceService;
         private readonly IRepository<Device> _deviceRepository;
         private readonly IRepository<Store> _storeRepository;
+        private readonly ITenantService _tenantService;
+        private readonly ITenantMappingService _tenantMappingService;
         private readonly IDeviceModelFactory _deviceModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
@@ -34,14 +39,18 @@ namespace StockManagementSystem.Controllers
             IDeviceService deviceService,
             IRepository<Device> deviceRepository,
             IRepository<Store> storeRepository,
+            ITenantService tenantService,
+            ITenantMappingService tenantMappingService,
             IDeviceModelFactory deviceModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
             ILoggerFactory loggerFactory)
         {
-            this._deviceService = deviceService;
-            this._deviceRepository = deviceRepository;
-            this._storeRepository = storeRepository;
+            _deviceService = deviceService;
+            _deviceRepository = deviceRepository;
+            _storeRepository = storeRepository;
+            _tenantService = tenantService;
+            _tenantMappingService = tenantMappingService;
             _deviceModelFactory = deviceModelFactory;
             _permissionService = permissionService;
             _notificationService = notificationService;
@@ -49,6 +58,37 @@ namespace StockManagementSystem.Controllers
         }
 
         public ILogger Logger { get; }
+
+        #endregion
+
+        #region Utilities
+
+        /// <summary>
+        /// Multi-tenant update/save entity
+        /// </summary>
+        protected async Task SaveTenantMappings(Device device, DeviceModel model)
+        {
+            device.LimitedToTenants = model.SelectedTenantIds.Any();
+
+            var existingTenantMappings = await _tenantMappingService.GetTenantMappings(device);
+            var tenants = await _tenantService.GetTenantsAsync();
+            foreach (var tenant in tenants)
+            {
+                if (model.SelectedTenantIds.Contains(tenant.Id))
+                {
+                    //new tenant
+                    if (existingTenantMappings.Count(tm => tm.TenantId == tenant.Id) == 0)
+                        await _tenantMappingService.InsertTenantMapping(device, tenant.Id);
+                }
+                else
+                {
+                    //remove tenant
+                    var tenantMappingToDelete = existingTenantMappings.FirstOrDefault(tm => tm.TenantId == tenant.Id);
+                    if (tenantMappingToDelete != null)
+                        await _tenantMappingService.DeleteTenantMapping(tenantMappingToDelete);
+                }
+            }
+        }
 
         #endregion
 
@@ -64,12 +104,18 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> GetStore()
+        [HttpPost]
+        public async Task<IActionResult> DeviceList(DeviceSearchModel searchModel)
         {
-            var model = await _deviceModelFactory.PrepareDeviceSearchModel(new DeviceSearchModel());
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
+                return AccessDeniedKendoGridJson();
 
-            return View(model);
+            var model = await _deviceModelFactory.PrepareDeviceListModel(searchModel);
+
+            return Json(model);
         }
+
+        #region Create / Edit / Delete
 
         [HttpPost]
         public async Task<IActionResult> AddDevice(DeviceModel model)
@@ -84,40 +130,39 @@ namespace StockManagementSystem.Controllers
                 _notificationService.ErrorNotification("Store is required to register a device");
             }
 
-            try
+            if (ModelState.IsValid)
             {
-                Device device = new Device();
-                device.ModelNo = model.ModelNo;
-                device.StoreId = model.SelectedStoreId;
-                device.Status = "0"; // default to offline
+                try
+                {
+                    var device = model.ToEntity<Device>();
+                    device.CreatedOnUtc = DateTime.UtcNow;
+                    device.ModifiedOnUtc = DateTime.UtcNow;
+                    device.StoreId = model.SelectedStoreId;
+                    device.Status = "0";
 
-                //Serial No
-                if (!string.IsNullOrWhiteSpace(model.SerialNo))
-                    await _deviceService.SetSerialNo(device, model.SerialNo);
-                else
-                    device.SerialNo = model.SerialNo;
+                    //Serial No
+                    if (!string.IsNullOrWhiteSpace(model.SerialNo))
+                        await _deviceService.SetSerialNo(device, model.SerialNo);
+                    else
+                        device.SerialNo = model.SerialNo;
 
-                await _deviceService.InsertDevice(device);
-                return new NullJsonResult();
+                    await _deviceService.InsertDevice(device);
+
+                    //tenants - currently not wired; on test
+                    await SaveTenantMappings(device, model);
+
+                    return new NullJsonResult();
+                }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError(string.Empty, e.Message);
+                    _notificationService.ErrorNotification(e.Message);
+
+                    return Json(e.Message);
+                }
             }
-            catch (Exception e)
-            {
-                ModelState.AddModelError(string.Empty, e.Message);
-                _notificationService.ErrorNotification(e.Message);
 
-                return Json(e.Message);
-            }
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeviceList(DeviceSearchModel searchModel)
-        {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageDevices))
-                return AccessDeniedKendoGridJson();
-
-            var model = await _deviceModelFactory.PrepareDeviceListModel(searchModel);
-
-            return Json(model);
+            return new NullJsonResult();
         }
 
         public async Task<IActionResult> EditDevice(int id)
@@ -130,7 +175,7 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("Index");
 
             var model = await _deviceModelFactory.PrepareDeviceModel(null, device);
-            model.SelectedStoreId = device.StoreId;
+            //model.SelectedStoreId = device.StoreId;
 
             return View(model);
         }
@@ -157,6 +202,8 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
+                    device = model.ToEntity(device);
+                    device.ModifiedOnUtc = DateTime.UtcNow;
                     device.ModelNo = model.ModelNo;
                     device.StoreId = model.SelectedStoreId;
 
@@ -167,6 +214,9 @@ namespace StockManagementSystem.Controllers
                         device.SerialNo = model.SerialNo;
 
                     _deviceService.UpdateDevice(device);
+
+                    //tenants - currently not wired; on test
+                    await SaveTenantMappings(device, model);
 
                     _notificationService.SuccessNotification("Device has been updated successfully.");
 
@@ -203,6 +253,8 @@ namespace StockManagementSystem.Controllers
                 //remove
                 _deviceService.DeleteDevice(device);
 
+                //TODO: delete on parent level - storemapping
+
                 _notificationService.SuccessNotification("Device has been deleted successfully.");
 
                 return RedirectToAction("Index");
@@ -213,6 +265,8 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("EditDevice", new { id = device.Id });
             }
         }
+
+        #endregion
 
         #endregion
 

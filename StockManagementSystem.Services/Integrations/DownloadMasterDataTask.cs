@@ -7,13 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Geocoding.Google;
 using Microsoft.Extensions.Configuration;
-using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Domain.Items;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Users;
-using StockManagementSystem.Core.Infrastructure;
-using StockManagementSystem.Data.Extensions;
 using StockManagementSystem.Data.Infrastructure;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
@@ -31,6 +28,7 @@ namespace StockManagementSystem.Services.Integrations
         private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User> _userRepository;
+        private readonly IRepository<Item> _itemRepository;
         private readonly IRepository<UserPassword> _userPasswordRepository;
         private readonly ILogger _logger;
 
@@ -42,6 +40,7 @@ namespace StockManagementSystem.Services.Integrations
             IRepository<Store> storeRepository,
             IRepository<Role> roleRepository,
             IRepository<User> userRepository,
+            IRepository<Item> itemRepository,
             IRepository<UserPassword> userPasswordRepository,
             ILogger logger)
         {
@@ -52,6 +51,7 @@ namespace StockManagementSystem.Services.Integrations
             _storeRepository = storeRepository;
             _roleRepository = roleRepository;
             _userRepository = userRepository;
+            _itemRepository = itemRepository;
             _userPasswordRepository = userPasswordRepository;
             _logger = logger;
         }
@@ -73,6 +73,10 @@ namespace StockManagementSystem.Services.Integrations
                 var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
                 while (reader.Read())
                 {
+                    var existingStore = await _storeRepository.GetByIdAsync(Convert.ToInt32(reader["outlet_no"]));
+                    if (existingStore != null && existingStore.P_Name.Equals(reader["outlet_name"].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                        continue;
+
                     var store = new Store
                     {
                         P_BranchNo = Convert.ToInt32(reader["outlet_no"]),
@@ -108,7 +112,10 @@ namespace StockManagementSystem.Services.Integrations
 
             try
             {
-                var oldStores = _storeRepository.Table;
+                var oldStores =
+                    from s in _storeRepository.Table
+                    where s.P_BranchNo == 0 && string.IsNullOrEmpty(s.P_Name)
+                    select s;
                 if (oldStores.Any())
                 {
                     await _storeRepository.DeleteAsync(oldStores);
@@ -139,6 +146,10 @@ namespace StockManagementSystem.Services.Integrations
                 var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
                 while (reader.Read())
                 {
+                    var existingRole = _roleRepository.Table.FirstOrDefault(x => x.Name.Equals(reader["Role"].ToString(), StringComparison.InvariantCultureIgnoreCase));
+                    if (existingRole != null && existingRole.SystemName == reader["Role"].ToString())
+                        continue;
+
                     if (!reader["Role"].ToString().Contains("Admin", StringComparison.InvariantCultureIgnoreCase) &&
                         !reader["Role"].ToString().Contains("Registered", StringComparison.InvariantCultureIgnoreCase))
                     {
@@ -158,7 +169,7 @@ namespace StockManagementSystem.Services.Integrations
             {
                 var oldRoles =
                     from r in _roleRepository.Table
-                    where !r.IsSystemRole
+                    where !r.IsSystemRole && !r.Active
                     select r;
                 if (oldRoles.Any())
                 {
@@ -185,15 +196,15 @@ namespace StockManagementSystem.Services.Integrations
             {
                 var oldUsers =
                     from u in _userRepository.Table
-                    where !u.IsSystemAccount
+                    where !u.IsSystemAccount && u.RegisteredInTenantId == 0
                     select u;
                 if (oldUsers.Any())
                 {
-                    var keyGroup = oldUsers.First().GetUnproxiedEntityType().Name;
-                    foreach (var user in oldUsers)
+                    //remove from generic attribute
+                    foreach (var user in oldUsers.ToList())
                     {
-                        var genericAttributes = await _genericAttributeService.GetAttributesForEntityAsync(user.Id, keyGroup);
-
+                        var genericAttributes = await _genericAttributeService.GetAttributesForEntityAsync(user.Id, typeof(User).Name);
+                      
                         await _genericAttributeService.DeleteAttributes(genericAttributes);
                     }
 
@@ -203,17 +214,19 @@ namespace StockManagementSystem.Services.Integrations
                 }
 
                 var registeredRole = _userService.GetRoleBySystemName(UserDefaults.RegisteredRoleName);
-                var tenantId = EngineContext.Current.Resolve<ITenantContext>().CurrentTenant?.Id ?? 0;
 
                 using (var conn = new SqlConnection(SqlHelper.ConnectionString))
                 {
-                    var commandText =
-                        @"SELECT TOP 300 [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] 
-                                FROM [dbo].[btb_HHT_Staff]";
+                    var commandText = @"SELECT TOP 300 [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] 
+                                        FROM [dbo].[btb_HHT_Staff]";
 
                     var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
                     while (reader.Read())
                     {
+                        var existingUser = await _userService.GetUserByUsernameAsync(reader["staff_no"].ToString());
+                        if (existingUser != null && existingUser.RegisteredInTenantId > 0)
+                            continue;
+
                         var systemName = string.IsNullOrEmpty(reader["role"].ToString()) ? "Outlet" : reader["role"].ToString() == "Admin"
                                 ? "Administrators" : reader["role"].ToString();
 
@@ -226,7 +239,6 @@ namespace StockManagementSystem.Services.Integrations
                                 Username = reader["staff_no"].ToString(),
                                 Active = true,
                                 CreatedOnUtc = DateTime.UtcNow,
-                                RegisteredInTenantId = tenantId,
                             };
 
                             var role = _userService.GetRoleBySystemName(systemName);
@@ -236,7 +248,7 @@ namespace StockManagementSystem.Services.Integrations
                             await _userService.InsertUserAsync(user);
 
                             await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.FirstNameAttribute,
-                                reader["staff_name"].ToString(), tenantId);
+                                reader["staff_name"].ToString());
 
                             _userPasswordRepository.Insert(new UserPassword
                             {
@@ -259,8 +271,86 @@ namespace StockManagementSystem.Services.Integrations
             }
 
             #endregion
+
+            #region Item
+
+            var items = new List<Item>();
+
+            using (var conn = new SqlConnection(SqlHelper.ConnectionString))
+            {
+                var commandText = @"SELECT TOP 300 [stock_code], [stock_name], [subc].[Category_Code], [price_level_01], [price_level_02], 
+                                    [price_level_03], [price_level_04], [price_level_05], [price_level_06], [price_level_07], [price_level_08],
+                                    [price_level_09], [price_level_10], [price_level_11], [price_level_12], [price_level_13], [price_level_14],
+                                    [price_level_15], [status], [order], [type], [variant1], [variant2] 
+                                    FROM [dbo].[btb_HHT_Stock] [stk] 
+                                    INNER JOIN [dbo].[btb_HHT_SubCategory] [subc] ON [stk].[sub_category_code] = [subc].[Sub_Category_Code]";
+
+                var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
+                while (reader.Read())
+                {
+                    var existingItem = _itemRepository.Table.FirstOrDefault(x => x.P_StockCode.Equals(reader["stock_code"].ToString(), StringComparison.InvariantCultureIgnoreCase));
+                    if (existingItem != null)
+                        continue;
+
+                    var item = new Item
+                    {
+                        P_StockCode = reader["stock_code"].ToString(),
+                        P_Desc = reader["stock_name"].ToString(),
+                        P_GroupId = Convert.ToInt32(reader["Category_Code"].ToString()),
+                        P_SPrice1 = Convert.ToDouble(reader["price_level_01"].ToString()),
+                        P_SPrice2 = Convert.ToDouble(reader["price_level_02"].ToString()),
+                        P_SPrice3 = Convert.ToDouble(reader["price_level_03"].ToString()),
+                        P_SPrice4 = Convert.ToDouble(reader["price_level_04"].ToString()),
+                        P_SPrice5 = Convert.ToDouble(reader["price_level_05"].ToString()),
+                        P_SPrice6 = Convert.ToDouble(reader["price_level_06"].ToString()),
+                        P_SPrice7 = Convert.ToDouble(reader["price_level_07"].ToString()),
+                        P_SPrice8 = Convert.ToDouble(reader["price_level_08"].ToString()),
+                        P_SPrice9 = Convert.ToDouble(reader["price_level_09"].ToString()),
+                        P_SPrice10 = Convert.ToDouble(reader["price_level_10"].ToString()),
+                        P_SPrice11 = Convert.ToDouble(reader["price_level_11"].ToString()),
+                        P_SPrice12 = Convert.ToDouble(reader["price_level_12"].ToString()),
+                        P_SPrice13 = Convert.ToDouble(reader["price_level_13"].ToString()),
+                        P_SPrice14 = Convert.ToDouble(reader["price_level_14"].ToString()),
+                        P_SPrice15 = Convert.ToDouble(reader["price_level_15"].ToString()),
+                        P_RecStatus = reader["status"].ToString(),
+                        P_OrderStatus = Convert.ToInt32(reader["order"].ToString()),
+                        P_StockType = Convert.ToInt32(reader["type"].ToString()),
+                        P_Variant1 = reader["variant1"].ToString(),
+                        P_Variant2 = reader["variant2"].ToString(),
+                    };
+
+                    items.Add(item);
+                }
+            }
+
+            try
+            {
+                var oldItems =
+                    from i in _itemRepository.Table
+                    where string.IsNullOrEmpty(i.P_StockCode) && string.IsNullOrEmpty(i.P_Desc)
+                    select i;
+                if (oldItems.Any())
+                {
+                    await _itemRepository.DeleteAsync(oldItems);
+
+                    await _userActivityService.InsertActivityAsync("ClearItem", "Deleted old master data from [Item]", new Item());
+                }
+
+                await _itemRepository.InsertAsync(items);
+
+                //activity log
+                await _userActivityService.InsertActivityAsync("DownloadItem", $"Downloaded master data to [Item] (Total items = {items.Count})", new Item());
+            }
+            catch (Exception exception)
+            {
+                _logger.Error("An error occurred while downloading data to table [Item]", exception);
+            }
+
+            #endregion
         }
 
-        public string Schedule => "0 0 * * *";
+        public string Schedule => "0 17 * * *";
+
+        public bool Enabled => true;
     }
 }

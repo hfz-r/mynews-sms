@@ -7,6 +7,7 @@
     <div class="form-horizontal">
         <tabs id="device-edit">
             <tab asp-name="tab-info" asp-title="Device info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdateDevice.Info", Model)</tab>
+            <!--TODO: wired multi-tenant-->
         </tabs>
     </div>
 </section>

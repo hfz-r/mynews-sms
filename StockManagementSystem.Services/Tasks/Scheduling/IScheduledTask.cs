@@ -7,6 +7,8 @@ namespace StockManagementSystem.Services.Tasks.Scheduling
     {
         string Schedule { get; }
 
+        bool Enabled { get; }
+
         Task ExecuteAsync(CancellationToken cancellationToken);
     }
 }

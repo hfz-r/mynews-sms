@@ -16,9 +16,10 @@ using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 
-namespace Api.Tests.ControllersTests
+namespace Api.Tests.ControllersTests.Users
 {
     [TestFixture]
     public class UsersControllerTests
@@ -26,6 +27,8 @@ namespace Api.Tests.ControllersTests
         private Mock<IJsonFieldsSerializer> _jsonFieldsSerializer;
         private Mock<IAclService> _aclService;
         private Mock<IUserService> _userService;
+        private Mock<ITenantMappingService> _tenantMappingService;
+        private Mock<ITenantService> _tenantService;
         private Mock<IUserActivityService> _userActivityService;
         private Mock<IUserApiService> _userApiService;
         private Mock<IGenericAttributeService> _genericAttributeService;
@@ -40,6 +43,8 @@ namespace Api.Tests.ControllersTests
             _jsonFieldsSerializer = new Mock<IJsonFieldsSerializer>();
             _aclService = new Mock<IAclService>();
             _userService = new Mock<IUserService>();
+            _tenantMappingService = new Mock<ITenantMappingService>();
+            _tenantService = new Mock<ITenantService>();
             _userActivityService = new Mock<IUserActivityService>();
             _userApiService = new Mock<IUserApiService>();
             _genericAttributeService = new Mock<IGenericAttributeService>();
@@ -50,6 +55,8 @@ namespace Api.Tests.ControllersTests
                 _jsonFieldsSerializer.Object,
                 _aclService.Object,
                 _userService.Object,
+                _tenantMappingService.Object,
+                _tenantService.Object,
                 _userActivityService.Object,
                 _userApiService.Object,
                 _genericAttributeService.Object,

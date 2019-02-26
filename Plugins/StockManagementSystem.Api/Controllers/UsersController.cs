@@ -21,6 +21,7 @@ using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
@@ -43,12 +44,14 @@ namespace StockManagementSystem.Api.Controllers
             IJsonFieldsSerializer jsonFieldsSerializer,
             IAclService aclService,
             IUserService userService,
+            ITenantMappingService tenantMappingService,
+            ITenantService tenantService,
             IUserActivityService userActivityService,
             IUserApiService userApiService,
             IGenericAttributeService genericAttributeService,
             IEncryptionService encryptionService,
             IFactory<User> factory)
-            : base(jsonFieldsSerializer, aclService, userService, userActivityService)
+            : base(jsonFieldsSerializer, aclService, userService, tenantMappingService, tenantService, userActivityService)
         {
             _userApiService = userApiService;
             _genericAttributeService = genericAttributeService;
@@ -181,6 +184,7 @@ namespace StockManagementSystem.Api.Controllers
         [Route("/api/users")]
         [ProducesResponseType(typeof(UsersRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), 422)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> CreateUser([ModelBinder(typeof(JsonModelBinder<UserDto>))] Delta<UserDto> userDelta)
         {
@@ -213,7 +217,7 @@ namespace StockManagementSystem.Api.Controllers
             var usersRootObject = new UsersRootObject();
             usersRootObject.Users.Add(newUserDto);
 
-            var json = JsonFieldsSerializer.Serialize(usersRootObject, String.Empty);
+            var json = JsonFieldsSerializer.Serialize(usersRootObject, string.Empty);
 
             return new RawJsonActionResult(json);
         }
@@ -279,11 +283,11 @@ namespace StockManagementSystem.Api.Controllers
         /// </summary>
         [HttpDelete]
         [Route("/api/users/{id}")]
-        [GetRequestsErrorInterceptorActionFilter]
         [ProducesResponseType(typeof(void), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [GetRequestsErrorInterceptorActionFilter]
         public async Task<IActionResult> DeleteUser(int id)
         {
             if (id <= 0)

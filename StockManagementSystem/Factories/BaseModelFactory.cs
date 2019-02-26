@@ -10,6 +10,7 @@ using StockManagementSystem.Services;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Plugins;
+using StockManagementSystem.Services.Stores;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Factories
@@ -20,6 +21,7 @@ namespace StockManagementSystem.Factories
         private readonly IPluginService _pluginService;
         private readonly IUserActivityService _userActivityService;
         private readonly IUserService _userService;
+        private readonly IStoreService _storeService;
         private readonly IRepository<Branch> _branchRepository;
 
         public BaseModelFactory(
@@ -27,12 +29,14 @@ namespace StockManagementSystem.Factories
             IPluginService pluginService, 
             IUserActivityService userActivityService, 
             IUserService userService,
+            IStoreService storeService,
             IRepository<Branch> branchRepository)
         {
             _dateTimeHelper = dateTimeHelper;
             _pluginService = pluginService;
             _userActivityService = userActivityService;
             _userService = userService;
+            _storeService = storeService;
             _branchRepository = branchRepository;
         }
 
@@ -78,6 +82,27 @@ namespace StockManagementSystem.Factories
             }
 
             PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
+        }
+
+        /// <summary>
+        /// Prepare available stores
+        /// </summary>
+        public async Task PrepareStores(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            var availableStores = await _storeService.GetStoresAsync();
+            foreach (var store in availableStores)
+            {
+                items.Add(new SelectListItem
+                {
+                    Value = store.P_BranchNo.ToString(),
+                    Text = store.P_BranchNo.ToString() + " - " + store.P_Name
+                });
+            }
+
+            //PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
         }
 
         /// <summary>

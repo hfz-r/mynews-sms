@@ -28,14 +28,12 @@ namespace StockManagementSystem.Api.Delta
 
             foreach (var propertyNameValuePair in propertyNameValuePairs)
             {
-                SetValue(objectToBeUpdated, propertyNameValuePair, objectPropertyNameValuePairs,
-                    handleComplexTypeCollections);
+                SetValue(objectToBeUpdated, propertyNameValuePair, objectPropertyNameValuePairs, handleComplexTypeCollections);
             }
         }
 
         // Used in the SetValue private method and also in the Delta.
-        private void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty,
-            object propertyValue)
+        private void ConvertAndSetValueIfValid(object objectToBeUpdated, PropertyInfo objectProperty, object propertyValue)
         {
             var converter = TypeDescriptor.GetConverter(objectProperty.PropertyType);
 
@@ -90,7 +88,7 @@ namespace StockManagementSystem.Api.Delta
                         objectPropertyNameValuePairs);
                     return;
                 }
-                // This case hadles collections.
+                // This case handles collections.
                 if (propertyValue != null && propertyValue is ICollection<object>)
                 {
                     var propertyValueAsCollection = propertyValue as ICollection<object>;

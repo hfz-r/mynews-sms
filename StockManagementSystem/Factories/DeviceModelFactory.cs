@@ -12,6 +12,7 @@ using StockManagementSystem.Web.Kendoui.Extensions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Web.Factories;
 
 namespace StockManagementSystem.Factories
 {
@@ -20,21 +21,27 @@ namespace StockManagementSystem.Factories
     /// </summary>
     public class DeviceModelFactory : IDeviceModelFactory
     {
+        private readonly IBaseModelFactory _baseModelFactory;
         private readonly IDeviceService _deviceService;
         private readonly IStoreService _storeService;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly IConfiguration _iconfiguration;
+        private readonly IConfiguration _configuration;
+        private readonly ITenantMappingSupportedModelFactory _tenantMappingSupportedModelFactory;
 
         public DeviceModelFactory(
+            IBaseModelFactory baseModelFactory,
             IDeviceService deviceService,
             IStoreService storeService,
             IDateTimeHelper dateTimeHelper,
-            IConfiguration iconfiguration)
+            IConfiguration configuration,
+            ITenantMappingSupportedModelFactory tenantMappingSupportedModelFactory)
         {
+            _baseModelFactory = baseModelFactory;
             _deviceService = deviceService;
             _storeService = storeService;
             _dateTimeHelper = dateTimeHelper;
-            _iconfiguration = iconfiguration;
+            _configuration = configuration;
+            _tenantMappingSupportedModelFactory = tenantMappingSupportedModelFactory;
         }
 
         #region Manage Device
@@ -44,17 +51,12 @@ namespace StockManagementSystem.Factories
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
+            await _baseModelFactory.PrepareStores(searchModel.AvailableStores);
+
             //prepare page parameters
             searchModel.SetGridPageSize();
 
-            var stores = await _storeService.GetStoresAsync();
-            searchModel.AvailableStores = stores.Select(store => new SelectListItem
-            {
-                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
-                Value = store.P_BranchNo.ToString()
-            }).ToList();
-
-            return await Task.FromResult(searchModel);
+            return searchModel;
         }        
 
         public async Task<DeviceListModel> PrepareDeviceListModel(DeviceSearchModel searchModel)
@@ -62,8 +64,8 @@ namespace StockManagementSystem.Factories
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            var devices = await _deviceService.GetDevicesAsync(
-                storeIds: searchModel.SelectedStoreId.ToArray(),
+            var devices = await _deviceService.GetDevicesAsync( 
+                storeIds: searchModel.SelectedStoreIds.ToArray(),
                 serialNo: searchModel.SearchSerialNo,
                 pageIndex: searchModel.Page - 1,
                 pageSize: searchModel.PageSize);
@@ -73,9 +75,8 @@ namespace StockManagementSystem.Factories
                 Data = devices.Select(device =>
                 {
                     var devicesModel = device.ToModel<DeviceModel>();
-
-                    devicesModel.SerialNo = device.SerialNo;
-                    devicesModel.ModelNo = device.ModelNo;
+                    //devicesModel.SerialNo = device.SerialNo;
+                    //devicesModel.ModelNo = device.ModelNo;
                     devicesModel.SelectedStoreId = device.StoreId;
                     devicesModel.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
                     devicesModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
@@ -96,7 +97,7 @@ namespace StockManagementSystem.Factories
             }
 
             // filter
-            if (searchModel.Filter != null && searchModel.Filter.Filters != null && searchModel.Filter.Filters.Any())
+            if (searchModel.Filter?.Filters != null && searchModel.Filter.Filters.Any())
             {
                 var filter = searchModel.Filter;
                 model.Data = await model.Data.Filter(filter);
@@ -105,18 +106,42 @@ namespace StockManagementSystem.Factories
 
             return model;
         }
-
-        public async Task<DeviceModel> PrepareDeviceListbyStoreModel(int storeID)
+      
+        public async Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device)
         {
-            var devices = await _deviceService.GetDevicesByStoreIdAsync(storeID);
-
-            var model = new DeviceModel
+            if (device != null)
             {
-                Devices = devices
-            };
+                if (model == null)
+                {
+                    model = device.ToModel<DeviceModel>();
+
+                    model.Id = device.Id;
+                    model.SerialNo = device.SerialNo;
+                    model.ModelNo = device.ModelNo;
+                    model.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
+                    model.SelectedStoreId = device.StoreId;
+                    model.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
+                    model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
+                    //model.SelectedStoreId = device.Store.Id;
+                }
+            }
+
+            var stores = await _storeService.GetStoresAsync();
+            model.AvailableStores = stores.Select(store => new SelectListItem
+            {
+                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
+                Value = store.P_BranchNo.ToString()
+            }).ToList();
+
+            //prepare model tenant
+            await _tenantMappingSupportedModelFactory.PrepareModelTenants(model, device, false);
 
             return model;
         }
+
+        #endregion
+
+        #region Device Tracking
 
         public async Task<DeviceModel> PrepareDeviceListModel()
         {
@@ -130,7 +155,7 @@ namespace StockManagementSystem.Factories
             foreach (var item in model.Devices)
             {
                 double distance = getDistance(item.Latitude, item.Longitude, item.Store.Latitude, item.Store.Longitude) / 1000; //returns in KM
-                if (distance > Convert.ToDouble(_iconfiguration["OutofRadarRadius"]))
+                if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                 {
                     item.Status = "2";
                 }
@@ -149,36 +174,6 @@ namespace StockManagementSystem.Factories
 
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
-
-        public async Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device)
-        {
-            if (device != null)
-            {
-                model = model ?? new DeviceModel();
-
-                model.Id = device.Id;
-                model.SerialNo = device.SerialNo;
-                model.ModelNo = device.ModelNo;
-                model.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
-                model.SelectedStoreId = device.StoreId;
-                model.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
-                model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
-                model.SelectedStoreId = device.Store.Id;
-            }
-
-            var stores = await _storeService.GetStoresAsync();
-            model.AvailableStores = stores.Select(store => new SelectListItem
-            {
-                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
-                Value = store.P_BranchNo.ToString()
-            }).ToList();
-
-            return await Task.FromResult(model);
-        }
-
-        #endregion
-
-        #region Device Tracking
 
         public async Task<DeviceTrackingContainerModel> PrepareDeviceTrackingContainerModel(
             DeviceTrackingContainerModel deviceTrackingContainerModel)
@@ -211,7 +206,7 @@ namespace StockManagementSystem.Factories
                     mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
 
                     double distance = getDistance(mapLst.Store.Latitude, mapLst.Store.Longitude, mapLst.Latitude, mapLst.Longitude);
-                    if (distance > Convert.ToDouble(_iconfiguration["OutofRadarRadius"]))
+                    if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                     {
                         mapLst.Status = "2";
                     }

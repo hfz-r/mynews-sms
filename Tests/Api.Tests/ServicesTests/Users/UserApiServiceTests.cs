@@ -13,7 +13,7 @@ using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Users;
 using Tests;
 
-namespace Api.Tests.ServicesTests
+namespace Api.Tests.ServicesTests.Users
 {
     [TestFixture]
     public class UserApiServiceTests
@@ -109,15 +109,15 @@ namespace Api.Tests.ServicesTests
 
             #endregion
 
-            #region Tenant
+            #region Store
 
-            _tenant = new Tenant
+            _tenant = new Tenant()
             {
-                Name = "Test Tenant",
-                Url = "localhost/mytenant",
+                Id = 1,
+                Name = "MyStore",
+                Url = "localhost/mystore",
+                Hosts = "mystore.com",
                 SslEnabled = false,
-                Hosts = "mytenant.com",
-                DisplayOrder = 1,
             };
             _tenantContext = new Mock<ITenantContext>();
             _tenantContext.Setup(x => x.CurrentTenant).Returns(_tenant);

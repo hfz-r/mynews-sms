@@ -12,10 +12,12 @@ using StockManagementSystem.Api.Json.ActionResults;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
+    //TODO: complete it !!
     [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RolesController : BaseApiController
     {
@@ -23,8 +25,10 @@ namespace StockManagementSystem.Api.Controllers
             IJsonFieldsSerializer jsonFieldsSerializer,
             IAclService aclService,
             IUserService userService,
+            ITenantMappingService tenantMappingService,
+            ITenantService tenantService,
             IUserActivityService userActivityService)
-            : base(jsonFieldsSerializer, aclService, userService, userActivityService)
+            : base(jsonFieldsSerializer, aclService, userService, tenantMappingService, tenantService, userActivityService)
         {
         }
 

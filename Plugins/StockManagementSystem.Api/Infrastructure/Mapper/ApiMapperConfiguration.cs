@@ -2,11 +2,15 @@
 using AutoMapper;
 using IdentityServer4.EntityFramework.Entities;
 using StockManagementSystem.Api.Domain;
+using StockManagementSystem.Api.DTOs.Devices;
+using StockManagementSystem.Api.DTOs.Items;
 using StockManagementSystem.Api.DTOs.Roles;
 using StockManagementSystem.Api.DTOs.Users;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Models.ApiSettings;
 using StockManagementSystem.Api.Models.ApiSettings.Clients;
+using StockManagementSystem.Core.Domain.Devices;
+using StockManagementSystem.Core.Domain.Items;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 
@@ -22,6 +26,12 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
 
             //role
             CreateMap<Role, RoleDto>();
+
+            //device
+            CreateMap<Device, DeviceDto>();
+
+            //item
+            CreateMap<Item, ItemDto>();
 
             CreateClientMaps();
             CreateUserMaps();

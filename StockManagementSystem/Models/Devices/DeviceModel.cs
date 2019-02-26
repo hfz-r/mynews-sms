@@ -7,12 +7,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StockManagementSystem.Models.Devices
 {
-    public class DeviceModel : BaseEntityModel
+    public class DeviceModel : BaseEntityModel, ITenantMappingSupportedModel
     {
         public DeviceModel()
         {
             SelectedStoreId = new int();
             AvailableStores = new List<SelectListItem>();
+
+            SelectedTenantIds = new List<int>();
+            AvailableTenants = new List<SelectListItem>();
         }
 
         public string Name { get; set; }
@@ -36,11 +39,16 @@ namespace StockManagementSystem.Models.Devices
         public int SelectedStoreId { get; set; }
 
         [Display(Name = "Store")]
-        [Required(ErrorMessage = "Store is required")]
+        //[Required(ErrorMessage = "Store is required")]
         public string StoreName { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
 
         public ICollection<Device> Devices { get; set; }
+
+        //multi-tenant setting
+        [Display(Name = "Limited to tenants")]
+        public IList<int> SelectedTenantIds { get; set; }
+        public IList<SelectListItem> AvailableTenants { get; set; }
     }
 }

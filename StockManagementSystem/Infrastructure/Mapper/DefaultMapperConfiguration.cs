@@ -50,9 +50,18 @@ namespace StockManagementSystem.Infrastructure.Mapper
                     map.ForMember(nameof(BaseModel.CustomProperties), options => options.Ignore());
                 }
 
-                //exclude ActiveStoreScopeConfiguration from mapping ISettingsModel
+                //exclude ActiveTenantScopeConfiguration from mapping ISettingsModel
                 if (typeof(ISettingsModel).IsAssignableFrom(mapConfiguration.DestinationType))
                     map.ForMember(nameof(ISettingsModel.ActiveTenantScopeConfiguration), options => options.Ignore());
+
+                //exclude some properties from mapping tenant supported entities and models
+                if (typeof(ITenantMappingSupported).IsAssignableFrom(mapConfiguration.DestinationType))
+                    map.ForMember(nameof(ITenantMappingSupported.LimitedToTenants), options => options.Ignore());
+                if (typeof(ITenantMappingSupportedModel).IsAssignableFrom(mapConfiguration.DestinationType))
+                {
+                    map.ForMember(nameof(ITenantMappingSupportedModel.AvailableTenants), options => options.Ignore());
+                    map.ForMember(nameof(ITenantMappingSupportedModel.SelectedTenantIds), options => options.Ignore());
+                }
 
                 //exclude some properties from mapping Permission supported models
                 if (typeof(IAclSupported).IsAssignableFrom(mapConfiguration.DestinationType))
@@ -119,7 +128,8 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.SystemName, options => options.Ignore())
                 .ForMember(entity => entity.LastLoginDateUtc, options => options.Ignore())
                 .ForMember(entity => entity.UserRoles, options => options.Ignore())
-                .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore());
+                .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore())
+                .ForMember(entity => entity.StoreUserAssignStore, options => options.Ignore());
         }
 
         /// <summary>
@@ -159,7 +169,8 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.Username, options => options.Ignore())
                 .ForMember(entity => entity.UserRoles, options => options.Ignore())
                 .ForMember(entity => entity.Active, options => options.Ignore())
-                .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore());
+                .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore())
+                .ForMember(entity => entity.StoreUserAssignStore, options => options.Ignore());
         }
 
         /// <summary>
@@ -169,10 +180,8 @@ namespace StockManagementSystem.Infrastructure.Mapper
         {
             CreateMap<Device, DeviceModel>();
             CreateMap<DeviceModel, Device>()
-                .ForMember(entity => entity.SerialNo, options => options.Ignore())
                 .ForMember(entity => entity.StoreId, options => options.Ignore())
                 .ForMember(entity => entity.Store, options => options.Ignore())
-                .ForMember(entity => entity.ModelNo, options => options.Ignore())
                 .ForMember(entity => entity.Id, options => options.Ignore())
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())

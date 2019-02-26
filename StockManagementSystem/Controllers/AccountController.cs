@@ -186,6 +186,14 @@ namespace StockManagementSystem.Controllers
                     var changePasswordResult = await _userRegistrationService.ChangePasswordAsync(changePasswordRequest);
                     if (changePasswordResult.Success)
                     {
+                        //update login details
+                        user.FailedLoginAttempts = 0;
+                        user.CannotLoginUntilDateUtc = null;
+                        user.LastLoginDateUtc = DateTime.UtcNow;
+                        user.RegisteredInTenantId = _tenantContext.CurrentTenant.Id;
+
+                        await _userService.UpdateUserAsync(user);
+
                         //activity log
                         await _userActivityService.InsertActivityAsync(user, "FirstTimeLogin", $"First time login ('{user.Username}')", user);
 

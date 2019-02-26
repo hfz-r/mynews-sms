@@ -38,7 +38,7 @@ namespace StockManagementSystem.Controllers
         private readonly ILogger _logger;
 
         #region Constructor
-        
+
         public ManagementController(
             IOutletManagementService outletManagementService,
             IUserService userService,
@@ -87,16 +87,6 @@ namespace StockManagementSystem.Controllers
 
         #region Assign User
 
-        //public async Task<IActionResult> AssignUserList()
-        //{
-        //    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
-        //        return AccessDeniedView();
-
-        //    var model = await _managementModelFactory.PrepareAssignUserSearchModel(new AssignUserSearchModel());
-
-        //    return View(model);
-        //}
-
         [HttpPost]
         public async Task<IActionResult> AssignUserList(AssignUserSearchModel searchModel)
         {
@@ -114,7 +104,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             //validate store
-            if (model.SelectedStoreId == 0)
+            if (model.SelectedUserStoreId == 0)
             {
                 ModelState.AddModelError(string.Empty, "Store is required");
                 _notificationService.ErrorNotification("Store is required");
@@ -125,7 +115,7 @@ namespace StockManagementSystem.Controllers
                 //Store
                 StoreUserAssign storeUserAssign = new StoreUserAssign
                 {
-                    StoreId = model.SelectedStoreId,
+                    StoreId = model.SelectedUserStoreId,
                     StoreUserAssignStore = new List<StoreUserAssignStores>()
                 };
 
@@ -134,7 +124,7 @@ namespace StockManagementSystem.Controllers
                 {
                     StoreUserAssignStores storeUserAssignStores = new StoreUserAssignStores
                     {
-                        StoreUserAssignId = storeUserAssign.StoreId,
+                        StoreUserAssignId = storeUserAssign.Id,
                         UserId = user,
                     };
 
@@ -201,10 +191,10 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
-                    assignUser.StoreId = model.SelectedStoreId;
+                    assignUser.StoreId = model.SelectedUserStoreId;
 
                     //users
-                    List<StoreUserAssignStores> storeUserAssignStoresList = new List<StoreUserAssignStores>(); 
+                    List<StoreUserAssignStores> storeUserAssignStoresList = new List<StoreUserAssignStores>();
 
                     foreach (var user in allUsers)
                     {
@@ -232,11 +222,11 @@ namespace StockManagementSystem.Controllers
 
                     _notificationService.SuccessNotification("Assign users has been updated successfully.");
 
+                    //set to active tab
+                    SaveSelectedTabName("assignUserTab", true);
+
                     if (!continueEditing)
                         return RedirectToAction("Index");
-
-                    //selected tab
-                    SaveSelectedTabName();
 
                     return RedirectToAction("EditAssignUser", new { id = assignUser.Id });
                 }
@@ -278,16 +268,6 @@ namespace StockManagementSystem.Controllers
         #endregion
 
         #region Group Outlet
-
-        //public async Task<IActionResult> GroupOutletList()
-        //{
-        //    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
-        //        return AccessDeniedView();
-
-        //    var model = await _managementModelFactory.PrepareGroupOutletSearchModel(new GroupOutletSearchModel());
-
-        //    return View(model);
-        //}
 
         [HttpPost]
         public async Task<IActionResult> GroupOutletList(GroupOutletSearchModel searchModel)
@@ -426,11 +406,11 @@ namespace StockManagementSystem.Controllers
 
                     _notificationService.SuccessNotification("Store grouping has been updated successfully.");
 
+                    //set to active tab
+                    SaveSelectedTabName("groupOutletTab", true);
+
                     if (!continueEditing)
                         return RedirectToAction("Index");
-
-                    //selected tab
-                    SaveSelectedTabName();
 
                     return RedirectToAction("EditGroupOutlet", new { id = groupOutlet.Id });
                 }
@@ -469,6 +449,7 @@ namespace StockManagementSystem.Controllers
             }
         }
         #endregion
+
         #endregion
     }
 }

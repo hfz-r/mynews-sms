@@ -22,5 +22,7 @@ namespace StockManagementSystem.Services.Logging
         }
 
         public string Schedule => "0 */2 * * *";
+
+        public bool Enabled => false;
     }
 }

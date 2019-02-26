@@ -2,8 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StockManagementSystem.Services.Caching;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Integrations;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Services.Tasks.Scheduling
@@ -12,9 +14,9 @@ namespace StockManagementSystem.Services.Tasks.Scheduling
     {
         public static void AddScheduledTasks(this IServiceCollection services)
         {
-            //TODO: ability to run and stop manually
-            //services.AddSingleton<IScheduledTask, ClearCacheTask>(); disabled
-            //services.AddSingleton<IScheduledTask, ClearLogTask>(); disabled
+            //TODO: setting page for easy monitoring?
+            services.AddSingleton<IScheduledTask, ClearCacheTask>(); 
+            services.AddSingleton<IScheduledTask, ClearLogTask>(); 
             services.AddSingleton<IScheduledTask, KeepAliveTask>();
             services.AddSingleton<IScheduledTask, DeleteGuestsTask>();
             services.AddSingleton<IScheduledTask, DownloadMasterDataTask>();

@@ -16,8 +16,8 @@
                     </style>
 
                     <script>
-                        var datasource1 = @Html.Raw(Json.Serialize(Model.AvailableUsers));
-                        var datasource = @Html.Raw(Json.Serialize(Model.AvailableStores));
+                        var datasource1 = @Html.Raw(Json.Serialize(Model.AvailableUserStores));
+                        var datasource2 = @Html.Raw(Json.Serialize(Model.AvailableUsers));
 
                         $(document).ready(function() {
                             var grid = $("#gridAssign").kendoGrid({
@@ -30,7 +30,7 @@
                                             dataType: "json",
                                             data: function() {
                                                 var data = {
-                                                    SelectedStoreId: $('#@Html.IdFor(model => model.SelectedStoreId)').val(),
+                                                    SelectedUserStoreId: $('#@Html.IdFor(model => model.SelectedUserStoreId)').val(),
                                                     SelectedUserIds: $('#@Html.IdFor(model => model.SelectedUserIds)').val()
                                                 };
                                                 addAntiForgeryToken(data);
@@ -52,10 +52,10 @@
                                             id: "Id",
                                             fields: {
                                                 Id: { editable: false, type: "number" },
-                                                StoreName: { type: "string" },
-                                                SelectedStoreId: { editable: true, validation: { required: true } },
+                                                UserStoreName: { type: "string" },
+                                                SelectedUserStoreId: { editable: true },
                                                 User: { type: "string" },
-                                                SelectedUserIds: { editable: true, validation: { required: true } }
+                                                SelectedUserIds: { editable: true }
                                             }
                                         }
                                     },
@@ -96,9 +96,9 @@
                                 scrollable: false,
                                 columns: [
                                     {
-                                        field: "SelectedStoreId",
+                                        field: "SelectedUserStoreId",
                                         title: "Store",
-                                        template: "#=StoreName#",
+                                        template: "#=UserStoreName#",
                                         type: "string",
                                         width: 200,
                                         editor: function (container, option) { // use a dropdownlist as an editor
@@ -111,7 +111,7 @@
                                             input.kendoDropDownList({
                                                 dataTextField: "Text",
                                                 dataValueField: "Value",
-                                                dataSource: datasource,
+                                                dataSource: datasource1,
                                                 optionLabel: " ",
                                             }).appendTo(container)
                                         }
@@ -132,7 +132,7 @@
                                             input.kendoMultiSelect({
                                                 dataTextField: "Text",
                                                 dataValueField: "Value",
-                                                dataSource: datasource1,
+                                                dataSource: datasource2,
                                                 optionLabel: " ",
                                                 autoBind: "true",
                                                 valuePrimitive: "true"
@@ -144,7 +144,7 @@
                                             "<a href='Management/EditAssignUser/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
                                             "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
                                             "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
-                                            "<a href='Management/DeleteAssignUser/#=Id#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                            "<a href='Management/DeleteAssignUser/#=Id#' action='DeleteAssignUser' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         width: 111

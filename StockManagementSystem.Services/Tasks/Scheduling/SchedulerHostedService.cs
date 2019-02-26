@@ -23,7 +23,8 @@ namespace StockManagementSystem.Services.Tasks.Scheduling
                 {
                     Schedule = CrontabSchedule.Parse(scheduledTask.Schedule),
                     Task = scheduledTask,
-                    NextRunTime = referenceTime
+                    NextRunTime = referenceTime,
+                    Enabled = scheduledTask.Enabled
                 });
             }
         }
@@ -43,7 +44,7 @@ namespace StockManagementSystem.Services.Tasks.Scheduling
             var taskFactory = new TaskFactory(TaskScheduler.Current);
             var referenceTime = DateTime.UtcNow;
 
-            var tasksThatShouldRun = _scheduledTasks.Where(t => t.ShouldRun(referenceTime)).ToList();
+            var tasksThatShouldRun = _scheduledTasks.Where(t => t.ShouldRun(referenceTime) && t.Enabled).ToList();
 
             foreach (var taskThatShouldRun in tasksThatShouldRun)
             {
@@ -80,6 +81,7 @@ namespace StockManagementSystem.Services.Tasks.Scheduling
 
             private DateTime LastRunTime { get; set; }
             public DateTime NextRunTime { private get; set; }
+            public bool Enabled { get; set; }
 
             public void Increment()
             {

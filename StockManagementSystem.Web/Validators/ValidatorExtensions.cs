@@ -29,8 +29,8 @@ namespace StockManagementSystem.Web.Validators
                 userSettings.PasswordRequireNonAlphanumeric ? "<li>must have at least one special character (e.g. #?!@$%^&*-)</li>" : "");
 
             var options = ruleBuilder
-                .NotEmpty().WithMessage("Password is required.");
-                //.Matches(regExp).WithMessage(message);
+                .NotEmpty().WithMessage("Password is required.")
+                .Matches(regExp).WithMessage(message);
 
             return options;
         }

@@ -1,0 +1,36 @@
+﻿@model DeviceModel
+
+<div class="panel-body">
+    <div class="form-group advanced-setting">
+        <div class="col-md-3">
+            <_label asp-for="SelectedTenantIds" />
+        </div>
+        <div class="col-md-9">
+            <div class="input-group">
+                <_select asp-for="SelectedTenantIds" asp-items="Model.AvailableTenants" asp-multiple="true" />
+            </div>
+            <script>
+                $(document).ready(function() {
+                    var tenantsIdsInput = $('#@Html.IdFor(model => model.SelectedTenantIds)')
+                        .data("kendoMultiSelect");
+                    tenantsIdsInput.setOptions({
+                        autoClose: false,
+                        filter: "contains"
+                    });
+
+                    @if (Model.AvailableTenants.Count == 0)
+                    {
+                        <text>
+                            tenantsIdsInput.setOptions({
+                                enable: false,
+                                placeholder: 'No tenants available'
+                            });
+                            tenantsIdsInput._placeholder();
+                            tenantsIdsInput._enable();
+                        </text>
+                    }
+                });
+            </script>
+        </div>
+    </div>
+</div>

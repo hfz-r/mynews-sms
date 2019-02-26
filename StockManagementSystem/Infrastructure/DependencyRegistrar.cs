@@ -12,6 +12,7 @@ namespace StockManagementSystem.Infrastructure
         public void Register(ContainerBuilder builder, ITypeFinder typeFinder, DefaultConfig config)
         {
             builder.RegisterType<AclSupportedModelFactory>().As<IAclSupportedModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<TenantMappingSupportedModelFactory>().As<ITenantMappingSupportedModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<ReportModelFactory>().As<IReportModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<ActivityLogModelFactory>().As<IActivityLogModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<BaseModelFactory>().As<IBaseModelFactory>().InstancePerLifetimeScope();
@@ -28,9 +29,6 @@ namespace StockManagementSystem.Infrastructure
             builder.RegisterType<SecurityModelFactory>().As<ISecurityModelFactory>().InstancePerLifetimeScope();
         }
 
-        public int Order
-        {
-            get { return 2; }
-        }
+        public int Order => 2;
     }
 }

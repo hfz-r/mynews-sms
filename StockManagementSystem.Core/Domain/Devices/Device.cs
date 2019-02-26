@@ -1,9 +1,10 @@
 ﻿using StockManagementSystem.Core.Domain.Stores;
 using System;
+using StockManagementSystem.Core.Domain.Tenants;
 
 namespace StockManagementSystem.Core.Domain.Devices
 {
-    public class Device : Entity
+    public class Device : Entity, ITenantMappingSupported
     {
         public string SerialNo { get; set; }
 
@@ -24,5 +25,7 @@ namespace StockManagementSystem.Core.Domain.Devices
         public string Status { get; set; }
 
         public virtual Store Store { get; set; }
+
+        public bool LimitedToTenants { get; set; }
     }
 }
