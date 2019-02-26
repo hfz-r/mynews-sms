@@ -37,47 +37,7 @@ namespace StockManagementSystem.Services.Management
         }
 
         #region Assign User
-        
-        public Task<IPagedList<StoreUserAssign>> GetAssignUsersAsync(
-            int[] storeIds = null,
-            int[] userIds = null,
-            int pageIndex = 0,
-            int pageSize = int.MaxValue,
-            bool getOnlyTotalCount = false)
-        {
-            var query = _storeUserAssignRepository.Table;
-            var queryStore = _storeUserAssignStoresRepository.Table;
 
-            if (storeIds != null && storeIds.Length > 0)
-            {
-                query = query.Join(_storeRepository.Table, x => x.StoreId, y => y.P_BranchNo,
-                //query = query.Join(_storeRepository.Table, x => x.Id, y => y.P_BranchNo,
-                        (x, y) => new { StoreUserAssign = x, Store = y })
-                    .Where(z => storeIds.Contains(z.Store.P_BranchNo))
-                    .Select(z => z.StoreUserAssign)
-                    .Distinct();
-            }
-
-            if (userIds != null && userIds.Length > 0)
-            {
-                query = query.Join(_userRepository.Table, x => x.Id, y => y.Id,
-                        (x, y) => new { StoreUserAssignStores = x, User = y })
-                    .Where(z => userIds.Contains(z.User.Id))
-                    .Select(z => z.StoreUserAssignStores)
-                    .Distinct();
-            }
-
-            //if (storeIds != null && storeIds.Length > 0)
-            //{
-            //    query = query.Where(aus => aus.StoreUserAssignStore.Any(saus => storeIds.Contains(saus.StoreUserAssignId)));
-            //}
-
-            query = query.OrderByDescending(c => c.CreatedOnUtc);
-
-            return Task.FromResult<IPagedList<StoreUserAssign>>(new PagedList<StoreUserAssign>(query, pageIndex, pageSize,
-                getOnlyTotalCount));
-        }
-        
         public Task<ICollection<StoreUserAssign>> GetAllAssignUsersAsync()
         {
             var query = _storeUserAssignRepository.Table;

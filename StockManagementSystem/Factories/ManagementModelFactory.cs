@@ -26,7 +26,7 @@ namespace StockManagementSystem.Factories
             IOutletManagementService outletManagementService,
             IStoreService storeService,
             IUserService userService,
-             IDateTimeHelper dateTimeHelper)
+            IDateTimeHelper dateTimeHelper)
         {
             _outletManagementService = outletManagementService;
             _storeService = storeService;
@@ -47,7 +47,6 @@ namespace StockManagementSystem.Factories
             await PrepareGroupOutletListModel(outletManagementContainerModel.GroupOutletList);
             
            //Assign User
-
             var users = await _userService.GetUsersAsync();
             outletManagementContainerModel.AssignUserList.AvailableUsers = users.Select(user => new SelectListItem
             {
@@ -55,88 +54,50 @@ namespace StockManagementSystem.Factories
                 Value = user.Id.ToString()
             }).ToList();
 
-            var storeAsync = await _storeService.GetStoresAsync();
-            outletManagementContainerModel.AssignUserList.AvailableStores = storeAsync.Select(str => new SelectListItem
+            var storeAssignUser = await _storeService.GetStoresAsync();
+            outletManagementContainerModel.AssignUserList.AvailableUserStores = storeAssignUser.Select(str => new SelectListItem
             {
                 Text = str.P_BranchNo.ToString() + " - " + str.P_Name,
                 Value = str.P_BranchNo.ToString()
             }).ToList();
 
             //Group Outlet
-
-            var stores = await _storeService.GetStoresAsync();
-            outletManagementContainerModel.GroupOutletList.AvailableStores = stores.Select(store => new SelectListItem
+            var storeGroupOutlet = await _storeService.GetStoresAsync();
+            outletManagementContainerModel.GroupOutletList.AvailableStores = storeGroupOutlet.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
 
-
-            return outletManagementContainerModel;
+            return await Task.FromResult(outletManagementContainerModel);
         }
 
         #endregion
 
         #region Assign User
 
-        //public async Task<AssignUserSearchModel> PrepareAssignUserSearchModel(AssignUserSearchModel searchModel)
-        //{
-        //    if (searchModel == null)
-        //        throw new ArgumentNullException(nameof(searchModel));
-
-        //    //prepare page parameters
-        //    searchModel.SetGridPageSize();
-
-        //    //store
-        //    var stores = await _storeService.GetStoresAsync();
-        //    searchModel.AvailableStores = stores.Select(store => new SelectListItem
-        //    {
-        //        Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
-        //        Value = store.P_BranchNo.ToString()
-        //    }).ToList();
-
-        //    //user
-        //    var users = await _userService.GetUsersAsync();
-        //    searchModel.AvailableUsers = users.Select(user => new SelectListItem
-        //    {
-        //        Text = user.UserName,
-        //        Value = user.Id.ToString()
-        //    }).ToList();
-
-        //    return await Task.FromResult(searchModel);
-        //}
-
         public async Task<AssignUserListModel> PrepareAssignUserListModel(AssignUserSearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            var assignUsers = await _outletManagementService.GetAssignUsersAsync(
-                storeIds: searchModel.SelectedStoreId.ToArray(),
-                userIds: searchModel.SelectedUserIds.ToArray(),
-                pageIndex: searchModel.Page - 1,
-                pageSize: searchModel.PageSize);
+            var assignUsersList = await _outletManagementService.GetAllAssignUsersAsync();
 
-            if (assignUsers == null)
-                throw new ArgumentNullException(nameof(assignUsers));
+            if (assignUsersList == null)
+                throw new ArgumentNullException(nameof(assignUsersList));
 
             var model = new AssignUserListModel
             {
-                Data = assignUsers.Select(assignUser =>
-                //Data = assignUsers.PaginationByRequestModel(searchModel).Select(assignUser =>
+                 Data = assignUsersList.Select(assignUser =>
                 {
                     var assignUsersModel = assignUser.ToModel<AssignUserModel>();
 
-                    //assignUsersModel.SelectedStoreId = assignUser.Store.P_BranchNo; //assignUser.StoreId
-                    assignUsersModel.StoreName = assignUser.Store.P_BranchNo + " - " + assignUser.Store.P_Name;
-                    //assignUsersModel.SelectedUserIds = assignUser.StoreUserAssignStore.Select(map => map.UserId).ToList();
+                    assignUsersModel.UserStoreName = assignUser.Store.P_BranchNo + " - " + assignUser.Store.P_Name;
                     assignUsersModel.User = String.Join(", ", assignUser.StoreUserAssignStore.Select(user => user.User.UserName));
-                    assignUsersModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(assignUser.CreatedOnUtc, DateTimeKind.Utc);
-                    assignUsersModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(assignUser.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
                     return assignUsersModel;
                 }),
-                Total = assignUsers.Count
+                Total = assignUsersList.Count
             };
 
             // sort
@@ -178,9 +139,7 @@ namespace StockManagementSystem.Factories
                 model = model ?? new AssignUserModel();
 
                 model.Id = storeUserAssign.Id;
-                //model.StoreName = storeUserAssign.Store.P_BranchNo + " - " + storeUserAssign.Store.P_Name;
-                model.SelectedStoreId = storeUserAssign.StoreId;
-                //model.User = storeUserAssign.StoreUserAssignStore.Select(map => map.User.UserName).ToString();
+                model.SelectedUserStoreId = storeUserAssign.StoreId;
                 model.SelectedUserIds = storeUserAssign.StoreUserAssignStore.Select(map => map.UserId).ToList();
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(storeUserAssign.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(storeUserAssign.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -188,7 +147,7 @@ namespace StockManagementSystem.Factories
 
             //store
             var stores = await _storeService.GetStoresAsync();
-            model.AvailableStores = stores.Select(store => new SelectListItem
+            model.AvailableUserStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
@@ -209,33 +168,12 @@ namespace StockManagementSystem.Factories
 
         #region Group Outlet
 
-        //public async Task<GroupOutletSearchModel> PrepareGroupOutletSearchModel(GroupOutletSearchModel searchModel)
-        //{
-        //    if (searchModel == null)
-        //        throw new ArgumentNullException(nameof(searchModel));
-
-        //    //prepare page parameters
-        //    searchModel.SetGridPageSize();
-
-        //    var stores = await _storeService.GetStoresAsync();
-        //    searchModel.AvailableStores = stores.Select(store => new SelectListItem
-        //    {
-        //        Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
-        //        Value = store.P_BranchNo.ToString()
-        //    }).ToList();
-
-        //    return await Task.FromResult(searchModel);
-        //}
-
         public async Task<GroupOutletListModel> PrepareGroupOutletListModel(GroupOutletSearchModel searchModel)
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            var groupList = await _outletManagementService.GetGroupOutletsAsync(
-                storeIds: searchModel.SelectedStoreIds.ToArray(),
-                pageIndex: searchModel.Page - 1,
-                pageSize: searchModel.PageSize);
+            var groupList = await _outletManagementService.GetGroupOutletsAsync();
 
             if (groupList == null)
                 throw new ArgumentNullException(nameof(groupList));

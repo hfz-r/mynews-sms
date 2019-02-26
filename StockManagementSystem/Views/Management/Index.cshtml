@@ -27,8 +27,8 @@
 <section class="content">
     <div class="form-horizontal">
         <_tabs id="outlets-management-tabs">
-            <_tab asp-name="assignUser" asp-title="Assign User" asp-default="true">@await Html.PartialAsync("_List.AssignUser", Model.AssignUserList)</_tab>
-            <_tab asp-name="groupOutlet" asp-title="Group Outlet">@await Html.PartialAsync("_List.GroupOutlet", Model.GroupOutletList)</_tab>
+            <_tab asp-name="assignUserTab" asp-title="Assign User" asp-default="true">@await Html.PartialAsync("_List.AssignUser", Model.AssignUserList)</_tab>
+            <_tab asp-name="groupOutletTab" asp-title="Group Outlet" >@await Html.PartialAsync("_List.GroupOutlet", Model.GroupOutletList)</_tab>
         </_tabs>
     </div>
 </section>
