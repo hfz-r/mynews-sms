@@ -16,7 +16,6 @@ namespace StockManagementSystem.Services.Management
         Task<ICollection<StoreUserAssign>> GetAllAssignUsersAsync();
         Task<ICollection<StoreGrouping>> GetAllGroupOutletsAsync();
         Task<StoreUserAssign> GetAssignUserByIdAsync(int assignUserId);
-        Task<IPagedList<StoreUserAssign>> GetAssignUsersAsync(int[] storeIds = null, int[] userIds = null, int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false);
         Task<StoreGrouping> GetGroupOutletByIdAsync(int groupOutletId);
         Task<IPagedList<StoreGrouping>> GetGroupOutletsAsync(int[] storeIds = null, int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false);
         Task InsertAssignUser(StoreUserAssign storeUserAssign);

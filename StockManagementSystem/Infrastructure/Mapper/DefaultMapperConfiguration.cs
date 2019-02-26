@@ -289,17 +289,35 @@ namespace StockManagementSystem.Infrastructure.Mapper
         /// </summary>
         protected virtual void CreateOutletManagementMaps()
         {
-            CreateMap<StoreUserAssign, AssignUserModel>();
+            CreateMap<StoreUserAssign, AssignUserModel>()
+                .ForMember(model => model.LastActivityDate, options => options.Ignore())
+                .ForMember(model => model.CreatedOn, options => options.Ignore())
+                .ForMember(model => model.User, options => options.Ignore())
+                .ForMember(model => model.UserStoreName, options => options.Ignore())
+                .ForMember(model => model.AvailableUsers, options => options.Ignore())
+                .ForMember(model => model.AvailableUserStores, options => options.Ignore())
+                .ForMember(model => model.SelectedUserIds, options => options.Ignore())
+                .ForMember(model => model.SelectedUserStoreId, options => options.Ignore())
+                .ForMember(model => model.StoreUsers, options => options.Ignore());
+
             CreateMap<AssignUserModel, StoreUserAssign>()
+                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.StoreId, options => options.Ignore())
+                .ForMember(entity => entity.Store, options => options.Ignore())
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
 
             CreateMap<StoreGrouping, GroupOutletModel>()
+                .ForMember(model => model.StoreGroupings, options => options.Ignore())
+                .ForMember(model => model.CreatedOn, options => options.Ignore())
+                .ForMember(model => model.LastActivityDate, options => options.Ignore())
                 .ForMember(model => model.StoreName, options => options.Ignore())
                 .ForMember(model => model.SelectedStoreIds, options => options.Ignore())
                 .ForMember(model => model.AvailableStores, options => options.Ignore());
             CreateMap<GroupOutletModel, StoreGrouping>()
+                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.StoreGroupingStore, options => options.Ignore())
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());

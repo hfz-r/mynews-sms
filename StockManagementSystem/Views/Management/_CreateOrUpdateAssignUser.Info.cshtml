@@ -6,29 +6,29 @@
 
             <div class="form-group">
                 <div class="col-xs-3">
-                    <label asp-for="SelectedStoreId" class="control-label pull-right"></label>
+                    <label asp-for="SelectedUserStoreId" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
                     <div class="input-group input-group-required">
-                        <select asp-for="SelectedStoreId" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                        <select asp-for="SelectedUserStoreId" asp-items="Model.AvailableUserStores" asp-multiple="true"></select>
                         <div class="input-group-btn">
                             <required />
                         </div>
                     </div>
                     <script>
                         $(document).ready(function() {
-                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreId)')
+                            var userStoresIdsInput = $('#@Html.IdFor(model => model.SelectedUserStoreId)')
                                 .kendoMultiSelect({
                                     autoClose: false,
                                     filter: "contains",
                                     maxSelectedItems: 1
                                 }).data("kendoMultiSelect");
 
-                            @if (Model.AvailableStores.Count == 0)
+                            @if (Model.AvailableUserStores.Count == 0)
                             {
                                 <text>
-                                    storesIdsInput.placeholder = "No stores available";
-                                    storesIdsInput.enable = false;
+                                    userStoresIdsInput.placeholder = "No stores available";
+                                    userStoresIdsInput.enable = false;
                                 </text>
                             }
                         });
