@@ -15,5 +15,6 @@ namespace StockManagementSystem.Services.Settings
         void UpdateBarcodeFormat(FormatSetting barcodeFormat);
         void UpdateShelfLocationFormat(FormatSetting shelfLocationFormat);
         Task<FormatSetting> GetBarcodeFormatBySeqAsync(int? seqNo);
+        bool CheckFormatExist(string Name, string Prefix);
     }
 }

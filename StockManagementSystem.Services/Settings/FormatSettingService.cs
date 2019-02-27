@@ -68,6 +68,22 @@ namespace StockManagementSystem.Services.Settings
 
             _formatSettingRepository.Update(barcodeFormat);
         }
+
+        public virtual bool CheckFormatExist(string Name, string Prefix)
+        {
+            if (string.IsNullOrEmpty(Prefix)) //RTE Barcode Format
+            {
+                var query = _formatSettingRepository.Table.Any(u => u.Format.Contains("Barcode") && u.Name == Name);
+
+                return query;
+            }
+            else //Shelf Location Format
+            {
+                var query = _formatSettingRepository.Table.Any(u => u.Format.Contains("Shelf") && u.Name == Name && u.Prefix == Prefix);
+
+                return query;
+            }
+        }
         
 
         #region Identity

@@ -515,14 +515,25 @@ namespace StockManagementSystem.Controllers
                 }
                 else
                 {
-                    FormatSetting shelfFormat = new FormatSetting();
-                    shelfFormat.Format = "Shelf";
-                    shelfFormat.Prefix = model.Prefix;
-                    shelfFormat.Name = model.Name;
+                    bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
-                    shelfFormat = model.ToEntity(shelfFormat);
+                    if (!isExist)
+                    {
+                        FormatSetting shelfFormat = new FormatSetting();
+                        shelfFormat.Format = "Shelf";
+                        shelfFormat.Prefix = model.Prefix;
+                        shelfFormat.Name = model.Name;
 
-                    await _formatSettingService.InsertShelfLocationFormat(shelfFormat);
+                        shelfFormat = model.ToEntity(shelfFormat);
+
+                        await _formatSettingService.InsertShelfLocationFormat(shelfFormat);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Name and/or prefix already exist in Shelf Location format.");
+                        _notificationService.ErrorNotification("Name and/or prefix already exist in Shelf Location format.");
+                        return Json("Name and/or prefix already exist in Shelf Location format.");
+                    }
                 }
                 return new NullJsonResult();
             }
@@ -544,13 +555,24 @@ namespace StockManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(model.Id);
-            shelfFormat.Prefix = model.Prefix;
-            shelfFormat.Name = model.Name;
+            bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
-            shelfFormat = model.ToEntity(shelfFormat);
+            if (!isExist)
+            {
+                var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(model.Id);
+                shelfFormat.Prefix = model.Prefix;
+                shelfFormat.Name = model.Name;
 
-            _formatSettingService.UpdateShelfLocationFormat(shelfFormat);
+                shelfFormat = model.ToEntity(shelfFormat);
+
+                _formatSettingService.UpdateShelfLocationFormat(shelfFormat);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Name and/or prefix already exist in Shelf Location format.");
+                _notificationService.ErrorNotification("Name and/or prefix already exist in Shelf Location format.");
+                return Json("Name and/or prefix already exist in Shelf Location format.");
+            }
 
             return new NullJsonResult();
         }
@@ -590,51 +612,7 @@ namespace StockManagementSystem.Controllers
 
             return Json(model);
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> ReorderRow(int id)
-        //{
-        //    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
-        //        return AccessDeniedKendoGridJson();
-
-        //    var model = await _formatSettingService.GetBarcodeFormatByIdAsync(id);
-
-        //    return Json(model);
-        //}
-        [HttpGet]
-        public async Task<IActionResult> UpdateBarcode(string data)
-        {
-            data = data.Replace('"', ' ');
-            Regex r = new Regex(@"Name : (.+?) , Length");
-            MatchCollection mc = r.Matches(data);
-            List<string> arr = new List<string>();
-
-            foreach (Match match in mc)
-            {
-                foreach (Capture capture in match.Captures)
-                {
-                    arr.Add(capture.Value.Split(new string[] { "Name : " }, StringSplitOptions.None)[1].Split(',')[0].Trim());
-                }
-            }
-
-            var barcodeFormat = await _formatSettingService.GetAllBarcodeFormatsAsync();
-            foreach (var item in barcodeFormat)
-            {
-                for (int i = 0; i < arr.Count(); i++)
-                {
-                    if (item.Name == arr[i])
-                    {
-                        int seq = i + 1;
-                        item.Sequence = seq;
-
-                        _formatSettingService.UpdateBarcodeFormat(item);
-                    }
-                }
-            }
-
-            return new NullJsonResult();
-        }
-
+        
         [HttpGet]
         public async Task<IActionResult> SortBarcode(string data)
         {
@@ -678,11 +656,22 @@ namespace StockManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-            var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(model.Id);
-            barcodeFormat.Id = model.Id;
-            barcodeFormat.Name = model.Name;
+            bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
 
-            _formatSettingService.UpdateBarcodeFormat(barcodeFormat);
+            if (!isExist)
+            {
+                var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(model.Id);
+                barcodeFormat.Id = model.Id;
+                barcodeFormat.Name = model.Name;
+
+                _formatSettingService.UpdateBarcodeFormat(barcodeFormat);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Name already exist in RTE barcode format.");
+                _notificationService.ErrorNotification("Name already exist in RTE barcode format.");
+                return Json("Name already exist in RTE barcode format.");
+            }
 
             return new NullJsonResult();
         }
@@ -708,15 +697,27 @@ namespace StockManagementSystem.Controllers
                 }
                 else
                 {
-                    int counter = dataList.Count;
-                    FormatSetting barcodeFormat = new FormatSetting();
-                    barcodeFormat.Format = "Barcode";
-                    barcodeFormat.Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]);
-                    barcodeFormat.Name = model.Name;
-                    barcodeFormat.Sequence = counter + 1;
+                    bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
 
-                    await _formatSettingService.InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+                    if (!isExist)
+                    {
+                        int counter = dataList.Count;
+                        FormatSetting barcodeFormat = new FormatSetting();
+                        barcodeFormat.Format = "Barcode";
+                        barcodeFormat.Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]);
+                        barcodeFormat.Name = model.Name;
+                        barcodeFormat.Sequence = counter + 1;
+
+                        await _formatSettingService.InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Name already exist in RTE barcode format.");
+                        _notificationService.ErrorNotification("Name already exist in RTE barcode format.");
+                        return Json("Name already exist in RTE barcode format.");
+                    }
                 }
+
                 return new NullJsonResult();
             }
             catch (Exception e)
@@ -742,14 +743,17 @@ namespace StockManagementSystem.Controllers
                 _formatSettingService.DeleteShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
 
                 int? nextSeq = barcodeFormat.Sequence + 1;
-                if (barcodeFormat.Sequence > 1 && nextSeq <= 4)
+                if (nextSeq > 0 && nextSeq <= 4)
                 {
                     for (int? i = nextSeq; i <= 4; i++)
                     {
                         int? counter = i-1;
                         var nextBarcodeFormat = await _formatSettingService.GetBarcodeFormatBySeqAsync(i);
-                        nextBarcodeFormat.Sequence = counter;
-                        _formatSettingService.UpdateBarcodeFormat(nextBarcodeFormat);
+                        if (nextBarcodeFormat != null)
+                        {
+                            nextBarcodeFormat.Sequence = counter;
+                            _formatSettingService.UpdateBarcodeFormat(nextBarcodeFormat);
+                        }
                     }
                 }
 
