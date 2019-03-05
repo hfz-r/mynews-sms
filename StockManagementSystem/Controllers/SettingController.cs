@@ -29,24 +29,30 @@ using StockManagementSystem.Models.Setting;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using StockManagementSystem.Models.Replenishments;
+using StockManagementSystem.Services.Replenishments;
 
 namespace StockManagementSystem.Controllers
 {
     public class SettingController : BaseController
     {
         private readonly IOrderLimitService _orderLimitService;
+        private readonly IReplenishmentService _replenishmentService;
         private readonly IStoreService _storeService;
         private readonly ILocationService _locationService;
         private readonly IFormatSettingService _formatSettingService;
         private readonly IRepository<Approval> _approvalRepository;
         private readonly IRepository<OrderLimit> _orderLimitRepository;
         private readonly IRepository<OrderLimitStore> _orderLimitStoreRepository;
+        private readonly IRepository<Replenishment> _replenishmentRepository;
+        private readonly IRepository<ReplenishmentStore> _replenishmentStoreRepository;
         private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Item> _itemRepository;
         private readonly IRepository<ShelfLocation> _shelfLocationRepository;
         private readonly IRepository<ShelfLocationFormat> _shelfLocationFormatRepository;
         private readonly IRepository<FormatSetting> _formatSettingRepository;
         private readonly IOrderLimitModelFactory _orderLimitModelFactory;
+        private readonly IReplenishmentModelFactory _replenishmentModelFactory;
         private readonly ILocationModelFactory _locationModelFactory;
         private readonly IFormatSettingModelFactory _formatSettingModelFactory;
         private readonly IPermissionService _permissionService;
@@ -58,18 +64,22 @@ namespace StockManagementSystem.Controllers
 
         public SettingController(
             IOrderLimitService orderLimitService,
+            IReplenishmentService replenishmentService,
             IStoreService storeService,
             ILocationService locationService,
             IFormatSettingService formatSettingService,
             IRepository<Approval> approvalRepository,
             IRepository<OrderLimit> orderLimitRepository,
             IRepository<OrderLimitStore> orderLimitStoreRepository,
+            IRepository<Replenishment> replenishmentRepository,
+            IRepository<ReplenishmentStore> replenishmentStoreRepository,
             IRepository<Store> storeRepository,
             IRepository<Item> itemRepository,
             IRepository<ShelfLocation> shelfLocationRepository,
             IRepository<ShelfLocationFormat> shelfLocationFormatRepository,
             IRepository<FormatSetting> formatSettingRepository,
             IOrderLimitModelFactory orderLimitModelFactory,
+            IReplenishmentModelFactory replenishmentModelFactory,
             ILocationModelFactory locationModelFactory,
             IFormatSettingModelFactory _formatSettingModelFactory,
             IPermissionService permissionService,
@@ -78,18 +88,22 @@ namespace StockManagementSystem.Controllers
             ILoggerFactory loggerFactory)
         {
             this._orderLimitService = orderLimitService;
+            this._replenishmentService = replenishmentService;
             this._storeService = storeService;
             this._locationService = locationService;
             this._formatSettingService = formatSettingService;
             this._approvalRepository = approvalRepository;
             this._orderLimitRepository = orderLimitRepository;
             this._orderLimitStoreRepository = orderLimitStoreRepository;
+            this._replenishmentRepository = replenishmentRepository;
+            this._replenishmentStoreRepository = replenishmentStoreRepository;
             this._storeRepository = storeRepository;
             this._itemRepository = itemRepository;
             this._shelfLocationRepository = shelfLocationRepository;
             this._shelfLocationFormatRepository = shelfLocationFormatRepository;
             this._formatSettingRepository = formatSettingRepository;
             this._orderLimitModelFactory = orderLimitModelFactory;
+            this._replenishmentModelFactory = replenishmentModelFactory;
             this._locationModelFactory = locationModelFactory;
             this._formatSettingModelFactory = _formatSettingModelFactory;
             _iconfiguration = iconfiguration;
@@ -452,7 +466,6 @@ namespace StockManagementSystem.Controllers
 
         #endregion
 
-
         #region Format Setting
 
         public async Task<IActionResult> FormatSetting()
@@ -770,9 +783,217 @@ namespace StockManagementSystem.Controllers
 
         #endregion
 
+        #region Replenishment
+
+        public async Task<IActionResult> Replenishment()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var model = await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> GetStoreReplenishment()
+        {
+            var model = await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddReplenishment(ReplenishmentModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            if (model.SelectedStoreIds.Count == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Store is required to configure replenishment");
+                _notificationService.ErrorNotification("Store is required to configure replenishment");
+                return new NullJsonResult();
+            }
+
+            try
+            {
+                Replenishment replenishment = new Replenishment
+                {
+                    BufferDays = model.BufferDays,
+                    ReplenishmentQty = model.ReplenishmentQty,
+                    ReplenishmentStores = new List<ReplenishmentStore>()
+                };
+
+                //Add store
+                foreach (var store in model.SelectedStoreIds)
+                {
+                    ReplenishmentStore replenishmentStore = new ReplenishmentStore
+                    {
+                        ReplenishmentId = replenishment.Id,
+                        StoreId = store
+                    };
+
+                    replenishment.ReplenishmentStores.Add(replenishmentStore);
+                }
+
+                await _replenishmentService.InsertReplenishment(replenishment);
+
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                _notificationService.ErrorNotification(e.Message);
+
+                return Json(e.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> ReplenishmentList(ReplenishmentSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedKendoGridJson();
+
+            var model = await _replenishmentModelFactory.PrepareReplenishmentListModel(searchModel);
+
+            return Json(model);
+        }
+
+        public async Task<IActionResult> EditReplenishment(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var replenishment = await _replenishmentService.GetReplenishmentByIdAsync(id);
+            if (replenishment == null)
+                return RedirectToAction("Replenishment");
+
+            var model = await _replenishmentModelFactory.PrepareReplenishmentModel(null, replenishment);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
+        public async Task<IActionResult> EditReplenishment(ReplenishmentModel model, bool continueEditing)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var replenishment = await _replenishmentService.GetReplenishmentByIdAsync(model.Id);
+            if (replenishment == null)
+                return RedirectToAction("Replenishment");
+
+            var allStores = await _storeService.GetStoresAsync();
+            var newStores = new List<Store>();
+            foreach (var store in allStores)
+            {
+                if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                    newStores.Add(store);
+            }
+
+            if (model.SelectedStoreIds.Count == 0)
+            {
+                _notificationService.ErrorNotification("Store is required");
+                model = await _replenishmentModelFactory.PrepareReplenishmentModel(model, replenishment);
+                model.SelectedStoreIds = new List<int>();
+
+                return View(model);
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    replenishment.BufferDays = model.BufferDays;
+                    replenishment.ReplenishmentQty = model.ReplenishmentQty;
+
+                    //stores
+
+                    List<ReplenishmentStore> replenishmentStoreList = new List<ReplenishmentStore>();
+
+                    foreach (var store in allStores)
+                    {
+                        if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                        {
+                            //new store
+                            if (replenishment.ReplenishmentStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                            {
+                                ReplenishmentStore replenishmentStore = new ReplenishmentStore
+                                {
+                                    ReplenishmentId = replenishment.Id,
+                                    StoreId = store.P_BranchNo
+                                };
+
+
+                                replenishment.ReplenishmentStores.Add(replenishmentStore);
+                            }
+                        }
+                        else
+                        {
+                            //remove store
+                            if (replenishment.ReplenishmentStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                                _replenishmentService.DeleteReplenishmentStore(model.Id, store);
+                        }
+                    }
+
+                    _replenishmentService.UpdateReplenishment(replenishment);
+
+                    _notificationService.SuccessNotification("Replenishment has been updated successfully.");
+
+                    if (!continueEditing)
+                        return RedirectToAction("Replenishment");
+
+                    //selected tab
+                    SaveSelectedTabName();
+
+                    return RedirectToAction("EditReplenishment", new { id = replenishment.Id });
+                }
+                catch (Exception e)
+                {
+                    _notificationService.ErrorNotification(e.Message);
+                }
+            }
+
+            model = await _replenishmentModelFactory.PrepareReplenishmentModel(model, replenishment);
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> DeleteReplenishment(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var replenishment = await _replenishmentService.GetReplenishmentByIdAsync(id);
+            if (replenishment == null)
+                return RedirectToAction("Replenishment");
+
+            try
+            {
+                _replenishmentService.DeleteReplenishment(replenishment);
+
+                _notificationService.SuccessNotification("Replenishment has been deleted successfully.");
+
+                return RedirectToAction("Replenishment");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return RedirectToAction("EditReplenishment", new { id = replenishment.Id });
+            }
+        }
+
+
+        #endregion
+
+        #region General
+
         private void AddErrors(string result)
         {
             ModelState.AddModelError(string.Empty, result);
         }
+
+        #endregion
     }
 }

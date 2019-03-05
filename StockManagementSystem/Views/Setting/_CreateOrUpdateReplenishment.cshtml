@@ -1,0 +1,12 @@
+﻿@model ReplenishmentModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <tabs id="replenishment-edit">
+            <tab asp-name="tab-info" asp-title="Replenishment info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdateReplenishment.Info", Model)</tab>
+        </tabs>
+    </div>
+</section>

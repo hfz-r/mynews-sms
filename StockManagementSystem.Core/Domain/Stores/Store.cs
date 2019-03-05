@@ -49,6 +49,8 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public virtual ICollection<OrderLimitStore> OrderLimitStores { get; set; }
 
+        public virtual ICollection<ReplenishmentStore> ReplenishmentStores { get; set; }
+
         public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
 
         public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }

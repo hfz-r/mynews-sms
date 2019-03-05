@@ -17,6 +17,7 @@ using StockManagementSystem.Web.Models;
 using StockManagementSystem.Models.Setting;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Models.Management;
+using StockManagementSystem.Models.Replenishments;
 
 namespace StockManagementSystem.Infrastructure.Mapper
 {
@@ -32,6 +33,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreatePushNotificationMaps();
             CreateShelfLocationFormatMaps();
             CreateFormatSettingMaps();
+            CreateReplenishmentSettingMaps();
             CreateDeviceTrackingMaps();
             CreateOutletManagementMaps();
 
@@ -235,6 +237,19 @@ namespace StockManagementSystem.Infrastructure.Mapper
             //.ForMember(entity => entity.Name, options => options.Ignore())
             //.ForMember(entity => entity.Format, options => options.Ignore())
             //.ForMember(entity => entity.Length, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create replenishment maps
+        /// </summary>
+        protected virtual void CreateReplenishmentSettingMaps()
+        {
+            CreateMap<Replenishment, ReplenishmentModel>()
+                .ForMember(model => model.StoreName, options => options.Ignore());
+            CreateMap<ReplenishmentModel, Replenishment>()
+                .ForMember(entity => entity.BufferDays, options => options.Ignore())
+                .ForMember(entity => entity.ReplenishmentQty, options => options.Ignore())
+                .ForMember(entity => entity.ReplenishmentStores, options => options.Ignore());
         }
 
         /// <summary>

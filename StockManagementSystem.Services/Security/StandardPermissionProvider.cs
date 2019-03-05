@@ -76,6 +76,13 @@ namespace StockManagementSystem.Services.Security
             Category = "Setting"
         };
 
+        public static readonly Permission ManageReplenishmentSetting = new Permission
+        {
+            Name = "Manage Replenishment Setting",
+            SystemName = "ManageReplenishmentSetting",
+            Category = "Setting"
+        };
+
         public static readonly Permission ManageOutletManagement = new Permission
         {
             Name = "Manage Outlet Management",
@@ -102,6 +109,7 @@ namespace StockManagementSystem.Services.Security
                 ManagePushNotification,
                 ManageLocation,
                 ManageFormatSetting,
+                ManageReplenishmentSetting,
                 ManageOutletManagement
             };
         }
@@ -128,6 +136,7 @@ namespace StockManagementSystem.Services.Security
                         ManagePushNotification,
                         ManageLocation,
                         ManageFormatSetting,
+                        ManageReplenishmentSetting,
                         ManageOutletManagement
 
                     }
