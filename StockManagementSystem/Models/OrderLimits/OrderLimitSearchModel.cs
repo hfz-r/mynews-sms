@@ -17,10 +17,11 @@ namespace StockManagementSystem.Models.OrderLimits
         public IList<int> SelectedStoreIds { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
-        
-        [Display(Name = "Percentage")]
-        [DataType("Integer")]
-        public int? SearchPercentage { get; set; }
+
+        //Remove Percentage criteria; Not required - 05032019
+        //[Display(Name = "Percentage")]
+        //[DataType("Integer")]
+        //public int? SearchPercentage { get; set; }
 
     }
 }

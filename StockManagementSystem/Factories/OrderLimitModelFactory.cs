@@ -58,7 +58,7 @@ namespace StockManagementSystem.Factories
 
             var orderLimits = await _orderLimitService.GetOrderLimitsAsync(
                 storeIds: searchModel.SelectedStoreIds.ToArray(),
-                percentage: searchModel.SearchPercentage,
+                //percentage: searchModel.SearchPercentage, //Remove Percentage criteria; Not required - 05032019
                 pageIndex: searchModel.Page - 1,
                 pageSize: searchModel.PageSize);
 
@@ -68,7 +68,7 @@ namespace StockManagementSystem.Factories
                 {
                     var orderLimitsModel = orderLimit.ToModel<OrderLimitModel>();
 
-                    orderLimitsModel.Percentage = orderLimit.Percentage;
+                    //orderLimitsModel.Percentage = orderLimit.Percentage; //Remove Percentage criteria; Not required - 05032019
                     orderLimitsModel.DaysofSales = orderLimit.DaysofSales;
                     orderLimitsModel.DaysofStock = orderLimit.DaysofStock;
                     orderLimitsModel.StoreName = String.Join(", ", orderLimit.OrderLimitStores.Select(store => store.Store.P_BranchNo + " - " + store.Store.P_Name));
@@ -119,7 +119,7 @@ namespace StockManagementSystem.Factories
                 model = model ?? new OrderLimitModel();
 
                 model.Id = orderLimit.Id;
-                model.Percentage = orderLimit.Percentage;
+                //model.Percentage = orderLimit.Percentage; //Remove Percentage criteria; Not required - 05032019
                 model.DaysofSales = orderLimit.DaysofSales;
                 model.DaysofStock = orderLimit.DaysofStock;
                 model.SelectedStoreIds = orderLimit.OrderLimitStores.Select(ols => ols.StoreId).ToList();

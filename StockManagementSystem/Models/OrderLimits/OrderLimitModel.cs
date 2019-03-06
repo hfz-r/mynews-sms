@@ -18,10 +18,11 @@ namespace StockManagementSystem.Models.OrderLimits
 
         public string Name { get; set; }
 
-        [Display(Name = "Percentage")]
-        [Required(ErrorMessage = "Percentage is required")]
-        [DataType("Integer")]
-        public int Percentage { get; set; }
+        //Remove Percentage criteria; Not required - 05032019
+        //[Display(Name = "Percentage")]
+        //[Required(ErrorMessage = "Percentage is required")]
+        //[DataType("Integer")]
+        //public int Percentage { get; set; }
 
         [Display(Name = "Buffer Days")]
         [Required(ErrorMessage = "Buffer Days is required")]

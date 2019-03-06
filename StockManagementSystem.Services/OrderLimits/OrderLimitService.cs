@@ -28,7 +28,7 @@ namespace StockManagementSystem.Services.OrderLimits
         
         public Task<IPagedList<OrderLimit>> GetOrderLimitsAsync(
             int[] storeIds = null,
-            int? percentage = 0,
+            //int? percentage = 0, //Remove Percentage criteria; Not required - 05032019 
             int pageIndex = 0,
             int pageSize = int.MaxValue,
             bool getOnlyTotalCount = false)
@@ -40,8 +40,10 @@ namespace StockManagementSystem.Services.OrderLimits
             {
                 query = query.Where(ol => ol.OrderLimitStores.Any(ols => storeIds.Contains(ols.StoreId)));
             }
-            if (percentage > 0)
-                query = query.Where(u => u.Percentage == percentage);
+
+            //Remove Percentage criteria; Not required - 05032019 
+            //if (percentage > 0)
+            //    query = query.Where(u => u.Percentage == percentage);
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
 

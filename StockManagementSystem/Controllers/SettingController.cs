@@ -152,7 +152,7 @@ namespace StockManagementSystem.Controllers
             {
                 OrderLimit orderLimit = new OrderLimit
                 {
-                    Percentage = model.Percentage,
+                    //Percentage = model.Percentage, //Remove Percentage criteria; Not required - 05032019
                     DaysofSales = model.DaysofSales,
                     DaysofStock = model.DaysofStock,
                     OrderLimitStores = new List<OrderLimitStore>()
@@ -240,7 +240,7 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
-                    orderLimit.Percentage = model.Percentage;
+                    //orderLimit.Percentage = model.Percentage; //Remove Percentage criteria; Not required - 05032019
                     orderLimit.DaysofSales = model.DaysofSales;
                     orderLimit.DaysofStock = model.DaysofStock;
 

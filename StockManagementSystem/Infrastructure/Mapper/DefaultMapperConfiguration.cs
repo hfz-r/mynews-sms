@@ -189,7 +189,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<OrderLimit, OrderLimitModel>()
                 .ForMember(model => model.StoreName, options => options.Ignore());
             CreateMap<OrderLimitModel, OrderLimit>()
-                .ForMember(entity => entity.Percentage, options => options.Ignore())
+                //.ForMember(entity => entity.Percentage, options => options.Ignore()) //Remove Percentage criteria; Not required - 05032019
                 .ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
         }
 
