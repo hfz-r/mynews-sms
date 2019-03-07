@@ -28,3 +28,13 @@
 -- **21-02-2019**
 
 - added DownloadMasterData to background worker and scheduled tasks.
+
+-- **07-03-2019**
+
+- enhanced panel design with taghelper
+- Store
+   - common CRUD operations
+   - assign user 
+   - mapping
+- Device
+   - change to inline editor
