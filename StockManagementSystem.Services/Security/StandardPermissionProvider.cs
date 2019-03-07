@@ -35,7 +35,14 @@ namespace StockManagementSystem.Services.Security
 
         public static readonly Permission ManageOutletManagement =
             new Permission { Name = "Manage Outlet Management", SystemName = "ManageOutletManagement", Category = "Outlet Management" };
+        
+        public static readonly Permission ManageReplenishmentSetting = new Permission
+        {
+            Name = "Manage Replenishment Setting",
+            SystemName = "ManageReplenishmentSetting",
+            Category = "Setting"
 
+        };
         public static readonly Permission ManageStoreGroup =
             new Permission { Name = "Manage Outlet Grouping", SystemName = "ManageStoreGroup", Category = "Outlet Management" };
 
@@ -70,6 +77,7 @@ namespace StockManagementSystem.Services.Security
                 ManageLocation,
                 ManageFormatSetting,
                 ManageOutletManagement,
+                ManageReplenishmentSetting,
                 ManageStoreGroup,
                 ManageUserStore,
                 ManageAcl,
@@ -101,6 +109,7 @@ namespace StockManagementSystem.Services.Security
                         ManageLocation,
                         ManageFormatSetting,
                         ManageOutletManagement,
+                        ManageReplenishmentSetting,
                         ManageStoreGroup,
                         ManageUserStore,
                         ManageAcl,

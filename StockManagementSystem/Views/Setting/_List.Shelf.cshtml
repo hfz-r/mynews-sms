@@ -54,8 +54,20 @@
                                             id: "Id",
                                             fields: {
                                                 Id: { editable: false, type: "number" },
-                                                Prefix: { editable: true, type: "string", validation: { required: true } },
-                                                Name: { editable: true, type: "string" }
+                                                Prefix: {
+                                                    editable: true, type: "string",
+                                                    validation: {
+                                                        required: true,
+                                                        prefixvalidation: function (input) {
+                                                            if (input.is("[name='Prefix']") && input.val() != "" && input.val().length != 1) {
+                                                                input.attr("data-prefixvalidation-msg", "Prefix must contain only 1 character");
+                                                                return /^[A-Z]/.test(input.val());
+                                                            }
+
+                                                            return true;
+                                                        }
+                                                    }},
+                                                Name: { editable: true, type: "string", validation: { required: true }}
                                             }
                                         }
                                     },
@@ -99,13 +111,15 @@
                                         field: "Prefix",
                                         title: "Prefix",
                                         placeholder: "Prefix",
-                                        width: 200
+                                        width: 200,
+                                        editor: customEditor
                                     },
                                     {
                                         field: "Name",
                                         title: "Name",
                                         placeholder: "Name",
-                                        width: 300
+                                        width: 300,
+                                        editor: customEditor
                                     },
                                     {
                                         template:

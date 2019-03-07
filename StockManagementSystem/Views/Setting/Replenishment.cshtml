@@ -1,12 +1,12 @@
-@model OrderLimitSearchModel
+﻿@model ReplenishmentSearchModel
 
 @{
     //page title
-    ViewBag.Title = "Stock Order Limit";
+    ViewBag.Title = "Replenishment";
     //active menu item (system name)
-    Html.SetActiveMenuItemSystemName("setting.order");
+    Html.SetActiveMenuItemSystemName("setting.replenishment");
 }
-<form asp-controller="Setting" asp-action="Order" method="post">
+<form asp-controller="Setting" asp-action="Replenishment" method="post">
     <section class="content-header clearfix">
         <h1 class="pull-left">@ViewBag.Title</h1>
         <ol class="breadcrumb pull-right">
@@ -21,7 +21,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item active">
-                <a href="@Url.Action("Order", "Setting")">@ViewBag.Title</a>
+                <a href="@Url.Action("Replenishment", "Setting")">@ViewBag.Title</a>
             </li>
         </ol>
     </section>
@@ -32,30 +32,6 @@
                 <div class="panel panel-default panel-search">
                     <div class="panel-body">
                         <div class="row">
-                            @*Remove Percentage criteria; Not required - 05032019*@
-                            @*<div class="col-xs-5">
-                                <div class="form-group">
-                                    <div class="col-xs-5">
-                                        <label asp-for="SearchPercentage" class="control-label pull-right"></label>
-                                    </div>
-                                    <div class="col-xs-6">
-                                        <input asp-for="SearchPercentage" type="text" class="form-control" min="0" max="100" onkeypress='return validateQty(event);'/>
-                                    </div>
-                                    <script>
-                                        function validateQty(event) {
-                                            var key = window.event ? event.keyCode : event.which;
-                                            if (event.keyCode == 8 || event.keyCode == 46 || event.keyCode == 116
-                                                || event.keyCode == 37 || event.keyCode == 39) {
-                                                return true;
-                                            }
-                                            else if (key < 48 || key > 57) {
-                                                return false;
-                                            }
-                                            else return true;
-                                        };
-                                    </script>
-                                </div>
-                            </div>*@
                             <div class="col-xs-6">
                                 <div class="form-group">
                                     <div class="col-xs-5">
@@ -87,7 +63,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-2 col-xs-offset-5">
-                                <button type="button" id="search-orderLimit" class="btn btn-primary btn-search">
+                                <button type="button" id="search-replenishment" class="btn btn-primary btn-search">
                                     <i class="fa fa-search"></i> Search
                                 </button>
                             </div>
@@ -113,26 +89,25 @@
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Raw(Url.Action("OrderLimitList", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("ReplenishmentList", "Setting"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: function() {
                                                 var data = {
-                                                    SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
-                                                    @*SearchPercentage: $('#@Html.IdFor(model => model.SearchPercentage)').val() //Remove Percentage criteria; Not required - 05032019*@
+                                                    SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val()
                                                 };
                                                 addAntiForgeryToken(data);
                                                 return data;
                                             }
                                         },
                                         create: {
-                                            url: "@Html.Raw(Url.Action("AddOrderLimit", "Setting"))",
+                                            url: "@Html.Raw(Url.Action("AddReplenishment", "Setting"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         }
                                     },
-                                    
+
                                     schema: {
                                         data: "Data",
                                         total: "Total",
@@ -141,20 +116,8 @@
                                             id: "Id",
                                             fields: {
                                                 Id: { editable: false, type: "number" },
-                                                //Percentage: { type: "string", validation: { required: true, min: 1 } }, //Remove Percentage criteria; Not required - 05032019
-                                                DaysofStock: { type: "string", validation: { required: true } },
-                                                DaysofSales: {
-                                                    type: "string", validation: {
-                                                        required: true,
-                                                        daysOfSalesValidation: function (input) {
-                                                            if (input.is("[name='DaysofSales']") && input.val() < 14) {
-                                                                input.attr("data-daysOfSalesValidation-msg", "Minimum to 14 days!");
-                                                                return /[0-13]/.test(input.val());
-                                                            }
-                                                            return true;
-                                                        }
-                                                    }
-                                                },
+                                                BufferDays: { type: "string", validation: { required: true, min: 1 } },
+                                                ReplenishmentQty: { type: "string", validation: { required: true, min: 1 } },
                                                 StoreName: { type: "string"},
                                                 SelectedStoreIds: { editable: true, validation: { required: true } }
                                             }
@@ -190,31 +153,24 @@
                                 toolbar: [
                                     {
                                         name: "create",
-                                        url: "@Html.Raw(Url.Action("AddOrderLimit", "Setting"))",
+                                        url: "@Html.Raw(Url.Action("AddReplenishment", "Setting"))",
                                         text: "Add",
                                         iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
                                     }
                                 ],
                                 scrollable: false,
                                 columns: [
-                                    //Remove Percentage criteria; Not required - 05032019
-                                    //{
-                                    //    field: "Percentage",
-                                    //    title: "Percentage",
-                                    //    width: 230,
-                                    //    editor: customEditor 
-                                    //},
                                     {
-                                        field: "DaysofStock",
+                                        field: "BufferDays",
                                         title: "Buffer Days",
                                         width: 230,
-                                        editor: customEditor 
+                                        editor: customEditor
                                     },
                                     {
-                                        field: "DaysofSales",
-                                        title: "Days of Sales",
+                                        field: "ReplenishmentQty",
+                                        title: "Replenishment Qty",
                                         width: 230,
-                                        editor: customEditor 
+                                        editor: customEditor
                                     },
                                     {
                                         field: "SelectedStoreIds",
@@ -240,10 +196,10 @@
                                         }
                                     }, {
                                         template:
-                                            "<a href='EditOrder/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                            "<a href='EditReplenishment/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
                                             "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
                                             "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
-                                            "<a href='DeleteOrderLimit/#=Id#' action='DeleteOrderLimit' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                            "<a href='DeleteReplenishment/#=Id#' action='DeleteReplenishment' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         width: 111
@@ -278,16 +234,11 @@
                                 return match ? true : false;
                             }
 
-                            function minimumVal(e) {
-                                var min = e.key.min(/[14]/);
-                                return min;
-                            }
-
                         </script>
                         <script>
                             $(document).ready(function () {
                                 //search button
-                                $('#search-orderLimit').click(function () {
+                                $('#search-replenishment').click(function () {
                                     var grid = $('#grid').data('kendoGrid');
                                     grid.dataSource.page(1);
                                     return false;

@@ -1,37 +1,26 @@
-﻿@model OrderLimitModel
+﻿@model ReplenishmentModel
 
 <div class="panel-group">
     <div class="panel panel-default">
         <div class="panel-body">
 
-            @*Remove Percentage criteria; Not required - 05032019*@
-            @*<div class="form-group">
-            <div class="col-xs-3">
-                <label asp-for="Percentage" class="control-label pull-right"></label>
-            </div>
-            <div class="col-xs-9">
-                <input asp-for="Percentage" type="text" class="form-control" min="0" max="100" onkeypress='return validateQty(event);' />
-                <span asp-validation-for="Percentage"></span>
-            </div>
-        </div>*@
-
             <div class="form-group">
                 <div class="col-xs-3">
-                    <label asp-for="DaysofStock" class="control-label pull-right"></label>
+                    <label asp-for="BufferDays" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="DaysofStock" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
-                    <span asp-validation-for="DaysofStock"></span>
+                    <input asp-for="BufferDays" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
+                    <span asp-validation-for="BufferDays"></span>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-xs-3">
-                    <label asp-for="DaysofSales" class="control-label pull-right"></label>
+                    <label asp-for="ReplenishmentQty" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="DaysofSales" type="text" class="form-control" min="14" onkeypress='return validateQty(event);' onkeyup='return alert("Minimum to 14 days!");'/>
-                    <span asp-validation-for="DaysofSales"></span>
+                    <input asp-for="ReplenishmentQty" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
+                    <span asp-validation-for="ReplenishmentQty"></span>
                 </div>
             </div>
 

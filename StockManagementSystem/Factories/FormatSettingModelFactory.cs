@@ -111,7 +111,7 @@ namespace StockManagementSystem.Factories
                        // barcodeFormatModel.Id = barcodeFormat.Id;
 
                         return barcodeFormatModel;
-                    }),
+                    }).OrderBy(x => x.Sequence),
                 Total = barcodeFormats.Count
             };
 

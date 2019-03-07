@@ -3,11 +3,11 @@ using StockManagementSystem.Web.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace StockManagementSystem.Models.OrderLimits
+namespace StockManagementSystem.Models.Replenishments
 {
-    public class OrderLimitSearchModel : BaseSearchModel
+    public class ReplenishmentSearchModel : BaseSearchModel
     {
-        public OrderLimitSearchModel()
+        public ReplenishmentSearchModel()
         {
             SelectedStoreIds = new List<int>();
             AvailableStores = new List<SelectListItem>();
@@ -17,11 +17,5 @@ namespace StockManagementSystem.Models.OrderLimits
         public IList<int> SelectedStoreIds { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
-
-        //Remove Percentage criteria; Not required - 05032019
-        //[Display(Name = "Percentage")]
-        //[DataType("Integer")]
-        //public int? SearchPercentage { get; set; }
-
     }
 }

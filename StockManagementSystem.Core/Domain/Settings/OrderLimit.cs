@@ -5,7 +5,7 @@ namespace StockManagementSystem.Core.Domain.Settings
 {
     public class OrderLimit : BaseEntity, IAppendTimestamps
     {
-        public int Percentage { get; set; }
+        //public int Percentage { get; set; } //Remove Percentage criteria; Not required - 05032019
 
         public int DaysofStock { get; set; }
 

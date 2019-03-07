@@ -13,9 +13,10 @@ namespace StockManagementSystem.Models.Setting
     {
         public int? OrderLimitId { get; set; }
 
-        [Required(ErrorMessage = "Percentage is required.")]
-        [Display(Name = "Percentage")]
-        public int Percentage { get; set; }
+        //Remove Percentage criteria; Not required - 05032019
+        //[Required(ErrorMessage = "Percentage is required.")]
+        //[Display(Name = "Percentage")]
+        //public int Percentage { get; set; }
 
         [Display(Name = "BranchNo")]
         public int P_BranchNo { get; set; }

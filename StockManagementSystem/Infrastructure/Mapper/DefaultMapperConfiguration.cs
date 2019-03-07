@@ -21,6 +21,7 @@ using StockManagementSystem.Web.Models;
 using StockManagementSystem.Models.Setting;
 using StockManagementSystem.Models.Management;
 using StockManagementSystem.Models.Stores;
+using StockManagementSystem.Models.Replenishments;
 using StockManagementSystem.Models.Tenants;
 
 namespace StockManagementSystem.Infrastructure.Mapper
@@ -40,6 +41,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreatePushNotificationMaps();
             CreateShelfLocationFormatMaps();
             CreateFormatSettingMaps();
+            CreateReplenishmentSettingMaps();
             CreateDeviceTrackingMaps();
             CreateOutletManagementMaps();
 
@@ -257,7 +259,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<OrderLimit, OrderLimitModel>()
                 .ForMember(model => model.StoreName, options => options.Ignore());
             CreateMap<OrderLimitModel, OrderLimit>()
-                .ForMember(entity => entity.Percentage, options => options.Ignore())
+                //.ForMember(entity => entity.Percentage, options => options.Ignore()) //Remove Percentage criteria; Not required - 05032019
                 .ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
         }
 
@@ -328,6 +330,19 @@ namespace StockManagementSystem.Infrastructure.Mapper
             //.ForMember(entity => entity.Name, options => options.Ignore())
             //.ForMember(entity => entity.Format, options => options.Ignore())
             //.ForMember(entity => entity.Length, options => options.Ignore());
+        }
+
+        /// <summary>
+        /// Create replenishment maps
+        /// </summary>
+        protected virtual void CreateReplenishmentSettingMaps()
+        {
+            CreateMap<Replenishment, ReplenishmentModel>()
+                .ForMember(model => model.StoreName, options => options.Ignore());
+            CreateMap<ReplenishmentModel, Replenishment>()
+                .ForMember(entity => entity.BufferDays, options => options.Ignore())
+                .ForMember(entity => entity.ReplenishmentQty, options => options.Ignore())
+                .ForMember(entity => entity.ReplenishmentStores, options => options.Ignore());
         }
 
         /// <summary>

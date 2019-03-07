@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace StockManagementSystem.Models.OrderLimits
+namespace StockManagementSystem.Models.Replenishments
 {
-    public class OrderLimitModel : BaseEntityModel
+    public class ReplenishmentModel : BaseEntityModel
     {
-        public OrderLimitModel()
+        public ReplenishmentModel()
         {
             SelectedStoreIds = new List<int>();
             AvailableStores = new List<SelectListItem>();
@@ -18,21 +18,15 @@ namespace StockManagementSystem.Models.OrderLimits
 
         public string Name { get; set; }
 
-        //Remove Percentage criteria; Not required - 05032019
-        //[Display(Name = "Percentage")]
-        //[Required(ErrorMessage = "Percentage is required")]
-        //[DataType("Integer")]
-        //public int Percentage { get; set; }
-
         [Display(Name = "Buffer Days")]
         [Required(ErrorMessage = "Buffer Days is required")]
         [DataType("Integer")]
-        public int DaysofStock { get; set; }
+        public int BufferDays { get; set; }
 
-        [Display(Name = "Days of Sales")]
-        [Required(ErrorMessage = "Days of Sales is required")]
+        [Display(Name = "Replenishment Quantity")]
+        [Required(ErrorMessage = "Replenishment Quantity is required")]
         [DataType("Integer")]
-        public int DaysofSales { get; set; }
+        public int ReplenishmentQty { get; set; }
 
         [Display(Name = "Created on")]
         public DateTime CreatedOn { get; set; }
@@ -49,6 +43,6 @@ namespace StockManagementSystem.Models.OrderLimits
 
         public IList<SelectListItem> AvailableStores { get; set; }
 
-        public ICollection<OrderLimit> OrderLimits { get; set; }
+        public ICollection<Replenishment> Replenishments { get; set; }
     }
 }

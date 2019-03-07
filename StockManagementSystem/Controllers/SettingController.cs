@@ -28,29 +28,39 @@ using StockManagementSystem.Services.Settings;
 using StockManagementSystem.Models.Setting;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Tenants;
+using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using StockManagementSystem.Models.Replenishments;
+using StockManagementSystem.Services.Replenishments;
 
 namespace StockManagementSystem.Controllers
 {
     public class SettingController : BaseController
     {
         private readonly IOrderLimitService _orderLimitService;
+        private readonly IReplenishmentService _replenishmentService;
         private readonly IStoreService _storeService;
         private readonly ILocationService _locationService;
         private readonly IFormatSettingService _formatSettingService;
         private readonly IRepository<Approval> _approvalRepository;
         private readonly IRepository<OrderLimit> _orderLimitRepository;
         private readonly IRepository<OrderLimitStore> _orderLimitStoreRepository;
+        private readonly IRepository<Replenishment> _replenishmentRepository;
+        private readonly IRepository<ReplenishmentStore> _replenishmentStoreRepository;
         private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Item> _itemRepository;
         private readonly IRepository<ShelfLocation> _shelfLocationRepository;
         private readonly IRepository<ShelfLocationFormat> _shelfLocationFormatRepository;
         private readonly IRepository<FormatSetting> _formatSettingRepository;
         private readonly IOrderLimitModelFactory _orderLimitModelFactory;
+        private readonly IReplenishmentModelFactory _replenishmentModelFactory;
         private readonly ILocationModelFactory _locationModelFactory;
         private readonly IFormatSettingModelFactory _formatSettingModelFactory;
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly IWorkContext _workContext;
+        private readonly IConfiguration _iconfiguration;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ITenantService _tenantService;
         private readonly ILogger _logger;
@@ -59,42 +69,52 @@ namespace StockManagementSystem.Controllers
 
         public SettingController(
             IOrderLimitService orderLimitService,
+            IReplenishmentService replenishmentService,
             IStoreService storeService,
             ILocationService locationService,
             IFormatSettingService formatSettingService,
             IRepository<Approval> approvalRepository,
             IRepository<OrderLimit> orderLimitRepository,
             IRepository<OrderLimitStore> orderLimitStoreRepository,
+            IRepository<Replenishment> replenishmentRepository,
+            IRepository<ReplenishmentStore> replenishmentStoreRepository,
             IRepository<Store> storeRepository,
             IRepository<Item> itemRepository,
             IRepository<ShelfLocation> shelfLocationRepository,
             IRepository<ShelfLocationFormat> shelfLocationFormatRepository,
             IRepository<FormatSetting> formatSettingRepository,
             IOrderLimitModelFactory orderLimitModelFactory,
+            IReplenishmentModelFactory replenishmentModelFactory,
             ILocationModelFactory locationModelFactory,
             IFormatSettingModelFactory formatSettingModelFactory,
             IPermissionService permissionService,
             INotificationService notificationService,
             IWorkContext workContext,
+            IConfiguration iconfiguration,
             IGenericAttributeService genericAttributeService,
             ITenantService tenantService,
             ILoggerFactory loggerFactory)
         {
             this._orderLimitService = orderLimitService;
+            this._replenishmentService = replenishmentService;
             this._storeService = storeService;
             this._locationService = locationService;
             this._formatSettingService = formatSettingService;
             this._approvalRepository = approvalRepository;
             this._orderLimitRepository = orderLimitRepository;
             this._orderLimitStoreRepository = orderLimitStoreRepository;
+            this._replenishmentRepository = replenishmentRepository;
+            this._replenishmentStoreRepository = replenishmentStoreRepository;
             this._storeRepository = storeRepository;
             this._itemRepository = itemRepository;
             this._shelfLocationRepository = shelfLocationRepository;
             this._shelfLocationFormatRepository = shelfLocationFormatRepository;
             this._formatSettingRepository = formatSettingRepository;
             this._orderLimitModelFactory = orderLimitModelFactory;
+            this._replenishmentModelFactory = replenishmentModelFactory;
             this._locationModelFactory = locationModelFactory;
             this._formatSettingModelFactory = formatSettingModelFactory;
+            _iconfiguration = iconfiguration;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _workContext = workContext;
@@ -143,7 +163,7 @@ namespace StockManagementSystem.Controllers
             {
                 OrderLimit orderLimit = new OrderLimit
                 {
-                    Percentage = model.Percentage,
+                    //Percentage = model.Percentage, //Remove Percentage criteria; Not required - 05032019
                     DaysofSales = model.DaysofSales,
                     DaysofStock = model.DaysofStock,
                     OrderLimitStores = new List<OrderLimitStore>()
@@ -231,7 +251,7 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
-                    orderLimit.Percentage = model.Percentage;
+                    //orderLimit.Percentage = model.Percentage; //Remove Percentage criteria; Not required - 05032019
                     orderLimit.DaysofSales = model.DaysofSales;
                     orderLimit.DaysofStock = model.DaysofStock;
 
@@ -457,7 +477,6 @@ namespace StockManagementSystem.Controllers
 
         #endregion
 
-
         #region Format Setting
 
         public async Task<IActionResult> FormatSetting()
@@ -469,6 +488,8 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
+        #region Shelf Location
+
         public async Task<IActionResult> ListShelf()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
@@ -478,7 +499,6 @@ namespace StockManagementSystem.Controllers
 
             return View(model);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> ListShelf(ShelfSearchModel searchModel)
@@ -493,11 +513,21 @@ namespace StockManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddShelf(ShelfModel model)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
-            if (!ModelState.IsValid)
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
+            if (string.IsNullOrEmpty(model.Prefix))
+            {
+                ModelState.AddModelError(string.Empty, "Prefix is required to add shelf location format.");
+                _notificationService.ErrorNotification("Prefix is required to add shelf location format.");
+                return new NullJsonResult();
+            }
+            else if (string.IsNullOrEmpty(model.Name))
+            {
+                ModelState.AddModelError(string.Empty, "Name is required to add shelf location format.");
+                _notificationService.ErrorNotification("Name is required to add shelf location format.");
+                return new NullJsonResult();
+            }
 
             try
             {
@@ -509,14 +539,25 @@ namespace StockManagementSystem.Controllers
                 }
                 else
                 {
-                    FormatSetting shelfFormat = new FormatSetting();
-                    shelfFormat.Format = "Shelf";
-                    shelfFormat.Prefix = model.Prefix;
-                    shelfFormat.Name = model.Name;
+                    bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
-                    shelfFormat = model.ToEntity(shelfFormat);
+                    if (!isExist)
+                    {
+                        FormatSetting shelfFormat = new FormatSetting();
+                        shelfFormat.Format = "Shelf";
+                        shelfFormat.Prefix = model.Prefix;
+                        shelfFormat.Name = model.Name;
 
-                    await _formatSettingService.InsertShelfLocationFormat(shelfFormat);
+                        shelfFormat = model.ToEntity(shelfFormat);
+
+                        await _formatSettingService.InsertShelfLocationFormat(shelfFormat);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Name and/or prefix already exist in Shelf Location format.");
+                        _notificationService.ErrorNotification("Name and/or prefix already exist in Shelf Location format.");
+                        return Json("Name and/or prefix already exist in Shelf Location format.");
+                    }
                 }
                 return new NullJsonResult();
             }
@@ -538,13 +579,24 @@ namespace StockManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(model.Id);
-            shelfFormat.Prefix = model.Prefix;
-            shelfFormat.Name = model.Name;
+            bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
-            shelfFormat = model.ToEntity(shelfFormat);
+            if (!isExist)
+            {
+                var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(model.Id);
+                shelfFormat.Prefix = model.Prefix;
+                shelfFormat.Name = model.Name;
 
-            _formatSettingService.UpdateShelfLocationFormat(shelfFormat);
+                shelfFormat = model.ToEntity(shelfFormat);
+
+                _formatSettingService.UpdateShelfLocationFormat(shelfFormat);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Name and/or prefix already exist in Shelf Location format.");
+                _notificationService.ErrorNotification("Name and/or prefix already exist in Shelf Location format.");
+                return Json("Name and/or prefix already exist in Shelf Location format.");
+            }
 
             return new NullJsonResult();
         }
@@ -554,11 +606,15 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
-            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(id) ?? throw new ArgumentException("No prefix name found with the specified id", nameof(id));
+            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(id) ?? throw new ArgumentException("No shelf location found", nameof(id));
             _formatSettingService.DeleteShelfLocationFormat(shelfFormat);
 
             return new NullJsonResult();
         }
+
+        #endregion
+
+        #region RTE Barcode
 
         public async Task<IActionResult> ListBarcode()
         {
@@ -580,17 +636,40 @@ namespace StockManagementSystem.Controllers
 
             return Json(model);
         }
+        
+        [HttpGet]
+        public async Task<IActionResult> SortBarcode(string data)
+        {
+            data = data.Replace('"', ' ');
+            Regex r = new Regex(@"Name : (.+?) , Length");
+            MatchCollection mc = r.Matches(data);
+            List<string> arr = new List<string>();
 
-        //[HttpPost]
-        //public async Task<IActionResult> ReorderRow(int id)
-        //{
-        //    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
-        //        return AccessDeniedKendoGridJson();
+            foreach (Match match in mc)
+            {
+                foreach (Capture capture in match.Captures)
+                {
+                    arr.Add(capture.Value.Split(new string[] { "Name : " }, StringSplitOptions.None)[1].Split(',')[0].Trim());
+                }
+            }
 
-        //    var model = await _formatSettingService.GetBarcodeFormatByIdAsync(id);
+            var barcodeFormat = await _formatSettingService.GetAllBarcodeFormatsAsync();
+            foreach (var item in barcodeFormat)
+            {
+                for (int i = 0; i < arr.Count(); i++)
+                {
+                    if (item.Name == arr[i])
+                    {
+                        int seq = i + 1;
+                        item.Sequence = seq;
 
-        //    return Json(model);
-        //}
+                        _formatSettingService.UpdateBarcodeFormat(item);
+                    }
+                }
+            }
+
+            return new NullJsonResult();
+        }
 
         [HttpPost]
         public async Task<IActionResult> UpdateBarcode(BarcodeModel model)
@@ -601,22 +680,328 @@ namespace StockManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-            var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(model.Id);
-            barcodeFormat.Id = model.Id;
+            bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
 
-            barcodeFormat = model.ToEntity(barcodeFormat);
+            if (!isExist)
+            {
+                var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(model.Id);
+                barcodeFormat.Id = model.Id;
+                barcodeFormat.Name = model.Name;
 
-            _formatSettingService.UpdateBarcodeFormat(barcodeFormat);
+                _formatSettingService.UpdateBarcodeFormat(barcodeFormat);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Name already exist in RTE barcode format.");
+                _notificationService.ErrorNotification("Name already exist in RTE barcode format.");
+                return Json("Name already exist in RTE barcode format.");
+            }
 
             return new NullJsonResult();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddBarcode(BarcodeModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                ModelState.AddModelError(string.Empty, "Name is required to add RTE barcode format.");
+                _notificationService.ErrorNotification("Name is required to add RTE barcode format.");
+            }
+            try
+            {
+                var dataList = await _formatSettingService.GetAllBarcodeFormatsAsync();
+
+                if (dataList.Count >= 4)
+                {
+                    _notificationService.WarningNotification("Add row limit to 4 only!");
+                }
+                else
+                {
+                    bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
+
+                    if (!isExist)
+                    {
+                        int counter = dataList.Count;
+                        FormatSetting barcodeFormat = new FormatSetting();
+                        barcodeFormat.Format = "Barcode";
+                        barcodeFormat.Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]);
+                        barcodeFormat.Name = model.Name;
+                        barcodeFormat.Sequence = counter + 1;
+
+                        await _formatSettingService.InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Name already exist in RTE barcode format.");
+                        _notificationService.ErrorNotification("Name already exist in RTE barcode format.");
+                        return Json("Name already exist in RTE barcode format.");
+                    }
+                }
+
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                _notificationService.ErrorNotification(e.Message);
+
+                return Json(e.Message);
+            }
+        }
+
+        public async Task<IActionResult> DeleteBarcode(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            var barcodeFormat = await _formatSettingService.GetBarcodeFormatByIdAsync(id);
+            if (barcodeFormat == null)
+                return new NullJsonResult();
+
+            try
+            {
+                _formatSettingService.DeleteShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+
+                int? nextSeq = barcodeFormat.Sequence + 1;
+                if (nextSeq > 0 && nextSeq <= 4)
+                {
+                    for (int? i = nextSeq; i <= 4; i++)
+                    {
+                        int? counter = i-1;
+                        var nextBarcodeFormat = await _formatSettingService.GetBarcodeFormatBySeqAsync(i);
+                        if (nextBarcodeFormat != null)
+                        {
+                            nextBarcodeFormat.Sequence = counter;
+                            _formatSettingService.UpdateBarcodeFormat(nextBarcodeFormat);
+                        }
+                    }
+                }
+
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return new NullJsonResult();
+            }
+        }
+
         #endregion
 
-        #region Tenant scope configuration
+        #endregion
+
+        #region Replenishment
+
+        public async Task<IActionResult> Replenishment()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var model = await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> GetStoreReplenishment()
+        {
+            var model = await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddReplenishment(ReplenishmentModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            if (model.SelectedStoreIds.Count == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Store is required to configure replenishment");
+                _notificationService.ErrorNotification("Store is required to configure replenishment");
+                return new NullJsonResult();
+            }
+
+            try
+            {
+                Replenishment replenishment = new Replenishment
+                {
+                    BufferDays = model.BufferDays,
+                    ReplenishmentQty = model.ReplenishmentQty,
+                    ReplenishmentStores = new List<ReplenishmentStore>()
+                };
+
+                //Add store
+                foreach (var store in model.SelectedStoreIds)
+                {
+                    ReplenishmentStore replenishmentStore = new ReplenishmentStore
+                    {
+                        ReplenishmentId = replenishment.Id,
+                        StoreId = store
+                    };
+
+                    replenishment.ReplenishmentStores.Add(replenishmentStore);
+                }
+
+                await _replenishmentService.InsertReplenishment(replenishment);
+
+                return new NullJsonResult();
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, e.Message);
+                _notificationService.ErrorNotification(e.Message);
+
+                return Json(e.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> ReplenishmentList(ReplenishmentSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedKendoGridJson();
+
+            var model = await _replenishmentModelFactory.PrepareReplenishmentListModel(searchModel);
+
+            return Json(model);
+        }
+
+        public async Task<IActionResult> EditReplenishment(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var replenishment = await _replenishmentService.GetReplenishmentByIdAsync(id);
+            if (replenishment == null)
+                return RedirectToAction("Replenishment");
+
+            var model = await _replenishmentModelFactory.PrepareReplenishmentModel(null, replenishment);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [FormValueRequired("save", "save-continue")]
+        public async Task<IActionResult> EditReplenishment(ReplenishmentModel model, bool continueEditing)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var replenishment = await _replenishmentService.GetReplenishmentByIdAsync(model.Id);
+            if (replenishment == null)
+                return RedirectToAction("Replenishment");
+
+            var allStores = await _storeService.GetStoresAsync();
+            var newStores = new List<Store>();
+            foreach (var store in allStores)
+            {
+                if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                    newStores.Add(store);
+            }
+
+            if (model.SelectedStoreIds.Count == 0)
+            {
+                _notificationService.ErrorNotification("Store is required");
+                model = await _replenishmentModelFactory.PrepareReplenishmentModel(model, replenishment);
+                model.SelectedStoreIds = new List<int>();
+
+                return View(model);
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    replenishment.BufferDays = model.BufferDays;
+                    replenishment.ReplenishmentQty = model.ReplenishmentQty;
+
+                    //stores
+
+                    List<ReplenishmentStore> replenishmentStoreList = new List<ReplenishmentStore>();
+
+                    foreach (var store in allStores)
+                    {
+                        if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                        {
+                            //new store
+                            if (replenishment.ReplenishmentStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                            {
+                                ReplenishmentStore replenishmentStore = new ReplenishmentStore
+                                {
+                                    ReplenishmentId = replenishment.Id,
+                                    StoreId = store.P_BranchNo
+                                };
+
+
+                                replenishment.ReplenishmentStores.Add(replenishmentStore);
+                            }
+                        }
+                        else
+                        {
+                            //remove store
+                            if (replenishment.ReplenishmentStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                                _replenishmentService.DeleteReplenishmentStore(model.Id, store);
+                        }
+                    }
+
+                    _replenishmentService.UpdateReplenishment(replenishment);
+
+                    _notificationService.SuccessNotification("Replenishment has been updated successfully.");
+
+                    if (!continueEditing)
+                        return RedirectToAction("Replenishment");
+
+                    //selected tab
+                    SaveSelectedTabName();
+
+                    return RedirectToAction("EditReplenishment", new { id = replenishment.Id });
+                }
+                catch (Exception e)
+                {
+                    _notificationService.ErrorNotification(e.Message);
+                }
+            }
+
+            model = await _replenishmentModelFactory.PrepareReplenishmentModel(model, replenishment);
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> DeleteReplenishment(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
+                return AccessDeniedView();
+
+            var replenishment = await _replenishmentService.GetReplenishmentByIdAsync(id);
+            if (replenishment == null)
+                return RedirectToAction("Replenishment");
+
+            try
+            {
+                _replenishmentService.DeleteReplenishment(replenishment);
+
+                _notificationService.SuccessNotification("Replenishment has been deleted successfully.");
+
+                return RedirectToAction("Replenishment");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return RedirectToAction("EditReplenishment", new { id = replenishment.Id });
+            }
+        }
+
+
+        #endregion
+
+  	#region Tenant scope configuration
 
         public async Task<IActionResult> ChangeTenantScopeConfiguration(int tenantId, string returnUrl = "")
-        {
+       {
             var tenant = _tenantService.GetTenantById(tenantId);
             if (tenant != null || tenantId == 0)
             {
@@ -635,6 +1020,5 @@ namespace StockManagementSystem.Controllers
             return Redirect(returnUrl);
         }
 
-        #endregion
     }
 }
