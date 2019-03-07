@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core.Domain.Items;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
@@ -30,7 +29,6 @@ using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Tenants;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using StockManagementSystem.Models.Replenishments;
 using StockManagementSystem.Services.Replenishments;
 
@@ -60,10 +58,9 @@ namespace StockManagementSystem.Controllers
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly IWorkContext _workContext;
-        private readonly IConfiguration _iconfiguration;
+        private readonly IConfiguration _configuration;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly ITenantService _tenantService;
-        private readonly ILogger _logger;
 
         #region Constructor
 
@@ -90,10 +87,9 @@ namespace StockManagementSystem.Controllers
             IPermissionService permissionService,
             INotificationService notificationService,
             IWorkContext workContext,
-            IConfiguration iconfiguration,
+            IConfiguration configuration,
             IGenericAttributeService genericAttributeService,
-            ITenantService tenantService,
-            ILoggerFactory loggerFactory)
+            ITenantService tenantService)
         {
             this._orderLimitService = orderLimitService;
             this._replenishmentService = replenishmentService;
@@ -114,16 +110,13 @@ namespace StockManagementSystem.Controllers
             this._replenishmentModelFactory = replenishmentModelFactory;
             this._locationModelFactory = locationModelFactory;
             this._formatSettingModelFactory = formatSettingModelFactory;
-            _iconfiguration = iconfiguration;
+            _configuration = configuration;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _workContext = workContext;
             _genericAttributeService = genericAttributeService;
             _tenantService = tenantService;
-            _logger = loggerFactory.CreateLogger<SettingController>();
         }
-
-        public ILogger Logger { get; }
 
         #endregion
 
@@ -193,6 +186,7 @@ namespace StockManagementSystem.Controllers
                 return Json(e.Message);
             }
         }
+
         [HttpPost]
         public async Task<IActionResult> OrderLimitList(OrderLimitSearchModel searchModel)
         {
@@ -294,7 +288,7 @@ namespace StockManagementSystem.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("EditOrder", new { id = orderLimit.Id });
+                    return RedirectToAction("EditOrder", new {id = orderLimit.Id});
                 }
                 catch (Exception e)
                 {
@@ -327,7 +321,7 @@ namespace StockManagementSystem.Controllers
             catch (Exception e)
             {
                 _notificationService.ErrorNotification(e.Message);
-                return RedirectToAction("EditOrder", new { id = orderLimit.Id });
+                return RedirectToAction("EditOrder", new {id = orderLimit.Id});
             }
         }
 
@@ -371,7 +365,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             if (!ModelState.IsValid)
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
+                return Json(new DataSourceResult {Errors = ModelState.SerializeErrors()});
 
             try
             {
@@ -401,7 +395,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             if (!ModelState.IsValid)
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
+                return Json(new DataSourceResult {Errors = ModelState.SerializeErrors()});
 
             var shelfLocationFormat = await _locationService.GetShelfLocationFormatByIdAsync(model.Id);
             shelfLocationFormat.Prefix = model.Prefix;
@@ -419,7 +413,9 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageLocation))
                 return AccessDeniedView();
 
-            var shelfLocationFormat = await _locationService.GetShelfLocationFormatByIdAsync(id) ?? throw new ArgumentException("No prefix name found with the specified id", nameof(id));
+            var shelfLocationFormat = await _locationService.GetShelfLocationFormatByIdAsync(id) ??
+                                      throw new ArgumentException("No prefix name found with the specified id",
+                                          nameof(id));
             _locationService.DeleteShelfLocationFormat(shelfLocationFormat);
 
             _notificationService.SuccessNotification("Prefix name has been deleted successfully.");
@@ -484,7 +480,8 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
-            var model = await _formatSettingModelFactory.PrepareFormatSettingContainerModel(new FormatSettingContainerModel());
+            var model =
+                await _formatSettingModelFactory.PrepareFormatSettingContainerModel(new FormatSettingContainerModel());
             return View(model);
         }
 
@@ -513,7 +510,7 @@ namespace StockManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> AddShelf(ShelfModel model)
         {
-             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
             if (string.IsNullOrEmpty(model.Prefix))
@@ -554,8 +551,10 @@ namespace StockManagementSystem.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError(string.Empty, "Name and/or prefix already exist in Shelf Location format.");
-                        _notificationService.ErrorNotification("Name and/or prefix already exist in Shelf Location format.");
+                        ModelState.AddModelError(string.Empty,
+                            "Name and/or prefix already exist in Shelf Location format.");
+                        _notificationService.ErrorNotification(
+                            "Name and/or prefix already exist in Shelf Location format.");
                         return Json("Name and/or prefix already exist in Shelf Location format.");
                     }
                 }
@@ -577,7 +576,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             if (!ModelState.IsValid)
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
+                return Json(new DataSourceResult {Errors = ModelState.SerializeErrors()});
 
             bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
@@ -606,7 +605,8 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
                 return AccessDeniedView();
 
-            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(id) ?? throw new ArgumentException("No shelf location found", nameof(id));
+            var shelfFormat = await _formatSettingService.GetShelfLocationFormatByIdAsync(id) ??
+                              throw new ArgumentException("No shelf location found", nameof(id));
             _formatSettingService.DeleteShelfLocationFormat(shelfFormat);
 
             return new NullJsonResult();
@@ -636,7 +636,7 @@ namespace StockManagementSystem.Controllers
 
             return Json(model);
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> SortBarcode(string data)
         {
@@ -649,7 +649,8 @@ namespace StockManagementSystem.Controllers
             {
                 foreach (Capture capture in match.Captures)
                 {
-                    arr.Add(capture.Value.Split(new string[] { "Name : " }, StringSplitOptions.None)[1].Split(',')[0].Trim());
+                    arr.Add(capture.Value.Split(new string[] {"Name : "}, StringSplitOptions.None)[1].Split(',')[0]
+                        .Trim());
                 }
             }
 
@@ -678,7 +679,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             if (!ModelState.IsValid)
-                return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
+                return Json(new DataSourceResult {Errors = ModelState.SerializeErrors()});
 
             bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
 
@@ -728,11 +729,12 @@ namespace StockManagementSystem.Controllers
                         int counter = dataList.Count;
                         FormatSetting barcodeFormat = new FormatSetting();
                         barcodeFormat.Format = "Barcode";
-                        barcodeFormat.Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]);
+                        barcodeFormat.Length = Convert.ToInt32(_configuration["RTEBarcodeLength"]);
                         barcodeFormat.Name = model.Name;
                         barcodeFormat.Sequence = counter + 1;
 
-                        await _formatSettingService.InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
+                        await _formatSettingService
+                            .InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
                     }
                     else
                     {
@@ -771,7 +773,7 @@ namespace StockManagementSystem.Controllers
                 {
                     for (int? i = nextSeq; i <= 4; i++)
                     {
-                        int? counter = i-1;
+                        int? counter = i - 1;
                         var nextBarcodeFormat = await _formatSettingService.GetBarcodeFormatBySeqAsync(i);
                         if (nextBarcodeFormat != null)
                         {
@@ -801,14 +803,16 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageReplenishmentSetting))
                 return AccessDeniedView();
 
-            var model = await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
+            var model =
+                await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
 
             return View(model);
         }
 
         public async Task<IActionResult> GetStoreReplenishment()
         {
-            var model = await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
+            var model =
+                await _replenishmentModelFactory.PrepareReplenishmentSearchModel(new ReplenishmentSearchModel());
 
             return View(model);
         }
@@ -859,6 +863,7 @@ namespace StockManagementSystem.Controllers
                 return Json(e.Message);
             }
         }
+
         [HttpPost]
         public async Task<IActionResult> ReplenishmentList(ReplenishmentSearchModel searchModel)
         {
@@ -895,7 +900,7 @@ namespace StockManagementSystem.Controllers
             if (replenishment == null)
                 return RedirectToAction("Replenishment");
 
-            var allStores = await _storeService.GetStoresAsync();
+            var allStores = await _storeService.GetStores();
             var newStores = new List<Store>();
             foreach (var store in allStores)
             {
@@ -928,7 +933,8 @@ namespace StockManagementSystem.Controllers
                         if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                         {
                             //new store
-                            if (replenishment.ReplenishmentStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                            if (replenishment.ReplenishmentStores.Count(mapping =>
+                                    mapping.StoreId == store.P_BranchNo) == 0)
                             {
                                 ReplenishmentStore replenishmentStore = new ReplenishmentStore
                                 {
@@ -943,7 +949,8 @@ namespace StockManagementSystem.Controllers
                         else
                         {
                             //remove store
-                            if (replenishment.ReplenishmentStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                            if (replenishment.ReplenishmentStores.Count(mapping =>
+                                    mapping.StoreId == store.P_BranchNo) > 0)
                                 _replenishmentService.DeleteReplenishmentStore(model.Id, store);
                         }
                     }
@@ -958,7 +965,7 @@ namespace StockManagementSystem.Controllers
                     //selected tab
                     SaveSelectedTabName();
 
-                    return RedirectToAction("EditReplenishment", new { id = replenishment.Id });
+                    return RedirectToAction("EditReplenishment", new {id = replenishment.Id});
                 }
                 catch (Exception e)
                 {
@@ -991,17 +998,16 @@ namespace StockManagementSystem.Controllers
             catch (Exception e)
             {
                 _notificationService.ErrorNotification(e.Message);
-                return RedirectToAction("EditReplenishment", new { id = replenishment.Id });
+                return RedirectToAction("EditReplenishment", new {id = replenishment.Id});
             }
         }
 
-
         #endregion
 
-  	#region Tenant scope configuration
+        #region Tenant scope configuration
 
         public async Task<IActionResult> ChangeTenantScopeConfiguration(int tenantId, string returnUrl = "")
-       {
+        {
             var tenant = _tenantService.GetTenantById(tenantId);
             if (tenant != null || tenantId == 0)
             {
@@ -1020,5 +1026,6 @@ namespace StockManagementSystem.Controllers
             return Redirect(returnUrl);
         }
 
+        #endregion
     }
 }

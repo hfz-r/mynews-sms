@@ -1,11 +1,8 @@
 ﻿using StockManagementSystem.Core.Domain.Stores;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Settings
 {
-    public class ReplenishmentStore : Entity
+    public class ReplenishmentStore : BaseEntity
     {
         public int ReplenishmentId { get; set; }
 

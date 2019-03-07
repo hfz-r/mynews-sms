@@ -7,56 +7,81 @@ namespace StockManagementSystem.Services.Security
     public class StandardPermissionProvider : IPermissionProvider
     {
         public static readonly Permission AccessPanel =
-            new Permission { Name = "Access panel", SystemName = "AccessPanel", Category = "Standard" };
+            new Permission {Name = "Access panel", SystemName = "AccessPanel", Category = "Standard"};
 
         public static readonly Permission ManageUsers =
-            new Permission { Name = "Manage Users", SystemName = "ManageUsers", Category = "User Management" };
+            new Permission {Name = "Manage Users", SystemName = "ManageUsers", Category = "User Management"};
 
         public static readonly Permission ManageActivityLog =
-            new Permission { Name = "Manage Activity Log", SystemName = "ManageActivityLog", Category = "Configuration" };
+            new Permission {Name = "Manage Activity Log", SystemName = "ManageActivityLog", Category = "Configuration"};
 
         public static readonly Permission ManageDevices =
-            new Permission { Name = "Manage Devices", SystemName = "ManageDevices", Category = "Device Management" };
+            new Permission {Name = "Manage Devices", SystemName = "ManageDevices", Category = "Device Management"};
 
         public static readonly Permission ManageReports =
-            new Permission { Name = "Manage Report", SystemName = "ManageReports", Category = "Device Management" };
+            new Permission {Name = "Manage Report", SystemName = "ManageReports", Category = "Device Management"};
 
         public static readonly Permission ManageOrderLimit =
-            new Permission { Name = "Manage Stock Order Limits", SystemName = "ManageOrderLimit", Category = "Configuration" };
+            new Permission
+            {
+                Name = "Manage Stock Order Limits",
+                SystemName = "ManageOrderLimit",
+                Category = "Configuration"
+            };
 
-        public static readonly Permission ManagePushNotification = 
-            new Permission { Name = "Manage Push Notification", SystemName = "ManagePushNotification", Category = "Push Notification" };
+        public static readonly Permission ManagePushNotification =
+            new Permission
+            {
+                Name = "Manage Push Notification",
+                SystemName = "ManagePushNotification",
+                Category = "Push Notification"
+            };
 
-        public static readonly Permission ManageLocation = 
-            new Permission { Name = "Manage Locations",  SystemName = "ManageLocation", Category = "Setting" };
+        public static readonly Permission ManageLocation =
+            new Permission {Name = "Manage Locations", SystemName = "ManageLocation", Category = "Setting"};
 
-        public static readonly Permission ManageFormatSetting = 
-            new Permission { Name = "Manage Format Setting",  SystemName = "ManageFormatSetting", Category = "Setting"  };
+        public static readonly Permission ManageFormatSetting =
+            new Permission {Name = "Manage Format Setting", SystemName = "ManageFormatSetting", Category = "Setting"};
 
         public static readonly Permission ManageOutletManagement =
-            new Permission { Name = "Manage Outlet Management", SystemName = "ManageOutletManagement", Category = "Outlet Management" };
-        
+            new Permission
+            {
+                Name = "Manage Outlet Management",
+                SystemName = "ManageOutletManagement",
+                Category = "Outlet Management"
+            };
+
         public static readonly Permission ManageReplenishmentSetting = new Permission
         {
             Name = "Manage Replenishment Setting",
             SystemName = "ManageReplenishmentSetting",
             Category = "Setting"
-
         };
+
         public static readonly Permission ManageStoreGroup =
-            new Permission { Name = "Manage Outlet Grouping", SystemName = "ManageStoreGroup", Category = "Outlet Management" };
+            new Permission
+            {
+                Name = "Manage Outlet Grouping",
+                SystemName = "ManageStoreGroup",
+                Category = "Outlet Management"
+            };
 
         public static readonly Permission ManageUserStore =
-            new Permission { Name = "Manage Assigning User to Outlet", SystemName = "ManageUserStore", Category = "Outlet Management" };
+            new Permission
+            {
+                Name = "Manage Assigning User to Outlet",
+                SystemName = "ManageUserStore",
+                Category = "Outlet Management"
+            };
 
-        public static readonly Permission ManageAcl = 
-            new Permission { Name = "Manage ACL", SystemName = "ManageAcl", Category = "Configuration" };
+        public static readonly Permission ManageAcl =
+            new Permission {Name = "Manage ACL", SystemName = "ManageAcl", Category = "Configuration"};
 
         public static readonly Permission ManagePlugins =
-            new Permission { Name = "Manage Plugins", SystemName = "ManagePlugins", Category = "Configuration" };
+            new Permission {Name = "Manage Plugins", SystemName = "ManagePlugins", Category = "Configuration"};
 
-        public static readonly Permission ManageMaintenance = 
-            new Permission { Name = "Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration" };
+        public static readonly Permission ManageMaintenance =
+            new Permission {Name = "Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration"};
 
         //TODO: other modules
 
@@ -131,6 +156,7 @@ namespace StockManagementSystem.Services.Security
                         ManageLocation,
                         ManageFormatSetting,
                         ManageOutletManagement,
+                        ManageReplenishmentSetting,
                         ManageStoreGroup,
                         ManageAcl,
                     }
