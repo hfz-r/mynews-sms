@@ -143,7 +143,18 @@
                                                 Id: { editable: false, type: "number" },
                                                 //Percentage: { type: "string", validation: { required: true, min: 1 } }, //Remove Percentage criteria; Not required - 05032019
                                                 DaysofStock: { type: "string", validation: { required: true } },
-                                                DaysofSales: { type: "string", validation: { required: true} },
+                                                DaysofSales: {
+                                                    type: "string", validation: {
+                                                        required: true,
+                                                        daysOfSalesValidation: function (input) {
+                                                            if (input.is("[name='DaysofSales']") && input.val() < 14) {
+                                                                input.attr("data-daysOfSalesValidation-msg", "Minimum to 14 days!");
+                                                                return /[0-13]/.test(input.val());
+                                                            }
+                                                            return true;
+                                                        }
+                                                    }
+                                                },
                                                 StoreName: { type: "string"},
                                                 SelectedStoreIds: { editable: true, validation: { required: true } }
                                             }
@@ -265,6 +276,11 @@
                             function isValidChar(e) {
                                 var match = e.key.match(/[0-9]/);
                                 return match ? true : false;
+                            }
+
+                            function minimumVal(e) {
+                                var min = e.key.min(/[14]/);
+                                return min;
                             }
 
                         </script>
