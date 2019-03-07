@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Users;
@@ -12,8 +13,10 @@ using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Stores;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Controllers;
+using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
 
 namespace StockManagementSystem.Controllers
@@ -29,6 +32,7 @@ namespace StockManagementSystem.Controllers
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly IUserActivityService _userActivityService;
+        private readonly IStoreService _storeService;
         private readonly IWorkContext _workContext;
 
         public UserController(
@@ -41,6 +45,7 @@ namespace StockManagementSystem.Controllers
             IPermissionService permissionService, 
             INotificationService notificationService, 
             IUserActivityService userActivityService, 
+            IStoreService storeService,
             IWorkContext workContext)
         {
             _userSettings = userSettings;
@@ -52,6 +57,7 @@ namespace StockManagementSystem.Controllers
             _permissionService = permissionService;
             _notificationService = notificationService;
             _userActivityService = userActivityService;
+            _storeService = storeService;
             _workContext = workContext;
         }
 
@@ -216,6 +222,25 @@ namespace StockManagementSystem.Controllers
                         }
                     }
 
+                    //stores
+                    var stores = await _storeService.GetStores();
+                    foreach (var store in stores)
+                    {
+                        if (model.SelectedStoreIds != null && model.SelectedStoreIds.Contains(store.P_BranchNo))
+                        {
+                            //new store
+                            if (user.UserStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                                user.UserStores.Add(new UserStore {Store = store});
+                        }
+                        else
+                        {
+                            //remove store
+                            if (user.UserStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                                user.UserStores.Remove(user.UserStores.FirstOrDefault(mapping =>
+                                    mapping.StoreId == store.P_BranchNo));
+                        }
+                    }
+
                     await _userService.UpdateUserAsync(user);
 
                     //activity log
@@ -242,6 +267,31 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteInline(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers))
+                return AccessDeniedView();
+
+            var user = await _userService.GetUserByIdAsync(id) ??
+                       throw new ArgumentException("No user found with the specified id", nameof(id));
+
+            //prevent attempts to delete the user, if it is the last active administrator
+            if (user.IsAdmin() && !await SecondAdminAccountExists(user))
+                throw new ArgumentException("You can't delete the last administrator. At least one administrator account should exists.");
+
+            //ensure that the current user cannot delete "Administrators" if he's not an admin himself
+            if (user.IsAdmin() && !_workContext.CurrentUser.IsAdmin())
+                throw new ArgumentException("You're not allowed to delete administrators. Only administrators can do it.");
+
+            await _userService.DeleteUserAsync(user);
+
+            await _userActivityService.InsertActivityAsync("DeleteUser", $"Deleted a user (ID = {user.Id})", user);
+
+            return new NullJsonResult();
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageUsers))

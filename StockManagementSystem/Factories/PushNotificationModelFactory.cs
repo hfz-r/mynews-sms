@@ -46,7 +46,7 @@ namespace StockManagementSystem.Factories
             //prepare page parameters
             searchModel.SetGridPageSize();
 
-            var stores = await _storeService.GetStoresAsync();
+            var stores = await _storeService.GetStores();
             searchModel.AvailableStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
@@ -269,7 +269,7 @@ namespace StockManagementSystem.Factories
                 pushNotification = new PushNotification();
             }
 
-            var stores = await _storeService.GetStoresAsync();
+            var stores = await _storeService.GetStores();
             model.AvailableStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,

@@ -36,6 +36,12 @@ namespace StockManagementSystem.Services.Security
         public static readonly Permission ManageOutletManagement =
             new Permission { Name = "Manage Outlet Management", SystemName = "ManageOutletManagement", Category = "Outlet Management" };
 
+        public static readonly Permission ManageStoreGroup =
+            new Permission { Name = "Manage Outlet Grouping", SystemName = "ManageStoreGroup", Category = "Outlet Management" };
+
+        public static readonly Permission ManageUserStore =
+            new Permission { Name = "Manage Assigning User to Outlet", SystemName = "ManageUserStore", Category = "Outlet Management" };
+
         public static readonly Permission ManageAcl = 
             new Permission { Name = "Manage ACL", SystemName = "ManageAcl", Category = "Configuration" };
 
@@ -64,6 +70,8 @@ namespace StockManagementSystem.Services.Security
                 ManageLocation,
                 ManageFormatSetting,
                 ManageOutletManagement,
+                ManageStoreGroup,
+                ManageUserStore,
                 ManageAcl,
                 ManagePlugins,
                 ManageMaintenance,
@@ -93,6 +101,8 @@ namespace StockManagementSystem.Services.Security
                         ManageLocation,
                         ManageFormatSetting,
                         ManageOutletManagement,
+                        ManageStoreGroup,
+                        ManageUserStore,
                         ManageAcl,
                         ManagePlugins,
                         ManageMaintenance,
@@ -112,6 +122,7 @@ namespace StockManagementSystem.Services.Security
                         ManageLocation,
                         ManageFormatSetting,
                         ManageOutletManagement,
+                        ManageStoreGroup,
                         ManageAcl,
                     }
                 },

@@ -4,12 +4,13 @@ using StockManagementSystem.Core.Domain.Settings;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Stores
 {
-    public class Store : Entity
+    public class Store : BaseEntity, IAppendTimestamps
     {
+        private ICollection<UserStore> _userStores;
+
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int P_BranchNo { get; set; }
 
@@ -39,6 +40,8 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public string P_Brand { get; set; }
 
+        public bool Active { get; set; }
+
         public double Longitude { get; set; }
 
         public double Latitude { get; set; }
@@ -54,5 +57,19 @@ namespace StockManagementSystem.Core.Domain.Stores
         public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
 
         public virtual ICollection<StoreUserAssign> StoreUserAssigns { get; set; }
+
+        public virtual ICollection<UserStore> UserStores
+        {
+            get => _userStores ?? (_userStores = new List<UserStore>());
+            protected set => _userStores = value;
+        }
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
+
+        #endregion
     }
 }

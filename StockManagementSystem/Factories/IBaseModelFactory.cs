@@ -14,10 +14,16 @@ namespace StockManagementSystem.Factories
 
         Task PrepareRoles(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
 
-        Task PrepareStores(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
-
         Task PrepareTimeZones(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
 
         Task PrepareBranches(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
+
+        Task PrepareStores(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
+
+        Task PrepareStoreAreaCodes(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
+
+        Task PrepareStoreCities(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
+
+        Task PrepareStoreStates(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
     }
 }

@@ -1,0 +1,144 @@
+﻿@model StoreModel
+
+@if (Model.BranchNo > 0)
+{
+<div class="panel-body">
+    <div id="userstore-grid"></div>
+    <style>
+        .custom-button {
+            color: #444444;
+            padding-right: 10px;
+            font-size: 1.5em;
+        }
+    </style>
+    <script>
+            $(document).ready(function() {
+                $("#userstore-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("UserStoreList", "Store"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        StoreId: '@(Model.BranchNo)'
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("UserStoreDelete", "Store"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        storeId: '@(Model.BranchNo)'
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "UserId",
+                                fields: {
+                                    Username: { editable: false, type: "string" },
+                                    UserId: { editable: false, type: "number" }
+                                }
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        pageSize: @(Model.UserStoreSearchModel.PageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(Model.UserStoreSearchModel.AvailablePageSizes)],
+                        @await Html.PartialAsync("_GridPagerMessages")
+                    },
+                    toolbar: [
+                        {
+                            template: "<a class='k-button k-button-icontext k-grid-add' href='\\#' onclick='add();return false;'><span class='glyphicon btn-glyphicon glyphicon-plus img-circle text-danger k-add'></span>Add</a>"
+                        }
+                    ],
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Email",
+                            title: "Email"
+                        }, 
+                        {
+                            field: "Username",
+                            title: "Username"
+                        }, 
+                        {
+                            field: "Active",
+                            title: "Active",
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                        },
+                        {
+                            field: "UserId",
+                            title: "View",
+                            template: '<a class="btn btn-xs btn-warning" title="View user" href="@Url.Content("~/User/Edit/")#=UserId#"><i class="fa fa-eye"></i>&nbsp;&nbsp;View</a>',
+                            width: 100,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" }
+                        },
+                        {
+                            template:
+                                "<a href='javaScript:return false;' title='Remove user' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 50
+                        }
+                    ]
+                });
+            });
+    </script>
+    <script>
+            $(document).ready(function () {
+                var grid = $("#userstore-grid").data("kendoGrid");
+
+                $("#userstore-grid").on("click", ".custom-button", function (e) {
+                    var btn = $(this);
+                    var dataItem = grid.dataItem($(e.currentTarget).closest("tr"));
+                    e.preventDefault();
+                    if (btn.hasClass("destroy-button")) {
+                        if (confirm('Are you sure you want to delete this item?')) {
+                            grid.dataSource.remove(dataItem);
+                            grid.dataSource.sync();
+                            grid.refresh();
+                        }
+                    }
+                });
+
+                $('#btnRefreshUsers').click(function () {
+                    var grid = $("#userstore-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    return false;
+                });
+            });
+
+            function add() {
+                OpenWindow('@Html.Raw(Url.Action("UserAddPopup", "Store", new { storeId = Model.BranchNo, btnId = "btnRefreshUsers", formId = "store-form" }))', 800, 800, true);
+            }
+    </script>
+    <input type="submit" id="btnRefreshUsers" style="display: none" />
+</div>
+}

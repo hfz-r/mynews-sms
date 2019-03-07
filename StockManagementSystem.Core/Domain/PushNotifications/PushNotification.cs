@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StockManagementSystem.Core.Domain.PushNotifications
 {
-    public class PushNotification : Entity
+    public class PushNotification : BaseEntity, IAppendTimestamps
     {
         public string Title { get; set; }
 
@@ -15,5 +16,13 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
         public virtual NotificationCategory NotificationCategory { set; get; }
 
         public virtual ICollection<PushNotificationStore> PushNotificationStores { set; get; }
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
+
+        #endregion
     }
 }

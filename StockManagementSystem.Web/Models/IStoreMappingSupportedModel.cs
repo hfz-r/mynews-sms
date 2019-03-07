@@ -1,0 +1,21 @@
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace StockManagementSystem.Web.Models
+{
+    /// <summary>
+    /// Represents the store mapping supported model
+    /// </summary>
+    public interface IStoreMappingSupportedModel
+    {
+        /// <summary>
+        /// Gets or sets identifiers of the selected stores
+        /// </summary>
+        IList<int> SelectedStoreIds { get; set; }
+
+        /// <summary>
+        /// Gets or sets items for the all available stores
+        /// </summary>
+        IList<SelectListItem> AvailableStores { get; set; }
+    }
+}

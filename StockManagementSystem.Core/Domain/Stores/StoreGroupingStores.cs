@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Stores
 {
-    public class StoreGroupingStores : Entity
+    public class StoreGroupingStores : BaseEntity, IAppendTimestamps
     {
         public int StoreId { get; set; }
 
@@ -13,5 +11,13 @@ namespace StockManagementSystem.Core.Domain.Stores
         public virtual StoreGrouping StoreGroupings { get; set; }
 
         public virtual Store Store { get; set; }
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
+
+        #endregion
     }
 }

@@ -1,0 +1,25 @@
+﻿@inject IWorkContext WorkContext
+@inject IGenericAttributeService GenericAttributeService
+
+@model StoreModel
+
+@{
+    const string hideInfoBlockAttributeName = "StorePage.HideInfoBlock";
+    var hideInfoBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideInfoBlockAttributeName);
+
+    const string hideAssignUserBlockAttributeName = "StorePage.HideAssignUserBlock";
+    var hideAssignUserBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideAssignUserBlockAttributeName);
+
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="BranchNo" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <my-panels id="store-panels">
+            <my-panel asp-name="store-info" asp-icon="fa fa-info" asp-title="Store info" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</my-panel>
+            <my-panel id="store-assign-user-panel" asp-name="store-assign-user" asp-icon="fa fa-sign-in" asp-title="Assign user" asp-hide-block-attribute-name="@hideAssignUserBlockAttributeName" asp-hide="@hideAssignUserBlock">@await Html.PartialAsync("_CreateOrUpdate.AssignUser", Model)</my-panel>
+        </my-panels>
+    </div>
+</section>

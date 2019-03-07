@@ -1,238 +1,254 @@
 ﻿@model UserModel
 
-<div class="panel-group">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            @if (Model.UsernamesEnabled)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="Username" />
-                    </div>
-                    <div class="col-md-9">
-                        <_editor asp-for="Username" />
-                        <span asp-validation-for="Username"></span>
-                    </div>
-                </div>
-            }
+<div class="panel-body">
+    @if (Model.UsernamesEnabled)
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="Username" />
+            </div>
+            <div class="col-md-9">
+                <_editor asp-for="Username" />
+                <span asp-validation-for="Username"></span>
+            </div>
+        </div>
+    }
 
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="Email" />
-                </div>
-                <div class="col-md-9">
-                    <_editor asp-for="Email" />
-                    <span asp-validation-for="Email"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="Password" />
-                </div>
-                <div class="col-md-9">
-                    <div class="input-group">
-                        <_editor asp-for="Password" />
-                        <div class="input-group-btn">
-                            @if (Model.Id > 0)
-                            {
-                                <button type="submit" name="changepassword" class="btn bg-red-active">
-                                    Change password
-                                </button>
-                            }
-                        </div>
-                    </div>
-                    <span asp-validation-for="Password"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="SelectedRoleIds" />
-                </div>
-                <div class="col-md-9">
-                    <div class="input-group input-group-required">
-                        <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true" />
-                        <div class="input-group-btn">
-                            <_required />
-                        </div>
-                    </div>
-                    <script>
-                        $(document).ready(function() {
-                            var userRolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
-                            userRolesIdsInput.setOptions({
-                                userRolesIdsInput: false,
-                                filter: "contains"
-                            });
-
-                            @if (Model.AvailableRoles.Count == 0)
-                            {
-                                <text>
-                                    userRolesIdsInput.setOptions({
-                                        enable: false,
-                                        placeholder: "No roles available"
-                                    });
-                                    userRolesIdsInput._placeholder();
-                                    userRolesIdsInput._enable();
-                                </text>
-                            }
-                        });
-                    </script>
-                </div>
-            </div>
-            @if (Model.GenderEnabled)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="Gender" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="raw">
-                            <div class="col-md-1">
-                                <div class="radio">
-                                    <label>
-                                        @Html.RadioButton("Gender", "M", (Model.Gender == "M"), new { id = "Gender_Male" }) Male
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-md-11">
-                                <div class="radio">
-                                    <label>
-                                        @Html.RadioButton("Gender", "F", (Model.Gender == "F"), new { id = "Gender_Female" }) Female
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="FirstName" />
-                </div>
-                <div class="col-md-9">
-                    <_editor asp-for="FirstName" />
-                    <span asp-validation-for="FirstName"></span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="LastName" />
-                </div>
-                <div class="col-md-9">
-                    <_editor asp-for="LastName" />
-                    <span asp-validation-for="LastName"></span>
-                </div>
-            </div>
-            @if (Model.DateOfBirthEnabled)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="DateOfBirth" />
-                    </div>
-                    <div class="col-md-9">
-                        <_editor asp-for="DateOfBirth" />
-                        <span asp-validation-for="DateOfBirth"></span>
-                    </div>
-                </div>
-            }
-            @if (Model.PhoneEnabled)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="Phone" />
-                    </div>
-                    <div class="col-md-9">
-                        <_editor asp-for="Phone" />
-                        <span asp-validation-for="Phone"></span>
-                    </div>
-                </div>
-            }
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="AdminComment" />
-                </div>
-                <div class="col-md-9">
-                    <_textarea asp-for="AdminComment" />
-                    <span asp-validation-for="AdminComment"></span>
-                </div>
-            </div>
-            @if (Model.AllowUsersToSetTimeZone)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="TimeZoneId" />
-                    </div>
-                    <div class="col-md-9">
-                        <_select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones" />
-                        <span asp-validation-for="TimeZoneId"></span>
-                    </div>
-                </div>
-            }
-            <div class="form-group">
-                <div class="col-md-3">
-                    <_label asp-for="Active" />
-                </div>
-                <div class="col-md-9">
-                    <_editor asp-for="Active" />
-                    <span asp-validation-for="Active"></span>
-                </div>
-            </div>
-            @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.RegisteredInTenant))
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="RegisteredInTenant" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="form-text-row">@Model.RegisteredInTenant</div>
-                    </div>
-                </div>
-            }
-            @if (Model.Id > 0)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="LastIpAddress" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="form-text-row">@Model.LastIpAddress</div>
-                    </div>
-                </div>
-            }
-            @if (Model.Id > 0)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="CreatedOn" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="form-text-row">@Model.CreatedOn</div>
-                    </div>
-                </div>
-            }
-            @if (Model.Id > 0)
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="LastActivityDate" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="form-text-row">@Model.LastActivityDate</div>
-                    </div>
-                </div>
-            }
-            @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.LastVisitedPage))
-            {
-                <div class="form-group">
-                    <div class="col-md-3">
-                        <_label asp-for="LastVisitedPage" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="form-text-row">@Model.LastVisitedPage</div>
-                    </div>
-                </div>
-            }
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Email" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Email" />
+            <span asp-validation-for="Email"></span>
         </div>
     </div>
+
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Password" />
+        </div>
+        <div class="col-md-9">
+            <div class="input-group">
+                <_editor asp-for="Password" />
+                <div class="input-group-btn">
+                    @if (Model.Id > 0)
+                    {
+                        <button type="submit" name="changepassword" class="btn bg-red-gradient">
+                            Change password
+                        </button>
+                    }
+                </div>
+            </div>
+            <span asp-validation-for="Password"></span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="SelectedRoleIds" />
+        </div>
+        <div class="col-md-9">
+            <div class="input-group input-group-required">
+                <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true" />
+                <div class="input-group-btn">
+                    <_required />
+                </div>
+            </div>
+            <script>
+                $(document).ready(function() {
+                    var userRolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
+                    userRolesIdsInput.setOptions({
+                        userRolesIdsInput: false,
+                        filter: "contains"
+                    });
+
+                    @if (Model.AvailableRoles.Count == 0)
+                    {
+                        <text>
+                            userRolesIdsInput.setOptions({
+                                enable: false,
+                                placeholder: "No roles available"
+                            });
+                            userRolesIdsInput._placeholder();
+                            userRolesIdsInput._enable();
+                        </text>
+                    }
+                });
+            </script>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="SelectedStoreIds"/>
+        </div>
+        <div class="col-md-9">
+            <_select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"/>
+            <script>
+                $(document).ready(function() {
+                    var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)').data("kendoMultiSelect");
+                    storesIdsInput.setOptions({
+                        autoClose: false,
+                        filter: "contains"
+                    });
+
+                    @if (Model.AvailableStores.Count == 0)
+                    {
+                        <text>
+                            storesIdsInput.setOptions({
+                                enable: false,
+                                placeholder: 'No stores available'
+                            });
+                            storesIdsInput._placeholder();
+                            storesIdsInput._enable();
+                        </text>
+                    }
+                });
+            </script>
+        </div>
+    </div>
+
+    @if (Model.GenderEnabled)
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="Gender" />
+            </div>
+            <div class="col-md-9">
+                <div class="raw">
+                    <div class="col-md-1">
+                        <div class="radio">
+                            <label>
+                                @Html.RadioButton("Gender", "M", (Model.Gender == "M"), new { id = "Gender_Male" }) Male
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-11">
+                        <div class="radio">
+                            <label>
+                                @Html.RadioButton("Gender", "F", (Model.Gender == "F"), new { id = "Gender_Female" }) Female
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="FirstName" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="FirstName" />
+            <span asp-validation-for="FirstName"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="LastName" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="LastName" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+    </div>
+    @if (Model.DateOfBirthEnabled)
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="DateOfBirth" />
+            </div>
+            <div class="col-md-9">
+                <_editor asp-for="DateOfBirth" />
+                <span asp-validation-for="DateOfBirth"></span>
+            </div>
+        </div>
+    }
+    @if (Model.PhoneEnabled)
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="Phone" />
+            </div>
+            <div class="col-md-9">
+                <_editor asp-for="Phone" />
+                <span asp-validation-for="Phone"></span>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="AdminComment" />
+        </div>
+        <div class="col-md-9">
+            <_textarea asp-for="AdminComment" />
+            <span asp-validation-for="AdminComment"></span>
+        </div>
+    </div>
+    @if (Model.AllowUsersToSetTimeZone)
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="TimeZoneId" />
+            </div>
+            <div class="col-md-9">
+                <_select asp-for="TimeZoneId" asp-items="Model.AvailableTimeZones" />
+                <span asp-validation-for="TimeZoneId"></span>
+            </div>
+        </div>
+    }
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Active" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Active" />
+            <span asp-validation-for="Active"></span>
+        </div>
+    </div>
+    @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.LastIpAddress))
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="LastIpAddress" />
+            </div>
+            <div class="col-md-9">
+                <div class="form-text-row">@Model.LastIpAddress</div>
+            </div>
+        </div>
+    }
+    @if (Model.Id > 0 && !Model.CreatedOn.Equals(DateTime.MinValue))
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="CreatedOn" />
+            </div>
+            <div class="col-md-9">
+                <div class="form-text-row">@Model.CreatedOn</div>
+            </div>
+        </div>
+    }
+    @if (Model.Id > 0 && !Model.LastActivityDate.Equals(DateTime.MinValue))
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="LastActivityDate" />
+            </div>
+            <div class="col-md-9">
+                <div class="form-text-row">@Model.LastActivityDate</div>
+            </div>
+        </div>
+    }
+    @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.LastVisitedPage))
+    {
+        <div class="form-group">
+            <div class="col-md-3">
+                <_label asp-for="LastVisitedPage" />
+            </div>
+            <div class="col-md-9">
+                <div class="form-text-row">@Model.LastVisitedPage</div>
+            </div>
+        </div>
+    }
 </div>

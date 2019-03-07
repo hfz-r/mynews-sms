@@ -20,6 +20,7 @@ using StockManagementSystem.Models.Users;
 using StockManagementSystem.Web.Models;
 using StockManagementSystem.Models.Setting;
 using StockManagementSystem.Models.Management;
+using StockManagementSystem.Models.Stores;
 using StockManagementSystem.Models.Tenants;
 
 namespace StockManagementSystem.Infrastructure.Mapper
@@ -32,6 +33,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateUserMaps();
             CreateLoggingMaps();
             CreateDeviceMaps();
+            CreateStoreMaps();
             CreateOrderLimitMaps();
             CreateFakerMaps();
             CreateTenantMaps();
@@ -63,7 +65,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                     map.ForMember(nameof(ITenantMappingSupportedModel.SelectedTenantIds), options => options.Ignore());
                 }
 
-                //exclude some properties from mapping Permission supported models
+                //exclude some properties from mapping role supported models
                 if (typeof(IAclSupported).IsAssignableFrom(mapConfiguration.DestinationType))
                     map.ForMember(nameof(IAclSupported.SubjectToAcl), options => options.Ignore());
                 if (typeof(IAclSupportedModel).IsAssignableFrom(mapConfiguration.DestinationType))
@@ -71,6 +73,28 @@ namespace StockManagementSystem.Infrastructure.Mapper
                     map.ForMember(nameof(IAclSupportedModel.AvailableRoles), options => options.Ignore());
                     map.ForMember(nameof(IAclSupportedModel.SelectedRoleIds), options => options.Ignore());
                 }
+
+                #region Store mapping
+
+                //exclude some properties from mapping store mapping supported entities and models
+                if (typeof(IStoreMappingSupported).IsAssignableFrom(mapConfiguration.DestinationType))
+                    map.ForMember(nameof(IStoreMappingSupported.LimitedToStores), options => options.Ignore());
+                if (typeof(IStoreMappingSupportedModel).IsAssignableFrom(mapConfiguration.DestinationType))
+                {
+                    map.ForMember(nameof(IStoreMappingSupportedModel.AvailableStores), options => options.Ignore());
+                    map.ForMember(nameof(IStoreMappingSupportedModel.SelectedStoreIds), options => options.Ignore());
+                }
+
+                //exclude some properties from mapping store supported entities and models
+                if (typeof(IAppliedStoreSupported).IsAssignableFrom(mapConfiguration.DestinationType))
+                    map.ForMember(nameof(IAppliedStoreSupported.AppliedStores), options => options.Ignore());
+                if (typeof(IAppliedStoreSupportedModel).IsAssignableFrom(mapConfiguration.DestinationType))
+                {
+                    map.ForMember(nameof(IAppliedStoreSupportedModel.AvailableStores), options => options.Ignore());
+                    map.ForMember(nameof(IAppliedStoreSupportedModel.SelectedStoreIds), options => options.Ignore());
+                }
+
+                #endregion
             });
         }
 
@@ -109,7 +133,6 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(model => model.DateOfBirthEnabled, options => options.Ignore())
                 .ForMember(model => model.DateOfBirth, options => options.Ignore())
                 .ForMember(model => model.PhoneEnabled, options => options.Ignore())
-                .ForMember(model => model.RegisteredInTenant, options => options.Ignore())
                 .ForMember(model => model.TimeZoneId, options => options.Ignore())
                 .ForMember(model => model.AllowUsersToSetTimeZone, options => options.Ignore())
                 .ForMember(model => model.AvailableTimeZones, options => options.Ignore())
@@ -128,6 +151,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.SystemName, options => options.Ignore())
                 .ForMember(entity => entity.LastLoginDateUtc, options => options.Ignore())
                 .ForMember(entity => entity.UserRoles, options => options.Ignore())
+                .ForMember(entity => entity.UserStores, options => options.Ignore())
                 .ForMember(entity => entity.RegisteredInTenantId, options => options.Ignore())
                 .ForMember(entity => entity.StoreUserAssignStore, options => options.Ignore());
         }
@@ -178,15 +202,51 @@ namespace StockManagementSystem.Infrastructure.Mapper
         /// </summary>
         protected virtual void CreateDeviceMaps()
         {
-            CreateMap<Device, DeviceModel>();
+            CreateMap<Device, DeviceModel>()
+                .ForMember(model => model.AvailableTenants, options => options.Ignore())
+                .ForMember(model => model.SelectedTenantIds, options => options.Ignore())
+                .ForMember(model => model.AvailableStores, options => options.Ignore())
+                .ForMember(model => model.SelectedStoreId, options => options.Ignore())
+                .ForMember(model => model.CreatedOn, options => options.Ignore())
+                .ForMember(model => model.LastActivityDate, options => options.Ignore())
+                .ForMember(model => model.StoreName, options => options.Ignore())
+                .ForMember(model => model.Devices, options => options.Ignore());
             CreateMap<DeviceModel, Device>()
-                .ForMember(entity => entity.StoreId, options => options.Ignore())
-                .ForMember(entity => entity.Store, options => options.Ignore())
-                .ForMember(entity => entity.Id, options => options.Ignore())
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
-                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedBy, options => options.Ignore());
+                .ForMember(entity => entity.LimitedToTenants, options => options.Ignore())
+                .ForMember(entity => entity.LimitedToStores, options => options.Ignore());
+        }
+
+        protected virtual void CreateStoreMaps()
+        {
+            CreateMap<Store, StoreModel>()
+                .ForMember(model => model.BranchNo, options => options.Ignore())
+                .ForMember(model => model.Name, options => options.Ignore())
+                .ForMember(model => model.AreaCode, options => options.Ignore())
+                .ForMember(model => model.Address1, options => options.Ignore())
+                .ForMember(model => model.Address2, options => options.Ignore())
+                .ForMember(model => model.Address3, options => options.Ignore())
+                .ForMember(model => model.City, options => options.Ignore())
+                .ForMember(model => model.State, options => options.Ignore())
+                .ForMember(model => model.Country, options => options.Ignore());
+            CreateMap<StoreModel, Store>()
+                .ForMember(entity => entity.P_BranchNo, options => options.Ignore())
+                .ForMember(entity => entity.P_Name, options => options.Ignore())
+                .ForMember(entity => entity.P_AreaCode, options => options.Ignore())
+                .ForMember(entity => entity.P_Addr1, options => options.Ignore())
+                .ForMember(entity => entity.P_Addr2, options => options.Ignore())
+                .ForMember(entity => entity.P_Addr3, options => options.Ignore())
+                .ForMember(entity => entity.P_City, options => options.Ignore())
+                .ForMember(entity => entity.P_State, options => options.Ignore())
+                .ForMember(entity => entity.P_Country, options => options.Ignore())
+                .ForMember(entity => entity.UserStores, options => options.Ignore());
+
+            CreateMap<User, UserStoreModel>()
+                .ForMember(model => model.UserId, options => options.Ignore())
+                .ForMember(model => model.Email, options => options.Ignore())
+                .ForMember(model => model.Username, options => options.Ignore())
+                .ForMember(model => model.Active, options => options.Ignore());
         }
 
         /// <summary>
@@ -304,8 +364,6 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.StoreId, options => options.Ignore())
                 .ForMember(entity => entity.Store, options => options.Ignore())
-                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
 
             CreateMap<StoreGrouping, GroupOutletModel>()
@@ -318,8 +376,6 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<GroupOutletModel, StoreGrouping>()
                  .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
                 .ForMember(entity => entity.StoreGroupingStore, options => options.Ignore())
-                .ForMember(entity => entity.CreatedBy, options => options.Ignore())
-                .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
         }
 

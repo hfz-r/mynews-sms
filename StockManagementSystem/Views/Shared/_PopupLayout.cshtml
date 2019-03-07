@@ -1,0 +1,66 @@
+﻿@using StockManagementSystem.Web.UI
+
+@{
+    var kendoVersion = "2014.1.318";
+
+    //CSS resources
+    Html.AppendCssFileParts("~/css/admin.common.css");
+    Html.AppendCssFileParts("~/css/style.css");
+    Html.AppendCssFileParts("~/lib/bootstrap/dist/css/bootstrap.min.css");
+    Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.rtl.min.css");
+    Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.default.min.css");
+    Html.AppendCssFileParts($"~/lib/kendo/{kendoVersion}/kendo.common.min.css");
+    Html.AppendCssFileParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+    Html.AppendCssFileParts("~/lib/font-awesome/css/font-awesome.min.css");
+    Html.AppendCssFileParts("~/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.css");
+
+    //scripts
+    Html.AppendScriptParts($"~/lib/kendo/{kendoVersion}/kendo.web.min.js");
+    Html.AppendScriptParts("~/js/admin.common.js");
+    Html.AppendScriptParts("~/lib/jquery-migrate/jquery-migrate-1.2.1.min.js");
+    Html.AppendScriptParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate.unobtrusive/jquery.validate.unobtrusive.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate-v1.11.1/jquery.validate.min.js");
+    Html.AppendScriptParts("~/js/adminlte.min.js");
+    Html.AppendScriptParts("~/lib/bootstrap/dist/js/bootstrap.min.js");
+    Html.AppendScriptParts("~/lib/bootstrap-touchspin/jquery.bootstrap-touchspin.min.js");
+    Html.AppendScriptParts("~/lib/jquery/jquery-1.10.2/jquery-1.10.2.min.js");
+
+    //page title
+    string pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
+    pageTitle += "Stock Management System";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@pageTitle</title>
+
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i" rel="stylesheet">
+    <script>
+        var rootAppPath = '@(Url.Content("~/"))';
+    </script>
+    @Html.DefaultCssFiles(this.Url, ResourceLocation.Head, false)
+    @Html.DefaultScripts(this.Url, ResourceLocation.Head, false)
+</head>
+
+<body class="hold-transition skin-blue sidebar-collapse">
+    <div class="wrapper">
+        <div class="content-wrapper">
+            @await Html.PartialAsync("Notifications")
+            <div>
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    @Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, false)
+    @Html.DefaultScripts(this.Url, ResourceLocation.Footer, false)
+    <script>
+        $(document).ready(function() {
+            //enable tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+</body>
+</html>

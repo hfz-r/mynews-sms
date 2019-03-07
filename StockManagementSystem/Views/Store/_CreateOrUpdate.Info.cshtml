@@ -1,0 +1,103 @@
+﻿@model StoreModel
+
+<div class="panel-body">
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Name" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Name" />
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="AreaCode" />
+        </div>
+        <div class="col-md-9">
+            <_select asp-for="AreaCode" asp-items="Model.AvailableAreaCodes" />
+            <span asp-validation-for="AreaCode"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Longitude" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Longitude" asp-postfix="degrees" />
+            <span asp-validation-for="Longitude"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Latitude" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Latitude" asp-postfix="degrees" />
+            <span asp-validation-for="Latitude"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Address1" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Address1" />
+            <span asp-validation-for="Address1"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Address2" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Address2" />
+            <span asp-validation-for="Address2"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Address3" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Address3" />
+            <span asp-validation-for="Address3"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="City" />
+        </div>
+        <div class="col-md-9">
+            <_select asp-for="City" asp-items="Model.AvailableCities" />
+            <span asp-validation-for="City"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="State" />
+        </div>
+        <div class="col-md-9">
+            <_select asp-for="State" asp-items="Model.AvailableStates" />
+            <span asp-validation-for="State"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Country" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Country" />
+            <span asp-validation-for="Country"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Active" />
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Active" />
+            <span asp-validation-for="Active"></span>
+        </div>
+    </div>
+</div>

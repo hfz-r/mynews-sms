@@ -129,7 +129,7 @@ namespace Tests
                     continue;
                 }
 
-                if (!(value is BaseEntity) || !(value is Entity))
+                if (!(value is BaseEntity))
                     continue;
 
                 //skip BaseEntity types and entity Id

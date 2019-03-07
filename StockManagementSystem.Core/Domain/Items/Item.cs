@@ -1,9 +1,10 @@
-﻿using StockManagementSystem.Core.Domain.Settings;
+﻿using System;
+using StockManagementSystem.Core.Domain.Settings;
 using System.Collections.Generic;
 
 namespace StockManagementSystem.Core.Domain.Items
 {
-    public class Item : Entity
+    public class Item : BaseEntity, IAppendTimestamps
     {
         public string P_StockCode { get; set; }
 
@@ -54,5 +55,13 @@ namespace StockManagementSystem.Core.Domain.Items
         public int? VendorId { get; set; }
 
         public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
+
+        #endregion
     }
 }

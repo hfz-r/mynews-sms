@@ -1,16 +1,24 @@
-﻿@model UserModel
+﻿@inject IWorkContext WorkContext
+@inject IGenericAttributeService GenericAttributeService
+
+@model UserModel
+
+@{
+    const string hideInfoBlockAttributeName = "UserPage.HideInfoBlock";
+    var hideInfoBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideInfoBlockAttributeName);
+
+    const string hideActivityLogBlockAttributeName = "CategoryPage.HideActivityLogBlock";
+    var hideActivityLogBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideActivityLogBlockAttributeName);
+}
 
 <div asp-validation-summary="All"></div>
-<input asp-for="Id" type="hidden"/>
+<input asp-for="Id" type="hidden" />
 
 <section class="content">
     <div class="form-horizontal">
-        <_tabs id="user-edit">
-            <_tab asp-name="tab-info" asp-title="User info" asp-default="true">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</_tab>
-            @if (Model.Id > 0)
-            {
-                <_tab asp-name="tab-activitylog" asp-title="Activity log">@await Html.PartialAsync("_CreateOrUpdate.ActivityLog", Model)</_tab>
-            }
-        </_tabs>
+        <my-panels id="user-panels">
+            <my-panel asp-name="user-info" asp-icon="fa fa-info" asp-title="User info" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</my-panel>
+            <my-panel asp-name="user-activitylog" asp-icon="fa fa-list-alt" asp-title="Activity log" asp-hide-block-attribute-name="@hideActivityLogBlockAttributeName" asp-hide="@hideActivityLogBlock">@await Html.PartialAsync("_CreateOrUpdate.ActivityLog", Model)</my-panel>
+        </my-panels>
     </div>
 </section>

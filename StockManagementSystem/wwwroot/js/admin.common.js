@@ -172,17 +172,24 @@ function checkOverriddenTenantValue(obj, selector) {
     };
 }
 
-// collapsable panel
-$(document).on('click', '.panel-heading span.clickable',
-    function(e) {
-        var $this = $(this);
-        if (!$this.hasClass('panel-collapsed')) {
-            $this.parents('.panel').find('.panel-body').slideUp();
-            $this.addClass('panel-collapsed');
-            $this.find('i').removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
-        } else {
-            $this.parents('.panel').find('.panel-body').slideDown();
-            $this.removeClass('panel-collapsed');
-            $this.find('i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up');
-        }
-    })
+//no-tabs solution
+$(document).ready(function () {
+    $(".panel.collapsible-panel >.panel-heading").click(WrapAndSaveBlockData);
+});
+
+function WrapAndSaveBlockData() {
+    $(this).parents(".panel").find(">.panel-container").slideToggle();
+
+    var icon = $(this).find("i.toggle-icon");
+    if ($(this).hasClass("opened")) {
+        icon.removeClass("fa-minus");
+        icon.addClass("fa-plus");
+        saveUserPreferences(rootAppPath + 'common/savepreference', $(this).attr("data-hideAttribute"), true);
+    } else {
+        icon.addClass("fa-minus");
+        icon.removeClass("fa-plus");
+        saveUserPreferences(rootAppPath + 'common/savepreference', $(this).attr("data-hideAttribute"), false);
+    }
+
+    $(this).toggleClass("opened");
+}

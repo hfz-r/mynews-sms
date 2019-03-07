@@ -5,10 +5,11 @@ using StockManagementSystem.Core.Domain.Stores;
 
 namespace StockManagementSystem.Core.Domain.Users
 {
-    public class User : BaseEntity
+    public class User : BaseEntity, IAppendTimestamps, IAppliedStoreSupported
     {
         private IList<Role> _roles;
         private ICollection<UserRole> _userRoles;
+        private ICollection<UserStore> _userStores;
 
         public User()
         {
@@ -50,11 +51,6 @@ namespace StockManagementSystem.Core.Domain.Users
         public string LastIpAddress { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of entity creation
-        /// </summary>
-        public DateTime CreatedOnUtc { get; set; }
-
-        /// <summary>
         /// Gets or sets the date and time of last login
         /// </summary>
         public DateTime? LastLoginDateUtc { get; set; }
@@ -69,6 +65,8 @@ namespace StockManagementSystem.Core.Domain.Users
         /// </summary>
         public int RegisteredInTenantId { get; set; }
 
+        public virtual ICollection<StoreUserAssignStores> StoreUserAssignStore { get; set; }
+
         #region Navigation properties
 
         public virtual IList<Role> Roles => _roles ?? (_roles = UserRoles.Select(mapping => mapping.Role).ToList());
@@ -79,7 +77,13 @@ namespace StockManagementSystem.Core.Domain.Users
             protected set => _userRoles = value;
         }
 
-        public virtual ICollection<StoreUserAssignStores> StoreUserAssignStore { get; set; }
+        public virtual IList<Store> AppliedStores => UserStores.Select(mapping => mapping.Store).ToList();
+
+        public virtual ICollection<UserStore> UserStores
+        {
+            get => _userStores ?? (_userStores = new List<UserStore>());
+            set => _userStores = value;
+        }
 
         #endregion
 
@@ -96,6 +100,14 @@ namespace StockManagementSystem.Core.Domain.Users
             UserRoles.Remove(userRole);
             _roles = null;
         }
+
+        #endregion
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
 
         #endregion
     }

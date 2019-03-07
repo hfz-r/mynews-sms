@@ -19,6 +19,7 @@ namespace StockManagementSystem.Data.Mapping.Users
             builder.Property(user => user.SystemName).HasMaxLength(400);
 
             builder.Ignore(user => user.Roles);
+            builder.Ignore(user => user.AppliedStores);
 
             base.Configure(builder);
         }

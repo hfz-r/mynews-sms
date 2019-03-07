@@ -24,8 +24,8 @@ namespace StockManagementSystem.Services.Caching
             await Task.Delay(5000, cancellationToken);
         }
 
-        public string Schedule => "*/10 * * * *";
+        public string Schedule => "*/30 * * * *";
 
-        public bool Enabled => false;
+        public bool Enabled => true;
     }
 }

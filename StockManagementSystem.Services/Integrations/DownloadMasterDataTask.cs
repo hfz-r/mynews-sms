@@ -66,7 +66,7 @@ namespace StockManagementSystem.Services.Integrations
 
             using (var conn = new SqlConnection(SqlHelper.ConnectionString))
             {
-                var commandText = @"SELECT TOP 300 [outlet_no], [outlet_name], [price_level], [area_code], 
+                var commandText = @"SELECT TOP 100 [outlet_no], [outlet_name], [price_level], [area_code], 
                                 [address1], [address2], [address3], [postcode], [city], [state], [country] 
                                 FROM [dbo].[btb_HHT_Outlet] WHERE [status] = 1";
 
@@ -74,7 +74,7 @@ namespace StockManagementSystem.Services.Integrations
                 while (reader.Read())
                 {
                     var existingStore = await _storeRepository.GetByIdAsync(Convert.ToInt32(reader["outlet_no"]));
-                    if (existingStore != null && existingStore.P_Name.Equals(reader["outlet_name"].ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    if (existingStore != null && (existingStore.Active || existingStore.UserStores.Any()))
                         continue;
 
                     var store = new Store
@@ -112,20 +112,22 @@ namespace StockManagementSystem.Services.Integrations
 
             try
             {
-                var oldStores =
+                var clearStores = 
                     from s in _storeRepository.Table
-                    where s.P_BranchNo == 0 && string.IsNullOrEmpty(s.P_Name)
+                    where !s.Active
                     select s;
-                if (oldStores.Any())
+                if (clearStores.Any(s => s.UserStores.Count.Equals(0)))
                 {
-                    await _storeRepository.DeleteAsync(oldStores);
+                    var deletedStores = clearStores.Count();
 
-                    await _userActivityService.InsertActivityAsync("ClearStore", "Deleted old master data from [Store]", new Store());
+                    await _storeRepository.DeleteAsync(clearStores);
+
+                    await _userActivityService.InsertActivityAsync("ClearStore", $"Deleted old master data from [Store] (Total deleted stores = {deletedStores})", new Store());
                 }
 
                 await _storeRepository.InsertAsync(stores);
                     
-                await _userActivityService.InsertActivityAsync("DownloadStore", $"Downloaded master data to [Store] (Total stores = {stores.Count})", new Store());
+                await _userActivityService.InsertActivityAsync("DownloadStore", $"Downloaded master data to [Store] (Total added stores = {stores.Count})", new Store());
             }
             catch (Exception exception)
             {
@@ -147,7 +149,7 @@ namespace StockManagementSystem.Services.Integrations
                 while (reader.Read())
                 {
                     var existingRole = _roleRepository.Table.FirstOrDefault(x => x.Name.Equals(reader["Role"].ToString(), StringComparison.InvariantCultureIgnoreCase));
-                    if (existingRole != null && existingRole.SystemName == reader["Role"].ToString())
+                    if (existingRole != null && existingRole.Active)
                         continue;
 
                     if (!reader["Role"].ToString().Contains("Admin", StringComparison.InvariantCultureIgnoreCase) &&
@@ -156,7 +158,6 @@ namespace StockManagementSystem.Services.Integrations
                         var role = new Role
                         {
                             Name = reader["Role"].ToString(),
-                            Active = true,
                             SystemName = reader["Role"].ToString(),
                         };
 
@@ -167,21 +168,22 @@ namespace StockManagementSystem.Services.Integrations
 
             try
             {
-                var oldRoles =
+                var clearRoles =
                     from r in _roleRepository.Table
                     where !r.IsSystemRole && !r.Active
                     select r;
-                if (oldRoles.Any())
+                if (clearRoles.Any())
                 {
-                    await _roleRepository.DeleteAsync(oldRoles);
+                    var deletedRoles = clearRoles.Count();
 
-                    await _userActivityService.InsertActivityAsync("ClearRole", "Deleted old master data from [Role]", new Role());
+                    await _roleRepository.DeleteAsync(clearRoles);
+
+                    await _userActivityService.InsertActivityAsync("ClearRole", $"Deleted old master data from [Role] (Total deleted roles = {deletedRoles})", new Role());
                 }
 
                 await _roleRepository.InsertAsync(roles);
 
-                //activity log
-                await _userActivityService.InsertActivityAsync("DownloadRole", $"Downloaded master data to [Role] (Total roles = {roles.Count})", new Role());
+                await _userActivityService.InsertActivityAsync("DownloadRole", $"Downloaded master data to [Role] (Total added roles = {roles.Count})", new Role());
             }
             catch (Exception exception)
             {
@@ -194,41 +196,42 @@ namespace StockManagementSystem.Services.Integrations
 
             try
             {
-                var oldUsers =
+                var clearUsers = 
                     from u in _userRepository.Table
-                    where !u.IsSystemAccount && u.RegisteredInTenantId == 0
+                    where !u.IsSystemAccount && !u.Active
                     select u;
-                if (oldUsers.Any())
+                if (clearUsers.Any(u => u.UserStores.Count.Equals(0) && u.UserRoles.Count.Equals(0)))
                 {
                     //remove from generic attribute
-                    foreach (var user in oldUsers.ToList())
+                    foreach (var user in clearUsers.ToList())
                     {
                         var genericAttributes = await _genericAttributeService.GetAttributesForEntityAsync(user.Id, typeof(User).Name);
                       
-                        await _genericAttributeService.DeleteAttributes(genericAttributes);
+                        await _genericAttributeService.DeleteAttributes(genericAttributes.ToList());
                     }
 
-                    await _userRepository.DeleteAsync(oldUsers);
+                    var deletedUsers = clearUsers.Count();
 
-                    await _userActivityService.InsertActivityAsync("ClearUser", "Deleted old master data from [User]", new User());
+                    await _userRepository.DeleteAsync(clearUsers);
+
+                    await _userActivityService.InsertActivityAsync("ClearUser", $"Deleted old master data from [User] (Total deleted users = {deletedUsers})", new User());
                 }
 
                 var registeredRole = _userService.GetRoleBySystemName(UserDefaults.RegisteredRoleName);
 
                 using (var conn = new SqlConnection(SqlHelper.ConnectionString))
                 {
-                    var commandText = @"SELECT TOP 300 [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] 
+                    var commandText = @"SELECT TOP 100 [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] 
                                         FROM [dbo].[btb_HHT_Staff]";
 
                     var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
                     while (reader.Read())
                     {
                         var existingUser = await _userService.GetUserByUsernameAsync(reader["staff_no"].ToString());
-                        if (existingUser != null && existingUser.RegisteredInTenantId > 0)
+                        if (existingUser != null && (existingUser.Active || existingUser.UserStores.Any() || existingUser.UserRoles.Any()))
                             continue;
 
-                        var systemName = string.IsNullOrEmpty(reader["role"].ToString()) ? "Outlet" : reader["role"].ToString() == "Admin"
-                                ? "Administrators" : reader["role"].ToString();
+                        var systemName = string.IsNullOrEmpty(reader["role"].ToString()) ? "Outlet" : reader["role"].ToString() == "Admin" ? "Administrators" : reader["role"].ToString();
 
                         if (!string.IsNullOrWhiteSpace(reader["email"].ToString()))
                         {
@@ -237,8 +240,8 @@ namespace StockManagementSystem.Services.Integrations
                                 UserGuid = Guid.NewGuid(),
                                 Email = reader["email"].ToString().Trim(),
                                 Username = reader["staff_no"].ToString(),
-                                Active = true,
                                 CreatedOnUtc = DateTime.UtcNow,
+                                ModifiedOnUtc = DateTime.UtcNow,
                             };
 
                             var role = _userService.GetRoleBySystemName(systemName);
@@ -262,8 +265,7 @@ namespace StockManagementSystem.Services.Integrations
                     }
                 }
 
-                //activity log
-                await _userActivityService.InsertActivityAsync("DownloadUser", $"Downloaded master data to [User] (Total users = {_userRepository.Table.Count()})", new User());
+                await _userActivityService.InsertActivityAsync("DownloadUser", $"Downloaded master data to [User] (Total added users = {_userRepository.Table.Count()})", new User());
             }
             catch (Exception exception)
             {
@@ -278,7 +280,7 @@ namespace StockManagementSystem.Services.Integrations
 
             using (var conn = new SqlConnection(SqlHelper.ConnectionString))
             {
-                var commandText = @"SELECT TOP 300 [stock_code], [stock_name], [subc].[Category_Code], [price_level_01], [price_level_02], 
+                var commandText = @"SELECT TOP 100 [stock_code], [stock_name], [subc].[Category_Code], [price_level_01], [price_level_02], 
                                     [price_level_03], [price_level_04], [price_level_05], [price_level_06], [price_level_07], [price_level_08],
                                     [price_level_09], [price_level_10], [price_level_11], [price_level_12], [price_level_13], [price_level_14],
                                     [price_level_15], [status], [order], [type], [variant1], [variant2] 
@@ -325,21 +327,22 @@ namespace StockManagementSystem.Services.Integrations
 
             try
             {
-                var oldItems =
+                var clearItems =
                     from i in _itemRepository.Table
                     where string.IsNullOrEmpty(i.P_StockCode) && string.IsNullOrEmpty(i.P_Desc)
                     select i;
-                if (oldItems.Any())
+                if (clearItems.Any())
                 {
-                    await _itemRepository.DeleteAsync(oldItems);
+                    var deletedItems = clearItems.Count();
 
-                    await _userActivityService.InsertActivityAsync("ClearItem", "Deleted old master data from [Item]", new Item());
+                    await _itemRepository.DeleteAsync(clearItems);
+
+                    await _userActivityService.InsertActivityAsync("ClearItem", $"Deleted old master data from [Item] (Total deleted items = {deletedItems})", new Item());
                 }
 
                 await _itemRepository.InsertAsync(items);
 
-                //activity log
-                await _userActivityService.InsertActivityAsync("DownloadItem", $"Downloaded master data to [Item] (Total items = {items.Count})", new Item());
+                await _userActivityService.InsertActivityAsync("DownloadItem", $"Downloaded master data to [Item] (Total added items = {items.Count})", new Item());
             }
             catch (Exception exception)
             {
@@ -351,6 +354,6 @@ namespace StockManagementSystem.Services.Integrations
 
         public string Schedule => "0 17 * * *";
 
-        public bool Enabled => true;
+        public bool Enabled => false;
     }
 }

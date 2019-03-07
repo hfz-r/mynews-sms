@@ -1,12 +1,10 @@
 ﻿using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Items;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StockManagementSystem.Core.Domain.Settings
 {
-    public class ShelfLocation : Entity
+    public class ShelfLocation : BaseEntity, IAppendTimestamps
     {
         public int ItemId { get; set; }
 
@@ -21,5 +19,13 @@ namespace StockManagementSystem.Core.Domain.Settings
         public virtual ShelfLocationFormat ShelfLocationFormats { get; set; }
 
         public virtual Item Items { get; set; }
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
+
+        #endregion
     }
 }

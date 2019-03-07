@@ -350,7 +350,7 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("Index");
 
             //validate stores
-            var allStores = await _storeService.GetStoresAsync();
+            var allStores = await _storeService.GetStores();
             var newStores = new List<Store>();
             foreach (var store in allStores)
             {

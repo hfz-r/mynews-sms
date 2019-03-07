@@ -2,7 +2,7 @@
 
 namespace StockManagementSystem.Core.Domain.Stores
 {
-    public class StoreUserAssignStores : Entity
+    public class StoreUserAssignStores : BaseEntity
     {
         public int StoreUserAssignId { get; set; }
 

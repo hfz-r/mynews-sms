@@ -28,6 +28,7 @@ namespace StockManagementSystem.Controllers
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _iconfiguration;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<UserPassword> _userPasswordRepository;
         private readonly ILogger _logger;
 
@@ -39,6 +40,7 @@ namespace StockManagementSystem.Controllers
             INotificationService notificationService,
             IConfiguration iconfiguration,
             IGenericAttributeService genericAttributeService,
+            IRepository<Role> roleRepository,
             IRepository<UserPassword> userPasswordRepository,
             ILogger logger)
         {
@@ -47,6 +49,7 @@ namespace StockManagementSystem.Controllers
             _notificationService = notificationService;
             _iconfiguration = iconfiguration;
             _genericAttributeService = genericAttributeService;
+            _roleRepository = roleRepository;
             _userPasswordRepository = userPasswordRepository;
             _logger = logger;
         }
@@ -112,8 +115,8 @@ namespace StockManagementSystem.Controllers
                         });
                     }
                 }
-                var StoreList = _storeService.GetStores();
-                _storeService.DeleteStore(StoreList);
+                var storeList = await _storeService.GetStores();
+                await _storeService.DeleteStore(storeList);
 
                 if (stores != null && stores.Count > 0)
                 {
@@ -162,7 +165,9 @@ namespace StockManagementSystem.Controllers
                 }
                 connection.Close();
 
-                var RoleList = _userService.GetRoles();
+                //Don't use cache-able service for data seed.
+                //var RoleList = _userService.GetRoles();
+                var RoleList = _roleRepository.Table;
                 foreach (var itemRoleDelete in RoleList)
                 {
                     if (!itemRoleDelete.Name.ToLower().Contains("admin") &&

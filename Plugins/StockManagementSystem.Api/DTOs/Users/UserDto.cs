@@ -64,8 +64,7 @@ namespace StockManagementSystem.Api.DTOs.Users
         [JsonProperty("last_activity_date_utc")]
         public DateTime? LastActivityDateUtc { get; set; }
 
-        [JsonProperty("registered_in_tenant_id")]
-        public int? RegisteredInTenantId { get; set; }
+        //TODO: StoreDto?
 
         [JsonProperty("role_ids")]
         public List<int> RoleIds

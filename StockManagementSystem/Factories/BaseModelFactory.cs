@@ -85,27 +85,6 @@ namespace StockManagementSystem.Factories
         }
 
         /// <summary>
-        /// Prepare available stores
-        /// </summary>
-        public async Task PrepareStores(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
-
-            var availableStores = await _storeService.GetStoresAsync();
-            foreach (var store in availableStores)
-            {
-                items.Add(new SelectListItem
-                {
-                    Value = store.P_BranchNo.ToString(),
-                    Text = store.P_BranchNo.ToString() + " - " + store.P_Name
-                });
-            }
-
-            //PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
-        }
-
-        /// <summary>
         /// Prepare available roles
         /// </summary>
         public Task PrepareRoles(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
@@ -196,6 +175,87 @@ namespace StockManagementSystem.Factories
             PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
 
             return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Prepare available stores
+        /// </summary>
+        public async Task PrepareStores(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            var availableStores = await _storeService.GetStores();
+            foreach (var store in availableStores)
+            {
+                items.Add(new SelectListItem
+                {
+                    Value = store.P_BranchNo.ToString(),
+                    Text = store.P_BranchNo + " - " + store.P_Name
+                });
+            }
+
+            //PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
+        }
+
+        /// <summary>
+        /// Prepare available store area codes
+        /// </summary>
+        public async Task PrepareStoreAreaCodes(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            var stores = await _storeService.GetStores();
+
+            var availableAreaCodes = stores.Select(store => store.P_AreaCode).Distinct()
+                .OrderBy(areacode => areacode).ToList();
+            foreach (var areaCode in availableAreaCodes.Where(x => !string.IsNullOrEmpty(x)))
+            {
+                items.Add(new SelectListItem {Value = areaCode, Text = areaCode});
+            }
+
+            PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
+        }
+
+        /// <summary>
+        /// Prepare available store cities
+        /// </summary>
+        public async Task PrepareStoreCities(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            var stores = await _storeService.GetStores();
+
+            var availableCities = stores.Select(store => store.P_City).Distinct()
+                .OrderBy(city => city).ToList();
+            foreach (var city in availableCities.Where(x => !string.IsNullOrEmpty(x)))
+            {
+                items.Add(new SelectListItem { Value = city, Text = city });
+            }
+
+            PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
+        }
+
+        /// <summary>
+        /// Prepare available store states
+        /// </summary>
+        public async Task PrepareStoreStates(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            var stores = await _storeService.GetStores();
+
+            var availableStates = stores.Select(store => store.P_State).Distinct()
+                .OrderBy(state => state).ToList();
+            foreach (var state in availableStates.Where(x => !string.IsNullOrEmpty(x)))
+            {
+                items.Add(new SelectListItem { Value = state, Text = state });
+            }
+
+            PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
         }
     }
 }

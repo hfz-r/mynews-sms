@@ -4,7 +4,6 @@ using System.Reflection;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
@@ -49,8 +48,7 @@ namespace StockManagementSystem.Web.Infrastructure
             //data layer
             builder.RegisterType<DataProviderManager>().As<IDataProviderManager>().InstancePerDependency();
             builder.Register(context => context.Resolve<IDataProviderManager>().DataProvider).As<IDataProvider>().InstancePerDependency();
-            builder.Register(context => new ObjectContext(context.Resolve<IHttpContextAccessor>(),
-                context.Resolve<DbContextOptions<ObjectContext>>())).As<IDbContext>().InstancePerLifetimeScope();
+            builder.Register(context => new ObjectContext(context.Resolve<DbContextOptions<ObjectContext>>())).As<IDbContext>().InstancePerLifetimeScope();
 
             // repositories
             builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).InstancePerLifetimeScope();
@@ -64,11 +62,11 @@ namespace StockManagementSystem.Web.Infrastructure
             // static cache manager
             builder.RegisterType<MemoryCacheManager>().As<ILocker>().As<IStaticCacheManager>().SingleInstance();
 
-            //tenant context
-            builder.RegisterType<TenantContext>().As<ITenantContext>().InstancePerLifetimeScope();
-
             // work context
             builder.RegisterType<WorkContext>().As<IWorkContext>().InstancePerLifetimeScope();
+
+            //tenant context
+            builder.RegisterType<TenantContext>().As<ITenantContext>().InstancePerLifetimeScope();
 
             // services
             builder.RegisterType<EmailSender>().As<IEmailSender>().InstancePerLifetimeScope();
@@ -83,6 +81,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<LocationService>().As<ILocationService>().InstancePerLifetimeScope();
             builder.RegisterType<FormatSettingService>().As<IFormatSettingService>().InstancePerLifetimeScope();
             builder.RegisterType<StoreService>().As<IStoreService>().InstancePerLifetimeScope();
+            builder.RegisterType<StoreMappingService>().As<IStoreMappingService>().InstancePerLifetimeScope();
             builder.RegisterType<GenericAttributeService>().As<IGenericAttributeService>().InstancePerLifetimeScope();
             builder.RegisterType<NotificationService>().As<INotificationService>().InstancePerLifetimeScope();
             builder.RegisterType<PermissionService>().As<IPermissionService>().InstancePerLifetimeScope();

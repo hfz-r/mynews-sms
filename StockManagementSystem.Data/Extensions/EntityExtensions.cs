@@ -16,7 +16,7 @@ namespace StockManagementSystem.Data.Extensions
 
             var type = entity.GetType();
             return type.BaseType != null && type.BaseType.BaseType != null && type.Name.Contains("Proxy") &&
-                   (type.BaseType.BaseType == typeof(BaseEntity) || type.BaseType?.BaseType == typeof(Entity));
+                   type.BaseType.BaseType == typeof(BaseEntity);
         }
 
         /// <summary>

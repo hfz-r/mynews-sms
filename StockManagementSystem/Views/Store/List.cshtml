@@ -1,0 +1,279 @@
+﻿@model StoreSearchModel
+
+@{
+    ViewBag.Title = "Outlet Management";
+
+    Html.SetActiveMenuItemSystemName("store");
+}
+
+<_antiforgery-token/>
+
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cogs"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a asp-action="Index">@ViewBag.Title</a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+<div class="form-horizontal">
+<div class="panel-group">
+<div class="panel panel-default panel-search">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="SearchStoreName"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_editor asp-for="SearchStoreName"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="SearchAreaCode"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_select asp-for="SearchAreaCode" asp-items="Model.AvailableAreaCodes"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="SearchCity"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_select asp-for="SearchCity" asp-items="Model.AvailableCities"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="SearchState"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_select asp-for="SearchState" asp-items="Model.AvailableStates"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7 col-md-offset-5">
+                <button type="button" id="search-outlet" class="btn btn-primary btn-search">
+                    <i class="fa fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div id="store-grid"></div>
+        <style>
+            .custom-button {
+                color: #444444;
+                padding-right: 10px;
+                font-size: 1.5em;
+            }
+        </style>
+        <script>
+            $(document).ready(function() {
+                $("#store-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("List", "Store"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        SearchStoreName: $('#@Html.IdFor(model => model.SearchStoreName)').val(),
+                                        SearchAreaCode: $('#@Html.IdFor(model => model.SearchAreaCode)').val(),
+                                        SearchCity: $('#@Html.IdFor(model => model.SearchCity)').val(),
+                                        SearchState: $('#@Html.IdFor(model => model.SearchState)').val()
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("DeleteInline", "Store"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: { id: "BranchNo" }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        pageSize: @(Model.PageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    sortable: {
+                        mode: "single",
+                        allowUnsort: false
+                    },
+                    filterable: true,
+                    resizable: true,
+                    columnMenu: { columns: false },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(Model.AvailablePageSizes)],
+                        @await Html.PartialAsync("_GridPagerMessages")
+                    },
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Name",
+                            title: "Name",
+                            width: 350
+                        },
+                        {
+                            field: "AreaCode",
+                            title: "Area code",
+                            width: 150
+                        },
+                        {
+                            field: "City",
+                            title: "City",
+                            width: 200
+                        },
+                        {
+                            field: "State",
+                            title: "State",
+                            width: 200
+                        },
+                        {
+                            field: "Active",
+                            title: "Active",
+                            width: 100,
+                            sortable: false,
+                            filterable: false,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template:
+                                '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                        },
+                        {
+                            template:
+                                "<button name='assign-user' type='button' class='btn btn-xs # if(CountUserStore > 0) {# btn-success' #} else {# btn-default' #}  # title='Assign user'><i class='glyphicon glyphicon-user'></i></button>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 10
+                        },
+                        {
+                            template:
+                                "<a href='\\#' title='Edit store' onclick='edit(#=BranchNo#)' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                    "<a href='\\#' title='Remove store' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 100
+                        }
+                    ],
+                    editable: {
+                        confirmation: "Are you sure you want to delete this item?",
+                        mode: "inline"
+                    }
+                });
+
+                $("#store-grid").kendoTooltip({
+                    filter: "td:nth-child(6)",
+                    position: "left",
+                    content: function(e) {
+                        var dataItem = $("#store-grid").data("kendoGrid").dataItem(e.target.closest("tr"));
+                        var content = dataItem.CountUserStore;
+                        return parseInt(content) + " users";
+                    }
+                }).data("kendoTooltip");
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                var grid = $("#store-grid").data("kendoGrid");
+                grid.thead.find("[data-field=Active]>.k-header-column-menu").remove();
+
+                $('#search-outlet').click(function() {
+                    var grid = $('#store-grid').data('kendoGrid');
+                    grid.dataSource.page(1);
+
+                    return false;
+                });
+
+                $("#store-grid").on("click",
+                    ".custom-button",
+                    function(e) {
+                        e.preventDefault();
+
+                        var btn = $(this);
+                        if (btn.hasClass("destroy-button")) {
+                            var row = btn.closest("tr");
+                            grid.removeRow(row);
+                        }
+                    });
+
+                $("#store-grid").on("click",
+                    "button[name=assign-user]",
+                    function(e) {
+                        var row = $(this).closest("tr");
+                        var data = grid.dataItem(row);
+                        assign_user(data.BranchNo);
+
+                        return false;
+                    });
+
+                $('#btnRefreshStores').click(function() {
+                    var grid = $("#store-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    $("#userStoreAddedSuccessAlert").click();
+
+                    return false;
+                });
+            });
+
+            function edit(id) {
+                var url = '@Url.Action("Edit", "Store", new {id = "__id__"})';
+                window.location.href = url.replace('__id__', id);
+            }
+
+            function assign_user(bno) {
+                var url =
+                    '@Html.Raw(Url.Action("UserAddPopup", "Store", new {storeId = "__bno__", btnId = "btnRefreshStores", formId = "dummy-store-form"}))';
+                OpenWindow(url.replace('__bno__', bno), 800, 800, true);
+            }
+        </script>
+    </div>
+</div>
+</div>
+</div>
+</section>
+
+<_alert asp-alert-id="userStoreAddedSuccessAlert" asp-alert-message="User has been updated successfully to specified store."/>
+
+<form id="dummy-store-form">
+    <input type="submit" id="btnRefreshStores" style="display: none"/>
+</form>

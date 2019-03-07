@@ -121,7 +121,6 @@
                                     },
                                     error: function(e) {
                                         display_kendoui_grid_error(e);
-                                        // Cancel the changes
                                         this.cancelChanges();
                                     },
                                     pageSize: @(Model.PageSize),
@@ -177,8 +176,8 @@
                                     {
                                         template:
                                             "<a href='\\#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
-                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='fa fa-check-square'></i></a>" +
-                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='fa fa-minus-square'></i></a>" +
+                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
                                             "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },

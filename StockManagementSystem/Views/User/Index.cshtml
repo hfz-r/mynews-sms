@@ -130,9 +130,7 @@
                                         <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true" />
                                         <script>
                                         $(document).ready(function() {
-                                            var rolesIdsInput =
-                                                $('#@Html.IdFor(model => model.SelectedRoleIds)')
-                                                    .data("kendoMultiSelect");
+                                            var rolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
                                             rolesIdsInput.setOptions({
                                                 autoClose: false,
                                                 filter: "contains"
@@ -202,7 +200,7 @@
                                             }
                                         },
                                         destroy: {
-                                            url: "@Html.Raw(Url.Action("Delete", "User"))",
+                                            url: "@Html.Raw(Url.Action("DeleteInline", "User"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
@@ -211,11 +209,11 @@
                                     schema: {
                                         data: "Data",
                                         total: "Total",
-                                        errors: "Errors"
+                                        errors: "Errors",
+                                        model: { id: "Id" }
                                     },
                                     error: function(e) {
                                         display_kendoui_grid_error(e);
-                                        // Cancel the changes
                                         this.cancelChanges();
                                     },
                                     pageSize: @(Model.PageSize),
@@ -257,7 +255,7 @@
                                     },
                                     {
                                         field: "UserRolesName",
-                                        title: "User roles",
+                                        title: "Roles",
                                         width: 200
                                     },
                                     @if (Model.PhoneEnabled)
@@ -273,7 +271,6 @@
                                      {
                                         field: "Active",
                                         title: "Active",
-                                        width: 100,
                                         sortable: false,
                                         filterable: false,
                                         headerAttributes: { style: "text-align:center" },
@@ -283,16 +280,16 @@
                                     {
                                         field: "CreatedOn",
                                         title: "Created on",
-                                        width: 150,
                                         type: "date",
-                                        format: "{0:G}"
-                                    }, {
-                                        field: "LastActivityDate",
-                                        title: "Last activity",
-                                        width: 150,
-                                        type: "date",
-                                        format: "{0:G}"
-                                    }, {
+                                        template: "#= CreatedOn ? kendo.toString(kendo.parseDate(CreatedOn, 'yyyy-MM-dd'),'MM/dd/yyyy h:mm tt') : ' ' #"
+                                    },
+                                    //{
+                                    //    field: "LastActivityDate",
+                                    //    title: "Last activity",
+                                    //    type: "date",
+                                    //    template: "#= LastActivityDate ? kendo.toString(kendo.parseDate(LastActivityDate, 'yyyy-MM-dd'),'MM/dd/yyyy h:mm tt') : ' ' #"
+                                    //},
+                                    {
                                         template:
                                             "<a href='\\#' title='Edit' onclick='edit(#=Id#)' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
                                             "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",

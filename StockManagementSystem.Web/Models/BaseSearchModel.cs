@@ -32,9 +32,17 @@ namespace StockManagementSystem.Web.Models
         public void SetGridPageSize()
         {
             // TODO: implement base-setting
-            this.Page = 1;
-            this.PageSize = 15;
-            this.AvailablePageSizes = "10, 15, 20, 50, 100";
+            Page = 1;
+            PageSize = 15;
+            AvailablePageSizes = "10, 15, 20, 50, 100";
+        }
+
+        public void SetPopupGridPageSize()
+        {
+            // TODO: implement base-setting
+            Page = 1;
+            PageSize = 10;
+            AvailablePageSizes = "10, 15, 20, 50, 100";
         }
 
         #endregion

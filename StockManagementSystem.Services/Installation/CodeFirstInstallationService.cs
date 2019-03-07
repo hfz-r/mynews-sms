@@ -115,8 +115,9 @@ namespace StockManagementSystem.Services.Installation
 
             settingService.SaveSetting(new RecordSettings
             {
-                IgnoreAcl = true,
-                IgnoreTenantLimitations = true
+                IgnoreTenantLimitations = true,
+                IgnoreStoreLimitations = true,
+                IgnoreAcl = true
             });
         }
 
@@ -172,7 +173,7 @@ namespace StockManagementSystem.Services.Installation
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
                 LastLoginDateUtc = DateTime.UtcNow,
-                RegisteredInTenantId = tenantId,
+                RegisteredInTenantId = tenantId
             };
 
             adminUser.AddUserRole(new UserRole { Role = urSysAdmin });
@@ -200,7 +201,7 @@ namespace StockManagementSystem.Services.Installation
                 SystemName = UserDefaults.BackgroundTaskUserName,
                 CreatedOnUtc = DateTime.UtcNow,
                 LastActivityDateUtc = DateTime.UtcNow,
-                RegisteredInTenantId = tenantId,
+                RegisteredInTenantId = tenantId
             };
 
             backgroundTaskUser.AddUserRole(new UserRole {Role = urGuests});
@@ -237,6 +238,12 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "AddNewStore",
+                    Enabled = true,
+                    Name = "Add a new store"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "DeleteUser",
                     Enabled = true,
                     Name = "Delete a user"
@@ -267,6 +274,12 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "DeleteStore",
+                    Enabled = true,
+                    Name = "Delete a store"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "EditUser",
                     Enabled = true,
                     Name = "Edit a user"
@@ -294,6 +307,12 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "EditActivityLogTypes",
                     Enabled = true,
                     Name = "Edit activity log types"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditStore",
+                    Enabled = true,
+                    Name = "Edit a store"
                 },
                 new ActivityLogType
                 {

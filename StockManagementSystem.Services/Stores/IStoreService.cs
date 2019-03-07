@@ -1,21 +1,28 @@
 ﻿using StockManagementSystem.Core.Domain.Stores;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using StockManagementSystem.Core;
+using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Services.Stores
 {
     public interface IStoreService
     {
-        Task<IList<Store>> GetStoresAsync();
+        Task<IList<Store>> GetStores();
 
-        List<Store> GetStores();
+        Store GetStoreById(int storeId);
 
-        void DeleteStore(Store store);
+        Task DeleteStore(Store store);
 
-        void DeleteStore(List<Store> stores);
+        Task DeleteStore(IList<Store> stores);
 
-        void UpdateStore(Store store);
+        Task UpdateStore(Store store);
 
         Task InsertStore(Store store);
+
+        Task<IPagedList<Store>> GetAllStores(string storeName = null, string areaCode = null,
+            string city = null, string state = null, int pageIndex = 0, int pageSize = int.MaxValue);
+
+        Task<IPagedList<User>> GetUsersStore(int? storeId = null, int pageIndex = 0, int pageSize = int.MaxValue);
     }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Data.Mapping;
@@ -17,13 +16,8 @@ namespace StockManagementSystem.Data
     /// </summary>
     public partial class ObjectContext : DbContext, IDbContext
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public ObjectContext(
-            IHttpContextAccessor httpContextAccessor,
-            DbContextOptions<ObjectContext> options) : base(options)
+        public ObjectContext(DbContextOptions<ObjectContext> options) : base(options)
         {
-            this._httpContextAccessor = httpContextAccessor;
         }
 
         /// <summary>
@@ -33,7 +27,8 @@ namespace StockManagementSystem.Data
         {
             var typeConfigurations = Assembly.GetExecutingAssembly().GetTypes().Where(type =>
                 (type.BaseType?.IsGenericType ?? false) &&
-                (type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>) || type.BaseType.GetGenericTypeDefinition() == typeof(QueryTypeConfiguration<>)));
+                (type.BaseType.GetGenericTypeDefinition() == typeof(EntityTypeConfiguration<>) ||
+                 type.BaseType.GetGenericTypeDefinition() == typeof(QueryTypeConfiguration<>)));
 
             foreach (var typeConfiguration in typeConfigurations)
             {
@@ -57,7 +52,8 @@ namespace StockManagementSystem.Data
 
                 sql = $"{sql}{(i > 0 ? "," : string.Empty)} @{parameter.ParameterName}";
 
-                if (parameter.Direction == ParameterDirection.InputOutput || parameter.Direction == ParameterDirection.Output)
+                if (parameter.Direction == ParameterDirection.InputOutput ||
+                    parameter.Direction == ParameterDirection.Output)
                     sql = $"{sql} output";
             }
 
@@ -93,7 +89,8 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Creates a LINQ query for the entity based on a raw SQL query
         /// </summary>
-        public virtual IQueryable<TEntity> EntityFromSql<TEntity>(string sql, params object[] parameters) where TEntity : BaseEntity
+        public virtual IQueryable<TEntity> EntityFromSql<TEntity>(string sql, params object[] parameters)
+            where TEntity : BaseEntity
         {
             return this.Set<TEntity>().FromSql(CreateSqlWithParameters(sql, parameters), parameters);
         }
@@ -101,7 +98,8 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Executes the given SQL against the database
         /// </summary>
-        public async Task<int> ExecuteSqlCommandAsync(RawSqlString sql, bool doNotEnsureTransaction = false, int? timeout = null, params object[] parameters)
+        public async Task<int> ExecuteSqlCommandAsync(RawSqlString sql, bool doNotEnsureTransaction = false,
+            int? timeout = null, params object[] parameters)
         {
             //set specific command timeout
             var previousTimeout = Database.GetCommandTimeout();
@@ -145,36 +143,31 @@ namespace StockManagementSystem.Data
         public override int SaveChanges()
         {
             AddTimestamps();
+
             return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             AddTimestamps();
+
             return base.SaveChangesAsync(cancellationToken);
         }
 
         #endregion
 
-        #region Private Method
-
         private void AddTimestamps()
         {
-            var entities = ChangeTracker.Entries().Where(x => x.Entity is Entity && (x.State == EntityState.Added || x.State == EntityState.Modified));
-            var currentUsername = !string.IsNullOrEmpty(_httpContextAccessor?.HttpContext?.User?.Identity?.Name) ? _httpContextAccessor.HttpContext.User.Identity.Name : "Anonymous";
+            var entities = ChangeTracker.Entries().Where(x => x.Entity is IAppendTimestamps && (x.State == EntityState.Added || x.State == EntityState.Modified));
 
             foreach (var entity in entities)
             {
                 if (entity.State == EntityState.Added)
                 {
-                    ((Entity)entity.Entity).CreatedBy = currentUsername;
-                    ((Entity)entity.Entity).CreatedOnUtc = DateTime.UtcNow;
+                    ((IAppendTimestamps) entity.Entity).CreatedOnUtc = DateTime.UtcNow;
                 }
-                ((Entity)entity.Entity).ModifiedBy = currentUsername;
-                ((Entity)entity.Entity).ModifiedOnUtc = DateTime.UtcNow;
+                ((IAppendTimestamps) entity.Entity).ModifiedOnUtc = DateTime.UtcNow;
             }
         }
-
-        #endregion
     }
 }

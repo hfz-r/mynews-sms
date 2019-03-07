@@ -4,7 +4,7 @@ using StockManagementSystem.Core.Domain.Tenants;
 
 namespace StockManagementSystem.Core.Domain.Devices
 {
-    public class Device : Entity, ITenantMappingSupported
+    public class Device : BaseEntity, IAppendTimestamps, ITenantMappingSupported, IStoreMappingSupported
     {
         public string SerialNo { get; set; }
 
@@ -26,6 +26,19 @@ namespace StockManagementSystem.Core.Domain.Devices
 
         public virtual Store Store { get; set; }
 
+        //tenant mapping
         public bool LimitedToTenants { get; set; }
+
+        //store mapping
+        public bool LimitedToStores { get; set; }
+
+        #region IAppendTimestamps members
+
+        public virtual DateTime CreatedOnUtc { get; set; }
+
+        public virtual DateTime? ModifiedOnUtc { get; set; }
+
+        #endregion
+
     }
 }

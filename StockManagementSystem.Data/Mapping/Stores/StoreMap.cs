@@ -9,7 +9,7 @@ namespace StockManagementSystem.Data.Mapping.Stores
         public override void Configure(EntityTypeBuilder<Store> builder)
         {
             //Import from Master table
-            builder.ToTable("Store");
+            builder.ToTable(nameof(Store));
             builder.Ignore(x => x.Id);
             builder.HasKey(s => s.P_BranchNo);
 

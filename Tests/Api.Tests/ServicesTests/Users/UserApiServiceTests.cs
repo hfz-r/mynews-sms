@@ -41,7 +41,6 @@ namespace Api.Tests.ServicesTests.Users
                 Email = "user1@test.com",
                 Active = true,
                 CreatedOnUtc = _baseDate.AddMonths(4),
-                RegisteredInTenantId = 0,
             };
 
             var user2 = new User
@@ -51,7 +50,6 @@ namespace Api.Tests.ServicesTests.Users
                 Email = "user2@test.com",
                 Active = true,
                 CreatedOnUtc = _baseDate.AddMonths(8),
-                RegisteredInTenantId = 0,
             };
 
             var mockUsers = new List<User> { user1, user2 }.AsQueryable().BuildMockDbSet();
@@ -109,7 +107,7 @@ namespace Api.Tests.ServicesTests.Users
 
             #endregion
 
-            #region Store
+            #region Tenant
 
             _tenant = new Tenant()
             {
@@ -124,8 +122,7 @@ namespace Api.Tests.ServicesTests.Users
 
             #endregion
 
-            _userApiService = new UserApiService(_userRepository.Object, _genericAttributeRepository.Object,
-                _tenantContext.Object);
+            _userApiService = new UserApiService(_userRepository.Object, _genericAttributeRepository.Object, _tenantContext.Object);
 
             AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<User, UserDto>();
         }

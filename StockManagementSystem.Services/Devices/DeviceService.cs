@@ -54,7 +54,7 @@ namespace StockManagementSystem.Services.Devices
             if (storeIds != null && storeIds.Length > 0)
             {
                 query = query.Join(_storeRepository.Table, x => x.StoreId, y => y.P_BranchNo,
-                        (x, y) => new { Device = x, Store = y })
+                        (x, y) => new {Device = x, Store = y})
                     .Where(z => storeIds.Contains(z.Store.P_BranchNo))
                     .Select(z => z.Device)
                     .Distinct();
@@ -70,7 +70,7 @@ namespace StockManagementSystem.Services.Devices
 
         public Task<ICollection<Device>> GetAllDevicesAsync()
         {
-            var query = _deviceRepository.Table;            
+            var query = _deviceRepository.Table;
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
 
@@ -123,8 +123,8 @@ namespace StockManagementSystem.Services.Devices
             newSerialNo = newSerialNo.Trim();
             var oldSerialNo = device.SerialNo;
 
-            var device2 = await _deviceRepository.Table.FirstOrDefaultAsync(u => u.SerialNo == newSerialNo);            
-            if (device2 != null && device.SerialNo!= device2.SerialNo)
+            var device2 = await _deviceRepository.Table.FirstOrDefaultAsync(u => u.SerialNo == newSerialNo);
+            if (device2 != null && device.SerialNo != device2.SerialNo)
                 throw new Exception("The Serial Number is already in use");
 
             device.SerialNo = newSerialNo;

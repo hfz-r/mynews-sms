@@ -10,14 +10,18 @@ using StockManagementSystem.Web.Mvc.ModelBinding;
 namespace StockManagementSystem.Models.Users
 {
     [Validator(typeof(UserValidator))]
-    public class UserModel : BaseEntityModel, IAclSupportedModel
+    public class UserModel : BaseEntityModel, IAclSupportedModel, IAppliedStoreSupportedModel
     {
         public UserModel()
         {
-            SelectedRoleIds = new List<int>();
             AvailableTimeZones = new List<SelectListItem>();
-            AvailableRoles = new List<SelectListItem>();
             UserActivityLogSearchModel = new UserActivityLogSearchModel();
+
+            SelectedRoleIds = new List<int>();
+            AvailableRoles = new List<SelectListItem>();
+
+            SelectedStoreIds = new List<int>();
+            AvailableStores = new List<SelectListItem>();
         }
 
         public bool UsernamesEnabled { get; set; }
@@ -61,9 +65,6 @@ namespace StockManagementSystem.Models.Users
         [Display(Name = "Phone")]
         public string Phone { get; set; }
 
-        [Display(Name = "Registered in the tenant")]
-        public string RegisteredInTenant { get; set; }
-
         [Display(Name = "Admin comment")]
         public string AdminComment { get; set; }
 
@@ -92,14 +93,18 @@ namespace StockManagementSystem.Models.Users
         [Display(Name = "Last visited page")]
         public string LastVisitedPage { get; set; }
 
-        //roles
         [Display(Name = "User roles")]
         public string UserRolesName { get; set; }
 
+        //acl (roles)
         [Display(Name = "Roles")]
         public IList<int> SelectedRoleIds { get; set; }
-
         public IList<SelectListItem> AvailableRoles { get; set; }
+
+        //stores
+        [Display(Name = "Stores")]
+        public IList<int> SelectedStoreIds { get; set; }
+        public IList<SelectListItem> AvailableStores { get; set; }
 
         public UserActivityLogSearchModel UserActivityLogSearchModel { get; set; }
 

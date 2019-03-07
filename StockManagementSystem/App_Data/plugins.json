@@ -1,5 +1,7 @@
 ﻿{
-  "InstalledPluginNames": [],
+  "InstalledPluginNames": [
+    "StockManagementSystem.Api"
+  ],
   "PluginNamesToUninstall": [],
   "PluginNamesToDelete": [],
   "PluginNamesToInstall": []

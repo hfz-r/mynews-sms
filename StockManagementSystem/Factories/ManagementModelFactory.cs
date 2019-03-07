@@ -54,7 +54,7 @@ namespace StockManagementSystem.Factories
                 Value = user.Id.ToString()
             }).ToList();
 
-            var storeAssignUser = await _storeService.GetStoresAsync();
+            var storeAssignUser = await _storeService.GetStores();
             outletManagementContainerModel.AssignUserList.AvailableUserStores = storeAssignUser.Select(str => new SelectListItem
             {
                 Text = str.P_BranchNo.ToString() + " - " + str.P_Name,
@@ -62,7 +62,7 @@ namespace StockManagementSystem.Factories
             }).ToList();
 
             //Group Outlet
-            var storeGroupOutlet = await _storeService.GetStoresAsync();
+            var storeGroupOutlet = await _storeService.GetStores();
             outletManagementContainerModel.GroupOutletList.AvailableStores = storeGroupOutlet.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
@@ -146,7 +146,7 @@ namespace StockManagementSystem.Factories
             }
 
             //store
-            var stores = await _storeService.GetStoresAsync();
+            var stores = await _storeService.GetStores();
             model.AvailableUserStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
@@ -240,7 +240,7 @@ namespace StockManagementSystem.Factories
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(storeGrouping.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
             }
 
-            var stores = await _storeService.GetStoresAsync();
+            var stores = await _storeService.GetStores();
             model.AvailableStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,

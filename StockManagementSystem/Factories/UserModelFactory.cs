@@ -10,7 +10,7 @@ using StockManagementSystem.Web.Factories;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Services.Common;
-using StockManagementSystem.Services.Tenants;
+using StockManagementSystem.Services.Stores;
 
 namespace StockManagementSystem.Factories
 {
@@ -24,9 +24,10 @@ namespace StockManagementSystem.Factories
         private readonly IUserActivityService _userActivityService;
         private readonly IBaseModelFactory _baseModelFactory;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IStoreService _storeService;
+        private readonly IAppliedStoreSupportedModelFactory _appliedStoreSupportedModelFactory;
         private readonly IAclSupportedModelFactory _aclSupportedModelFactory;
         private readonly IDateTimeHelper _dateTimeHelper;
-        private readonly ITenantService _tenantService;
 
         public UserModelFactory(
             UserSettings userSettings,
@@ -34,18 +35,20 @@ namespace StockManagementSystem.Factories
             IUserActivityService userActivityService,
             IBaseModelFactory baseModelFactory,
             IGenericAttributeService genericAttributeService,
+            IStoreService storeService,
+            IAppliedStoreSupportedModelFactory appliedStoreSupportedModelFactory,
             IAclSupportedModelFactory aclSupportedModelFactory,
-            IDateTimeHelper dateTimeHelper,
-            ITenantService tenantService)
+            IDateTimeHelper dateTimeHelper)
         {
             _userSettings = userSettings;
             _userService = userService;
             _userActivityService = userActivityService;
             _baseModelFactory = baseModelFactory;
             _genericAttributeService = genericAttributeService;
+            _storeService = storeService;
+            _appliedStoreSupportedModelFactory = appliedStoreSupportedModelFactory;
             _aclSupportedModelFactory = aclSupportedModelFactory;
             _dateTimeHelper = dateTimeHelper;
-            _tenantService = tenantService;
         }
 
         public Task<UserSearchModel> PrepareUserSearchModel(UserSearchModel searchModel)
@@ -162,7 +165,6 @@ namespace StockManagementSystem.Factories
                     model.LastIpAddress = user.LastIpAddress;
                     model.LastVisitedPage = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.LastVisitedPageAttribute);
                     model.SelectedRoleIds = user.UserRoles.Select(map => map.RoleId).ToList();
-                    model.RegisteredInTenant = (await _tenantService.GetTenantsAsync()).FirstOrDefault(tenant => tenant.Id == user.RegisteredInTenantId)?.Name ?? String.Empty;
                 }
                 //prepare nested search models
                 PrepareUserActivityLogSearchModel(model.UserActivityLogSearchModel, user);
@@ -190,6 +192,10 @@ namespace StockManagementSystem.Factories
 
             //prepare model user roles
             _aclSupportedModelFactory.PrepareModelRoles(model);
+
+            //prepare model user stores
+            var availableStores = await _storeService.GetStores();
+            _appliedStoreSupportedModelFactory.PrepareModelAppliedStores(model, user, availableStores, excludeProperties);
 
             //prepare available time zones
             await _baseModelFactory.PrepareTimeZones(model.AvailableTimeZones, false);

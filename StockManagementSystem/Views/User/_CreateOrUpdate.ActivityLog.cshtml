@@ -1,11 +1,9 @@
 ﻿@model UserModel
 
-<div class="panel-group">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <div id="activitylog-grid"></div>
+<div class="panel-body">
+    <div id="activitylog-grid"></div>
 
-            <script>
+    <script>
                 $(document).ready(function () {
                     $("#activitylog-grid").kendoGrid({
                         dataSource: {
@@ -71,7 +69,5 @@
                         }]
                     });
                 });
-            </script>
-        </div>
-    </div>
+    </script>
 </div>

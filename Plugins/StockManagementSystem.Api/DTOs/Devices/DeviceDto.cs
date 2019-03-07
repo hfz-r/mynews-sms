@@ -37,8 +37,7 @@ namespace StockManagementSystem.Api.DTOs.Devices
         [JsonProperty("status")]
         public string Status { get; set; }
 
-        //[JsonProperty("store")]
-        //public StoreDto Store { get; set; }
+        //TODO: StoreDto
 
         [JsonProperty("limited_to_tenants")]
         public bool LimitedToTenants { get; set; }

@@ -26,22 +26,19 @@ namespace StockManagementSystem.Factories
         private readonly IStoreService _storeService;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IConfiguration _configuration;
-        private readonly ITenantMappingSupportedModelFactory _tenantMappingSupportedModelFactory;
 
         public DeviceModelFactory(
             IBaseModelFactory baseModelFactory,
             IDeviceService deviceService,
             IStoreService storeService,
             IDateTimeHelper dateTimeHelper,
-            IConfiguration configuration,
-            ITenantMappingSupportedModelFactory tenantMappingSupportedModelFactory)
+            IConfiguration configuration)
         {
             _baseModelFactory = baseModelFactory;
             _deviceService = deviceService;
             _storeService = storeService;
             _dateTimeHelper = dateTimeHelper;
             _configuration = configuration;
-            _tenantMappingSupportedModelFactory = tenantMappingSupportedModelFactory;
         }
 
         #region Manage Device
@@ -53,7 +50,6 @@ namespace StockManagementSystem.Factories
 
             await _baseModelFactory.PrepareStores(searchModel.AvailableStores);
 
-            //prepare page parameters
             searchModel.SetGridPageSize();
 
             return searchModel;
@@ -75,8 +71,6 @@ namespace StockManagementSystem.Factories
                 Data = devices.Select(device =>
                 {
                     var devicesModel = device.ToModel<DeviceModel>();
-                    //devicesModel.SerialNo = device.SerialNo;
-                    //devicesModel.ModelNo = device.ModelNo;
                     devicesModel.SelectedStoreId = device.StoreId;
                     devicesModel.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
                     devicesModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
@@ -103,38 +97,6 @@ namespace StockManagementSystem.Factories
                 model.Data = await model.Data.Filter(filter);
                 model.Total = model.Data.Count();
             }
-
-            return model;
-        }
-      
-        public async Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device)
-        {
-            if (device != null)
-            {
-                if (model == null)
-                {
-                    model = device.ToModel<DeviceModel>();
-
-                    model.Id = device.Id;
-                    model.SerialNo = device.SerialNo;
-                    model.ModelNo = device.ModelNo;
-                    model.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
-                    model.SelectedStoreId = device.StoreId;
-                    model.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
-                    model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
-                    //model.SelectedStoreId = device.Store.Id;
-                }
-            }
-
-            var stores = await _storeService.GetStoresAsync();
-            model.AvailableStores = stores.Select(store => new SelectListItem
-            {
-                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
-                Value = store.P_BranchNo.ToString()
-            }).ToList();
-
-            //prepare model tenant
-            await _tenantMappingSupportedModelFactory.PrepareModelTenants(model, device, false);
 
             return model;
         }
