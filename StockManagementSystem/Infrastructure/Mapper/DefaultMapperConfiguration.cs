@@ -215,8 +215,8 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<ShelfLocationFormat, LocationModel>();
             CreateMap<LocationModel, ShelfLocationFormat>()
                 .ForMember(entity => entity.Prefix, options => options.Ignore())
-                .ForMember(entity => entity.Name, options => options.Ignore())
-                .ForMember(entity => entity.ShelfLocations, options => options.Ignore());
+                .ForMember(entity => entity.Name, options => options.Ignore());
+                //.ForMember(entity => entity.ShelfLocations, options => options.Ignore());
         }
 
         /// <summary>

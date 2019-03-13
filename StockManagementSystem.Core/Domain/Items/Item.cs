@@ -9,6 +9,6 @@ namespace StockManagementSystem.Core.Domain.Items
     {
         public string P_Desc { get; set; }
 
-        public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
+        //public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
     }
 }

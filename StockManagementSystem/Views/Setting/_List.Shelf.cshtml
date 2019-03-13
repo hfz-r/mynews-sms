@@ -6,6 +6,16 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div id="grid"></div>
+                    <br>
+                    <div class="pull-right">
+                        <a asp-controller="Setting" asp-action="DownloadTemplate" id="btnExport" class="btn bg-red-gradient pull-right" role="button" data-toggle="tooltip" data-placement="bottom" title="Download Template">
+                            <span class="glyphicon glyphicon-cloud-download"></span>
+                        </a>
+
+                        <a asp-controller="Setting" asp-action="UploadTemplate" id="btnUpload" class="btn bg-red-gradient pull-right" role="button" data-toggle="tooltip" data-placement="bottom" title="Upload Template">
+                            <span class="glyphicon glyphicon-cloud-upload"></span>
+                        </a>
+                    </div>
 
                     <style>
                         .custom-button {

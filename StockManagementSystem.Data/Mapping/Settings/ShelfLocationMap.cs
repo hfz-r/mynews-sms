@@ -14,20 +14,15 @@ namespace StockManagementSystem.Data.Mapping.Settings
             builder.ToTable("ShelfLocation");
             builder.HasKey(shelfLocation => shelfLocation.Id);
 
-            builder.HasOne(e => e.ShelfLocationFormats)
-                .WithMany(s => s.ShelfLocations)
-                .HasForeignKey(e => e.ShelfLocationFormatId)
-                .IsRequired();
+            //builder.HasOne(e => e.Stores)
+            //    .WithMany(s => s.ShelfLocations)
+            //    .HasForeignKey(e => e.StoreId)
+            //    .IsRequired();
 
-            builder.HasOne(e => e.Stores)
-                .WithMany(s => s.ShelfLocations)
-                .HasForeignKey(e => e.StoreId)
-                .IsRequired();
-
-            builder.HasOne(e => e.Items)
-                .WithMany(s => s.ShelfLocations)
-                .HasForeignKey(e => e.ItemId)
-                .IsRequired();
+            //builder.HasOne(e => e.Items)
+            //    .WithMany(s => s.ShelfLocations)
+            //    .HasForeignKey(e => e.ItemId)
+            //    .IsRequired();
 
             base.Configure(builder);
         }

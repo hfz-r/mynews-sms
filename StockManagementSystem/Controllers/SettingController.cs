@@ -31,6 +31,9 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using StockManagementSystem.Models.Replenishments;
 using StockManagementSystem.Services.Replenishments;
+using OfficeOpenXml;
+using StockManagementSystem.Services.Helpers;
+using OfficeOpenXml.Style;
 
 namespace StockManagementSystem.Controllers
 {
@@ -59,6 +62,7 @@ namespace StockManagementSystem.Controllers
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _iconfiguration;
         private readonly ILogger _logger;
+        private readonly IDateTimeHelper _dateTimeHelper;
 
         #region Constructor
 
@@ -85,7 +89,8 @@ namespace StockManagementSystem.Controllers
             IPermissionService permissionService,
             INotificationService notificationService,
             IConfiguration iconfiguration,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            IDateTimeHelper dateTimeHelper)
         {
             this._orderLimitService = orderLimitService;
             this._replenishmentService = replenishmentService;
@@ -110,6 +115,7 @@ namespace StockManagementSystem.Controllers
             _permissionService = permissionService;
             _notificationService = notificationService;
             _logger = loggerFactory.CreateLogger<SettingController>();
+            _dateTimeHelper = dateTimeHelper;
         }
 
         public ILogger Logger { get; }
@@ -600,6 +606,148 @@ namespace StockManagementSystem.Controllers
 
             return new NullJsonResult();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadTemplate(ShelfSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            var model = await _formatSettingModelFactory.PrepareShelfFormatListModel(searchModel);
+            if (model == null)
+                return new NullJsonResult();
+
+            try
+            {
+                using (ExcelPackage excelPackage = new ExcelPackage())
+                {
+                    //Set some properties of the Excel document
+                    excelPackage.Workbook.Properties.Author = "Administrator";
+                    excelPackage.Workbook.Properties.Title = "Format Template";
+                    excelPackage.Workbook.Properties.Subject = "Download Shelf Location";
+                    excelPackage.Workbook.Properties.Created = DateTime.Now;
+
+                    //Create the WorkSheet
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("Sheet 1");
+
+                    //Header row style cells C1 - C3
+                    worksheet.Cells["A1:C3"].Style.Font.Size = 12;
+                    worksheet.Cells["A1:C3"].Style.Font.Bold = true;
+                    worksheet.Cells["A1:C3"].Style.Border.Top.Style = ExcelBorderStyle.Hair;
+
+                    //Set [line, column]
+                    worksheet.Cells[1, 1].Value = "Branch No";
+                    worksheet.Cells[1, 2].Value = "Stock Code";
+                    worksheet.Cells[1, 3].Value = "Location";
+
+                    //Save excel file
+                    string rootFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                    string fileName = @"TemplateFormat.xlsx";
+                    FileInfo file = new FileInfo(Path.Combine(rootFolder, fileName));
+                    excelPackage.SaveAs(file);
+
+                    if (model.Total > 0)
+                        _notificationService.SuccessNotification("Successful download template.");
+                    else
+                        _notificationService.ErrorNotification("Failed download template.");
+                }
+                return RedirectToAction("FormatSetting");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return Json(e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UploadTemplate()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            try
+            {
+                var prefixFormat = await _formatSettingService.GetAllShelfLocationFormatsAsync();
+                List<ShelfLocation> data = new List<ShelfLocation>();
+                string locationFormat;
+                int x = 0;
+
+                //read the Excel file
+                string rootFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string fileName = @"TemplateFormat.xlsx";
+                FileInfo file = new FileInfo(Path.Combine(rootFolder, fileName));
+                //create a new Excel package
+                using (ExcelPackage excelPackage = new ExcelPackage(file))
+                {
+                    //loop all worksheets
+                    foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
+                    {
+                        //loop rows start at 2nd row
+                        for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
+                        {
+                            x = 0;
+                            locationFormat = worksheet.Cells[i, 3].Value.ToString();
+                            string[] listPrefix = Regex.Split(locationFormat, @"\d[0-9]{1,3}|\W");
+                            //bool formatMatch = Regex.IsMatch(locationFormat, @"\w[0-9]{2,4}"); *Set prefix format match with 2-4 digit
+
+                            foreach (var item in prefixFormat.ToArray())
+                            {
+                                if (listPrefix[x].Equals(item.Prefix))
+                                {
+                                    x++;
+                                    //formatMatch = true;
+                                }
+                                else
+                                {
+                                    //formatMatch = false;
+                                    _notificationService.ErrorNotification("Prefix are invalid! Location format digit limit to 4.");
+                                    return RedirectToAction("FormatSetting");
+                                }
+                            }
+
+                            data.Add(new ShelfLocation
+                            {
+                                StoreId = Int32.Parse(worksheet.Cells[i, 1].Value.ToString()),
+                                Stock_Code = worksheet.Cells[i, 2].Value.ToString(),
+                                Location = worksheet.Cells[i, 3].Value.ToString(),
+                                CreatedBy = "Administrator",
+                                CreatedOnUtc = DateTime.Now
+                            });
+
+                            //if (!formatMatch) 
+                            //{
+                            //    _notificationService.ErrorNotification("Location format are invalid!");
+                            //    return RedirectToAction("FormatSetting");
+                            //}
+                            //else
+                            //{
+                            //    data.Add(new ShelfLocation
+                            //    {
+                            //        StoreId = Int32.Parse(worksheet.Cells[i, 1].Value.ToString()),
+                            //        Stock_Code = worksheet.Cells[i, 2].Value.ToString(),
+                            //        Location = worksheet.Cells[i, 3].Value.ToString(),
+                            //        CreatedBy = "Administrator",
+                            //        CreatedOnUtc = DateTime.Now
+                            //    });
+                            //}
+                        }
+                        _shelfLocationRepository.Update(data);
+                    }
+
+                    if (data.Count > 0)
+                        _notificationService.SuccessNotification("Successful upload template.");
+                    else
+                        _notificationService.ErrorNotification("Failed upload template.");
+                }
+                return RedirectToAction("FormatSetting");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return Json(e.Message);
+            }
+        }       
 
         #endregion
 
