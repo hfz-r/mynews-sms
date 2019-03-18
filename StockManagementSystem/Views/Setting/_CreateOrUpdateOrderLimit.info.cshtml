@@ -30,7 +30,7 @@
                     <label asp-for="DaysofSales" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="DaysofSales" type="text" class="form-control" min="14" onkeypress='return validateQty(event);' onkeyup='return alert("Minimum to 14 days!");'/>
+                    <input asp-for="DaysofSales" type="text" class="form-control" min="14" onkeypress='return validateQty(event);'/>
                     <span asp-validation-for="DaysofSales"></span>
                 </div>
             </div>

@@ -214,7 +214,7 @@
                                         field: "DaysofSales",
                                         title: "Days of Sales",
                                         width: 230,
-                                        editor: customEditor 
+                                        editor: customEditorSales 
                                     },
                                     {
                                         field: "SelectedStoreIds",
@@ -268,9 +268,27 @@
                             });
 
                             function customEditor(container, options) {
-                                $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                                var stockInput =$('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
                                     .appendTo(container);
 
+                                stockInput.kendoNumericTextBox({
+                                    min: 1,
+                                    step: 1,
+                                    format: "#",
+                                    decimals: 0
+                                });
+                            }
+
+                            function customEditorSales(container, options) {
+                                var salesInput = $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                                    .appendTo(container);
+
+                                salesInput.kendoNumericTextBox({
+                                    min: 14,
+                                    step: 1,
+                                    format: "#",
+                                    decimals: 0
+                                });
                             }
 
                             function isValidChar(e) {
