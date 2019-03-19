@@ -1,5 +1,6 @@
 ﻿using System;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Infrastructure.Mapper;
 using StockManagementSystem.Web.Models;
 
@@ -24,6 +25,8 @@ namespace StockManagementSystem.Infrastructure.Mapper.Extensions
 
         #endregion
 
+        #region Model-Entity mapping
+
         public static TModel ToModel<TModel>(this BaseEntity entity) where TModel : BaseEntityModel
         {
             if (entity == null)
@@ -33,6 +36,7 @@ namespace StockManagementSystem.Infrastructure.Mapper.Extensions
         }
 
         public static TModel ToModel<TEntity, TModel>(this TEntity entity, TModel model)
+            where TEntity : BaseEntity where TModel : BaseEntityModel
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -62,5 +66,31 @@ namespace StockManagementSystem.Infrastructure.Mapper.Extensions
 
             return model.MapTo(entity);
         }
+
+        #endregion
+
+        #region Model-Settings mapping
+
+        public static TModel ToSettingsModel<TModel>(this ISettings settings) where TModel : BaseModel, ISettingsModel
+        {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
+            return settings.Map<TModel>();
+        }
+
+        public static TSettings ToSettings<TSettings, TModel>(this TModel model, TSettings settings) 
+            where TSettings : class, ISettings where TModel : BaseModel, ISettingsModel
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
+            return model.MapTo(settings);
+        }
+
+        #endregion
     }
 }

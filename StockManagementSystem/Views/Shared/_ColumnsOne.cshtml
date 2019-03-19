@@ -1,0 +1,53 @@
+﻿@{
+    Html.AppendCssFileParts("~/css/theme.defaultclean.css");
+    Html.AppendCssFileParts("~/css/style.css");
+    Html.AppendCssFileParts("~/lib/bootstrap/dist/css/bootstrap.min.css");
+    Html.AppendCssFileParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+    Html.AppendCssFileParts("~/lib/font-awesome/css/font-awesome.min.css");
+
+    Html.AppendScriptParts(ResourceLocation.Footer, "~/js/admin.common.js");
+
+    Html.AppendScriptParts("~/lib/jquery-migrate/jquery-migrate-1.2.1.min.js");
+    Html.AppendScriptParts("~/lib/jquery-ui/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate.unobtrusive/jquery.validate.unobtrusive.min.js");
+    Html.AppendScriptParts("~/lib/jquery-validate/jquery.validate-v1.11.1/jquery.validate.min.js");
+    Html.AppendScriptParts("~/lib/bootstrap/dist/js/bootstrap.min.js");
+    Html.AppendScriptParts("~/lib/jquery/jquery-1.10.2/jquery-1.10.2.min.js");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>@ViewData["Title"] - Stock Management System</title>
+
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
+    @Html.DefaultCssFiles(this.Url, ResourceLocation.Head, false)
+    @Html.DefaultScripts(this.Url, ResourceLocation.Head, false)
+    @Html.DefaultInlineScripts(this.Url, ResourceLocation.Head)
+</head>
+<body>
+@await Html.PartialAsync("Notifications")
+@await Html.PartialAsync("JavaScriptDisabledWarning")
+
+    <div class="master-wrapper-page">
+        @await Component.InvokeAsync("AdminHeaderLinks")
+        @await Html.PartialAsync("_Header")
+        <div class="master-wrapper-content">
+            <div class="master-column-wrapper">
+                <div class="side-2">
+                    @if (IsSectionDefined("left"))
+                    {
+                        @RenderSection("left")
+                    }
+                </div>
+                <div class="center-2">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+@Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, false)
+@Html.DefaultScripts(this.Url, ResourceLocation.Footer, false)
+@Html.DefaultInlineScripts(this.Url, ResourceLocation.Footer)
+</body>
+</html>

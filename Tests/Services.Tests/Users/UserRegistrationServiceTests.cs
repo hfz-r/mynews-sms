@@ -10,6 +10,7 @@ using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Events;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Services.Users;
 using Tests;
@@ -26,6 +27,7 @@ namespace Services.Tests.Users
         private Mock<IRepository<UserRole>> _userRoleRepository;
         private Mock<IRepository<GenericAttribute>> _genericAttributeRepository;
         private Mock<IGenericAttributeService> _genericAttributeService;
+        private Mock<IEventPublisher> _eventPublisherService;
         private Mock<IWorkContext> _workContext;
         private EncryptionService _encryptionService;
         private UserService _userService;
@@ -160,12 +162,14 @@ namespace Services.Tests.Users
             _genericAttributeRepository = new Mock<IRepository<GenericAttribute>>();
             _genericAttributeService = new Mock<IGenericAttributeService>();
             _workContext = new Mock<IWorkContext>();
+            _eventPublisherService = new Mock<IEventPublisher>();
 
             _userService = new UserService(
                 new UserSettings(), 
                 new NullCache(),
                 null,
                 null,
+                _eventPublisherService.Object,
                 _genericAttributeService.Object, 
                 _userRepository.Object, 
                 _roleRepository.Object, 

@@ -12,8 +12,7 @@ namespace StockManagementSystem.Validators.Users
             RuleFor(x => x.OldPassword).NotEmpty().WithMessage("Old password is required.");
             RuleFor(x => x.NewPassword).IsPassword(userSettings);
             RuleFor(x => x.ConfirmNewPassword).NotEmpty().WithMessage("Password is required.");
-            RuleFor(x => x.ConfirmNewPassword).Equal(x => x.NewPassword)
-                .WithMessage("The new password and confirmation password do not match.");
+            RuleFor(x => x.ConfirmNewPassword).Equal(x => x.NewPassword).WithMessage("The new password and confirmation password do not match.");
         }
     }
 }

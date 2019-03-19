@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Autofac;
 using Autofac.Builder;
@@ -16,11 +17,13 @@ using StockManagementSystem.Services.Authentication;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Configuration;
 using StockManagementSystem.Services.Devices;
+using StockManagementSystem.Services.Events;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Installation;
 using StockManagementSystem.Services.Locations;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Management;
+using StockManagementSystem.Services.Media;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.OrderLimits;
 using StockManagementSystem.Services.Plugins;
@@ -96,6 +99,8 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<CookieAuthenticationService>().As<IAuthenticationService>().InstancePerLifetimeScope();
             builder.RegisterType<DefaultLogger>().As<ILogger>().InstancePerLifetimeScope();
             builder.RegisterType<RoutePublisher>().As<IRoutePublisher>().SingleInstance();
+            builder.RegisterType<EventPublisher>().As<IEventPublisher>().SingleInstance();
+            builder.RegisterType<PictureService>().As<IPictureService>().InstancePerLifetimeScope();
             builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
 
             //register all settings
@@ -108,6 +113,19 @@ namespace StockManagementSystem.Web.Infrastructure
 
                 if (!config.UseFastInstallationService)
                     builder.RegisterType<CodeFirstInstallationService>().As<IInstallationService>().InstancePerLifetimeScope();
+            }
+
+            //event consumers
+            var consumers = typeFinder.FindClassesOfType(typeof(IConsumer<>)).ToList();
+            foreach (var consumer in consumers)
+            {
+                builder.RegisterType(consumer)
+                    .As(consumer.FindInterfaces((type, criteria) =>
+                    {
+                        var isMatch = type.IsGenericType && ((Type) criteria).IsAssignableFrom(type.GetGenericTypeDefinition());
+                        return isMatch;
+                    }, typeof(IConsumer<>)))
+                    .InstancePerLifetimeScope();
             }
         }
 

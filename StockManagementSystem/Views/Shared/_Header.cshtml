@@ -1,0 +1,18 @@
+﻿<div class="header">
+    <div class="header-upper">
+        <div class="header-selectors-wrapper">
+            @*language selector maybe?*@
+        </div>
+        <div class="header-links-wrapper">
+            @*@await Component.InvokeAsync("HeaderLinks")*@
+        </div>
+    </div>
+    <div class="header-lower">
+        <div class="header-logo">
+            @await Component.InvokeAsync("Logo")
+        </div>
+        <div class="search-box">
+            @*@await Component.InvokeAsync("SearchBox")*@
+        </div>
+    </div>
+</div>

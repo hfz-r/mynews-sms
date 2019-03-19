@@ -1,36 +1,43 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using StockManagementSystem.Core.Domain.Items;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using StockManagementSystem.Core;
+using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Domain.Media;
+using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Locations;
 using StockManagementSystem.Models.OrderLimits;
+using StockManagementSystem.Models.Replenishments;
+using StockManagementSystem.Models.Setting;
+using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Configuration;
+using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Locations;
+using StockManagementSystem.Services.Logging;
+using StockManagementSystem.Services.Media;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.OrderLimits;
+using StockManagementSystem.Services.Replenishments;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Settings;
 using StockManagementSystem.Services.Stores;
+using StockManagementSystem.Services.Tenants;
+using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Controllers;
 using StockManagementSystem.Web.Kendoui;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using StockManagementSystem.Core;
-using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Users;
-using StockManagementSystem.Services.Settings;
-using StockManagementSystem.Models.Setting;
-using StockManagementSystem.Services.Common;
-using StockManagementSystem.Services.Tenants;
-using Microsoft.Extensions.Configuration;
-using System.Text.RegularExpressions;
-using StockManagementSystem.Models.Replenishments;
-using StockManagementSystem.Services.Replenishments;
 
 namespace StockManagementSystem.Controllers
 {
@@ -38,19 +45,8 @@ namespace StockManagementSystem.Controllers
     {
         private readonly IOrderLimitService _orderLimitService;
         private readonly IReplenishmentService _replenishmentService;
-        private readonly IStoreService _storeService;
         private readonly ILocationService _locationService;
         private readonly IFormatSettingService _formatSettingService;
-        private readonly IRepository<Approval> _approvalRepository;
-        private readonly IRepository<OrderLimit> _orderLimitRepository;
-        private readonly IRepository<OrderLimitStore> _orderLimitStoreRepository;
-        private readonly IRepository<Replenishment> _replenishmentRepository;
-        private readonly IRepository<ReplenishmentStore> _replenishmentStoreRepository;
-        private readonly IRepository<Store> _storeRepository;
-        private readonly IRepository<Item> _itemRepository;
-        private readonly IRepository<ShelfLocation> _shelfLocationRepository;
-        private readonly IRepository<ShelfLocationFormat> _shelfLocationFormatRepository;
-        private readonly IRepository<FormatSetting> _formatSettingRepository;
         private readonly IOrderLimitModelFactory _orderLimitModelFactory;
         private readonly IReplenishmentModelFactory _replenishmentModelFactory;
         private readonly ILocationModelFactory _locationModelFactory;
@@ -58,28 +54,26 @@ namespace StockManagementSystem.Controllers
         private readonly IPermissionService _permissionService;
         private readonly INotificationService _notificationService;
         private readonly IWorkContext _workContext;
+        private readonly ITenantContext _tenantContext;
         private readonly IConfiguration _configuration;
+        private readonly IUserService _userService;
+        private readonly IUserActivityService _userActivityService;
+        private readonly IEncryptionService _encryptionService;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IStoreService _storeService;
         private readonly ITenantService _tenantService;
+        private readonly ISettingService _settingService;
+        private readonly IPictureService _pictureService;
+        private readonly ISettingModelFactory _settingModelFactory;
 
         #region Constructor
 
         public SettingController(
             IOrderLimitService orderLimitService,
             IReplenishmentService replenishmentService,
-            IStoreService storeService,
             ILocationService locationService,
             IFormatSettingService formatSettingService,
             IRepository<Approval> approvalRepository,
-            IRepository<OrderLimit> orderLimitRepository,
-            IRepository<OrderLimitStore> orderLimitStoreRepository,
-            IRepository<Replenishment> replenishmentRepository,
-            IRepository<ReplenishmentStore> replenishmentStoreRepository,
-            IRepository<Store> storeRepository,
-            IRepository<Item> itemRepository,
-            IRepository<ShelfLocation> shelfLocationRepository,
-            IRepository<ShelfLocationFormat> shelfLocationFormatRepository,
-            IRepository<FormatSetting> formatSettingRepository,
             IOrderLimitModelFactory orderLimitModelFactory,
             IReplenishmentModelFactory replenishmentModelFactory,
             ILocationModelFactory locationModelFactory,
@@ -87,35 +81,40 @@ namespace StockManagementSystem.Controllers
             IPermissionService permissionService,
             INotificationService notificationService,
             IWorkContext workContext,
+            ITenantContext tenantContext,
             IConfiguration configuration,
+            IUserService userService,
+            IUserActivityService userActivityService,
+            IEncryptionService encryptionService,
             IGenericAttributeService genericAttributeService,
-            ITenantService tenantService)
+            IStoreService storeService,
+            ITenantService tenantService,
+            ISettingService settingService,
+            IPictureService pictureService,
+            ISettingModelFactory settingModelFactory)
         {
-            this._orderLimitService = orderLimitService;
-            this._replenishmentService = replenishmentService;
-            this._storeService = storeService;
-            this._locationService = locationService;
-            this._formatSettingService = formatSettingService;
-            this._approvalRepository = approvalRepository;
-            this._orderLimitRepository = orderLimitRepository;
-            this._orderLimitStoreRepository = orderLimitStoreRepository;
-            this._replenishmentRepository = replenishmentRepository;
-            this._replenishmentStoreRepository = replenishmentStoreRepository;
-            this._storeRepository = storeRepository;
-            this._itemRepository = itemRepository;
-            this._shelfLocationRepository = shelfLocationRepository;
-            this._shelfLocationFormatRepository = shelfLocationFormatRepository;
-            this._formatSettingRepository = formatSettingRepository;
-            this._orderLimitModelFactory = orderLimitModelFactory;
-            this._replenishmentModelFactory = replenishmentModelFactory;
-            this._locationModelFactory = locationModelFactory;
-            this._formatSettingModelFactory = formatSettingModelFactory;
+            _orderLimitService = orderLimitService;
+            _replenishmentService = replenishmentService;
+            _storeService = storeService;
+            _locationService = locationService;
+            _formatSettingService = formatSettingService;
+            _orderLimitModelFactory = orderLimitModelFactory;
+            _replenishmentModelFactory = replenishmentModelFactory;
+            _locationModelFactory = locationModelFactory;
+            _formatSettingModelFactory = formatSettingModelFactory;
             _configuration = configuration;
+            _userService = userService;
+            _userActivityService = userActivityService;
+            _encryptionService = encryptionService;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _workContext = workContext;
+            _tenantContext = tenantContext;
             _genericAttributeService = genericAttributeService;
             _tenantService = tenantService;
+            _settingService = settingService;
+            _pictureService = pictureService;
+            _settingModelFactory = settingModelFactory;
         }
 
         #endregion
@@ -154,7 +153,7 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                OrderLimit orderLimit = new OrderLimit
+                var orderLimit = new OrderLimit
                 {
                     //Percentage = model.Percentage, //Remove Percentage criteria; Not required - 05032019
                     DaysofSales = model.DaysofSales,
@@ -165,7 +164,7 @@ namespace StockManagementSystem.Controllers
                 //Add store
                 foreach (var store in model.SelectedStoreIds)
                 {
-                    OrderLimitStore orderLimitStore = new OrderLimitStore
+                    var orderLimitStore = new OrderLimitStore
                     {
                         OrderLimitId = orderLimit.Id,
                         StoreId = store
@@ -212,7 +211,8 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [HttpPost]
+        [ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
         public async Task<IActionResult> EditOrder(OrderLimitModel model, bool continueEditing)
         {
@@ -227,10 +227,8 @@ namespace StockManagementSystem.Controllers
             var allStores = await _storeService.GetStores();
             var newStores = new List<Store>();
             foreach (var store in allStores)
-            {
                 if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                     newStores.Add(store);
-            }
 
             if (model.SelectedStoreIds.Count == 0)
             {
@@ -242,7 +240,6 @@ namespace StockManagementSystem.Controllers
             }
 
             if (ModelState.IsValid)
-            {
                 try
                 {
                     //orderLimit.Percentage = model.Percentage; //Remove Percentage criteria; Not required - 05032019
@@ -251,16 +248,15 @@ namespace StockManagementSystem.Controllers
 
                     //stores
 
-                    List<OrderLimitStore> orderLimitStoreList = new List<OrderLimitStore>();
+                    var orderLimitStoreList = new List<OrderLimitStore>();
 
                     foreach (var store in allStores)
-                    {
                         if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                         {
                             //new store
                             if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
                             {
-                                OrderLimitStore orderLimitStore = new OrderLimitStore
+                                var orderLimitStore = new OrderLimitStore
                                 {
                                     OrderLimitId = orderLimit.Id,
                                     StoreId = store.P_BranchNo
@@ -276,7 +272,6 @@ namespace StockManagementSystem.Controllers
                             if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
                                 _orderLimitService.DeleteOrderLimitStore(model.Id, store);
                         }
-                    }
 
                     _orderLimitService.UpdateOrderLimit(orderLimit);
 
@@ -294,7 +289,6 @@ namespace StockManagementSystem.Controllers
                 {
                     _notificationService.ErrorNotification(e.Message);
                 }
-            }
 
             model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
 
@@ -369,7 +363,7 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                ShelfLocationFormat shelfLocationFormat = new ShelfLocationFormat();
+                var shelfLocationFormat = new ShelfLocationFormat();
                 shelfLocationFormat.Prefix = model.Prefix;
                 shelfLocationFormat.Name = model.Name;
 
@@ -519,7 +513,7 @@ namespace StockManagementSystem.Controllers
                 _notificationService.ErrorNotification("Prefix is required to add shelf location format.");
                 return new NullJsonResult();
             }
-            else if (string.IsNullOrEmpty(model.Name))
+            if (string.IsNullOrEmpty(model.Name))
             {
                 ModelState.AddModelError(string.Empty, "Name is required to add shelf location format.");
                 _notificationService.ErrorNotification("Name is required to add shelf location format.");
@@ -536,11 +530,11 @@ namespace StockManagementSystem.Controllers
                 }
                 else
                 {
-                    bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
+                    var isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
                     if (!isExist)
                     {
-                        FormatSetting shelfFormat = new FormatSetting();
+                        var shelfFormat = new FormatSetting();
                         shelfFormat.Format = "Shelf";
                         shelfFormat.Prefix = model.Prefix;
                         shelfFormat.Name = model.Name;
@@ -578,7 +572,7 @@ namespace StockManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return Json(new DataSourceResult {Errors = ModelState.SerializeErrors()});
 
-            bool isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
+            var isExist = _formatSettingService.CheckFormatExist(model.Name, model.Prefix);
 
             if (!isExist)
             {
@@ -641,33 +635,25 @@ namespace StockManagementSystem.Controllers
         public async Task<IActionResult> SortBarcode(string data)
         {
             data = data.Replace('"', ' ');
-            Regex r = new Regex(@"Name : (.+?) , Length");
-            MatchCollection mc = r.Matches(data);
-            List<string> arr = new List<string>();
+            var r = new Regex(@"Name : (.+?) , Length");
+            var mc = r.Matches(data);
+            var arr = new List<string>();
 
             foreach (Match match in mc)
-            {
-                foreach (Capture capture in match.Captures)
-                {
-                    arr.Add(capture.Value.Split(new string[] {"Name : "}, StringSplitOptions.None)[1].Split(',')[0]
-                        .Trim());
-                }
-            }
+            foreach (Capture capture in match.Captures)
+                arr.Add(capture.Value.Split(new[] {"Name : "}, StringSplitOptions.None)[1].Split(',')[0]
+                    .Trim());
 
             var barcodeFormat = await _formatSettingService.GetAllBarcodeFormatsAsync();
             foreach (var item in barcodeFormat)
-            {
-                for (int i = 0; i < arr.Count(); i++)
-                {
+                for (var i = 0; i < arr.Count(); i++)
                     if (item.Name == arr[i])
                     {
-                        int seq = i + 1;
+                        var seq = i + 1;
                         item.Sequence = seq;
 
                         _formatSettingService.UpdateBarcodeFormat(item);
                     }
-                }
-            }
 
             return new NullJsonResult();
         }
@@ -681,7 +667,7 @@ namespace StockManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return Json(new DataSourceResult {Errors = ModelState.SerializeErrors()});
 
-            bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
+            var isExist = _formatSettingService.CheckFormatExist(model.Name, null);
 
             if (!isExist)
             {
@@ -722,12 +708,12 @@ namespace StockManagementSystem.Controllers
                 }
                 else
                 {
-                    bool isExist = _formatSettingService.CheckFormatExist(model.Name, null);
+                    var isExist = _formatSettingService.CheckFormatExist(model.Name, null);
 
                     if (!isExist)
                     {
-                        int counter = dataList.Count;
-                        FormatSetting barcodeFormat = new FormatSetting();
+                        var counter = dataList.Count;
+                        var barcodeFormat = new FormatSetting();
                         barcodeFormat.Format = "Barcode";
                         barcodeFormat.Length = Convert.ToInt32(_configuration["RTEBarcodeLength"]);
                         barcodeFormat.Name = model.Name;
@@ -768,12 +754,11 @@ namespace StockManagementSystem.Controllers
             {
                 _formatSettingService.DeleteShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
 
-                int? nextSeq = barcodeFormat.Sequence + 1;
+                var nextSeq = barcodeFormat.Sequence + 1;
                 if (nextSeq > 0 && nextSeq <= 4)
-                {
-                    for (int? i = nextSeq; i <= 4; i++)
+                    for (var i = nextSeq; i <= 4; i++)
                     {
-                        int? counter = i - 1;
+                        var counter = i - 1;
                         var nextBarcodeFormat = await _formatSettingService.GetBarcodeFormatBySeqAsync(i);
                         if (nextBarcodeFormat != null)
                         {
@@ -781,7 +766,6 @@ namespace StockManagementSystem.Controllers
                             _formatSettingService.UpdateBarcodeFormat(nextBarcodeFormat);
                         }
                     }
-                }
 
                 return new NullJsonResult();
             }
@@ -832,7 +816,7 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                Replenishment replenishment = new Replenishment
+                var replenishment = new Replenishment
                 {
                     BufferDays = model.BufferDays,
                     ReplenishmentQty = model.ReplenishmentQty,
@@ -842,7 +826,7 @@ namespace StockManagementSystem.Controllers
                 //Add store
                 foreach (var store in model.SelectedStoreIds)
                 {
-                    ReplenishmentStore replenishmentStore = new ReplenishmentStore
+                    var replenishmentStore = new ReplenishmentStore
                     {
                         ReplenishmentId = replenishment.Id,
                         StoreId = store
@@ -889,7 +873,8 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
-        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        [HttpPost]
+        [ParameterBasedOnFormName("save-continue", "continueEditing")]
         [FormValueRequired("save", "save-continue")]
         public async Task<IActionResult> EditReplenishment(ReplenishmentModel model, bool continueEditing)
         {
@@ -903,10 +888,8 @@ namespace StockManagementSystem.Controllers
             var allStores = await _storeService.GetStores();
             var newStores = new List<Store>();
             foreach (var store in allStores)
-            {
                 if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                     newStores.Add(store);
-            }
 
             if (model.SelectedStoreIds.Count == 0)
             {
@@ -918,7 +901,6 @@ namespace StockManagementSystem.Controllers
             }
 
             if (ModelState.IsValid)
-            {
                 try
                 {
                     replenishment.BufferDays = model.BufferDays;
@@ -926,17 +908,16 @@ namespace StockManagementSystem.Controllers
 
                     //stores
 
-                    List<ReplenishmentStore> replenishmentStoreList = new List<ReplenishmentStore>();
+                    var replenishmentStoreList = new List<ReplenishmentStore>();
 
                     foreach (var store in allStores)
-                    {
                         if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                         {
                             //new store
                             if (replenishment.ReplenishmentStores.Count(mapping =>
                                     mapping.StoreId == store.P_BranchNo) == 0)
                             {
-                                ReplenishmentStore replenishmentStore = new ReplenishmentStore
+                                var replenishmentStore = new ReplenishmentStore
                                 {
                                     ReplenishmentId = replenishment.Id,
                                     StoreId = store.P_BranchNo
@@ -953,7 +934,6 @@ namespace StockManagementSystem.Controllers
                                     mapping.StoreId == store.P_BranchNo) > 0)
                                 _replenishmentService.DeleteReplenishmentStore(model.Id, store);
                         }
-                    }
 
                     _replenishmentService.UpdateReplenishment(replenishment);
 
@@ -971,7 +951,6 @@ namespace StockManagementSystem.Controllers
                 {
                     _notificationService.ErrorNotification(e.Message);
                 }
-            }
 
             model = await _replenishmentModelFactory.PrepareReplenishmentModel(model, replenishment);
 
@@ -1010,10 +989,8 @@ namespace StockManagementSystem.Controllers
         {
             var tenant = _tenantService.GetTenantById(tenantId);
             if (tenant != null || tenantId == 0)
-            {
                 await _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser,
                     UserDefaults.TenantScopeConfigurationAttribute, tenantId);
-            }
 
             //home page
             if (string.IsNullOrEmpty(returnUrl))
@@ -1024,6 +1001,221 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("Index", "Home");
 
             return Redirect(returnUrl);
+        }
+
+        #endregion
+
+        #region Settings
+
+        public async Task<IActionResult> GeneralCommon()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var model = await _settingModelFactory.PrepareGeneralCommonSettingsModel();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("save")]
+        public async Task<IActionResult> GeneralCommon(GeneralCommonSettingsModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var tenantScope = _tenantContext.ActiveTenantScopeConfiguration;
+
+            //common settings
+            var commonSettings = _settingService.LoadSetting<CommonSettings>(tenantScope);
+            commonSettings.LogoPictureId = model.CommonSettings.LogoPictureId;
+            commonSettings.UseResponseCompression = model.CommonSettings.UseResponseCompression;
+
+            await _settingService.SaveSettingOverridablePerTenant(commonSettings, x => x.LogoPictureId, model.CommonSettings.LogoPictureId_OverrideForTenant, tenantScope, false);
+            await _settingService.SaveSettingOverridablePerTenant(commonSettings, x => x.UseResponseCompression, model.CommonSettings.UseResponseCompression_OverrideForTenant, tenantScope, false);
+
+            _settingService.ClearCache();
+
+            //security settings
+            var securitySettings = _settingService.LoadSetting<SecuritySettings>(tenantScope);
+            if (securitySettings.AllowedIpAddresses == null)
+                securitySettings.AllowedIpAddresses = new List<string>();
+            securitySettings.AllowedIpAddresses.Clear();
+
+            if (!string.IsNullOrEmpty(model.SecuritySettings.AllowedIpAddresses))
+                foreach (var s in model.SecuritySettings.AllowedIpAddresses.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    if (!string.IsNullOrWhiteSpace(s))
+                        securitySettings.AllowedIpAddresses.Add(s.Trim());
+
+            securitySettings.ForceSslForAllPages = model.SecuritySettings.ForceSslForAllPages;
+            securitySettings.EnableXsrfProtection = model.SecuritySettings.EnableXsrfProtection;
+
+            _settingService.SaveSetting(securitySettings);
+
+            await _userActivityService.InsertActivityAsync("EditSettings", "Edited settings");
+
+            _notificationService.SuccessNotification("The settings have been updated successfully.");
+
+            return RedirectToAction("GeneralCommon");
+        }
+
+        public async Task<IActionResult> UserAdmin()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var model = await _settingModelFactory.PrepareUserAdminSettingsModel();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UserAdmin(UserAdminSettingsModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var tenantScope = _tenantContext.ActiveTenantScopeConfiguration;
+            var userSettings = _settingService.LoadSetting<UserSettings>(tenantScope);
+
+            var lastUsernameValidationRule = userSettings.UsernameValidationRule;
+            var lastUsernameValidationEnabledValue = userSettings.UsernameValidationEnabled;
+            var lastUsernameValidationUseRegexValue = userSettings.UsernameValidationUseRegex;
+
+            var dateTimeSettings = _settingService.LoadSetting<DateTimeSettings>(tenantScope);
+
+            userSettings = model.UserSettings.ToSettings(userSettings);
+
+            if (userSettings.UsernameValidationEnabled && userSettings.UsernameValidationUseRegex)
+            {
+                try
+                {
+                    //validate regex rule
+                    var unused = Regex.IsMatch("test_user_name", userSettings.UsernameValidationRule);
+                }
+                catch (ArgumentException)
+                {
+                    //restoring previous settings
+                    userSettings.UsernameValidationRule = lastUsernameValidationRule;
+                    userSettings.UsernameValidationEnabled = lastUsernameValidationEnabledValue;
+                    userSettings.UsernameValidationUseRegex = lastUsernameValidationUseRegexValue;
+
+                    _notificationService.ErrorNotification("The regular expression for username validation is incorrect");
+                }
+            }
+
+            _settingService.SaveSetting(userSettings);
+
+            dateTimeSettings.DefaultTimeZoneId = model.DateTimeSettings.DefaultTimeZoneId;
+            dateTimeSettings.AllowUsersToSetTimeZone = model.DateTimeSettings.AllowUsersToSetTimeZone;
+            _settingService.SaveSetting(dateTimeSettings);
+
+            await _userActivityService.InsertActivityAsync("EditSettings", "Edited settings");
+
+            _notificationService.SuccessNotification("The settings have been updated successfully.");
+
+            SaveSelectedTabName();
+
+            return RedirectToAction("UserAdmin");
+        }
+
+        public async Task<IActionResult> Media()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var model = await _settingModelFactory.PrepareMediaSettingsModel();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [FormValueRequired("save")]
+        public async Task<IActionResult> Media(MediaSettingsModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var tenantScope = _tenantContext.ActiveTenantScopeConfiguration;
+            var mediaSettings = _settingService.LoadSetting<MediaSettings>(tenantScope);
+            mediaSettings = model.ToSettings(mediaSettings);
+
+            await _settingService.SaveSettingOverridablePerTenant(mediaSettings, x => x.AvatarPictureSize, model.AvatarPictureSize_OverrideForTenant, tenantScope, false);
+            await _settingService.SaveSettingOverridablePerTenant(mediaSettings, x => x.MaximumImageSize, model.MaximumImageSize_OverrideForTenant, tenantScope, false);
+            await _settingService.SaveSettingOverridablePerTenant(mediaSettings, x => x.DefaultImageQuality, model.DefaultImageQuality_OverrideForTenant, tenantScope, false);
+
+            _settingService.ClearCache();
+
+            await _userActivityService.InsertActivityAsync("EditSettings", "Edited settings");
+
+            _notificationService.SuccessNotification("The settings have been updated successfully.");
+
+            return RedirectToAction("Media");
+        }
+
+        [HttpPost, ActionName("Media")]
+        [FormValueRequired("change-picture-storage")]
+        public async Task<IActionResult> ChangePictureStorage()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            _pictureService.StoreInDb = !_pictureService.StoreInDb;
+
+            await _userActivityService.InsertActivityAsync("EditSettings", "Edited settings");
+
+            _notificationService.SuccessNotification("The settings have been updated successfully.");
+
+            return RedirectToAction("Media");
+        }
+
+        [HttpPost, ActionName("GeneralCommon")]
+        [FormValueRequired("changeencryptionkey")]
+        public async Task<IActionResult> ChangeEncryptionKey(GeneralCommonSettingsModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageSettings))
+                return AccessDeniedView();
+
+            var tenantScope = _tenantContext.ActiveTenantScopeConfiguration;
+            var securitySettings = _settingService.LoadSetting<SecuritySettings>(tenantScope);
+
+            try
+            {
+                if (model.SecuritySettings.EncryptionKey == null)
+                    model.SecuritySettings.EncryptionKey = string.Empty;
+
+                model.SecuritySettings.EncryptionKey = model.SecuritySettings.EncryptionKey.Trim();
+
+                var newEncryptionPrivateKey = model.SecuritySettings.EncryptionKey;
+                if (string.IsNullOrEmpty(newEncryptionPrivateKey) || newEncryptionPrivateKey.Length != 16)
+                    throw new DefaultException("Encryption private key must be 16 characters long.");
+
+                var oldEncryptionPrivateKey = securitySettings.EncryptionKey;
+                if (oldEncryptionPrivateKey == newEncryptionPrivateKey)
+                    throw new DefaultException("The new encryption key is the same as the old one.");
+
+                //update password information
+                var userPasswords = _userService.GetUserPasswords(passwordFormat: PasswordFormat.Encrypted);
+                foreach (var userPassword in userPasswords)
+                {
+                    var decryptedPassword = _encryptionService.DecryptText(userPassword.Password, oldEncryptionPrivateKey);
+                    var encryptedPassword = _encryptionService.EncryptText(decryptedPassword, newEncryptionPrivateKey);
+
+                    userPassword.Password = encryptedPassword;
+                    _userService.UpdateUserPassword(userPassword);
+                }
+
+                securitySettings.EncryptionKey = newEncryptionPrivateKey;
+                _settingService.SaveSetting(securitySettings);
+
+                _notificationService.SuccessNotification("Encryption key changed");
+            }
+            catch (Exception ex)
+            {
+                _notificationService.ErrorNotification(ex);
+            }
+
+            return RedirectToAction("GeneralCommon");
         }
 
         #endregion

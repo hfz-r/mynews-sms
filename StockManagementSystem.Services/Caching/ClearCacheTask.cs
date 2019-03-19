@@ -26,6 +26,6 @@ namespace StockManagementSystem.Services.Caching
 
         public string Schedule => "*/30 * * * *";
 
-        public bool Enabled => true;
+        public bool Enabled => false;
     }
 }

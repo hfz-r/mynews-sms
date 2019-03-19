@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using StockManagementSystem.Core.Infrastructure;
 
@@ -52,6 +53,14 @@ namespace StockManagementSystem.Core
         }
 
         /// <summary>
+        /// Ensure that a string is not null
+        /// </summary>
+        public static string EnsureNotNull(string str)
+        {
+            return str ?? string.Empty;
+        }
+
+        /// <summary>
         /// Verifies that string is an valid IP-Address
         /// </summary>
         public static bool IsValidIpAddress(string ipAddress)
@@ -72,6 +81,16 @@ namespace StockManagementSystem.Core
         }
 
         /// <summary>
+        /// Returns an random integer number within a specified rage
+        /// </summary>
+        public static int GenerateRandomInteger(int min = 0, int max = int.MaxValue)
+        {
+            var randomNumberBuffer = new byte[10];
+            new RNGCryptoServiceProvider().GetBytes(randomNumberBuffer);
+            return new Random(BitConverter.ToInt32(randomNumberBuffer, 0)).Next(min, max);
+        }
+
+        /// <summary>
         /// Convert enum for front-end
         /// </summary>
         public static string ConvertEnum(string str)
@@ -87,6 +106,17 @@ namespace StockManagementSystem.Core
             //ensure no spaces (e.g. when the first letter is upper case)
             result = result.TrimStart();
             return result;
+        }
+
+        /// <summary>
+        /// Get difference in years
+        /// </summary>
+        public static int GetDifferenceInYears(DateTime startDate, DateTime endDate)
+        {
+            var age = endDate.Year - startDate.Year;
+            if (startDate > endDate.AddYears(-age))
+                age--;
+            return age;
         }
 
         /// <summary>

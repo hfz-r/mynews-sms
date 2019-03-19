@@ -39,14 +39,14 @@ namespace Api.Tests.ServicesTests.Users
                 Id = 1,
                 Username = "user1@test.com",
                 Email = "user1@test.com",
-                Active = true,
+                Active = false,
                 CreatedOnUtc = _baseDate.AddMonths(4),
             };
 
             var user2 = new User
             {
                 Id = 2,
-                Username = "user2@test.com",
+                Username = "21",
                 Email = "user2@test.com",
                 Active = true,
                 CreatedOnUtc = _baseDate.AddMonths(8),
@@ -187,11 +187,11 @@ namespace Api.Tests.ServicesTests.Users
         [Test]
         public void Can_search_users_by_query()
         {
-            var query = "first_name:john";
+            var query = "first_name:brian";
             var usersResult = _userApiService.Search(query);
 
             usersResult.Count.ShouldEqual(1);
-            usersResult.First().Username.ShouldEqual("user1@test.com");
+            usersResult.First().Username.ShouldEqual("21");
 
             // can passed by " " but not applicable for the url = search=1 per txt
             query = "first_name:john last_name:babuci";

@@ -15,6 +15,8 @@ namespace StockManagementSystem.Core.Domain.Users
 
         public string SystemName { get; set; }
 
+        public bool EnablePasswordLifetime { get; set; }
+
         public virtual ICollection<PermissionRoles> PermissionRoles
         {
             get => _permissionRoles ?? (_permissionRoles = new List<PermissionRoles>());

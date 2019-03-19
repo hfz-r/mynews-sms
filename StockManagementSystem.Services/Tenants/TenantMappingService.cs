@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Data.Extensions;
 

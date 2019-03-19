@@ -6,7 +6,9 @@ using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Core.Domain.Media;
 using StockManagementSystem.Core.Domain.Security;
+using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Domain.Users;
@@ -74,10 +76,24 @@ namespace StockManagementSystem.Services.Installation
         {
             var settingService = EngineContext.Current.Resolve<ISettingService>();
 
+            settingService.SaveSetting(new CommonSettings
+            {
+                DisplayJavaScriptDisabledWarning = false,
+                Log404Errors = true,
+                StaticFilesCacheControl = "public,max-age=604800",
+                UseResponseCompression = false,
+                DefaultGridPageSize = 15,
+                PopupGridPageSize = 10,
+                GridPageSizes = "10, 15, 20, 50, 100",
+                UseIsoDateFormatInJsonResult = true,
+                UseNestedSetting = true,
+            });
+
             settingService.SaveSetting(new UserSettings
             {
-                UsernamesEnabled = true,
-                CheckUsernameAvailabilityEnabled = true,
+                UsernamesEnabled = false,
+                CheckUsernameAvailabilityEnabled = false,
+                AllowUsersToChangeUsernames = false,
                 DefaultPasswordFormat = PasswordFormat.Hashed,
                 HashedPasswordFormat = UserServiceDefaults.DefaultHashedPasswordFormat,
                 PasswordMinLength = 6,
@@ -90,9 +106,13 @@ namespace StockManagementSystem.Services.Installation
                 PasswordLifetime = 90,
                 FailedPasswordAllowedAttempts = 0,
                 FailedPasswordLockoutMinutes = 30,
+                AllowUsersToUploadAvatars = false,
+                AvatarMaximumSizeBytes = 20000,
+                DefaultAvatarEnabled = true,
                 GenderEnabled = false,
                 DateOfBirthEnabled = false,
                 DateOfBirthRequired = false,
+                DateOfBirthMinimumAge = null,
                 PhoneEnabled = false,
                 PhoneRequired = false,
                 StoreLastVisitedPage = false,
@@ -104,20 +124,28 @@ namespace StockManagementSystem.Services.Installation
             {
                 ForceSslForAllPages = false,
                 EncryptionKey = CommonHelper.GenerateRandomDigitCode(16),
+                AllowedIpAddresses = null,
                 EnableXsrfProtection = true,
             });
 
             settingService.SaveSetting(new DateTimeSettings
             {
                 DefaultTimeZoneId = string.Empty,
-                AllowUsersToSetTimeZone = false
+                AllowUsersToSetTimeZone = false,
             });
 
             settingService.SaveSetting(new RecordSettings
             {
                 IgnoreTenantLimitations = true,
                 IgnoreStoreLimitations = true,
-                IgnoreAcl = true
+                IgnoreAcl = true,
+            });
+
+            settingService.SaveSetting(new MediaSettings
+            {
+                AvatarPictureSize = 120,
+                MaximumImageSize = 1980,
+                DefaultImageQuality = 80,
             });
         }
 
@@ -313,6 +341,18 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "EditStore",
                     Enabled = true,
                     Name = "Edit a store"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditSettings",
+                    Enabled = true,
+                    Name = "Edit setting(s)"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditMyAccount",
+                    Enabled = true,
+                    Name = "Edit my account"
                 },
                 new ActivityLogType
                 {

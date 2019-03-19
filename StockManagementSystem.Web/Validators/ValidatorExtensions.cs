@@ -11,6 +11,11 @@ namespace StockManagementSystem.Web.Validators
             return ruleBuilder.SetValidator(new DecimalPropertyValidator(maxValue));
         }
 
+        public static IRuleBuilderOptions<T, string> IsUsername<T>(this IRuleBuilder<T, string> ruleBuilder, UserSettings userSettings)
+        {
+            return ruleBuilder.SetValidator(new UsernamePropertyValidator(userSettings));
+        }
+
         public static IRuleBuilder<T, string> IsPassword<T>(this IRuleBuilder<T, string> ruleBuilder, UserSettings userSettings)
         {
             var regExp = "^";

@@ -58,7 +58,7 @@ namespace StockManagementSystem.Api
                 IconClass = "fa fa-space-shuttle"
             };
 
-            var settingNode = rootNode.ChildNodes.FirstOrDefault(node => node.SystemName.Equals("Setting Configuration"));
+            var settingNode = rootNode.ChildNodes.FirstOrDefault(node => node.SystemName.Equals("Configuration"));
             settingNode?.ChildNodes.Add(pluginMainMenu);
         }
     }

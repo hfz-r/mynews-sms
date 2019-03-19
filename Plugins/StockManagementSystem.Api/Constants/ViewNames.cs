@@ -8,6 +8,7 @@
         public const string ApiClientsCreate = "~/Plugins/StockManagementSystem.Api/Views/ApiSettings/Clients/Create.cshtml";
         public const string ApiClientsEdit = "~/Plugins/StockManagementSystem.Api/Views/ApiSettings/Clients/Edit.cshtml";
         public const string ApiClientsCreateOrUpdate = "~/Plugins/StockManagementSystem.Api/Views/ApiSettings/Clients/CreateOrUpdate.cshtml";
+        public const string ApiClientsCreateOrUpdateInfo = "~/Plugins/StockManagementSystem.Api/Views/ApiSettings/Clients/CreateOrUpdate.Info.cshtml";
 
         public const string Layout = "_Layout";
     }

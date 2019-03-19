@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Web.Kendoui;
 
 namespace StockManagementSystem.Web.Models
@@ -8,13 +10,12 @@ namespace StockManagementSystem.Web.Models
     /// </summary>
     public abstract partial class BaseSearchModel : BaseModel, IPagingRequestModel
     {
-        public BaseSearchModel()
+        protected BaseSearchModel()
         {
-            //set the default values
-            this.Page = 1;
-            this.PageSize = 10;
-            this.Sort = null;
-            this.Filter = null;
+            Page = 1;
+            PageSize = 10;
+            Sort = null;
+            Filter = null;
         }
 
         public int Page { get; set; }
@@ -31,18 +32,20 @@ namespace StockManagementSystem.Web.Models
 
         public void SetGridPageSize()
         {
-            // TODO: implement base-setting
+            var commonSettings = EngineContext.Current.Resolve<CommonSettings>();
+
             Page = 1;
-            PageSize = 15;
-            AvailablePageSizes = "10, 15, 20, 50, 100";
+            PageSize = commonSettings.DefaultGridPageSize;
+            AvailablePageSizes = commonSettings.GridPageSizes;
         }
 
         public void SetPopupGridPageSize()
         {
-            // TODO: implement base-setting
+            var commonSettings = EngineContext.Current.Resolve<CommonSettings>();
+
             Page = 1;
-            PageSize = 10;
-            AvailablePageSizes = "10, 15, 20, 50, 100";
+            PageSize = commonSettings.PopupGridPageSize;
+            AvailablePageSizes = commonSettings.GridPageSizes;
         }
 
         #endregion

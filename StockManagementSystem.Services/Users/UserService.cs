@@ -12,6 +12,7 @@ using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Data;
 using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Events;
 
 namespace StockManagementSystem.Services.Users
 {
@@ -21,6 +22,7 @@ namespace StockManagementSystem.Services.Users
         private readonly ICacheManager _cacheManager;
         private readonly IDataProvider _dataProvider;
         private readonly IDbContext _dbContext;
+        private readonly IEventPublisher _eventPublisher;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Role> _roleRepository;
@@ -35,6 +37,7 @@ namespace StockManagementSystem.Services.Users
             ICacheManager cacheManager,
             IDataProvider dataProvider,
             IDbContext dbContext,
+            IEventPublisher eventPublisher,
             IGenericAttributeService genericAttributeService,
             IRepository<User> userRepository,
             IRepository<Role> roleRepository,
@@ -47,6 +50,7 @@ namespace StockManagementSystem.Services.Users
             _cacheManager = cacheManager;
             _dataProvider = dataProvider;
             _dbContext = dbContext;
+            _eventPublisher = eventPublisher;
             _genericAttributeService = genericAttributeService;
             _userRepository = userRepository;
             _roleRepository = roleRepository;
@@ -186,6 +190,8 @@ namespace StockManagementSystem.Services.Users
             user.Deleted = true;
 
             await UpdateUserAsync(user);
+
+            _eventPublisher.EntityDeleted(user);
         }
 
         /// <summary>
@@ -302,6 +308,8 @@ namespace StockManagementSystem.Services.Users
                 throw new ArgumentNullException(nameof(user));
 
             await _userRepository.InsertAsync(user);
+
+            _eventPublisher.EntityInserted(user);
         }
 
         /// <summary>
@@ -313,6 +321,8 @@ namespace StockManagementSystem.Services.Users
                 throw new ArgumentNullException(nameof(user));
 
             await _userRepository.UpdateAsync(user);
+
+            _eventPublisher.EntityUpdated(user);
         }
 
         /// <summary>
@@ -551,7 +561,7 @@ namespace StockManagementSystem.Services.Users
                 return false;
 
             //password lifetime is disabled for user
-            if (!user.Roles.Any(role => role.Active))
+            if (!user.Roles.Any(role => role.Active && role.EnablePasswordLifetime))
                 return false;
 
             //setting disabled for all

@@ -1,0 +1,40 @@
+﻿@model UserAvatarModel
+@{
+    Layout = "_ColumnsOne";
+
+    ViewData["Title"] = "My account";
+}
+@section left
+{
+    @await Component.InvokeAsync("UserNavigation", new { selectedTabId = UserNavigationEnum.Avatar })
+}
+
+<form asp-route="UserAvatar" method="post" enctype="multipart/form-data">
+    <div class="page account-page avatar-page">
+        <div class="page-title">
+            <h3>Avatar</h3>
+        </div>
+        <div class="page-body">
+            <div asp-validation-summary="ModelOnly" class="message-error"></div>
+            <div class="fieldset">
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <div class="image">
+                        <img src="@(Model.AvatarUrl)" alt="avatar" />
+                    </div>
+                }
+                <input name="uploadedFile" type="file" />
+            </div>
+            <div class="buttons">
+                <input type="submit" name="upload-avatar" class="button-1 upload-avatar-button" value="Upload" />
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <input type="submit" name="remove-avatar" class="button-2 remove-avatar-button" value="Remove avatar" />
+                }
+            </div>
+            <div class="info">
+                Avatar must be in GIF or JPEG format with the maximum size of 20 KB
+            </div>
+        </div>
+    </div>
+</form>

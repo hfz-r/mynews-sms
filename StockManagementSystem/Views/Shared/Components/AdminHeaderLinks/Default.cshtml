@@ -1,0 +1,16 @@
+﻿@model AdminHeaderLinksModel
+@using StockManagementSystem.Models.Common
+
+@if (Model.DisplayAdminLink)
+{
+    <div class="admin-header-links">
+        @if (Model.DisplayAdminLink)
+        {
+            <a href="@Url.Content("~/")" class="administration">Back to Admin Panel</a>
+        }
+        @if (!string.IsNullOrEmpty(Model.EditPageUrl))
+        {
+            <a href="@Model.EditPageUrl" class="manage-page">Manage this page</a>
+        }
+    </div>
+}

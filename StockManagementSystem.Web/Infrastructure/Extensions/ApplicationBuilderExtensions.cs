@@ -11,6 +11,7 @@ using Microsoft.Net.Http.Headers;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Core.Http;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Services.Authentication;
@@ -128,18 +129,24 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             });
         }
 
+        public static void UseDefaultResponseCompression(this IApplicationBuilder application)
+        {
+            //whether to use compression (gzip by default)
+            if (DataSettingsManager.DatabaseIsInstalled && EngineContext.Current.Resolve<CommonSettings>().UseResponseCompression)
+                application.UseResponseCompression();
+        }
+
         public static void UseDefaultStaticFiles(this IApplicationBuilder application)
         {
             var fileProvider = EngineContext.Current.Resolve<IFileProviderHelper>();
-
-            var hostingEnvironment = EngineContext.Current.Resolve<IHostingEnvironment>();
-            var cachePeriod = hostingEnvironment.IsDevelopment() ? "600" : "604800";
 
             Action<StaticFileResponseContext> staticFileResponse = (context) =>
             {
                 if (DataSettingsManager.DatabaseIsInstalled)
                 {
-                    context.Context.Response.Headers.Append(HeaderNames.CacheControl, $"public, max-age={cachePeriod}");
+                    var commonSettings = EngineContext.Current.Resolve<CommonSettings>();
+                    if (!string.IsNullOrEmpty(commonSettings.StaticFilesCacheControl))
+                        context.Context.Response.Headers.Append(HeaderNames.CacheControl, commonSettings.StaticFilesCacheControl);
                 }
             };
 

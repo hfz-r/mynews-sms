@@ -20,7 +20,10 @@ namespace StockManagementSystem.Api.Validators
 
             SetEmailRule();
             SetPasswordRule();
-            SetRolesRule();
+            SetRoleIdsRule();
+
+            //TODO: proper role assignation
+            //SetRoleRule();
         }
 
         private void SetEmailRule()
@@ -33,7 +36,29 @@ namespace StockManagementSystem.Api.Validators
             SetNotNullOrEmptyCreateOrUpdateRule(c => c.Password, "Invalid password.", "password");
         }
 
-        private void SetRolesRule()
+        //private void SetRoleRule()
+        //{
+        //    var key = "roles";
+        //    if (RequestJsonDictionary.ContainsKey(key))
+        //    {
+        //        RuleForEach(u => u.Roles)
+        //            .Custom((roleDto, context) =>
+        //            {
+        //                var roleJsonDictionary = GetRequestJsonDictionaryCollectionItemDictionary(key, roleDto);
+
+        //                var validator = new RoleDtoValidator(HttpContextAccessor, JsonHelper, roleJsonDictionary);
+
+        //                if (roleDto.Id == 0)
+        //                    validator.HttpMethod = HttpMethod.Post;
+
+        //                var validationResult = validator.Validate(roleDto);
+
+        //                MergeValidationResult(context, validationResult);
+        //            });
+        //    }
+        //}
+
+        private void SetRoleIdsRule()
         {
             if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("role_ids"))
             {

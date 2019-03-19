@@ -40,9 +40,17 @@ namespace StockManagementSystem.Web.Infrastructure
             routeBuilder.MapRoute("CheckUsernameAvailability", "checkusernameavailability",
                 new { controller = "Account", action = "CheckUsernameAvailability" });
 
+            //user info
+            routeBuilder.MapRoute("UserInfo", "account/info",
+                new { controller = "Account", action = "Info" });
+
             //change password
-            routeBuilder.MapRoute("UserChangePassword", "user/changepassword",
+            routeBuilder.MapRoute("UserChangePassword", "account/changepassword",
                 new { controller = "Account", action = "ChangePassword" });
+
+            //avatar
+            routeBuilder.MapRoute("UserAvatar", "account/avatar",
+                new { controller = "Account", action = "Avatar" });
 
             //install
             routeBuilder.MapRoute("Installation", "install",

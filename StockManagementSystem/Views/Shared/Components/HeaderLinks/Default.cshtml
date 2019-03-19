@@ -1,0 +1,28 @@
+﻿@model HeaderLinksModel
+@inject IWebHelper webHelper
+@using StockManagementSystem.Models.Common
+
+<div class="header-links">
+    <ul>
+        @if (Model.IsAuthenticated)
+        {
+            <li>
+                <a href="@Url.Action("Info", "Account")" class="ico-account">My account</a>
+            </li>
+            <li>
+                <a href="@Url.RouteUrl("Logout")" class="ico-logout">Log out</a>
+            </li>
+        }
+        else
+        {
+            var returnUrl = webHelper.GetRawUrl(Context.Request);
+
+            <li>
+                <a href="@Url.RouteUrl("Register", new {returnUrl})" class="ico-register">Register</a>
+            </li>
+            <li>
+                <a href="@Url.RouteUrl("Login", new {returnUrl})" class="ico-login">Login</a>
+            </li>
+        }
+    </ul>
+</div>

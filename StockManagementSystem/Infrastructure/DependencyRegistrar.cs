@@ -25,6 +25,7 @@ namespace StockManagementSystem.Infrastructure
             builder.RegisterType<UserAccountModelFactory>().As<IUserAccountModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<RoleModelFactory>().As<IRoleModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<StoreModelFactory>().As<IStoreModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<CommonModelFactory>().As<ICommonModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<DeviceModelFactory>().As<IDeviceModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<OrderLimitModelFactory>().As<IOrderLimitModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<SettingModelFactory>().As<ISettingModelFactory>().InstancePerLifetimeScope();

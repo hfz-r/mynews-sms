@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using StockManagementSystem.Core.Domain.Media;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.Users;
 using StockManagementSystem.Services.Helpers;
@@ -10,6 +11,7 @@ using StockManagementSystem.Web.Factories;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Services.Common;
+using StockManagementSystem.Services.Media;
 using StockManagementSystem.Services.Stores;
 
 namespace StockManagementSystem.Factories
@@ -20,32 +22,38 @@ namespace StockManagementSystem.Factories
     public class UserModelFactory : IUserModelFactory
     {
         private readonly UserSettings _userSettings;
+        private readonly MediaSettings _mediaSettings;
         private readonly IUserService _userService;
         private readonly IUserActivityService _userActivityService;
         private readonly IBaseModelFactory _baseModelFactory;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IStoreService _storeService;
+        private readonly IPictureService _pictureService;
         private readonly IAppliedStoreSupportedModelFactory _appliedStoreSupportedModelFactory;
         private readonly IAclSupportedModelFactory _aclSupportedModelFactory;
         private readonly IDateTimeHelper _dateTimeHelper;
 
         public UserModelFactory(
             UserSettings userSettings,
+            MediaSettings mediaSettings,
             IUserService userService,
             IUserActivityService userActivityService,
             IBaseModelFactory baseModelFactory,
             IGenericAttributeService genericAttributeService,
             IStoreService storeService,
+            IPictureService pictureService,
             IAppliedStoreSupportedModelFactory appliedStoreSupportedModelFactory,
             IAclSupportedModelFactory aclSupportedModelFactory,
             IDateTimeHelper dateTimeHelper)
         {
             _userSettings = userSettings;
+            _mediaSettings = mediaSettings;
             _userService = userService;
             _userActivityService = userActivityService;
             _baseModelFactory = baseModelFactory;
             _genericAttributeService = genericAttributeService;
             _storeService = storeService;
+            _pictureService = pictureService;
             _appliedStoreSupportedModelFactory = appliedStoreSupportedModelFactory;
             _aclSupportedModelFactory = aclSupportedModelFactory;
             _dateTimeHelper = dateTimeHelper;
@@ -57,6 +65,7 @@ namespace StockManagementSystem.Factories
                 throw new ArgumentNullException(nameof(searchModel));
 
             searchModel.UsernamesEnabled = _userSettings.UsernamesEnabled;
+            searchModel.AvatarEnabled = _userSettings.AllowUsersToUploadAvatars;
             searchModel.DateOfBirthEnabled = _userSettings.DateOfBirthEnabled;
             searchModel.PhoneEnabled = _userSettings.PhoneEnabled;
 
@@ -98,7 +107,7 @@ namespace StockManagementSystem.Factories
 
             var model = new UserListModel
             {
-                Data = users.Select(user =>
+                Data = users.Select(user => 
                 {
                     var userModel = user.ToModel<UserModel>();
 
@@ -108,6 +117,12 @@ namespace StockManagementSystem.Factories
                     userModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
                     userModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.LastActivityDateUtc, DateTimeKind.Utc);
                     userModel.UserRolesName = String.Join(", ", user.UserRoles.Select(role => role.Role.Name));
+
+                    if (_userSettings.AllowUsersToUploadAvatars)
+                    {
+                        var avatarPictureId = _genericAttributeService.GetAttributeAsync<int>(user, UserDefaults.AvatarPictureIdAttribute).GetAwaiter().GetResult();
+                        userModel.AvatarUrl = _pictureService.GetPictureUrl(avatarPictureId,  _mediaSettings.AvatarPictureSize, _userSettings.DefaultAvatarEnabled, defaultPictureType: PictureType.Avatar);
+                    }
 
                     return userModel;
                 }),

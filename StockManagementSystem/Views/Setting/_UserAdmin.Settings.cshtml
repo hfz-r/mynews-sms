@@ -1,0 +1,278 @@
+﻿@model UserAdminSettingsModel
+@using StockManagementSystem.Core.Domain.Users
+@using StockManagementSystem.Services
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.IdFor(model => model.UserSettings.AllowUsersToUploadAvatars)").click(toggleAvatar);
+        $("#@Html.IdFor(model => model.UserSettings.UsernamesEnabled)").click(toggleUsername);
+        $("#@Html.IdFor(model => model.UserSettings.UsernameValidationEnabled)").click(toggleUsernameValidation);
+
+        toggleAvatar();
+        toggleUsername();
+        toggleUsernameValidation();
+    });
+
+    function toggleAvatar() {
+        if ($('#@Html.IdFor(model => model.UserSettings.AllowUsersToUploadAvatars)').is(':checked')) {
+            $('#pnlDefaultAvatarEnabled').show();
+        } else {
+            $('#pnlDefaultAvatarEnabled').hide();
+        }
+    }
+
+    function toggleUsername() {
+        if ($('#@Html.IdFor(model => model.UserSettings.UsernamesEnabled)').is(':checked')) {
+            $('#pnlAllowUsersToChangeUsernames').show();
+            $('#pnlCheckUsernameAvailability').show();
+            $('#pnlUsernameValidationEnabled').show();
+        } else {
+            $('#pnlAllowUsersToChangeUsernames').hide();
+            $('#pnlCheckUsernameAvailability').hide();
+            $('#pnlUsernameValidationEnabled').hide();
+        }
+    }
+
+    function toggleUsernameValidation() {
+        if ($('#@Html.IdFor(model => model.UserSettings.UsernameValidationEnabled)').is(':checked')) {
+            $('#pnlUsernameValidationRule').show();
+            $('#pnlUsernameValidationUseRegex').show();
+        } else {
+            $('#pnlUsernameValidationRule').hide();
+            $('#pnlUsernameValidationUseRegex').hide();
+        }
+    }
+</script>
+
+<div class="panel-group">
+    <div class="panel panel-default">
+        <div class="panel-heading">Password and security</div>
+        <div class="panel-body">
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordMinLength"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordMinLength"/>
+                    <span asp-validation-for="UserSettings.PasswordMinLength"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordRequireLowercase"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordRequireLowercase"/>
+                    <span asp-validation-for="UserSettings.PasswordRequireLowercase"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordRequireUppercase"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordRequireUppercase"/>
+                    <span asp-validation-for="UserSettings.PasswordRequireUppercase"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordRequireNonAlphanumeric"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordRequireNonAlphanumeric"/>
+                    <span asp-validation-for="UserSettings.PasswordRequireNonAlphanumeric"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordRequireDigit"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordRequireDigit"/>
+                    <span asp-validation-for="UserSettings.PasswordRequireDigit"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.UnduplicatedPasswordsNumber"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.UnduplicatedPasswordsNumber"/>
+                    <span asp-validation-for="UserSettings.UnduplicatedPasswordsNumber"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.DefaultPasswordFormat"/>
+                </div>
+                <div class="col-md-9">
+                    <_select asp-for="UserSettings.DefaultPasswordFormat" asp-items="@(((PasswordFormat) Model.UserSettings.DefaultPasswordFormat).ToSelectList())"/>
+                    <span asp-validation-for="UserSettings.DefaultPasswordFormat"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordLifetime"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordLifetime"/>
+                    <span asp-validation-for="UserSettings.PasswordLifetime"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.PasswordRecoveryLinkDaysValid"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.PasswordRecoveryLinkDaysValid"/>
+                    <span asp-validation-for="UserSettings.PasswordRecoveryLinkDaysValid"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.FailedPasswordAllowedAttempts"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.FailedPasswordAllowedAttempts"/>
+                    <span asp-validation-for="UserSettings.FailedPasswordAllowedAttempts"></span>
+                </div>
+            </div>
+            <div class="form-group advanced-setting" id="pnlFailedPasswordLockoutMinutes">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.FailedPasswordLockoutMinutes"/>
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.FailedPasswordLockoutMinutes"/>
+                    <span asp-validation-for="UserSettings.FailedPasswordLockoutMinutes"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default advanced-setting">
+        <div class="panel-heading">Account</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.UsernamesEnabled" />
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.UsernamesEnabled" />
+                    <span asp-validation-for="UserSettings.UsernamesEnabled"></span>
+                </div>
+            </div>
+            <my-nested-setting asp-for="UserSettings.UsernamesEnabled">
+                <div class="form-group advanced-setting" id="pnlAllowUsersToChangeUsernames">
+                    <div class="col-md-3">
+                        <_label asp-for="UserSettings.AllowUsersToChangeUsernames" />
+                    </div>
+                    <div class="col-md-9">
+                        <_editor asp-for="UserSettings.AllowUsersToChangeUsernames" />
+                        <span asp-validation-for="UserSettings.AllowUsersToChangeUsernames"></span>
+                    </div>
+                </div>
+                <div class="form-group advanced-setting" id="pnlCheckUsernameAvailability">
+                    <div class="col-md-3">
+                        <_label asp-for="UserSettings.CheckUsernameAvailabilityEnabled" />
+                    </div>
+                    <div class="col-md-9">
+                        <_editor asp-for="UserSettings.CheckUsernameAvailabilityEnabled" />
+                        <span asp-validation-for="UserSettings.CheckUsernameAvailabilityEnabled"></span>
+                    </div>
+                </div>
+                <div id="pnlUsernameValidationEnabled">
+                    <div class="form-group advanced-setting">
+                        <div class="col-md-3">
+                            <_label asp-for="UserSettings.UsernameValidationEnabled" />
+                        </div>
+                        <div class="col-md-9">
+                            <_editor asp-for="UserSettings.UsernameValidationEnabled" />
+                            <span asp-validation-for="UserSettings.UsernameValidationEnabled"></span>
+                        </div>
+                    </div>
+                    <my-nested-setting asp-for="UserSettings.UsernameValidationEnabled">
+                        <div class="form-group advanced-setting" id="pnlUsernameValidationRule">
+                            <div class="col-md-3">
+                                <_label asp-for="UserSettings.UsernameValidationRule" />
+                            </div>
+                            <div class="col-md-9">
+                                <_editor asp-for="UserSettings.UsernameValidationRule" />
+                                <span asp-validation-for="UserSettings.UsernameValidationRule"></span>
+                            </div>
+                        </div>
+                        <div class="form-group advanced-setting" id="pnlUsernameValidationUseRegex">
+                            <div class="col-md-3">
+                                <_label asp-for="UserSettings.UsernameValidationUseRegex" />
+                            </div>
+                            <div class="col-md-9">
+                                <_editor asp-for="UserSettings.UsernameValidationUseRegex" />
+                                <span asp-validation-for="UserSettings.UsernameValidationUseRegex"></span>
+                            </div>
+                        </div>
+                    </my-nested-setting>
+                </div>
+            </my-nested-setting>
+            <div class="form-group advanced-setting">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.AllowUsersToUploadAvatars" />
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.AllowUsersToUploadAvatars" />
+                    <span asp-validation-for="UserSettings.AllowUsersToUploadAvatars"></span>
+                </div>
+            </div>
+            <my-nested-setting asp-for="UserSettings.AllowUsersToUploadAvatars">
+                <div class="form-group advanced-setting" id="pnlDefaultAvatarEnabled">
+                    <div class="col-md-3">
+                        <_label asp-for="UserSettings.DefaultAvatarEnabled" />
+                    </div>
+                    <div class="col-md-9">
+                        <_editor asp-for="UserSettings.DefaultAvatarEnabled" />
+                        <span asp-validation-for="UserSettings.DefaultAvatarEnabled"></span>
+                    </div>
+                </div>
+            </my-nested-setting>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.StoreLastVisitedPage" />
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.StoreLastVisitedPage" />
+                    <span asp-validation-for="UserSettings.StoreLastVisitedPage"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="UserSettings.StoreIpAddresses" />
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="UserSettings.StoreIpAddresses" />
+                    <span asp-validation-for="UserSettings.StoreIpAddresses"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default advanced-setting">
+        <div class="panel-heading">Time zone</div>
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="DateTimeSettings.AllowUsersToSetTimeZone" />
+                </div>
+                <div class="col-md-9">
+                    <_editor asp-for="DateTimeSettings.AllowUsersToSetTimeZone" />
+                    <span asp-validation-for="DateTimeSettings.AllowUsersToSetTimeZone"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-3">
+                    <_label asp-for="DateTimeSettings.DefaultTimeZoneId" />
+                </div>
+                <div class="col-md-9">
+                    <_select asp-for="DateTimeSettings.DefaultTimeZoneId" asp-items="Model.DateTimeSettings.AvailableTimeZones" />
+                    <span asp-validation-for="DateTimeSettings.DefaultTimeZoneId"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

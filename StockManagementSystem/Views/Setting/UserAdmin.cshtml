@@ -1,0 +1,32 @@
+﻿@model UserAdminSettingsModel
+
+@{
+    ViewBag.Title = "User settings";
+    Html.SetActiveMenuItemSystemName("settings.user");
+}
+
+<form asp-controller="Setting" asp-action="UserAdmin" method="post">
+
+    <section class="content-header clearfix">
+        <h1 class="pull-left">@ViewBag.Title</h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn icon-btn bg-blue-gradient">
+                <span class="glyphicon btn-glyphicon glyphicon-floppy-save img-circle text-primary"></span>&nbsp;Save
+            </button>
+        </div>
+    </section>
+
+    <div asp-validation-summary="All"></div>
+
+    <section class="content">
+        <div class="form-horizontal">
+            @await Component.InvokeAsync("SettingMode")
+            
+            <_tabs id="usersettings-edit">
+                <_tab asp-name="tab-user" asp-default="true" asp-title="User settings">@await Html.PartialAsync("_UserAdmin.Settings", Model)</_tab>
+                <_tab asp-name="tab-userformfields" asp-title="User form fields">@await Html.PartialAsync("_UserAdmin.UserFormFields", Model)</_tab>
+            </_tabs>
+        </div>
+    </section>
+
+</form>

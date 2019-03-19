@@ -26,6 +26,7 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
 
             //role
             CreateMap<Role, RoleDto>();
+            CreateMap<RoleDto, Role>();
 
             //device
             CreateMap<Device, DeviceDto>();

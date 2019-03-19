@@ -106,6 +106,8 @@ namespace StockManagementSystem.Models.Users
         public IList<int> SelectedStoreIds { get; set; }
         public IList<SelectListItem> AvailableStores { get; set; }
 
+        public string AvatarUrl { get; internal set; }
+
         public UserActivityLogSearchModel UserActivityLogSearchModel { get; set; }
 
         public SendEmailModel SendEmail { get; set; }

@@ -53,8 +53,9 @@
     <script>
         var rootAppPath = '@(Url.Content("~/"))';
     </script>
-    @Html.DefaultCssFiles(this.Url, ResourceLocation.Head, false)
-    @Html.DefaultScripts(this.Url, ResourceLocation.Head, false)
+    @Html.DefaultCssFiles(Url, ResourceLocation.Head, false)
+    @Html.DefaultScripts(Url, ResourceLocation.Head, false)
+    @Html.DefaultInlineScripts(Url, ResourceLocation.Head)
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini @if (hideSidebar) {<text>sidebar-collapse</text>}">
@@ -90,33 +91,7 @@
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
-                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) {{ "returnUrl", returnUrl } })
-                
-                @*<div class="navbar-custom-menu">
-                    <ul class="nav navbar-nav">
-                        <!-- Notifications: style can be found in dropdown.less -->
-                        <li class="dropdown notifications-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                <i class="fa fa-bell-o"></i>
-                                <span class="label label-warning"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li class="header">You have 10 notifications</li>
-                                <li>
-                                    <!-- inner menu: contains the actual data -->
-                                    <ul class="menu">
-                                        <li>
-                                            <a href="#">
-                                                <i class="fa fa-users text-aqua"></i> 5 new members joined today
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="footer"><a href="#">View all</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>*@
+                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) {{ "returnUrl", returnUrl } }) 
             </nav>
         </header>
         <aside class="main-sidebar">
@@ -136,6 +111,7 @@
         </aside>
         <div class="content-wrapper">
             @await Html.PartialAsync("Notifications")
+            @await Html.PartialAsync("JavaScriptDisabledWarning")
             <div>
                 @RenderBody()
             </div>
@@ -149,8 +125,10 @@
         </footer>
     </div>
 
-    @Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, false)
-    @Html.DefaultScripts(this.Url, ResourceLocation.Footer, false)
+    @Html.DefaultCssFiles(Url, ResourceLocation.Footer, false)
+    @Html.DefaultScripts(Url, ResourceLocation.Footer, false)
+    @Html.DefaultInlineScripts(Url, ResourceLocation.Footer)
+
     <a id="backTop" class="btn btn-back-top bg-red-gradient"></a>
     <script>
     $(document).ready(function() {

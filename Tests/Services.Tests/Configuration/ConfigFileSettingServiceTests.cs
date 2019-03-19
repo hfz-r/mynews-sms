@@ -18,7 +18,7 @@ namespace Services.Tests.Configuration
         [SetUp]
         public new void SetUp()
         {
-            config = new ConfigFileSettingService(null, null);
+            config = new ConfigFileSettingService(null, null, null);
         }
 
         [Test]

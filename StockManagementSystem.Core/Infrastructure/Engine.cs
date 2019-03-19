@@ -159,7 +159,7 @@ namespace StockManagementSystem.Core.Infrastructure
             return GetServiceProvider().GetService(type);
         }
 
-        public IEnumerable<T> ResolveAll<T>()
+        public virtual IEnumerable<T> ResolveAll<T>()
         {
             return (IEnumerable<T>)GetServiceProvider().GetServices(typeof(T));
         }

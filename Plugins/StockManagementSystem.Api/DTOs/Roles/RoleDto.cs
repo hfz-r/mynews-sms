@@ -1,8 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using FluentValidation.Attributes;
+using Newtonsoft.Json;
+using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.Roles
 {
     [JsonObject(Title = "role")]
+    [Validator(typeof(RoleDtoValidator))]
     public class RoleDto : BaseDto
     {
         [JsonProperty("name")]

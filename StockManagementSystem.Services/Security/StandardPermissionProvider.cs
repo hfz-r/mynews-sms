@@ -83,7 +83,8 @@ namespace StockManagementSystem.Services.Security
         public static readonly Permission ManageMaintenance =
             new Permission {Name = "Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration"};
 
-        //TODO: other modules
+        public static readonly Permission ManageSettings =
+            new Permission { Name = "Manage Settings", SystemName = "ManageSettings", Category = "Configuration" };
 
         /// <summary>
         /// Get permissions
@@ -108,6 +109,7 @@ namespace StockManagementSystem.Services.Security
                 ManageAcl,
                 ManagePlugins,
                 ManageMaintenance,
+                ManageSettings,
             };
         }
 
@@ -140,6 +142,7 @@ namespace StockManagementSystem.Services.Security
                         ManageAcl,
                         ManagePlugins,
                         ManageMaintenance,
+                        ManageSettings,
                     }
                 },
                 new DefaultPermission

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.Logging;
+using StockManagementSystem.Core.Domain.Media;
 using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
@@ -38,6 +39,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateOrderLimitMaps();
             CreateFakerMaps();
             CreateTenantMaps();
+            CreateMediaMaps();
             CreatePushNotificationMaps();
             CreateShelfLocationFormatMaps();
             CreateFormatSettingMaps();
@@ -115,6 +117,12 @@ namespace StockManagementSystem.Infrastructure.Mapper
         /// </summary>
         protected virtual void CreateUserMaps()
         {
+            CreateMap<UserSettings, UserSettingsModel>();
+            CreateMap<UserSettingsModel, UserSettings>()
+                .ForMember(settings => settings.AvatarMaximumSizeBytes, options => options.Ignore())
+                .ForMember(settings => settings.DeleteGuestTaskOlderThanMinutes, options => options.Ignore())
+                .ForMember(settings => settings.HashedPasswordFormat, options => options.Ignore());
+
             CreateMap<ActivityLog, UserActivityLogModel>()
                 .ForMember(model => model.CreatedOn, options => options.Ignore())
                 .ForMember(model => model.ActivityLogTypeName, options => options.Ignore());
@@ -284,6 +292,18 @@ namespace StockManagementSystem.Infrastructure.Mapper
         {
             CreateMap<Tenant, TenantModel>();
             CreateMap<TenantModel, Tenant>();
+        }
+
+        /// <summary>
+        /// Create media maps 
+        /// </summary>
+        protected virtual void CreateMediaMaps()
+        {
+            CreateMap<MediaSettings, MediaSettingsModel>()
+                .ForMember(model => model.AvatarPictureSize_OverrideForTenant, options => options.Ignore())
+                .ForMember(model => model.DefaultImageQuality_OverrideForTenant, options => options.Ignore())
+                .ForMember(model => model.MaximumImageSize_OverrideForTenant, options => options.Ignore());
+            CreateMap<MediaSettingsModel, MediaSettings>();
         }
 
         /// <summary>

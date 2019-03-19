@@ -9,5 +9,10 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
         {
             return role.MapTo<Role, RoleDto>();
         }
+
+        public static Role ToEntity(this RoleDto roleDto)
+        {
+            return roleDto.MapTo<RoleDto, Role>();
+        }
     }
 }

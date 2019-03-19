@@ -49,6 +49,9 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonHelper>().As<IJsonHelper>().InstancePerLifetimeScope();
             builder.RegisterType<DtoHelper>().As<IDtoHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<ConfigManagerHelper>().As<IConfigManagerHelper>().InstancePerLifetimeScope();
+
+            builder.RegisterType<WebHookService>().As<IWebHookService>().SingleInstance();
 
             builder.RegisterType<JsonFieldsSerializer>().As<IJsonFieldsSerializer>().InstancePerLifetimeScope();
             builder.RegisterType<FieldsValidator>().As<IFieldsValidator>().InstancePerLifetimeScope();

@@ -11,6 +11,7 @@ using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Configuration;
+using StockManagementSystem.Services.Events;
 
 namespace StockManagementSystem.Services.Configuration
 {
@@ -19,11 +20,16 @@ namespace StockManagementSystem.Services.Configuration
     /// </summary>
     public class SettingService : ISettingService
     {
+        private readonly IEventPublisher _eventPublisher;
         private readonly IRepository<Setting> _settingRepository;
         private readonly IStaticCacheManager _cacheManager;
 
-        public SettingService(IRepository<Setting> settingRepository, IStaticCacheManager cacheManager)
+        public SettingService(
+            IEventPublisher eventPublisher, 
+            IRepository<Setting> settingRepository, 
+            IStaticCacheManager cacheManager)
         {
+            _eventPublisher = eventPublisher;
             _settingRepository = settingRepository;
             _cacheManager = cacheManager;
         }
@@ -127,6 +133,8 @@ namespace StockManagementSystem.Services.Configuration
 
             if (clearCache)
                 _cacheManager.RemoveByPattern(ConfigurationDefaults.SettingsPatternCacheKey);
+
+            _eventPublisher.EntityInserted(setting);
         }
 
         public async Task UpdateSettingAsync(Setting setting, bool clearCache = true)
@@ -138,6 +146,8 @@ namespace StockManagementSystem.Services.Configuration
 
             if (clearCache)
                 _cacheManager.RemoveByPattern(ConfigurationDefaults.SettingsPatternCacheKey);
+
+            _eventPublisher.EntityUpdated(setting);
         }
 
         public virtual async Task DeleteSettingAsync(Setting setting)
@@ -148,6 +158,8 @@ namespace StockManagementSystem.Services.Configuration
             await _settingRepository.DeleteAsync(setting);
 
             _cacheManager.RemoveByPattern(ConfigurationDefaults.SettingsPatternCacheKey);
+
+            _eventPublisher.EntityDeleted(setting);
         }
 
         public async Task DeleteSettingsAsync(IList<Setting> settings)
@@ -158,6 +170,11 @@ namespace StockManagementSystem.Services.Configuration
             await _settingRepository.DeleteAsync(settings);
 
             _cacheManager.RemoveByPattern(ConfigurationDefaults.SettingsPatternCacheKey);
+
+            foreach (var setting in settings)
+            {
+                _eventPublisher.EntityDeleted(setting);
+            }
         }
 
         /// <summary>

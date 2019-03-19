@@ -110,6 +110,7 @@
                                                     }
                                                 },
                                                 Active: { editable: true, type: "boolean" },
+                                                EnablePasswordLifetime: { editable: true, type: "boolean" },
                                                 IsSystemRole: { editable: true, type: "boolean" }
                                             }
                                         }
@@ -163,7 +164,18 @@
                                         headerAttributes: { style: "text-align:center" },
                                         attributes: { style: "text-align:center" },
                                         template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
-                                    }, {
+                                    },
+                                    {
+                                        field: "EnablePasswordLifetime",
+                                        title: "Enable password lifetime",
+                                        width: 100,
+                                        sortable: false,
+                                        filterable: false,
+                                        headerAttributes: { style: "text-align:center" },
+                                        attributes: { style: "text-align:center" },
+                                        template: '# if(EnablePasswordLifetime) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                                    },
+                                    {
                                         field: "IsSystemRole",
                                         title: "Is system role",
                                         width: 100,
@@ -197,6 +209,7 @@
 
                             //Removing Column Menu
                             grid.thead.find("[data-field=Active]>.k-header-column-menu").remove();
+                            grid.thead.find("[data-field=EnablePasswordLifetime]>.k-header-column-menu").remove();
                             grid.thead.find("[data-field=IsSystemRole]>.k-header-column-menu").remove();
 
                             $("#grid").on("click", ".custom-button", function(e) {

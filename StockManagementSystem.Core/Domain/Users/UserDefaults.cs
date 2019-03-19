@@ -56,6 +56,11 @@
         public static string TimeZoneIdAttribute => "TimeZoneId";
 
         /// <summary>
+        /// Gets a name of generic attribute to store the value of 'AvatarPictureId'
+        /// </summary>
+        public static string AvatarPictureIdAttribute => "AvatarPictureId";
+
+        /// <summary>
         /// Gets a name of generic attribute to store the value of 'PasswordRecoveryToken'
         /// </summary>
         public static string PasswordRecoveryTokenAttribute => "PasswordRecoveryToken";

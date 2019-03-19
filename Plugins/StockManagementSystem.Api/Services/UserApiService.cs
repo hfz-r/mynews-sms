@@ -68,8 +68,7 @@ namespace StockManagementSystem.Api.Services
                 {
                     // Skip non existing properties.
                     if (ReflectionHelper.HasProperty(searchParam.Key, typeof(User)))
-                        query = query.Where(string.Format("{0} = @0 || {0}.Contains(@0)", searchParam.Key),
-                            searchParam.Value);
+                        query = query.Where(string.Format("{0} = @0 || {0}.Contains(@0)", searchParam.Key), searchParam.Value);
                 }
 
                 result = HandleUserGenericAttributes(searchParams, query, limit, page, order);
@@ -187,16 +186,14 @@ namespace StockManagementSystem.Api.Services
             return parsedQuery;
         }
 
-        private IList<UserDto> HandleUserGenericAttributes(IReadOnlyDictionary<string, string> searchParams,
-            IQueryable<User> query,
-            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue,
-            string order = Configurations.DefaultOrder)
+        private IList<UserDto> HandleUserGenericAttributes(IReadOnlyDictionary<string, string> searchParams, IQueryable<User> query,
+            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue, string order = Configurations.DefaultOrder)
         {
             var allRecordsGroupedByUserId =
             (from user in query
                 from attribute in _genericAttributeRepository.Table
                     .Where(attr => attr.EntityId == user.Id &&
-                                   attr.KeyGroup == "User").DefaultIfEmpty()
+                                   attr.KeyGroup == "User")
                 select new UserAttributeMappingDto
                 {
                     Attribute = attribute,
@@ -210,16 +207,14 @@ namespace StockManagementSystem.Api.Services
                         searchParams[FirstName]);
 
                 if (searchParams.ContainsKey(LastName))
-                    allRecordsGroupedByUserId =
-                        GetUserAttributesMappingsByKey(allRecordsGroupedByUserId, LastName, searchParams[LastName]);
+                    allRecordsGroupedByUserId = GetUserAttributesMappingsByKey(allRecordsGroupedByUserId, LastName, searchParams[LastName]);
 
                 if (searchParams.ContainsKey(DateOfBirth))
                     allRecordsGroupedByUserId = GetUserAttributesMappingsByKey(allRecordsGroupedByUserId, DateOfBirth,
                         searchParams[DateOfBirth]);
 
                 if (searchParams.ContainsKey(Gender))
-                    allRecordsGroupedByUserId =
-                        GetUserAttributesMappingsByKey(allRecordsGroupedByUserId, Gender, searchParams[Gender]);
+                    allRecordsGroupedByUserId = GetUserAttributesMappingsByKey(allRecordsGroupedByUserId, Gender, searchParams[Gender]);
             }
 
             var result = GetFullUserDtos(allRecordsGroupedByUserId, page, limit, order);
@@ -277,23 +272,20 @@ namespace StockManagementSystem.Api.Services
         private IQueryable<IGrouping<int, UserAttributeMappingDto>> GetUserAttributesMappingsByKey(
             IQueryable<IGrouping<int, UserAttributeMappingDto>> userAttributesGroups, string key, string value)
         {
-            // filter the userAttributesGroups to be only the ones that have the passed key parameter as a key.
             var userAttributesMappingByKey = from @group in userAttributesGroups
-                                             where @group.Select(x => x.Attribute)
-                                                .Any(x => x.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) && 
-                                                x.Value.Equals(value, StringComparison.InvariantCultureIgnoreCase))
-                                             select @group;
+                where @group.Select(x => x.Attribute).Any(x =>
+                    x.Key.Equals(key, StringComparison.InvariantCultureIgnoreCase) &&
+                    x.Value.Equals(value, StringComparison.InvariantCultureIgnoreCase))
+                select @group;
 
             return userAttributesMappingByKey;
         }
 
-        private IQueryable<User> GetUsersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-            int sinceId = 0)
+        private IQueryable<User> GetUsersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int sinceId = 0)
         {
-            var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount && user.Active);
+            var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount);
 
-            query = query.Where(user =>
-                !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
+            query = query.Where(user => !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
                 (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
 
             if (createdAtMin != null)

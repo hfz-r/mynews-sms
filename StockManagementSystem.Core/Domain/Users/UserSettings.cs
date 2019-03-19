@@ -15,6 +15,26 @@ namespace StockManagementSystem.Core.Domain.Users
         public bool CheckUsernameAvailabilityEnabled { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether users are allowed to change their usernames
+        /// </summary>
+        public bool AllowUsersToChangeUsernames { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether username will be validated
+        /// </summary>
+        public bool UsernameValidationEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether username will be validated using regex
+        /// </summary>
+        public bool UsernameValidationUseRegex { get; set; }
+
+        /// <summary>
+        /// Gets or sets a username validation rule
+        /// </summary>
+        public string UsernameValidationRule { get; set; }
+
+        /// <summary>
         /// Default password format for users
         /// </summary>
         public PasswordFormat DefaultPasswordFormat { get; set; }
@@ -75,6 +95,21 @@ namespace StockManagementSystem.Core.Domain.Users
         public int FailedPasswordLockoutMinutes { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether users are allowed to upload avatars.
+        /// </summary>
+        public bool AllowUsersToUploadAvatars { get; set; }
+
+        /// <summary>
+        /// Gets or sets a maximum avatar size (in bytes)
+        /// </summary>
+        public int AvatarMaximumSizeBytes { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to display default user avatar.
+        /// </summary>
+        public bool DefaultAvatarEnabled { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating we should store last visited page URL for each user
         /// </summary>
         public bool StoreLastVisitedPage { get; set; }
@@ -105,6 +140,11 @@ namespace StockManagementSystem.Core.Domain.Users
         /// Gets or sets a value indicating whether 'Date of Birth' is required
         /// </summary>
         public bool DateOfBirthRequired { get; set; }
+
+        /// <summary>
+        /// Gets or sets a minimum age. 
+        /// </summary>
+        public int? DateOfBirthMinimumAge { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether 'Phone number' is enabled

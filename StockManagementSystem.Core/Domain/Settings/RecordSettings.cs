@@ -1,6 +1,6 @@
 ﻿using StockManagementSystem.Core.Configuration;
 
-namespace StockManagementSystem.Core.Domain.Common
+namespace StockManagementSystem.Core.Domain.Settings
 {
     public class RecordSettings : ISettings
     {

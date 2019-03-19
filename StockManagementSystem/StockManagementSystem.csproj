@@ -33,7 +33,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
+   
     <Target Name="MyTarget" AfterTargets="Build">
         <ItemGroup>
             <!-- Get plugin description files to get plugin paths -->

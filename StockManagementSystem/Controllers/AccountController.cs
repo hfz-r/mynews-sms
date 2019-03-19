@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Core;
+using StockManagementSystem.Core.Domain.Media;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Factories;
 using StockManagementSystem.Models.Account;
@@ -10,6 +12,7 @@ using StockManagementSystem.Services.Authentication;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Helpers;
 using StockManagementSystem.Services.Logging;
+using StockManagementSystem.Services.Media;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Users;
 using StockManagementSystem.Web.Controllers;
@@ -23,6 +26,7 @@ namespace StockManagementSystem.Controllers
     {
         private readonly UserSettings _userSettings;
         private readonly DateTimeSettings _dateTimeSettings;
+        private readonly MediaSettings _mediaSettings;
         private readonly IAuthenticationService _authenticationService;
         private readonly IUserAccountModelFactory _userAccountModelFactory;
         private readonly IUserRegistrationService _userRegistrationService;
@@ -33,10 +37,12 @@ namespace StockManagementSystem.Controllers
         private readonly IWorkContext _workContext;
         private readonly ITenantContext _tenantContext;
         private readonly IEmailSender _emailSender;
+        private readonly IPictureService _pictureService;
 
         public AccountController(
             UserSettings userSettings,
             DateTimeSettings dateTimeSettings,
+            MediaSettings mediaSettings,
             IAuthenticationService authenticationService,
             IUserAccountModelFactory userAccountModelFactory,
             IUserRegistrationService userRegistrationService,
@@ -46,10 +52,12 @@ namespace StockManagementSystem.Controllers
             INotificationService notificationService,
             IWorkContext workContext,
             ITenantContext tenantContext,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IPictureService pictureService)
         {
             _userSettings = userSettings;
             _dateTimeSettings = dateTimeSettings;
+            _mediaSettings = mediaSettings;
             _authenticationService = authenticationService;
             _userAccountModelFactory = userAccountModelFactory;
             _userRegistrationService = userRegistrationService;
@@ -60,6 +68,7 @@ namespace StockManagementSystem.Controllers
             _workContext = workContext;
             _tenantContext = tenantContext;
             _emailSender = emailSender;
+            _pictureService = pictureService;
         }
 
         #region Login / logout
@@ -475,7 +484,6 @@ namespace StockManagementSystem.Controllers
 
         #region Change password
 
-        //[HttpsRequirement(SslRequirement.Yes)]
         [HttpsRequirement(SslRequirement.NoMatter)]
         public async Task<IActionResult> ChangePassword()
         {
@@ -518,6 +526,187 @@ namespace StockManagementSystem.Controllers
 
             //If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        #endregion
+
+        #region My account
+
+        [HttpsRequirement(SslRequirement.NoMatter)]
+        public async Task<IActionResult> Info()
+        {
+            if (!_workContext.CurrentUser.IsRegistered())
+                return Challenge();
+
+            var model = new UserInfoModel();
+            model = await _userAccountModelFactory.PrepareUserInfoModel(model, _workContext.CurrentUser, false);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [AntiForgery]
+        public async Task<IActionResult> Info(UserInfoModel model)
+        {
+            if (!_workContext.CurrentUser.IsRegistered())
+                return Challenge();
+
+            var user = _workContext.CurrentUser;
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //username 
+                    if (_userSettings.UsernamesEnabled && _userSettings.AllowUsersToChangeUsernames)
+                    {
+                        if (!user.Username.Equals(model.Username.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            //change username
+                            await _userRegistrationService.SetUsernameAsync(user, model.Username.Trim());
+
+                            //re-authenticate
+                            await _authenticationService.SignInAsync(user, true);
+                        }
+                    }
+
+                    //email
+                    if (!user.Email.Equals(model.Email.Trim(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        //change email
+                        await _userRegistrationService.SetEmailAsync(user, model.Email.Trim());
+
+                        //re-authenticate (if usernames are disabled)
+                        if (!_userSettings.UsernamesEnabled)
+                            await _authenticationService.SignInAsync(user, true);
+                    }
+
+                    //properties
+                    if (_dateTimeSettings.AllowUsersToSetTimeZone)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.TimeZoneIdAttribute, model.TimeZoneId);
+
+                    //form fields
+                    if (_userSettings.GenderEnabled)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.GenderAttribute, model.Gender);
+
+                    await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.FirstNameAttribute, model.FirstName);
+                    await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.LastNameAttribute, model.LastName);
+
+                    if (_userSettings.DateOfBirthEnabled)
+                    {
+                        var dateOfBirth = model.ParseDateOfBirth();
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.DateOfBirthAttribute, dateOfBirth);
+                    }
+
+                    if (_userSettings.PhoneEnabled)
+                        await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.PhoneAttribute, model.Phone);
+
+                    return RedirectToRoute("UserInfo");
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+
+            model = await _userAccountModelFactory.PrepareUserInfoModel(model, user, true);
+
+            return View(model);
+        }
+
+        #endregion
+
+        #region Avatar
+
+        [HttpsRequirement(SslRequirement.NoMatter)]
+        public async Task<IActionResult> Avatar()
+        {
+            if (!_workContext.CurrentUser.IsRegistered())
+                return Challenge();
+
+            if (!_userSettings.AllowUsersToUploadAvatars)
+                return RedirectToRoute("UserInfo");
+
+            var model = new UserAvatarModel();
+            model = await _userAccountModelFactory.PrepareUserAvatarModel(model);
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Avatar")]
+        [AntiForgery]
+        [FormValueRequired("upload-avatar")]
+        public async Task<IActionResult> UploadAvatar(UserAvatarModel model, IFormFile uploadedFile)
+        {
+            if (!_workContext.CurrentUser.IsRegistered())
+                return Challenge();
+
+            if (!_userSettings.AllowUsersToUploadAvatars)
+                return RedirectToRoute("UserInfo");
+
+            var user = _workContext.CurrentUser;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var userAvatar = await _pictureService.GetPictureById(await _genericAttributeService.GetAttributeAsync<int>(user, 
+                        UserDefaults.AvatarPictureIdAttribute));
+                    if (!string.IsNullOrEmpty(uploadedFile?.FileName))
+                    {
+                        var avatarMaxSize = _userSettings.AvatarMaximumSizeBytes;
+                        if (uploadedFile.Length > avatarMaxSize)
+                            throw new DefaultException($"Maximum avatar size is {avatarMaxSize} bytes.");
+
+                        var userPictureBinary = await _pictureService.GetDownloadBits(uploadedFile);
+                        userAvatar = userAvatar != null
+                            ? await _pictureService.UpdatePicture(userAvatar.Id, userPictureBinary, uploadedFile.ContentType, null)
+                            : await _pictureService.InsertPicture(userPictureBinary, uploadedFile.ContentType, null);
+                    }
+
+                    var userAvatarId = 0;
+                    if (userAvatar != null)
+                        userAvatarId = userAvatar.Id;
+
+                    await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.AvatarPictureIdAttribute, userAvatarId);
+
+                    model.AvatarUrl = _pictureService.GetPictureUrl(
+                        await _genericAttributeService.GetAttributeAsync<int>(user,
+                            UserDefaults.AvatarPictureIdAttribute), _mediaSettings.AvatarPictureSize, false);
+
+                    return View(model);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                }
+            }
+
+            model = await _userAccountModelFactory.PrepareUserAvatarModel(model);
+
+            return View(model);
+        }
+
+        [HttpPost, ActionName("Avatar")]
+        [AntiForgery]
+        [FormValueRequired("remove-avatar")]
+        public async Task<IActionResult> RemoveAvatar(UserAvatarModel model)
+        {
+            if (!_workContext.CurrentUser.IsRegistered())
+                return Challenge();
+
+            if (!_userSettings.AllowUsersToUploadAvatars)
+                return RedirectToRoute("UserInfo");
+
+            var user = _workContext.CurrentUser;
+
+            var userAvatar = await _pictureService.GetPictureById(await _genericAttributeService.GetAttributeAsync<int>(user,
+                UserDefaults.AvatarPictureIdAttribute));
+            if (userAvatar != null)
+                await _pictureService.DeletePicture(userAvatar);
+
+            await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.AvatarPictureIdAttribute, 0);
+
+            return RedirectToRoute("UserAvatar");
         }
 
         #endregion

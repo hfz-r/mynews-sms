@@ -66,7 +66,7 @@ namespace StockManagementSystem.Services.Integrations
 
             using (var conn = new SqlConnection(SqlHelper.ConnectionString))
             {
-                var commandText = @"SELECT TOP 100 [outlet_no], [outlet_name], [price_level], [area_code], 
+                var commandText = @"SELECT TOP 10 [outlet_no], [outlet_name], [price_level], [area_code], 
                                 [address1], [address2], [address3], [postcode], [city], [state], [country] 
                                 FROM [dbo].[btb_HHT_Outlet] WHERE [status] = 1";
 
@@ -221,7 +221,7 @@ namespace StockManagementSystem.Services.Integrations
 
                 using (var conn = new SqlConnection(SqlHelper.ConnectionString))
                 {
-                    var commandText = @"SELECT TOP 100 [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] 
+                    var commandText = @"SELECT TOP 10 [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] 
                                         FROM [dbo].[btb_HHT_Staff]";
 
                     var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
@@ -280,7 +280,7 @@ namespace StockManagementSystem.Services.Integrations
 
             using (var conn = new SqlConnection(SqlHelper.ConnectionString))
             {
-                var commandText = @"SELECT TOP 100 [stock_code], [stock_name], [subc].[Category_Code], [price_level_01], [price_level_02], 
+                var commandText = @"SELECT TOP 10 [stock_code], [stock_name], [subc].[Category_Code], [price_level_01], [price_level_02], 
                                     [price_level_03], [price_level_04], [price_level_05], [price_level_06], [price_level_07], [price_level_08],
                                     [price_level_09], [price_level_10], [price_level_11], [price_level_12], [price_level_13], [price_level_14],
                                     [price_level_15], [status], [order], [type], [variant1], [variant2] 
@@ -354,6 +354,6 @@ namespace StockManagementSystem.Services.Integrations
 
         public string Schedule => "0 17 * * *";
 
-        public bool Enabled => false;
+        public bool Enabled => true;
     }
 }

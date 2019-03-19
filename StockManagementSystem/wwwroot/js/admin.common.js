@@ -55,10 +55,11 @@ function saveUserPreferences(url, name, value) {
 
 // tab helper
 function bindBootstrapTabSelectEvent(tabsId, inputId) {
-    $('#' + tabsId + ' > ul li a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var tabName = $(e.target).attr("data-tab-name");
-        $("#" + inputId).val(tabName);
-    });
+    $('#' + tabsId + ' > ul li a[data-toggle="tab"]').on('shown.bs.tab',
+        function(e) {
+            var tabName = $(e.target).attr("data-tab-name");
+            $("#" + inputId).val(tabName);
+        });
 }
 
 // kendoui error
@@ -87,6 +88,38 @@ function display_kendoui_grid_error(e) {
     } else if (e.errorThrown) {
         alert('Error happened');
     }
+}
+
+//nested settings
+function toggleNestedSetting(parentSettingName, parentFormGroupId) {
+    if ($('input[name="' + parentSettingName + '"]').is(':checked')) {
+        $('#' + parentFormGroupId).addClass('opened');
+    } else {
+        $('#' + parentFormGroupId).removeClass('opened');
+    }
+}
+
+function parentSettingClick(e) {
+    toggleNestedSetting(e.data.parentSettingName, e.data.parentFormGroupId);
+}
+
+function initNestedSetting(parentSettingName, parentSettingId, nestedSettingId) {
+    var parentFormGroup = $('input[name="' + parentSettingName + '"]').closest('.form-group');
+    var parentFormGroupId = $(parentFormGroup).attr('id');
+    if (!parentFormGroupId) {
+        parentFormGroupId = parentSettingId;
+    }
+    $(parentFormGroup).addClass('parent-setting').attr('id', parentFormGroupId);
+    if ($('#' + nestedSettingId + ' .form-group').length ==
+        $('#' + nestedSettingId + ' .form-group.advanced-setting').length) {
+        $('#' + parentFormGroupId).addClass('parent-setting-advanced');
+    }
+
+    //$(document).on('click', 'input[name="' + parentSettingName + '"]', toggleNestedSetting(parentSettingName, parentFormGroupId));
+    $('input[name="' + parentSettingName + '"]').click(
+        { parentSettingName: parentSettingName, parentFormGroupId: parentFormGroupId },
+        parentSettingClick);
+    toggleNestedSetting(parentSettingName, parentFormGroupId);
 }
 
 //scroll to top
@@ -120,8 +153,8 @@ $(document).ajaxStart(function() {
     $('#ajaxBusy').hide();
 });
 
-$(document).ready(function () {
-    $('.multi-tenant-override-option').each(function (k, v) {
+$(document).ready(function() {
+    $('.multi-tenant-override-option').each(function(k, v) {
         checkOverriddenTenantValue(v, $(v).attr('data-for-input-selector'));
     });
 
@@ -134,7 +167,7 @@ $(document).ready(function () {
     });
 
     //pressing Enter in the table should not lead to any action
-    $("div[id$='-grid']").keypress(function (event) {
+    $("div[id$='-grid']").keypress(function(event) {
         if (event.which == 13 || event.keyCode == 13) {
             return false;
         }
@@ -142,7 +175,7 @@ $(document).ready(function () {
 });
 
 function checkAllOverriddenTenantValue(item) {
-    $('.multi-tenant-override-option').each(function (k, v) {
+    $('.multi-tenant-override-option').each(function(k, v) {
         $(v).attr('checked', item.checked);
         checkOverriddenTenantValue(v, $(v).attr('data-for-input-selector'));
     });
@@ -153,27 +186,28 @@ function checkOverriddenTenantValue(obj, selector) {
     if (!$(obj).is(':checked')) {
         $(selector).attr('disabled', true);
         //Kendo UI elements are enabled/disabled some other way
-        $.each(elementsArray, function (key, value) {
-            var kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
-            if (kenoduiElement !== undefined && kenoduiElement !== null) {
-                kenoduiElement.enable(false);
-            }
-        });
-    }
-    else {
+        $.each(elementsArray,
+            function(key, value) {
+                var kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+                if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                    kenoduiElement.enable(false);
+                }
+            });
+    } else {
         $(selector).removeAttr('disabled');
         //Kendo UI elements are enabled/disabled some other way
-        $.each(elementsArray, function (key, value) {
-            var kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
-            if (kenoduiElement !== undefined && kenoduiElement !== null) {
-                kenoduiElement.enable();
-            }
-        });
+        $.each(elementsArray,
+            function(key, value) {
+                var kenoduiElement = $(value).data("kendoNumericTextBox") || $(value).data("kendoMultiSelect");
+                if (kenoduiElement !== undefined && kenoduiElement !== null) {
+                    kenoduiElement.enable();
+                }
+            });
     };
 }
 
 //no-tabs solution
-$(document).ready(function () {
+$(document).ready(function() {
     $(".panel.collapsible-panel >.panel-heading").click(WrapAndSaveBlockData);
 });
 

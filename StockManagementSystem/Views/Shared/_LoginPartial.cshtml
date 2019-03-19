@@ -28,13 +28,15 @@
                 {
                     <!-- User image -->
                     <li class="user-header">
-                        <img src="~/images/user2-160x160.jpg" class="img-circle" alt="User Image">
-
-                        <p>
-                            @userName
-                            <small><i class="fa fa-circle text-success"></i> Online</small>
-
-                        </p>
+                        <div>
+                            <a href="@Url.Action("Info", "Account")">
+                                <img src="~/images/user2-160x160.jpg" class="img-circle" alt="User Image"/>
+                                <p style="padding-top: 10px; color: white">
+                                    @userName<br />
+                                    <small><i class="fa fa-circle text-success"></i> Online</small>
+                                </p>
+                            </a>
+                        </div>
                     </li>
                     <!-- Menu Footer-->
                     <li class="user-footer">

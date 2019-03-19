@@ -19,5 +19,8 @@ namespace StockManagementSystem.Models.Roles
 
         [Display(Name = "System name")]
         public string SystemName { get; set; }
+
+        [Display(Name = "Enable password lifetime")]
+        public bool EnablePasswordLifetime { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@model UserSearchModel
 @using System.Globalization
+@inject MediaSettings _mediaSettings
 
 @{
     //page title
@@ -129,25 +130,26 @@
                                     <div class="col-md-8">
                                         <_select asp-for="SelectedRoleIds" asp-items="Model.AvailableRoles" asp-multiple="true" />
                                         <script>
-                                        $(document).ready(function() {
-                                            var rolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)').data("kendoMultiSelect");
-                                            rolesIdsInput.setOptions({
-                                                autoClose: false,
-                                                filter: "contains"
-                                            });
+                            $(document).ready(function() {
+                                var rolesIdsInput = $('#@Html.IdFor(model => model.SelectedRoleIds)')
+                                    .data("kendoMultiSelect");
+                                rolesIdsInput.setOptions({
+                                    autoClose: false,
+                                    filter: "contains"
+                                });
 
-                                            @if (Model.AvailableRoles.Count == 0)
-                                            {
-                                                <text>
-                                                    rolesIdsInput.setOptions({
-                                                        enable: false,
-                                                        placeholder: "No roles available"
-                                                    });
-                                                    rolesIdsInput._placeholder();
-                                                    rolesIdsInput._enable();
-                                                </text>
-                                            }
+                                @if (Model.AvailableRoles.Count == 0)
+                                {
+                                    <text>
+                                        rolesIdsInput.setOptions({
+                                            enable: false,
+                                            placeholder: "No roles available"
                                         });
+                                        rolesIdsInput._placeholder();
+                                        rolesIdsInput._enable();
+                                    </text>
+                                }
+                            });
                                         </script>
                                     </div>
                                 </div>
@@ -174,173 +176,192 @@
                             }
                         </style>
                         <script>
-                        $(document).ready(function() {
-                            $("#users-grid").kendoGrid({
-                                dataSource: {
-                                    type: "json",
-                                    transport: {
-                                        read: {
-                                            url: "@Html.Raw(Url.Action("UserList", "User"))",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: function() {
-                                                var data = {
-                                                    SelectedRoleIds: $('#@Html.IdFor(model => model.SelectedRoleIds)').val(),
-                                                    SearchEmail: $('#@Html.IdFor(model => model.SearchEmail)').val(),
-                                                    SearchUsername: $('#@Html.IdFor(model => model.SearchUsername)').val(),
-                                                    SearchFirstName: $('#@Html.IdFor(model => model.SearchFirstName)').val(),
-                                                    SearchLastName: $('#@Html.IdFor(model => model.SearchLastName)').val(),
-                                                    SearchDayOfBirth: $('#@Html.IdFor(model => model.SearchDayOfBirth)').val(),
-                                                    SearchMonthOfBirth: $('#@Html.IdFor(model => model.SearchMonthOfBirth)').val(),
-                                                    SearchPhone: $('#@Html.IdFor(model => model.SearchPhone)').val(),
-                                                    SearchIpAddress: $('#@Html.IdFor(model => model.SearchIpAddress)').val()
-                                                };
-                                                addAntiForgeryToken(data);
-                                                return data;
-                                            }
-                                        },
-                                        destroy: {
-                                            url: "@Html.Raw(Url.Action("DeleteInline", "User"))",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: addAntiForgeryToken
-                                        }
-                                    },
-                                    schema: {
-                                        data: "Data",
-                                        total: "Total",
-                                        errors: "Errors",
-                                        model: { id: "Id" }
-                                    },
-                                    error: function(e) {
-                                        display_kendoui_grid_error(e);
-                                        this.cancelChanges();
-                                    },
-                                    pageSize: @(Model.PageSize),
-                                    serverPaging: true,
-                                    serverFiltering: true,
-                                    serverSorting: true
-                                },
-                                sortable: {
-                                    mode: "single",
-                                    allowUnsort: false
-                                },
-                                filterable: true,
-                                resizable: true,
-                                columnMenu: { columns: false },
-                                pageable: {
-                                    refresh: true,
-                                    pageSizes: [@(Model.AvailablePageSizes)],
-                                    @await Html.PartialAsync("_GridPagerMessages")
-                                },
-                                scrollable: false,
-                                columns: [
-                                    {
-                                        field: "Email",
-                                        title: "Email",
-                                        width: 150
-                                    },
-                                    @if (Model.UsernamesEnabled)
-                                    {
-                                        <text>{
-                                        field: "Username",
-                                        title: "Username",
-                                        width: 150
-                                        },</text>
-                                    }
-                                    {
-                                        field: "FullName",
-                                        title: "Name",
-                                        width: 200
-                                    },
-                                    {
-                                        field: "UserRolesName",
-                                        title: "Roles",
-                                        width: 200
-                                    },
-                                    @if (Model.PhoneEnabled)
-                                    {
-                                        <text>{
-                                        field: "Phone",
-                                        title: "Phone",
-                                        width: 150,
-                                        sortable: false,
-                                        filterable: false
-                                        },</text>
-                                    }
-                                     {
-                                        field: "Active",
-                                        title: "Active",
-                                        sortable: false,
-                                        filterable: false,
-                                        headerAttributes: { style: "text-align:center" },
-                                        attributes: { style: "text-align:center" },
-                                        template: '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
-                                    },
-                                    {
-                                        field: "CreatedOn",
-                                        title: "Created on",
-                                        type: "date",
-                                        template: "#= CreatedOn ? kendo.toString(kendo.parseDate(CreatedOn, 'yyyy-MM-dd'),'MM/dd/yyyy h:mm tt') : ' ' #"
-                                    },
-                                    //{
-                                    //    field: "LastActivityDate",
-                                    //    title: "Last activity",
-                                    //    type: "date",
-                                    //    template: "#= LastActivityDate ? kendo.toString(kendo.parseDate(LastActivityDate, 'yyyy-MM-dd'),'MM/dd/yyyy h:mm tt') : ' ' #"
-                                    //},
-                                    {
-                                        template:
-                                            "<a href='\\#' title='Edit' onclick='edit(#=Id#)' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
-                                            "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
-                                        headerAttributes: { style: "text-align:center" },
-                                        attributes: { style: "text-align:center" },
-                                        width: 100
-                                    }
-                                ],
-                                editable: {
-                                    confirmation: "Are you sure you want to delete this item?",
-                                    mode: "inline"
+            $(document).ready(function() {
+                $("#users-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("UserList", "User"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        SelectedRoleIds: $('#@Html.IdFor(model => model.SelectedRoleIds)').val(),
+                                        SearchEmail: $('#@Html.IdFor(model => model.SearchEmail)').val(),
+                                        SearchUsername: $('#@Html.IdFor(model => model.SearchUsername)').val(),
+                                        SearchFirstName: $('#@Html.IdFor(model => model.SearchFirstName)').val(),
+                                        SearchLastName: $('#@Html.IdFor(model => model.SearchLastName)').val(),
+                                        SearchDayOfBirth: $('#@Html.IdFor(model => model.SearchDayOfBirth)').val(),
+                                        SearchMonthOfBirth: $('#@Html.IdFor(model => model.SearchMonthOfBirth)').val(),
+                                        SearchPhone: $('#@Html.IdFor(model => model.SearchPhone)').val(),
+                                        SearchIpAddress: $('#@Html.IdFor(model => model.SearchIpAddress)').val()
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
                                 }
-                            });
-                        });
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("DeleteInline", "User"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: { id: "Id" }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        pageSize: @(Model.PageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    sortable: {
+                        mode: "single",
+                        allowUnsort: false
+                    },
+                    filterable: true,
+                    resizable: true,
+                    columnMenu: { columns: false },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(Model.AvailablePageSizes)],
+                        @await Html.PartialAsync("_GridPagerMessages")
+                    },
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Email",
+                            title: "Email",
+                            width: 150
+                        },
+                        @if (Model.AvatarEnabled)
+                        {
+                            <text>{
+                            field: "AvatarUrl",
+                            title: "Avatar",
+                            width: @(_mediaSettings.AvatarPictureSize),
+                            template:
+                                "# if(AvatarUrl) {# <img src='#=AvatarUrl#' class='avatar-img' alt='Avatar'/> #} #"
+                        },</text>
+                        }
+                        @if (Model.UsernamesEnabled)
+                        {
+                            <text>{
+                            field: "Username",
+                            title: "Username",
+                            width: 150
+                        },</text>
+                        }
+                        {
+                            field: "FullName",
+                            title: "Name",
+                            width: 200
+                        },
+                        {
+                            field: "UserRolesName",
+                            title: "Roles",
+                            width: 200
+                        },
+                        @if (Model.PhoneEnabled)
+                        {
+                            <text>{
+                            field: "Phone",
+                            title: "Phone",
+                            width: 150,
+                            sortable: false,
+                            filterable: false
+                        },</text>
+                        }
+                        {
+                            field: "Active",
+                            title: "Active",
+                            sortable: false,
+                            filterable: false,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template:
+                                '# if(Active) {# <i class="fa fa-check true-icon"></i> #} else {# <i class="fa fa-close false-icon"></i> #} #'
+                        },
+                        {
+                            field: "CreatedOn",
+                            title: "Created on",
+                            type: "date",
+                            template:
+                                "#= CreatedOn ? kendo.toString(kendo.parseDate(CreatedOn, 'yyyy-MM-dd'),'MM/dd/yyyy h:mm tt') : ' ' #"
+                        },
+                        //{
+                        //    field: "LastActivityDate",
+                        //    title: "Last activity",
+                        //    type: "date",
+                        //    template: "#= LastActivityDate ? kendo.toString(kendo.parseDate(LastActivityDate, 'yyyy-MM-dd'),'MM/dd/yyyy h:mm tt') : ' ' #"
+                        //},
+                        {
+                            template:
+                                "<a href='\\#' title='Edit' onclick='edit(#=Id#)' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                    "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 100
+                        }
+                    ],
+                    editable: {
+                        confirmation: "Are you sure you want to delete this item?",
+                        mode: "inline"
+                    }
+                });
+            });
                         </script>
                         <script>
 
-                            $(document).ready(function () {
-                                //Removing Column Menu
-                                var grid = $("#users-grid").data("kendoGrid");
-                                grid.thead.find("[data-field=Active]>.k-header-column-menu").remove();
+            $(document).ready(function() {
+                //Removing Column Menu
+                var grid = $("#users-grid").data("kendoGrid");
+                grid.thead.find("[data-field=Active]>.k-header-column-menu").remove();
 
-                                @if (Model.PhoneEnabled)
-                                {
-                                    <text> 
-                                    grid.thead.find("[data-field=Phone]>.k-header-column-menu").remove();
-                                    </text>
-                                }
+                @if (Model.PhoneEnabled)
+                {
+                    <text>
+                        grid.thead.find("[data-field=Phone]>.k-header-column-menu").remove();
+                    </text>
+                }
+                @if (Model.AvatarEnabled)
+                {
+                    <text>
+                        grid.thead.find("[data-field=AvatarUrl]>.k-header-column-menu").remove();
+                    </text>
+                }
+                //search button
+                $('#search-users').click(function() {
+                    var grid = $('#users-grid').data('kendoGrid');
+                    grid.dataSource.page(1);
+                    return false;
+                });
 
-                                //search button
-                                $('#search-users').click(function () {
-                                    var grid = $('#users-grid').data('kendoGrid');
-                                    grid.dataSource.page(1);
-                                    return false;
-                                });
+                $("#users-grid").on("click",
+                    ".custom-button",
+                    function(e) {
+                        var btn = $(this);
+                        e.preventDefault();
 
-                                $("#users-grid").on("click", ".custom-button", function (e) {
-                                    var btn = $(this);
-                                    e.preventDefault();
+                        if (btn.hasClass("destroy-button")) {
+                            var row = btn.closest("tr");
+                            grid.removeRow(row);
+                        }
+                    });
+            });
 
-                                    if (btn.hasClass("destroy-button")) {
-                                        var row = btn.closest("tr");
-                                        grid.removeRow(row);
-                                    }
-                                });
-                            });
-
-                            function edit(id) {
-                                var url = '@Url.Action("Edit", "User", new { id = "__id__" })';
-                                window.location.href = url.replace('__id__', id);
-                            }
+            function edit(id) {
+                var url = '@Url.Action("Edit", "User", new {id = "__id__"})';
+                window.location.href = url.replace('__id__', id);
+            }
 
                         </script>
                     </div>

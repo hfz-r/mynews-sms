@@ -7,13 +7,15 @@ using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Configuration;
 using StockManagementSystem.Services.Configuration;
+using StockManagementSystem.Services.Events;
 
 namespace Services.Tests.Configuration
 {
     public class ConfigFileSettingService : SettingService
     {
-        public ConfigFileSettingService(IRepository<Setting> settingRepository, IStaticCacheManager cacheManager) :
-            base(settingRepository, cacheManager)
+        public ConfigFileSettingService(IEventPublisher eventPublisher, IRepository<Setting> settingRepository,
+            IStaticCacheManager cacheManager) :
+            base(eventPublisher, settingRepository, cacheManager)
         {
         }
 

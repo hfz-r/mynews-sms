@@ -43,7 +43,7 @@ namespace StockManagementSystem.Web.Infrastructure
         public void Configure(IApplicationBuilder application)
         {
             //use response compression
-            application.UseResponseCompression();
+            application.UseDefaultResponseCompression();
 
             //use static files feature
             application.UseDefaultStaticFiles();

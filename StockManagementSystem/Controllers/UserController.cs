@@ -39,7 +39,7 @@ namespace StockManagementSystem.Controllers
             UserSettings userSettings,
             DateTimeSettings dateTimeSettings,
             IUserService userService, 
-            IUserRegistrationService userRegistrationService, 
+            IUserRegistrationService userRegistrationService,
             IUserModelFactory userModelFactory, 
             IGenericAttributeService genericAttributeService, 
             IPermissionService permissionService, 

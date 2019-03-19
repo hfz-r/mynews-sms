@@ -48,5 +48,7 @@ namespace StockManagementSystem.Models.Users
 
         [Display(Name = "IP address")]
         public string SearchIpAddress { get; set; }
+
+        public bool AvatarEnabled { get; internal set; }
     }
 }

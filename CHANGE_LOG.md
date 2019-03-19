@@ -38,3 +38,12 @@
    - mapping
 - Device
    - change to inline editor
+
+-- **19-03-2019**
+
+- API
+   - added webhook for HTTP callback/notification (refers to [API documentation](https://documenter.getpostman.com/view/4900831/RztrHRUB) for the usage explanation)
+   - updated DTOs object
+- implemented events triggering (see IConsumer & IEventPublisher)
+- added picture services
+- enhanced **Settings** module (currently applied to security, general, users and media)
