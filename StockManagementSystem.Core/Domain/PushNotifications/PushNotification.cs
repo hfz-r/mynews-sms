@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace StockManagementSystem.Core.Domain.PushNotifications
 {
@@ -11,6 +12,18 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
         public string StockTakeNo { get; set; }
 
         public int NotificationCategoryId { get; set; }
+
+        public string JobName { get; set; }
+
+        public string JobGroup { get; set; }
+
+        public int? Interval { get; set; }
+
+        public bool RemindMe { get; set; }
+
+        public DateTime? StartTime { get; set; }
+
+        public DateTime? EndTime { get; set; }
 
         public virtual NotificationCategory NotificationCategory { set; get; }
 

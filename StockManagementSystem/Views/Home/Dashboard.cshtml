@@ -36,28 +36,26 @@
             </div>
         </div>
     </div>
-    <div class="box box-default box">
-        <div class="box box-danger">
-            <div class="box-header with-border">
-                <h3 class="box-title">Actions</h3>
-                <div class="box-tools pull-right">
-                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                        <i class="fa fa-minus"></i>
-                    </button>
+    <div class="box box-danger box">
+        <div class="box-header with-border">
+            <h3 class="box-title">Actions</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                    <i class="fa fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class=" box-body">
+            <div class="dashboard-panel-container">
+                <div id="master" class="dashboard-panel col-sm-8 col-md-5">
+                    @await Component.InvokeAsync("PanelMasterComponent")
                 </div>
             </div>
-            <div class=" box-body">
-                <div class="dashboard-panel-container">
-                    <div id="master" class="dashboard-panel col-sm-8 col-md-5">
-                        @await Component.InvokeAsync("PanelMasterComponent")
-                    </div>
-                </div>
 
-                @*Phase 2 Development*@
-                @*<div id="approval">
+            @*Phase 2 Development*@
+            @*<div id="approval">
                     @await Component.InvokeAsync("PanelTxnApprovalComponent")
                 </div>*@
-            </div>
         </div>
     </div>
 

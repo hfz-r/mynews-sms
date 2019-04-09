@@ -9,7 +9,7 @@
                     <label asp-for="Title" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="Title" class="form-control" />
+                    <input asp-for="Title" class="form-control" placeholder="Enter title of the notification" />
                     <span asp-validation-for="Title"></span>
                 </div>
             </div>
@@ -19,7 +19,7 @@
                     <label asp-for="Description" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="Description" class="form-control" />
+                    <input asp-for="Description" class="form-control" placeholder="Enter content of the notification" />
                     <span asp-validation-for="Description"></span>
                 </div>
             </div>
@@ -59,7 +59,9 @@
                         function onChange(e) {
                             var selected = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val();
                             $("#stocktake-outlet").attr("style", "display: none;");
-                            if (selected == null) {
+
+                            if (selected == null || selected == "")
+                            {
                                 $("#stocktake-display").attr("style", "display: none;");
                                 $("#others-outlet").attr("style", "display: none;");
                             }
@@ -97,6 +99,7 @@
                                     change: function () {
                                         onChangeStock();
                                     },
+                                    optionLabel: " ",
                                     dataBound: onChangeStock
                                 }).data("kendoMultiSelect");
 
@@ -104,7 +107,7 @@
                                 <text>
                                     StockTakesInput.placeholder = "No stock take is available";
                                     StockTakesInput.enable = false;
-                                                    </text>
+                                </text>
                             }
                         });
 
@@ -114,7 +117,11 @@
                             stNo = $('#@Html.IdFor(model => model.SelectedStockTake)').val();
                             var catId = $('#@Html.IdFor(model => model.SelectedNotificationCategoryIds)').val();
 
-                            if (catId == 1) {
+                            if (stNo == "") {
+                                $("#StoreName").val("");
+                            }
+
+                            if (stNo != "" && catId == 1) {
                                 $.ajax({
                                     type: "GET",
                                     url: '@Url.Action("GetStockTakeStores", "PushNotification")',// the method we are calling
@@ -122,7 +129,6 @@
                                     data: "stockTakeNo=" + pushNoti.STNo,
                                     dataType: "text",
                                     success: function (result) {
-                                        //alert(result);
                                         if (result != null) {
                                             result = result.slice(1, -1);
                                             $("#StoreName").val(result);
@@ -139,7 +145,7 @@
                                 });
                             }
                             else {
-                                $("#StoreName").val(null);
+                                $("#StoreName").val("");
                             }
                         }
                     </script>
@@ -190,68 +196,76 @@
                     <label asp-for="RemindMe" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="RemindMe" class="checkbox" id="remindMeCheckBox" type="checkbox" onclick="remindMe()" onload="remindMe()" />
+                    <input asp-for="RemindMe" class="checkbox" id="remindMeCheckBox" type="checkbox" onclick="remindMe()" />
                 </div>
                 <script>
                     function remindMe() {
                         var checkBox = document.getElementById("remindMeCheckBox");
                         if (checkBox.checked == true) {
                             $("#repeat-display").show();
+                            $("#startDateTimeSelection").show();
+                            $("#endDateTimeSelection").show();
                         } else {
                             $("#repeat-display").attr("style", "display: none;");
+                            $("#startDateTimeSelection").attr("style", "display: none;");
+                            $("#endDateTimeSelection").attr("style", "display: none;");
                         }
-                        $("#selectionDays").attr("style", "display: none;");
-                        $("#timeSelection").attr("style", "display: none;");
-                        $("#recursiveDays").attr("style", "display: none;");
                     }
+
+                    $(document).ready(function () {
+                        var checkBox = document.getElementById("remindMeCheckBox");
+                        if (checkBox.checked == true) {
+                            $("#repeat-display").show();
+                            $("#startDateTimeSelection").show();
+                            $("#endDateTimeSelection").show();
+                        } else {
+                            $("#repeat-display").attr("style", "display: none;");
+                            $("#startDateTimeSelection").attr("style", "display: none;");
+                            $("#endDateTimeSelection").attr("style", "display: none;");
+                        }
+                    });
                 </script>
             </div>
 
             <div class="form-group" id="repeat-display" style="display: none;">
                 <div class="col-xs-3">
-                    <label asp-for="Repeat" class="control-label pull-right"></label>
+                    <label asp-for="SelectedRepeat" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <div class="btn-group">
-                        <button type="button" id="daily" class="btn btn-default pull-left" onclick="dailySelected()">Daily</button>
-                        <button type="button" id="weekly" class="btn btn-default pull-left" onclick="weeklySelected()">Weekly</button>
-                        <button type="button" id="monthly" class="btn btn-default pull-left" onclick="monthlySelected()">Monthly</button>
-                        <button type="button" id="once" class="btn btn-default pull-left" onclick="onceSelected()">One Time</button>
+                    <div class="input-group input-group-required">
+                        <select asp-for="SelectedRepeat" asp-items="Model.AvailableRepeatList" asp-multiple="true"></select>
+                        <div class="input-group-btn">
+                            <required />
+                        </div>
                     </div>
                 </div>
+                <script>
+                        $(document).ready(function () {
+                            var SelectedRepeatInput = $('#@Html.IdFor(model => model.SelectedRepeat)')
+                                .kendoDropDownList({
+                                    autoClose: false,
+                                    filter: "contains",
+                                    optionLabel: " "
+                                }).data("kendoMultiSelect");
+                        });
+                </script>
             </div>
 
-            <div class="form-group" id="selectionDays" style="display: none;">
-                <div class="col-xs-3">
-                </div>
-                <div class="col-xs-9">
-                    <div class="btn-group">
-                        <button type="button" data-toggle="button" class="btn btn-default">Sun</button>
-                        <button type="button" data-toggle="button" class="btn btn-default">Mon</button>
-                        <button type="button" data-toggle="button" class="btn btn-default">Tue</button>
-                        <button type="button" data-toggle="button" class="btn btn-default">Wed</button>
-                        <button type="button" data-toggle="button" class="btn btn-default">Thu</button>
-                        <button type="button" data-toggle="button" class="btn btn-default">Fri</button>
-                        <button type="button" data-toggle="button" class="btn btn-default">Sat</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group" id="timeSelection" style="display:none;">
+            <div class="form-group" id="startDateTimeSelection" style="display: none;">
                 <div class="col-xs-3">
                     <label asp-for="StartTime" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input id="timepicker" value="10:00 AM" title="timepicker" style="width: 100%;" />
+                    <input id="start" asp-for="StartTime" title="timepicker" style="width: 100%;" />
                 </div>
             </div>
-            <div class="form-group" id="recursiveDays" style="display:none;">
+
+            <div class="form-group" id="endDateTimeSelection" style="display: none;">
                 <div class="col-xs-3">
+                    <label asp-for="EndTime" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <label asp-for="RepeatEvery" class="control-label"></label>
-                    <input onkeypress='return validateQty(event);' step="1" style="width:100px; text-align:right;" id="repeatTimes" name="RepeatEvery" maxlength="5" min="0" max="500" />
-                    <label id="repeatLabel" class="control-label"></label>
+                    <input id="end" asp-for="EndTime" title="timepicker" style="width: 100%;" />
                 </div>
             </div>
 
@@ -270,74 +284,73 @@
                 };
 
                 $(document).ready(function () {
-                    // create TimePicker from input HTML element
-                    $("#timepicker").kendoTimePicker({
-                        dateInput: true
+                    function startChange() {
+                        var startDate = start.value(),
+                            endDate = end.value();
+
+                        if (startDate) {
+                            startDate = new Date(startDate);
+                            startDate.setDate(startDate.getDate());
+                            end.min(startDate);
+                            end.value(startDate);
+                        } else if (endDate) {
+                            start.max(new Date(endDate));
+                        } else {
+                            endDate = new Date();
+                            start.max(endDate);
+                            end.min(endDate);
+                        }
+                    }
+
+                    var today = kendo.date.today();
+
+                    var start = $("#start").kendoDateTimePicker({
+                        value: today,
+                        min: today,
+                        interval: 1,
+                        change: startChange,
+                        parseFormats: ["yyyy-MM-ddThh:mm:ssZ"],
+                        format: "dd MMMM yyyy hh:mm tt", //format is used to format the value of the widget and to parse the input.
+                    }).data("kendoDateTimePicker");
+
+                    var end = $("#end").kendoDatePicker({
+                        value: today,
+                        min: today,
+                        parseFormats: ["yyyy-MM-dd"],
+                        format: "dd MMMM yyyy", //format is used to format the value of the widget and to parse the input.
+                    }).data("kendoDatePicker");
+
+                    $("#start").on("keydown", function (e) {
+                        e.preventDefault();
+                    });
+
+                    $("#end").on("keydown", function (e) {
+                        e.preventDefault();
                     });
                 });
-                function dailySelected() {
-                    $("#daily").toggleClass("active");
-                    $("#weekly").removeClass("active");
-                    $("#monthly").removeClass("active");
-                    $("#once").removeClass("active");
-                    $("#timeSelection").show();
-                    $("#recursiveDays").attr("style", "display: none;");
-                    $("#selectionDays").attr("style", "display: none;");
-                }
-                function weeklySelected() {
-                    $("#weekly").toggleClass("active");
-                    $("#daily").removeClass("active");
-                    $("#monthly").removeClass("active");
-                    $("#once").removeClass("active");
-                    $("#selectionDays").show();
-                    $("#timeSelection").show();
-                    $("#recursiveDays").show();
-                    document.getElementById("repeatLabel").textContent = "week(s)";
-                    document.getElementById("repeatsummary").textContent = "Event will occur every week.";
-                }
-                function monthlySelected() {
-                    $("#monthly").toggleClass("active");
-                    $("#daily").removeClass("active");
-                    $("#weekly").removeClass("active");
-                    $("#once").removeClass("active");
-                    $("#selectionDays").show();
-                    $("#timeSelection").show();
-                    $("#recursiveDays").show();
-                    document.getElementById("repeatLabel").textContent = "month(s)";
-                    document.getElementById("repeatsummary").textContent = "Event will occur every month.";
-                }
-                function onceSelected() {
-                    $("#once").toggleClass("active");
-                    $("#daily").removeClass("active");
-                    $("#weekly").removeClass("active");
-                    $("#monthly").removeClass("active");
-                    $("#timeSelection").show();
-                    $("#recursiveDays").attr("style", "display: none;");
-                    $("#selectionDays").attr("style", "display: none;");
-                }
             </script>
 
             @if (Model.Id > 0)
             {
-            <div class="form-group">
-                <div class="col-xs-3">
-                    <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.CreatedOn</div>
+                    </div>
                 </div>
-                <div class="col-xs-9">
-                    <div class="form-text-row">@Model.CreatedOn</div>
-                </div>
-            </div>
             }
             @if (Model.Id > 0)
             {
-            <div class="form-group">
-                <div class="col-xs-3">
-                    <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                <div class="form-group">
+                    <div class="col-xs-3">
+                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
+                    </div>
+                    <div class="col-xs-9">
+                        <div class="form-text-row">@Model.LastActivityDate</div>
+                    </div>
                 </div>
-                <div class="col-xs-9">
-                    <div class="form-text-row">@Model.LastActivityDate</div>
-                </div>
-            </div>
             }
         </div>
     </div>
