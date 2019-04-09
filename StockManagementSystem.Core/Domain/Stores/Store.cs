@@ -43,6 +43,8 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public double Latitude { get; set; }
 
+        public int? StoreGroupingId { get; set; }
+
         public virtual ICollection<Device> Device { get; set; }
 
         public virtual ICollection<PushNotificationStore> PushNotificationStores { get; set; }
@@ -53,7 +55,7 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         //public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
 
-        public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
+        //public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
 
         public virtual ICollection<StoreUserAssign> StoreUserAssigns { get; set; }
 

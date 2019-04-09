@@ -12,7 +12,7 @@ namespace StockManagementSystem.Services.Management
         void DeleteAssignUserStore(int Id, Store store);
         void DeleteAssignUserUsers(int Id, User user);
         void DeleteGroupOutlet(StoreGrouping storeGrouping);
-        void DeleteGroupOutletStore(int Id, Store store);
+        void DeleteStoreGroupingId(int Id, Store store); //DeleteGroupOutletStore
         Task<ICollection<StoreUserAssign>> GetAllAssignUsersAsync();
         Task<ICollection<StoreGrouping>> GetAllGroupOutletsAsync();
         Task<StoreUserAssign> GetAssignUserByIdAsync(int assignUserId);
