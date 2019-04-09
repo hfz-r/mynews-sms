@@ -149,19 +149,21 @@ namespace StockManagementSystem.Services.Management
         {
             if (storeGrouping == null)
                 throw new ArgumentNullException(nameof(storeGrouping));
-
-            _storeGroupingStoresRepository.Delete(storeGrouping.StoreGroupingStore);
+            
             _storeGroupingRepository.Delete(storeGrouping);
         }
 
-        public virtual void DeleteGroupOutletStore(int Id, Store store)
+        public virtual void DeleteStoreGroupingId(int Id, Store store)
         {
+            int? value = null;
+
             if (store == null)
                 throw new ArgumentNullException(nameof(store));
 
-            var query = _storeGroupingStoresRepository.Table.Where(x => x.StoreGroupingId == Id && x.StoreId == store.P_BranchNo);
-
-            _storeGroupingStoresRepository.Delete(query);
+            var query = _storeRepository.Table.FirstOrDefault(x => x.StoreGroupingId == Id && x.P_BranchNo == store.P_BranchNo);
+            if (query != null)
+                query.StoreGroupingId = value ;
+            _storeRepository.Update(query);
         }
 
         #endregion

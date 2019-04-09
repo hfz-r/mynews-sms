@@ -299,7 +299,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(model => model.AvailableStores, options => options.Ignore());
             CreateMap<GroupOutletModel, StoreGrouping>()
                  .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
-                .ForMember(entity => entity.StoreGroupingStore, options => options.Ignore())
+                //.ForMember(entity => entity.StoreGroupingStore, options => options.Ignore())
                 .ForMember(entity => entity.CreatedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedBy, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
