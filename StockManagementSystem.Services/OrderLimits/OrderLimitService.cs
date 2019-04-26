@@ -51,6 +51,28 @@ namespace StockManagementSystem.Services.OrderLimits
                 getOnlyTotalCount));
         }
 
+        public Task<bool> IsStoreExistAsync(IList<int> storeList)
+        {
+            bool isExist = false;
+            var query = _orderLimitRepository.Table;
+            var queryStore = _orderLimitStoreRepository.Table;
+
+            if (storeList != null && storeList.Count > 0)
+            {
+                query = query.Where(ol => ol.OrderLimitStores.Any(ols => storeList.Contains(ols.StoreId)));
+                isExist = query != null && query.Count() > 0 ? true : false;
+            }
+
+            return Task.FromResult<bool>(isExist);
+        }
+
+        public Task<ICollection<OrderLimitStore>> GetAllOrderLimitsStoreAsync()
+        {
+            var queryStore = _orderLimitStoreRepository.Table;
+
+            return Task.FromResult<ICollection<OrderLimitStore>>(new List<OrderLimitStore>(queryStore.ToList()));
+        }
+
         public Task<ICollection<OrderLimit>> GetAllOrderLimitsAsync()
         {
             var query = _orderLimitRepository.Table;

@@ -142,25 +142,40 @@ namespace StockManagementSystem.Controllers
         }
 
         [HttpPost]
+        [FormValueRequired("save")]
         public async Task<IActionResult> AddOrderLimit(OrderLimitModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
                 return AccessDeniedView();
 
+            OrderLimit orderLimit = new OrderLimit();
+
             if (model.SelectedStoreIds.Count == 0)
             {
-                ModelState.AddModelError(string.Empty, "Store is required to register a device");
                 _notificationService.ErrorNotification("Store is required to register a device");
-                return new NullJsonResult();
+                model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
+                model.SelectedStoreIds = new List<int>();
+                return View(model);
             }
 
             try
             {
-                OrderLimit orderLimit = new OrderLimit
+                var isExist = await _orderLimitService.IsStoreExistAsync(model.SelectedStoreIds);
+                if (isExist)
+                {
+                    ModelState.AddModelError(string.Empty, "Store has existed in current order limit.");
+                    _notificationService.ErrorNotification("Store has existed in current order limit.");
+                    return new NullJsonResult();
+                }
+
+                orderLimit = new OrderLimit
                 {
                     //Percentage = model.Percentage, //Remove Percentage criteria; Not required - 05032019
-                    DaysofSales = model.DaysofSales,
-                    DaysofStock = model.DaysofStock,
+                    DeliveryPerWeek = model.DeliveryPerWeek,
+                    Safety = model.Safety,
+                    InventoryCycle = model.InventoryCycle,
+                    OrderRatio = model.OrderRatio,
+
                     OrderLimitStores = new List<OrderLimitStore>()
                 };
 
@@ -178,7 +193,7 @@ namespace StockManagementSystem.Controllers
 
                 await _orderLimitService.InsertOrderLimit(orderLimit);
 
-                return new NullJsonResult();
+                return RedirectToAction("Order");
             }
             catch (Exception e)
             {
@@ -188,6 +203,17 @@ namespace StockManagementSystem.Controllers
                 return Json(e.Message);
             }
         }
+        
+        public async Task<IActionResult> AddOrderLimit()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            var model = await _orderLimitModelFactory.PrepareOrderLimitModel(null, null);
+
+            return View(model);
+        }
+
         [HttpPost]
         public async Task<IActionResult> OrderLimitList(OrderLimitSearchModel searchModel)
         {
@@ -247,8 +273,10 @@ namespace StockManagementSystem.Controllers
                 try
                 {
                     //orderLimit.Percentage = model.Percentage; //Remove Percentage criteria; Not required - 05032019
-                    orderLimit.DaysofSales = model.DaysofSales;
-                    orderLimit.DaysofStock = model.DaysofStock;
+                    orderLimit.DeliveryPerWeek = model.DeliveryPerWeek;
+                    orderLimit.Safety = model.Safety;
+                    orderLimit.InventoryCycle = model.InventoryCycle;
+                    orderLimit.OrderRatio = model.OrderRatio;
 
                     //stores
 
@@ -370,9 +398,11 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                ShelfLocationFormat shelfLocationFormat = new ShelfLocationFormat();
-                shelfLocationFormat.Prefix = model.Prefix;
-                shelfLocationFormat.Name = model.Name;
+                ShelfLocationFormat shelfLocationFormat = new ShelfLocationFormat
+                {
+                    Prefix = model.Prefix,
+                    Name = model.Name
+                };
 
                 shelfLocationFormat = model.ToEntity(shelfLocationFormat);
 
@@ -538,10 +568,12 @@ namespace StockManagementSystem.Controllers
 
                     if (!isExist)
                     {
-                        FormatSetting shelfFormat = new FormatSetting();
-                        shelfFormat.Format = "Shelf";
-                        shelfFormat.Prefix = model.Prefix;
-                        shelfFormat.Name = model.Name;
+                        FormatSetting shelfFormat = new FormatSetting
+                        {
+                            Format = "Shelf",
+                            Prefix = model.Prefix,
+                            Name = model.Name
+                        };
 
                         shelfFormat = model.ToEntity(shelfFormat);
 
@@ -863,11 +895,13 @@ namespace StockManagementSystem.Controllers
                     if (!isExist)
                     {
                         int counter = dataList.Count;
-                        FormatSetting barcodeFormat = new FormatSetting();
-                        barcodeFormat.Format = "Barcode";
-                        barcodeFormat.Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]);
-                        barcodeFormat.Name = model.Name;
-                        barcodeFormat.Sequence = counter + 1;
+                        FormatSetting barcodeFormat = new FormatSetting
+                        {
+                            Format = "Barcode",
+                            Length = Convert.ToInt32(_iconfiguration["RTEBarcodeLength"]),
+                            Name = model.Name,
+                            Sequence = counter + 1
+                        };
 
                         await _formatSettingService.InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
                     }

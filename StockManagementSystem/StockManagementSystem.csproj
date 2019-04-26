@@ -23,6 +23,10 @@
       <Compile Remove="Migrations\20190118064530_AddFormatSettingTable.cs" />
       <Compile Remove="Migrations\20190123021215_AddTable.cs" />
       <Compile Remove="Migrations\20190123021215_AddTable.Designer.cs" />
+      <Compile Remove="Migrations\20190201023758_updateOrderLimitTable.cs" />
+      <Compile Remove="Migrations\20190201023758_updateOrderLimitTable.Designer.cs" />
+      <Compile Remove="Migrations\20190409042745_AddFieldPushNotification.cs" />
+      <Compile Remove="Migrations\20190409042745_AddFieldPushNotification.Designer.cs" />
       <Compile Remove="Models\Devices\DeviceViewModel.cs" />
       <Compile Remove="Models\PushNotifications\AddNotificationViewModel.cs" />
       <Compile Remove="Models\PushNotifications\EditNotificationViewModel.cs" />
