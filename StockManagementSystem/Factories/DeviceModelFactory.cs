@@ -210,7 +210,7 @@ namespace StockManagementSystem.Factories
                     var mapListModel = mapLst.ToModel<MapDeviceModel>();
                     mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
 
-                    double distance = getDistance(mapLst.Store.Latitude, mapLst.Store.Longitude, mapLst.Latitude, mapLst.Longitude);
+                    double distance = getDistance(mapLst.Latitude, mapLst.Longitude, mapLst.Store.Latitude, mapLst.Store.Longitude) / 1000; //returns in KM
                     if (distance > Convert.ToDouble(_iconfiguration["OutofRadarRadius"]))
                     {
                         mapLst.Status = "2";

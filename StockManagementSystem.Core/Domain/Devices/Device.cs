@@ -13,9 +13,9 @@ namespace StockManagementSystem.Core.Domain.Devices
 
         public double Latitude { get; set; }
 
-        public DateTime? StartDate { get; set; }
+        //public DateTime? StartDate { get; set; }
 
-        public DateTime? EndDate { get; set; }
+        //public DateTime? EndDate { get; set; }
 
         public string TokenId { get; set; }
 
