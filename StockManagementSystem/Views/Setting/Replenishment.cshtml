@@ -224,8 +224,15 @@
                             });
 
                             function customEditor(container, options) {
-                                $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                                var numericInput = $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
                                     .appendTo(container);
+
+                                numericInput.kendoNumericTextBox({
+                                    min: 1,
+                                    step: 1,
+                                    format: "#",
+                                    decimals: 0
+                                });
 
                             }
 

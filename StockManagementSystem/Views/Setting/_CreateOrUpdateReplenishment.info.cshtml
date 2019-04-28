@@ -9,7 +9,7 @@
                     <label asp-for="BufferDays" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="BufferDays" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
+                    <input asp-for="BufferDays" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="BufferDays"></span>
                 </div>
             </div>
@@ -19,7 +19,7 @@
                     <label asp-for="ReplenishmentQty" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="ReplenishmentQty" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
+                    <input asp-for="ReplenishmentQty" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="ReplenishmentQty"></span>
                 </div>
             </div>

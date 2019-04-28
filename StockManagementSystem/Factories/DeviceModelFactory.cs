@@ -71,6 +71,9 @@ namespace StockManagementSystem.Factories
                 Data = devices.Select(device =>
                 {
                     var devicesModel = device.ToModel<DeviceModel>();
+
+                    devicesModel.SerialNo = device.SerialNo;
+                    devicesModel.ModelNo = device.ModelNo;
                     devicesModel.SelectedStoreId = device.StoreId;
                     devicesModel.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
                     devicesModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
@@ -101,9 +104,17 @@ namespace StockManagementSystem.Factories
             return model;
         }
 
-        #endregion
+        public async Task<DeviceModel> PrepareDeviceListbyStoreModel(int storeID)
+        {
+            var devices = await _deviceService.GetDevicesByStoreIdAsync(storeID);
 
-        #region Device Tracking
+            var model = new DeviceModel
+            {
+                Devices = devices
+            };
+
+            return model;
+        }
 
         public async Task<DeviceModel> PrepareDeviceListModel()
         {
@@ -137,6 +148,36 @@ namespace StockManagementSystem.Factories
             return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
 
+        public async Task<DeviceModel> PrepareDeviceModel(DeviceModel model, Device device)
+        {
+            if (device != null)
+            {
+                model = model ?? new DeviceModel();
+
+                model.Id = device.Id;
+                model.SerialNo = device.SerialNo;
+                model.ModelNo = device.ModelNo;
+                model.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
+                model.SelectedStoreId = device.StoreId;
+                model.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
+                model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
+                model.SelectedStoreId = device.Store.Id;
+            }
+
+            var stores = await _storeService.GetStores();
+            model.AvailableStores = stores.Select(store => new SelectListItem
+            {
+                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
+                Value = store.P_BranchNo.ToString()
+            }).ToList();
+
+            return await Task.FromResult(model);
+        }
+
+        #endregion
+
+        #region Device Tracking
+
         public async Task<DeviceTrackingContainerModel> PrepareDeviceTrackingContainerModel(
             DeviceTrackingContainerModel deviceTrackingContainerModel)
         {
@@ -167,7 +208,7 @@ namespace StockManagementSystem.Factories
                     var mapListModel = mapLst.ToModel<MapDeviceModel>();
                     mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
 
-                    double distance = getDistance(mapLst.Store.Latitude, mapLst.Store.Longitude, mapLst.Latitude, mapLst.Longitude);
+                    double distance = getDistance(mapLst.Latitude, mapLst.Longitude, mapLst.Store.Latitude, mapLst.Store.Longitude) / 1000; //returns in KM
                     if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                     {
                         mapLst.Status = "2";

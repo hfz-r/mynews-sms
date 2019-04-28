@@ -24,15 +24,25 @@ namespace StockManagementSystem.Models.OrderLimits
         //[DataType("Integer")]
         //public int Percentage { get; set; }
 
-        [Display(Name = "Buffer Days")]
-        [Required(ErrorMessage = "Buffer Days is required")]
+        [Display(Name = "Delivery Per Week")]
+        [Required(ErrorMessage = "Delivery Per Week is required")]
         [DataType("Integer")]
-        public int DaysofStock { get; set; }
+        public int DeliveryPerWeek { get; set; }
 
-        [Display(Name = "Days of Sales")]
-        [Required(ErrorMessage = "Days of Sales is required")]
+        [Display(Name = "Safety")]
+        [Required(ErrorMessage = "Safety is required")]
         [DataType("Integer")]
-        public int DaysofSales { get; set; }
+        public int Safety { get; set; }
+
+        [Display(Name = "Inventory Cycle")]
+        [Required(ErrorMessage = "Inventory Cycle is required")]
+        [DataType("Integer")]
+        public int InventoryCycle { get; set; }
+
+        [Display(Name = "Order Ratio")]
+        [Required(ErrorMessage = "Order Ratio is required")]
+        [DataType("Integer")]
+        public int OrderRatio { get; set; }
 
         [Display(Name = "Created on")]
         public DateTime CreatedOn { get; set; }

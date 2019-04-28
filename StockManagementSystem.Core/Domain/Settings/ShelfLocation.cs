@@ -6,19 +6,15 @@ namespace StockManagementSystem.Core.Domain.Settings
 {
     public class ShelfLocation : BaseEntity, IAppendTimestamps
     {
-        public int ItemId { get; set; }
-
         public int StoreId { get; set; }
 
-        public int? ShelfLocationFormatId { get; set; }
-
+        public string Stock_Code { get; set; }
+        
         public string Location { get; set; }
 
-        public virtual Store Stores { set; get; }
+        //public virtual Store Stores { set; get; }
 
-        public virtual ShelfLocationFormat ShelfLocationFormats { get; set; }
-
-        public virtual Item Items { get; set; }
+        //public virtual Item Items { get; set; }
 
         #region IAppendTimestamps members
 

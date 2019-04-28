@@ -9,6 +9,7 @@
     <PackageReference Include="Geocoding.Google" Version="4.0.1" />
     <PackageReference Include="MimeKit" Version="2.1.2" />
     <PackageReference Include="Bogus" Version="25.0.4" />
+    <PackageReference Include="Quartz" Version="3.0.7" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0005" />
   </ItemGroup>
 

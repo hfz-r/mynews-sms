@@ -1,0 +1,12 @@
+﻿@model OrderLimitModel
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden" />
+
+<section class="content">
+    <div class="form-horizontal">
+        <tabs id="orderLimit-create">
+            <tab asp-name="tab-info" asp-title="Order Limit info" asp-default="true">@await Html.PartialAsync("_CreateOrderLimit.Info", Model)</tab>
+        </tabs>
+    </div>
+</section>

@@ -93,12 +93,12 @@ namespace StockManagementSystem.Services.PushNotifications
             _pushNotificationRepository.Delete(pushNotification);
         }
 
-        public virtual void DeletePushNotificationStore(int Id, Store store)
+        public virtual void DeletePushNotificationStore(int Id, int branchNo)
         {
-            if (store == null)
-                throw new ArgumentNullException(nameof(store));
+            if (branchNo == 0)
+                throw new ArgumentNullException(nameof(branchNo));
 
-            var query = _pushNotificationStoreRepository.Table.Where(x => x.PushNotificationId == Id && x.StoreId == store.P_BranchNo);
+            var query = _pushNotificationStoreRepository.Table.Where(x => x.PushNotificationId == Id && x.StoreId == branchNo);
 
             _pushNotificationStoreRepository.Delete(query);
         }

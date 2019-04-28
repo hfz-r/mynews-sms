@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -38,6 +39,8 @@ using StockManagementSystem.Web.Kendoui;
 using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace StockManagementSystem.Controllers
 {
@@ -56,6 +59,7 @@ namespace StockManagementSystem.Controllers
         private readonly IWorkContext _workContext;
         private readonly ITenantContext _tenantContext;
         private readonly IConfiguration _configuration;
+        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IUserService _userService;
         private readonly IUserActivityService _userActivityService;
         private readonly IEncryptionService _encryptionService;
@@ -65,59 +69,59 @@ namespace StockManagementSystem.Controllers
         private readonly ISettingService _settingService;
         private readonly IPictureService _pictureService;
         private readonly ISettingModelFactory _settingModelFactory;
-
-        #region Constructor
+        private readonly IRepository<ShelfLocation> _shelfLocationRepository;
 
         public SettingController(
-            IOrderLimitService orderLimitService,
+            IOrderLimitService orderLimitService, 
             IReplenishmentService replenishmentService,
-            ILocationService locationService,
+            ILocationService locationService, 
             IFormatSettingService formatSettingService,
-            IRepository<Approval> approvalRepository,
-            IOrderLimitModelFactory orderLimitModelFactory,
+            IOrderLimitModelFactory orderLimitModelFactory, 
             IReplenishmentModelFactory replenishmentModelFactory,
-            ILocationModelFactory locationModelFactory,
+            ILocationModelFactory locationModelFactory, 
             IFormatSettingModelFactory formatSettingModelFactory,
-            IPermissionService permissionService,
-            INotificationService notificationService,
+            IPermissionService permissionService, 
+            INotificationService notificationService, 
             IWorkContext workContext,
-            ITenantContext tenantContext,
-            IConfiguration configuration,
-            IUserService userService,
-            IUserActivityService userActivityService,
+            ITenantContext tenantContext, 
+            IConfiguration configuration, 
+            IDateTimeHelper dateTimeHelper,
+            IUserService userService, 
+            IUserActivityService userActivityService, 
             IEncryptionService encryptionService,
-            IGenericAttributeService genericAttributeService,
-            IStoreService storeService,
+            IGenericAttributeService genericAttributeService, 
+            IStoreService storeService, 
             ITenantService tenantService,
-            ISettingService settingService,
-            IPictureService pictureService,
-            ISettingModelFactory settingModelFactory)
+            ISettingService settingService, 
+            IPictureService pictureService, 
+            ISettingModelFactory settingModelFactory,
+            IRepository<ShelfLocation> shelfLocationRepository)
         {
             _orderLimitService = orderLimitService;
             _replenishmentService = replenishmentService;
-            _storeService = storeService;
             _locationService = locationService;
             _formatSettingService = formatSettingService;
             _orderLimitModelFactory = orderLimitModelFactory;
             _replenishmentModelFactory = replenishmentModelFactory;
             _locationModelFactory = locationModelFactory;
             _formatSettingModelFactory = formatSettingModelFactory;
-            _configuration = configuration;
-            _userService = userService;
-            _userActivityService = userActivityService;
-            _encryptionService = encryptionService;
             _permissionService = permissionService;
             _notificationService = notificationService;
             _workContext = workContext;
             _tenantContext = tenantContext;
+            _configuration = configuration;
+            _dateTimeHelper = dateTimeHelper;
+            _userService = userService;
+            _userActivityService = userActivityService;
+            _encryptionService = encryptionService;
             _genericAttributeService = genericAttributeService;
+            _storeService = storeService;
             _tenantService = tenantService;
             _settingService = settingService;
             _pictureService = pictureService;
             _settingModelFactory = settingModelFactory;
+            _shelfLocationRepository = shelfLocationRepository;
         }
-
-        #endregion
 
         #region Stock Order
 
@@ -139,25 +143,40 @@ namespace StockManagementSystem.Controllers
         }
 
         [HttpPost]
+        [FormValueRequired("save")]
         public async Task<IActionResult> AddOrderLimit(OrderLimitModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
                 return AccessDeniedView();
 
+            OrderLimit orderLimit = new OrderLimit();
+
             if (model.SelectedStoreIds.Count == 0)
             {
-                ModelState.AddModelError(string.Empty, "Store is required to register a device");
                 _notificationService.ErrorNotification("Store is required to register a device");
-                return new NullJsonResult();
+                model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
+                model.SelectedStoreIds = new List<int>();
+                return View(model);
             }
 
             try
             {
-                var orderLimit = new OrderLimit
+                var isExist = await _orderLimitService.IsStoreExistAsync(model.SelectedStoreIds);
+                if (isExist)
+                {
+                    ModelState.AddModelError(string.Empty, "Store has existed in current order limit.");
+                    _notificationService.ErrorNotification("Store has existed in current order limit.");
+                    return new NullJsonResult();
+                }
+
+                orderLimit = new OrderLimit
                 {
                     //Percentage = model.Percentage, //Remove Percentage criteria; Not required - 05032019
-                    DaysofSales = model.DaysofSales,
-                    DaysofStock = model.DaysofStock,
+                    DeliveryPerWeek = model.DeliveryPerWeek,
+                    Safety = model.Safety,
+                    InventoryCycle = model.InventoryCycle,
+                    OrderRatio = model.OrderRatio,
+
                     OrderLimitStores = new List<OrderLimitStore>()
                 };
 
@@ -175,7 +194,7 @@ namespace StockManagementSystem.Controllers
 
                 await _orderLimitService.InsertOrderLimit(orderLimit);
 
-                return new NullJsonResult();
+                return RedirectToAction("Order");
             }
             catch (Exception e)
             {
@@ -184,6 +203,16 @@ namespace StockManagementSystem.Controllers
 
                 return Json(e.Message);
             }
+        }
+        
+        public async Task<IActionResult> AddOrderLimit()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
+                return AccessDeniedView();
+
+            var model = await _orderLimitModelFactory.PrepareOrderLimitModel(null, null);
+
+            return View(model);
         }
 
         [HttpPost]
@@ -243,8 +272,10 @@ namespace StockManagementSystem.Controllers
                 try
                 {
                     //orderLimit.Percentage = model.Percentage; //Remove Percentage criteria; Not required - 05032019
-                    orderLimit.DaysofSales = model.DaysofSales;
-                    orderLimit.DaysofStock = model.DaysofStock;
+                    orderLimit.DeliveryPerWeek = model.DeliveryPerWeek;
+                    orderLimit.Safety = model.Safety;
+                    orderLimit.InventoryCycle = model.InventoryCycle;
+                    orderLimit.OrderRatio = model.OrderRatio;
 
                     //stores
 
@@ -363,9 +394,11 @@ namespace StockManagementSystem.Controllers
 
             try
             {
-                var shelfLocationFormat = new ShelfLocationFormat();
-                shelfLocationFormat.Prefix = model.Prefix;
-                shelfLocationFormat.Name = model.Name;
+                ShelfLocationFormat shelfLocationFormat = new ShelfLocationFormat
+                {
+                    Prefix = model.Prefix,
+                    Name = model.Name
+                };
 
                 shelfLocationFormat = model.ToEntity(shelfLocationFormat);
 
@@ -534,10 +567,12 @@ namespace StockManagementSystem.Controllers
 
                     if (!isExist)
                     {
-                        var shelfFormat = new FormatSetting();
-                        shelfFormat.Format = "Shelf";
-                        shelfFormat.Prefix = model.Prefix;
-                        shelfFormat.Name = model.Name;
+                        FormatSetting shelfFormat = new FormatSetting
+                        {
+                            Format = "Shelf",
+                            Prefix = model.Prefix,
+                            Name = model.Name
+                        };
 
                         shelfFormat = model.ToEntity(shelfFormat);
 
@@ -605,6 +640,147 @@ namespace StockManagementSystem.Controllers
 
             return new NullJsonResult();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadTemplate(ShelfSearchModel searchModel)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            var model = await _formatSettingModelFactory.PrepareShelfFormatListModel(searchModel);
+            if (model == null)
+                return new NullJsonResult();
+
+            try
+            {
+                using (ExcelPackage excelPackage = new ExcelPackage())
+                {
+                    //Set some properties of the Excel document
+                    excelPackage.Workbook.Properties.Author = "Administrator";
+                    excelPackage.Workbook.Properties.Title = "Format Template";
+                    excelPackage.Workbook.Properties.Subject = "Download Shelf Location";
+                    excelPackage.Workbook.Properties.Created = DateTime.Now;
+
+                    //Create the WorkSheet
+                    ExcelWorksheet worksheet = excelPackage.Workbook.Worksheets.Add("Sheet 1");
+
+                    //Header row style cells C1 - C3
+                    worksheet.Cells["A1:C3"].Style.Font.Size = 12;
+                    worksheet.Cells["A1:C3"].Style.Font.Bold = true;
+                    worksheet.Cells["A1:C3"].Style.Border.Top.Style = ExcelBorderStyle.Hair;
+
+                    //Set [line, column]
+                    worksheet.Cells[1, 1].Value = "Branch No";
+                    worksheet.Cells[1, 2].Value = "Stock Code";
+                    worksheet.Cells[1, 3].Value = "Location";
+
+                    //Save excel file
+                    string rootFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                    string fileName = @"TemplateFormat.xlsx";
+                    FileInfo file = new FileInfo(Path.Combine(rootFolder, fileName));
+                    excelPackage.SaveAs(file);
+
+                    if (model.Total > 0)
+                        _notificationService.SuccessNotification("Successful download template.");
+                    else
+                        _notificationService.ErrorNotification("Failed download template.");
+                }
+                return RedirectToAction("FormatSetting");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return Json(e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UploadTemplate()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageFormatSetting))
+                return AccessDeniedView();
+
+            try
+            {
+                var prefixFormat = await _formatSettingService.GetAllShelfLocationFormatsAsync();
+                List<ShelfLocation> data = new List<ShelfLocation>();
+                string locationFormat;
+                int x = 0;
+
+                //read the Excel file
+                string rootFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string fileName = @"TemplateFormat.xlsx";
+                FileInfo file = new FileInfo(Path.Combine(rootFolder, fileName));
+                //create a new Excel package
+                using (ExcelPackage excelPackage = new ExcelPackage(file))
+                {
+                    //loop all worksheets
+                    foreach (ExcelWorksheet worksheet in excelPackage.Workbook.Worksheets)
+                    {
+                        //loop rows start at 2nd row
+                        for (int i = 2; i <= worksheet.Dimension.End.Row; i++)
+                        {
+                            x = 0;
+                            locationFormat = worksheet.Cells[i, 3].Value.ToString();
+                            string[] listPrefix = Regex.Split(locationFormat, @"\d[0-9]{1,3}|\W");
+                            //bool formatMatch = Regex.IsMatch(locationFormat, @"\w[0-9]{2,4}"); *Set prefix format match with 2-4 digit
+
+                            foreach (var item in prefixFormat.ToArray())
+                            {
+                                if (listPrefix[x].Equals(item.Prefix))
+                                {
+                                    x++;
+                                    //formatMatch = true;
+                                }
+                                else
+                                {
+                                    //formatMatch = false;
+                                    _notificationService.ErrorNotification("Prefix are invalid! Location format digit limit to 4.");
+                                    return RedirectToAction("FormatSetting");
+                                }
+                            }
+
+                            data.Add(new ShelfLocation
+                            {
+                                StoreId = Int32.Parse(worksheet.Cells[i, 1].Value.ToString()),
+                                Stock_Code = worksheet.Cells[i, 2].Value.ToString(),
+                                Location = worksheet.Cells[i, 3].Value.ToString(),
+                                CreatedOnUtc = DateTime.Now
+                            });
+
+                            //if (!formatMatch) 
+                            //{
+                            //    _notificationService.ErrorNotification("Location format are invalid!");
+                            //    return RedirectToAction("FormatSetting");
+                            //}
+                            //else
+                            //{
+                            //    data.Add(new ShelfLocation
+                            //    {
+                            //        StoreId = Int32.Parse(worksheet.Cells[i, 1].Value.ToString()),
+                            //        Stock_Code = worksheet.Cells[i, 2].Value.ToString(),
+                            //        Location = worksheet.Cells[i, 3].Value.ToString(),
+                            //        CreatedBy = "Administrator",
+                            //        CreatedOnUtc = DateTime.Now
+                            //    });
+                            //}
+                        }
+                        _shelfLocationRepository.Update(data);
+                    }
+
+                    if (data.Count > 0)
+                        _notificationService.SuccessNotification("Successful upload template.");
+                    else
+                        _notificationService.ErrorNotification("Failed upload template.");
+                }
+                return RedirectToAction("FormatSetting");
+            }
+            catch (Exception e)
+            {
+                _notificationService.ErrorNotification(e.Message);
+                return Json(e.Message);
+            }
+        }       
 
         #endregion
 
@@ -713,11 +889,13 @@ namespace StockManagementSystem.Controllers
                     if (!isExist)
                     {
                         var counter = dataList.Count;
-                        var barcodeFormat = new FormatSetting();
-                        barcodeFormat.Format = "Barcode";
-                        barcodeFormat.Length = Convert.ToInt32(_configuration["RTEBarcodeLength"]);
-                        barcodeFormat.Name = model.Name;
-                        barcodeFormat.Sequence = counter + 1;
+                        FormatSetting barcodeFormat = new FormatSetting
+                        {
+                            Format = "Barcode",
+                            Length = Convert.ToInt32(_configuration["RTEBarcodeLength"]),
+                            Name = model.Name,
+                            Sequence = counter + 1
+                        };
 
                         await _formatSettingService
                             .InsertShelfLocationFormat(barcodeFormat); //Uses same function as shelf location
@@ -905,10 +1083,6 @@ namespace StockManagementSystem.Controllers
                 {
                     replenishment.BufferDays = model.BufferDays;
                     replenishment.ReplenishmentQty = model.ReplenishmentQty;
-
-                    //stores
-
-                    var replenishmentStoreList = new List<ReplenishmentStore>();
 
                     foreach (var store in allStores)
                         if (model.SelectedStoreIds.Contains(store.P_BranchNo))

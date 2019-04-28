@@ -41,7 +41,7 @@
                     <label asp-for="DeliveryPerWeek" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="DeliveryPerWeek" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <input id="delivery" asp-for="DeliveryPerWeek" class="form-control" value="" type="text" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="DeliveryPerWeek"></span>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                     <label asp-for="Safety" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="Safety" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <input id="safety" asp-for="Safety" class="form-control" value="" type="text" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="Safety"></span>
                 </div>
             </div>
@@ -61,17 +61,17 @@
                     <label asp-for="InventoryCycle" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="InventoryCycle" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <input id="inventory" asp-for="InventoryCycle" class="form-control" value="" type="text" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="InventoryCycle"></span>
                 </div>
-            </div>
+            </div>  
 
             <div class="form-group">
                 <div class="col-xs-3">
                     <label asp-for="OrderRatio" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="OrderRatio" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <input id="order" asp-for="OrderRatio" class="form-control" value="" type="text" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="OrderRatio"></span>
                 </div>
             </div>
@@ -106,34 +106,63 @@
                     </script>
                 </div>
             </div>
-
-            @if (Model.Id > 0)
-            {
-                <div class="form-group">
-                    <div class="col-xs-3">
-                        <label asp-for="CreatedOn" class="control-label pull-right"></label>
-                    </div>
-                    <div class="col-xs-9">
-                        <div class="form-text-row">@Model.CreatedOn</div>
-                    </div>
-                </div>
-            }
-            @if (Model.Id > 0)
-            {
-                <div class="form-group">
-                    <div class="col-xs-3">
-                        <label asp-for="LastActivityDate" class="control-label pull-right"></label>
-                    </div>
-                    <div class="col-xs-9">
-                        <div class="form-text-row">@Model.LastActivityDate</div>
-                    </div>
-                </div>
-            }
         </div>
     </div>
 </div>
 
 <script>
+    $(document).ready(function () {
+        //// create NumericTextBox from input HTML element
+        //$("#delivery").kendoNumericTextBox({
+        //    format: "#",
+        //    decimals: 0,
+        //    restrictDecimals: true
+        //});
+        //$("#safety").kendoNumericTextBox({
+        //    format: "#",
+        //    decimals: 0,
+        //    restrictDecimals: true
+        //});
+        //$("#inventory").kendoNumericTextBox({
+        //    format: "#",
+        //    decimals: 0,
+        //    restrictDecimals: true
+        //});
+        //$("#order").kendoNumericTextBox({
+        //    format: "#",
+        //    decimals: 0,
+        //    restrictDecimals: true
+        //});
+
+        $("#delivery").focus(function () {
+            var input = $(this);
+            setTimeout(function () {
+                input.select();
+            });
+        });
+
+        $("#safety").focus(function () {
+            var input = $(this);
+            setTimeout(function () {
+                input.select();
+            });
+        });
+
+        $("#inventory").focus(function () {
+            var input = $(this);
+            setTimeout(function () {
+                input.select();
+            });
+        });
+
+        $("#order").focus(function () {
+            var input = $(this);
+            setTimeout(function () {
+                input.select();
+            });
+        });
+    });
+
     function validateQty(event) {
         var key = window.event ? event.keyCode : event.which;
         if (event.keyCode == 8 || event.keyCode == 116

@@ -2,6 +2,7 @@
 using StockManagementSystem.Web.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace StockManagementSystem.Models.PushNotifications
@@ -13,32 +14,14 @@ namespace StockManagementSystem.Models.PushNotifications
             public string STNo { get; set; }
         }
 
-        public enum RepeatEnum
-        {
-            Never,
-            Daily,
-            Week,
-            Monthly
-        }
-
-        public enum RepeatDayEnum
-        {
-            Sunday,
-            Monday,
-            Tuesday,
-            Wednesday,
-            Thursday,
-            Friday,
-            Saturday
-        }
-
         public PushNotificationModel()
         {
             SelectedStoreIds = new List<int>();
             AvailableStores = new List<SelectListItem>();
             AvailableStockTakeList = new List<SelectListItem>();
+            AvailableRepeatList = new List<SelectListItem>();
             OutletList = new List<SelectListItem>();
-            SelectedNotificationCategoryIds = new List<int>();
+            SelectedNotificationCategoryIds = new List<int?>();
             SelectedStockTake = new List<int?>();
             AvailableNotificationCategories = new List<SelectListItem>();
         }
@@ -86,6 +69,8 @@ namespace StockManagementSystem.Models.PushNotifications
 
         public IList<SelectListItem> AvailableStockTakeList { get; set; }
 
+        public IList<SelectListItem> AvailableRepeatList { get; set; }
+
         public IList<SelectListItem> OutletList { get; set; }
 
         [Display(Name = "Category")]
@@ -93,26 +78,36 @@ namespace StockManagementSystem.Models.PushNotifications
 
         [Display(Name = "Category")]
         [Required(ErrorMessage = "Notification Category is required")]
-        public IList<int> SelectedNotificationCategoryIds { get; set; }
+        public IList<int?> SelectedNotificationCategoryIds { get; set; }
 
         [Display(Name = "Stock Take #")]
         public IList<int?> SelectedStockTake { get; set; }
 
+        [Display(Name = "Repeats")]
+        public int? SelectedRepeat { get; set; }
+
         [Display(Name = "Remind me on a day")]
         public bool RemindMe { get; set; }
 
-        [Display(Name = "Repeats")]
-        public IList<string> Repeat { get; set; }
-
-        public IList<string> RepeatDay { get; set; }
-
-        [Display(Name = "Every")]
-        public int? RepeatEvery { get; set; }
-
         [Display(Name = "Start Time")]
-        public DateTime StartTime { get; set; }
+        public DateTime? StartTime { get; set; }
 
-        public string RepeatEveryLabel { get; set; }
+        [Display(Name = "End Time")]
+        public DateTime? EndTime { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (EndTime < StartTime)
+            {
+                yield return
+                  new ValidationResult(errorMessage: "End Time must be after Start Time",
+                                       memberNames: new[] { "EndTime" });
+            }
+        }
+
+        public string JobName { get; set; }
+
+        public string JobGroup { get; set; }
 
         public IList<SelectListItem> AvailableNotificationCategories { get; set; }
 

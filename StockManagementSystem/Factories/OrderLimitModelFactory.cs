@@ -42,6 +42,7 @@ namespace StockManagementSystem.Factories
             searchModel.SetGridPageSize();
 
             var stores = await _storeService.GetStores();
+
             searchModel.AvailableStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
@@ -69,8 +70,10 @@ namespace StockManagementSystem.Factories
                     var orderLimitsModel = orderLimit.ToModel<OrderLimitModel>();
 
                     //orderLimitsModel.Percentage = orderLimit.Percentage; //Remove Percentage criteria; Not required - 05032019
-                    orderLimitsModel.DaysofSales = orderLimit.DaysofSales;
-                    orderLimitsModel.DaysofStock = orderLimit.DaysofStock;
+                    orderLimitsModel.DeliveryPerWeek = orderLimit.DeliveryPerWeek;
+                    orderLimitsModel.Safety = orderLimit.Safety;
+                    orderLimitsModel.InventoryCycle = orderLimit.InventoryCycle;
+                    orderLimitsModel.OrderRatio = orderLimit.OrderRatio;
                     orderLimitsModel.StoreName = String.Join(", ", orderLimit.OrderLimitStores.Select(store => store.Store.P_BranchNo + " - " + store.Store.P_Name));
                     orderLimitsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                     orderLimitsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -120,15 +123,26 @@ namespace StockManagementSystem.Factories
 
                 model.Id = orderLimit.Id;
                 //model.Percentage = orderLimit.Percentage; //Remove Percentage criteria; Not required - 05032019
-                model.DaysofSales = orderLimit.DaysofSales;
-                model.DaysofStock = orderLimit.DaysofStock;
-                model.SelectedStoreIds = orderLimit.OrderLimitStores.Select(ols => ols.StoreId).ToList();
+                model.DeliveryPerWeek = orderLimit.DeliveryPerWeek;
+                model.Safety = orderLimit.Safety;
+                model.InventoryCycle = orderLimit.InventoryCycle;
+                model.OrderRatio = orderLimit.OrderRatio;
+                model.SelectedStoreIds = orderLimit.OrderLimitStores != null && orderLimit.OrderLimitStores.Count > 0 ? 
+                    orderLimit.OrderLimitStores.Select(ols => ols.StoreId).ToList() : null;
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
             }
+            else
+            {
+                model = new OrderLimitModel();
+            }
 
             var stores = await _storeService.GetStores();
-            model.AvailableStores = stores.Select(store => new SelectListItem
+            var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();
+            var orderLimitStoreList = orderLimitStore.Select(x => x.StoreId).ToArray();
+            var newStore = stores.Where(x => !orderLimitStoreList.Except(model.SelectedStoreIds).Contains(x.P_BranchNo));
+
+            model.AvailableStores = newStore.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()

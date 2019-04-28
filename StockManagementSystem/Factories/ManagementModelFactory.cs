@@ -184,9 +184,8 @@ namespace StockManagementSystem.Factories
                 Data = groupList.Select(groupOutlet =>
                 {
                     var groupOutletsModel = groupOutlet.ToModel<GroupOutletModel>();
-
                     groupOutletsModel.GroupName = groupOutlet.GroupName;
-                    groupOutletsModel.StoreName = String.Join(", ", groupOutlet.StoreGroupingStore.Select(store => store.Store.P_BranchNo + " - " + store.Store.P_Name));
+                    groupOutletsModel.StoreName = String.Join(", ", groupOutlet.Store.Select(store => store.P_BranchNo + " - " + store.P_Name)); // get from store table
                     groupOutletsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(groupOutlet.CreatedOnUtc, DateTimeKind.Utc);
                     groupOutletsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(groupOutlet.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
@@ -235,7 +234,7 @@ namespace StockManagementSystem.Factories
 
                 model.Id = storeGrouping.Id;
                 model.GroupName = storeGrouping.GroupName;
-                model.SelectedStoreIds = storeGrouping.StoreGroupingStore.Select(sgs => sgs.StoreId).ToList();
+                model.SelectedStoreIds = storeGrouping.Store.Select(sgs => sgs.P_BranchNo).ToList();
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(storeGrouping.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(storeGrouping.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
             }

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Stores;
@@ -296,22 +295,21 @@ namespace StockManagementSystem.Controllers
                 StoreGrouping storeGrouping = new StoreGrouping
                 {
                     GroupName = model.GroupName,
-                    StoreGroupingStore = new List<StoreGroupingStores>()
+                    Store = new List<Store>()
                 };
+                _storeGroupingRepository.Update(storeGrouping);
 
-                //Add store
+                //Update store grouping 
+                var storeList = await _storeService.GetStores();
+
                 foreach (var store in model.SelectedStoreIds)
                 {
-                    StoreGroupingStores storeGroupingStores = new StoreGroupingStores
-                    {
-                        StoreGroupingId = storeGrouping.Id,
-                        StoreId = store,
-                    };
+                    var stores = storeList.FirstOrDefault(s => s.P_BranchNo == store);
+                    if (stores != null)
+                        stores.StoreGroupingId = storeGrouping.Id;
 
-                    storeGrouping.StoreGroupingStore.Add(storeGroupingStores);
+                    await _storeService.UpdateStore(stores);
                 }
-
-                await _outletManagementService.InsertGroupOutlet(storeGrouping);
 
                 return new NullJsonResult();
             }
@@ -374,31 +372,26 @@ namespace StockManagementSystem.Controllers
                     groupOutlet.GroupName = model.GroupName;
 
                     //stores
-
-                    List<StoreGroupingStores> storeGroupingStoresList = new List<StoreGroupingStores>();
-
+                    var storeList = await _storeService.GetStores();
                     foreach (var store in allStores)
                     {
                         if (model.SelectedStoreIds.Contains(store.P_BranchNo))
                         {
                             //new store
-                            if (groupOutlet.StoreGroupingStore.Count(map => map.StoreId == store.P_BranchNo) == 0)
+                            if (groupOutlet.Store.Count(map => map.P_BranchNo == store.P_BranchNo) == 0)
                             {
-                                StoreGroupingStores storeGroupingStores = new StoreGroupingStores
-                                {
-                                    StoreGroupingId = groupOutlet.Id,
-                                    StoreId = store.P_BranchNo
-                                };
+                                var stores = storeList.FirstOrDefault(s => s.P_BranchNo == store.P_BranchNo);
+                                if (stores != null)
+                                    stores.StoreGroupingId = groupOutlet.Id;
 
-
-                                groupOutlet.StoreGroupingStore.Add(storeGroupingStores);
+                                await _storeService.UpdateStore(stores);
                             }
                         }
                         else
                         {
-                            //remove store
-                            if (groupOutlet.StoreGroupingStore.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
-                                _outletManagementService.DeleteGroupOutletStore(model.Id, store);
+                            //remove store grouping id
+                           if (groupOutlet.Store.Count(mapping => mapping.P_BranchNo == store.P_BranchNo) > 0)
+                            _outletManagementService.DeleteStoreGroupingId(model.Id, store);
                         }
                     }
 
@@ -427,6 +420,8 @@ namespace StockManagementSystem.Controllers
 
         public async Task<IActionResult> DeleteGroupOutlet(int id)
         {
+            int? value = null;
+
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOutletManagement))
                 return AccessDeniedView();
 
@@ -436,10 +431,24 @@ namespace StockManagementSystem.Controllers
 
             try
             {
+                //Update store grouping 
+                var storeList = await _storeService.GetStores();
+                foreach (var store in groupOutlet.Store.ToList())
+                {
+                    var stores = storeList.FirstOrDefault(s => s.P_BranchNo == store.P_BranchNo);
+                    if (stores != null)
+                        stores.StoreGroupingId = value;
+
+                    await _storeService.UpdateStore(stores);
+                }
+
                 _outletManagementService.DeleteGroupOutlet(groupOutlet);
 
                 _notificationService.SuccessNotification("Store grouping has been deleted successfully.");
 
+                //set to active tab
+                SaveSelectedTabName("groupOutletTab", true);
+               
                 return RedirectToAction("Index");
             }
             catch (Exception e)

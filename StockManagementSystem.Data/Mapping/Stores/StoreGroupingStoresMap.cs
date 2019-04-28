@@ -11,15 +11,15 @@ namespace StockManagementSystem.Data.Mapping.Stores
             builder.ToTable("StoreGroupingStores");
             builder.HasKey(storeGroupingStores => storeGroupingStores.Id);
 
-            builder.HasOne(sg => sg.StoreGroupings)
-                .WithMany(g => g.StoreGroupingStore)
-                .HasForeignKey(sg => sg.StoreGroupingId)
-                .IsRequired();
+            //builder.HasOne(sg => sg.StoreGroupings)
+            //    .WithMany(g => g.StoreGroupingStore)
+            //    .HasForeignKey(sg => sg.StoreGroupingId)
+            //    .IsRequired();
 
-            builder.HasOne(sg => sg.Store)
-                .WithMany(s => s.StoreGroupingStore)
-                .HasForeignKey(sg => sg.StoreId)
-                .IsRequired();
+            //builder.HasOne(sg => sg.Store)
+            //    .WithMany(s => s.StoreGroupingStore)
+            //    .HasForeignKey(sg => sg.StoreId)
+            //    .IsRequired();
 
             base.Configure(builder);
         }

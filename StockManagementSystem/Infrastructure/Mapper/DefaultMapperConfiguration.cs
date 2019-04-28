@@ -328,8 +328,8 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<ShelfLocationFormat, LocationModel>();
             CreateMap<LocationModel, ShelfLocationFormat>()
                 .ForMember(entity => entity.Prefix, options => options.Ignore())
-                .ForMember(entity => entity.Name, options => options.Ignore())
-                .ForMember(entity => entity.ShelfLocations, options => options.Ignore());
+                .ForMember(entity => entity.Name, options => options.Ignore());
+                //.ForMember(entity => entity.ShelfLocations, options => options.Ignore());
         }
 
         /// <summary>
@@ -410,7 +410,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(model => model.AvailableStores, options => options.Ignore());
             CreateMap<GroupOutletModel, StoreGrouping>()
                  .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
-                .ForMember(entity => entity.StoreGroupingStore, options => options.Ignore())
+                //.ForMember(entity => entity.StoreGroupingStore, options => options.Ignore())
                 .ForMember(entity => entity.ModifiedOnUtc, options => options.Ignore());
         }
 

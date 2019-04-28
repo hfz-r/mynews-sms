@@ -109,169 +109,225 @@
 
                             $(document).ready(function () {
                                 var grid = $("#grid").kendoGrid({
-                                dataSource: {
-                                    type: "json",
-                                    transport: {
-                                        read: {
-                                            url: "@Html.Raw(Url.Action("OrderLimitList", "Setting"))",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: function() {
-                                                var data = {
-                                                    SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
+                                    dataSource: {
+                                        type: "json",
+                                        transport: {
+                                            read: {
+                                                url: "@Html.Raw(Url.Action("OrderLimitList", "Setting"))",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: function () {
+                                                    var data = {
+                                                        SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
                                                     @*SearchPercentage: $('#@Html.IdFor(model => model.SearchPercentage)').val() //Remove Percentage criteria; Not required - 05032019*@
-                                                };
-                                                addAntiForgeryToken(data);
-                                                return data;
+                                                    };
+                                                    addAntiForgeryToken(data);
+                                                    return data;
+                                                }
+                                            },
+                                            create: {
+                                                url: "@Html.Raw(Url.Action("EditOrderLimit", "Setting"))",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: addAntiForgeryToken
                                             }
                                         },
-                                        create: {
-                                            url: "@Html.Raw(Url.Action("AddOrderLimit", "Setting"))",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: addAntiForgeryToken
-                                        }
-                                    },
-                                    
-                                    schema: {
-                                        data: "Data",
-                                        total: "Total",
-                                        errors: "Errors",
-                                        model: {
-                                            id: "Id",
-                                            fields: {
-                                                Id: { editable: false, type: "number" },
-                                                //Percentage: { type: "string", validation: { required: true, min: 1 } }, //Remove Percentage criteria; Not required - 05032019
-                                                DaysofStock: { type: "string", validation: { required: true } },
-                                                DaysofSales: {
-                                                    type: "string", validation: {
-                                                        required: true,
-                                                        daysOfSalesValidation: function (input) {
-                                                            if (input.is("[name='DaysofSales']") && input.val() < 14) {
-                                                                input.attr("data-daysOfSalesValidation-msg", "Minimum to 14 days!");
-                                                                return /[0-13]/.test(input.val());
-                                                            }
-                                                            return true;
-                                                        }
-                                                    }
-                                                },
-                                                StoreName: { type: "string"},
-                                                SelectedStoreIds: { editable: true, validation: { required: true } }
+                                        parameterMap: function (options, operation) {
+                                            if (operation !== "read" && options.models) {
+                                                return { models: kendo.stringify(options.models) };
                                             }
-                                        }
+                                        },
+                                        schema: {
+                                            data: "Data",
+                                            total: "Total",
+                                            errors: "Errors",
+                                            model: {
+                                                id: "Id",
+                                                fields: {
+                                                    Id: { editable: false, type: "number" },
+                                                    //Percentage: { type: "string", validation: { required: true, min: 1 } }, //Remove Percentage criteria; Not required - 05032019
+                                                    //DaysofStock: { type: "string", validation: { required: true } }, //Remove criteria; Not required - 19042019
+                                                    //DaysofSales: {
+                                                    //    type: "string", validation: {
+                                                    //        required: true,
+                                                    //        daysOfSalesValidation: function (input) {
+                                                    //            if (input.is("[name='DaysofSales']") && input.val() < 14) {
+                                                    //                input.attr("data-daysOfSalesValidation-msg", "Minimum to 14 days!");
+                                                    //                return /[0-13]/.test(input.val());
+                                                    //            }
+                                                    //            return true;
+                                                    //        }
+                                                    //    }
+                                                    //},
+                                                    DeliveryPerWeek: { type: "string", validation: { required: true } },
+                                                    Safety: { type: "string", validation: { required: true } },
+                                                    InventoryLevel: { type: "string", validation: { required: true } },
+                                                    OrderRatio: { type: "string", validation: { required: true } },
+                                                    StoreName: { type: "string" },
+                                                    SelectedStoreIds: { editable: true, validation: { required: true } }
+                                                }
+                                            }
+                                        },
+                                        requestEnd: function (e) {
+                                            if (e.type == "create") {
+                                                this.read();
+                                            }
+                                        },
+                                        error: function (e) {
+                                            display_kendoui_grid_error(e);
+                                            // Cancel the changes
+                                            this.cancelChanges();
+                                        },
+                                        pageSize: @(Model.PageSize),
+                                        serverPaging: true,
+                                        serverFiltering: true,
+                                        serverSorting: true
                                     },
-                                    requestEnd: function (e) {
-                                        if (e.type == "create") {
-                                            this.read();
-                                        }
+                                    sortable: {
+                                        mode: "single",
+                                        allowUnsort: false
                                     },
-                                    error: function(e) {
-                                        display_kendoui_grid_error(e);
-                                        // Cancel the changes
-                                        this.cancelChanges();
-                                    },
-                                    pageSize: @(Model.PageSize),
-                                    serverPaging: true,
-                                    serverFiltering: true,
-                                    serverSorting: true
-                                },
-                                sortable: {
-                                    mode: "single",
-                                    allowUnsort: false
-                                },
-                                filterable: true,
-                                resizable: true,
-                                columnMenu: { columns: false },
-                                pageable: {
-                                    refresh: true,
-                                    pageSizes: [@(Model.AvailablePageSizes)],
+                                    filterable: true,
+                                    resizable: true,
+                                    columnMenu: { columns: false },
+                                    pageable: {
+                                        refresh: true,
+                                        pageSizes: [@(Model.AvailablePageSizes)],
                                     @await Html.PartialAsync("_GridPagerMessages")
-                                },
-                                toolbar: [
-                                    {
-                                        name: "create",
-                                        url: "@Html.Raw(Url.Action("AddOrderLimit", "Setting"))",
-                                        text: "Add",
-                                        iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
-                                    }
-                                ],
-                                scrollable: false,
-                                columns: [
-                                    //Remove Percentage criteria; Not required - 05032019
-                                    //{
-                                    //    field: "Percentage",
-                                    //    title: "Percentage",
-                                    //    width: 230,
-                                    //    editor: customEditor 
-                                    //},
-                                    {
-                                        field: "DaysofStock",
-                                        title: "Buffer Days",
-                                        width: 230,
-                                        editor: customEditor 
                                     },
-                                    {
-                                        field: "DaysofSales",
-                                        title: "Days of Sales",
-                                        width: 230,
-                                        editor: customEditor 
-                                    },
-                                    {
-                                        field: "SelectedStoreIds",
-                                        title: "Store",
-                                        template: "#=StoreName#",
-                                        type: "string",
-                                        width: 300,
-                                        editor: function (container, option) { // use a dropdownlist as an editor
-                                            // create an input element with id and name set as the bound field (brandId)
-                                            var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '">')
-                                            // append to the editor container
-                                            input.appendTo(container);
-
-                                            // initialize a dropdownlist
-                                            input.kendoMultiSelect({
-                                                dataTextField: "Text",
-                                                dataValueField: "Value",
-                                                dataSource: datasource,
-                                                optionLabel: " ",
-                                                autoBind: "true",
-                                                valuePrimitive: "true"
-                                            }).appendTo(container)
+                                    toolbar: [
+                                        {
+                                            name: "create",
+                                            template:
+                                                "<a href='AddOrderLimit' class='k-button k-button-icontext k-grid-add'><span class='glyphicon btn-glyphicon glyphicon-plus img-circle text-danger k-add'></span>Add</a>",
+                                            text: "Add",
+                                            iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
                                         }
-                                    }, {
-                                        template:
-                                            "<a href='EditOrder/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
-                                            "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
-                                            "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
-                                            "<a href='DeleteOrderLimit/#=Id#' action='DeleteOrderLimit' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
-                                        headerAttributes: { style: "text-align:center" },
-                                        attributes: { style: "text-align:center" },
-                                        width: 111
+                                    ],
+                                    scrollable: false,
+                                    columns: [
+                                        //Remove Percentage criteria; Not required - 05032019
+                                        //{
+                                        //    field: "Percentage",
+                                        //    title: "Percentage",
+                                        //    width: 230,
+                                        //    editor: customEditor 
+                                        //},
+                                        //Remove criteria; Not required - 19042019
+                                        //{
+                                        //    field: "DaysofStock",
+                                        //    title: "Buffer Days",
+                                        //    width: 230,
+                                        //    editor: customEditor 
+                                        //},
+                                        //{
+                                        //    field: "DaysofSales",
+                                        //    title: "Days of Sales",
+                                        //    width: 230,
+                                        //    editor: customEditorSales 
+                                        //},
+                                        {
+                                            field: "DeliveryPerWeek",
+                                            title: "Delivery Per Week",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
+                                            field: "Safety",
+                                            title: "Safety",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
+                                            field: "InventoryCycle",
+                                            title: "Inventory Cycle",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
+                                            field: "OrderRatio",
+                                            title: "Order Ratio",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
+                                            field: "SelectedStoreIds",
+                                            title: "Store",
+                                            template: "#=StoreName#",
+                                            type: "string",
+                                            width: 300,
+                                            editor: function (container, option) { // use a dropdownlist as an editor
+                                                // create an input element with id and name set as the bound field (brandId)
+                                                var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '">')
+                                                // append to the editor container
+                                                input.appendTo(container);
+
+                                                // initialize a dropdownlist
+                                                input.kendoMultiSelect({
+                                                    dataTextField: "Text",
+                                                    dataValueField: "Value",
+                                                    dataSource: datasource,
+                                                    optionLabel: " ",
+                                                    autoBind: "true",
+                                                    valuePrimitive: "true"
+                                                }).appendTo(container)
+                                            }
+                                        }, {
+                                            template:
+                                                "<a href='EditOrder/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                                "<a href='DeleteOrderLimit/#=Id#' action='DeleteOrderLimit' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                                            headerAttributes: { style: "text-align:center" },
+                                            attributes: { style: "text-align:center" },
+                                            width: 111
+                                        }
+                                    ],
+                                    //editable: {
+                                    //    mode: "popup",
+                                    //    window: {
+                                    //        title: "Add" ,
+                                    //        animation: false,
+                                    //    }
+                                    //},
+                                    edit: function (e) {
+                                        // Change buttons visibility when the Grid enters edit mode.
+                                        var editRow = e.container;
+                                        editRow.find(".custom-button").toggleClass("hidden");
                                     }
-                                ],
-                                editable: "inline",
-                                edit: function (e) {
-                                    // Change buttons visibility when the Grid enters edit mode.
-                                    var editRow = e.container;
-                                    editRow.find(".custom-button").toggleClass("hidden");
-                                }
                                 }).data("kendoGrid");
 
-                            $("#grid").on("click", ".custom-button", function (e) {
-                                var btn = $(this);
-                                if (btn.hasClass("cancel-button")) {
-                                    grid.cancelRow();
-                                } else if (btn.hasClass("update-button")) {
-                                    grid.saveChanges();
-                                }
-                            });
+                                $("#grid").on("click", ".custom-button", function (e) {
+                                    var btn = $(this);
+                                    if (btn.hasClass("cancel-button")) {
+                                        grid.cancelRow();
+                                    } else if (btn.hasClass("update-button")) {
+                                        grid.saveChanges();
+                                    }
+                                });
                             });
 
                             function customEditor(container, options) {
-                                $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                                var stockInput =$('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
                                     .appendTo(container);
 
+                                stockInput.kendoNumericTextBox({
+                                    min: 1,
+                                    step: 1,
+                                    format: "#",
+                                    decimals: 0
+                                });
                             }
+
+                            //function customEditorSales(container, options) {
+                            //    var salesInput = $('<input required name="' + options.field + '" onkeypress="return isValidChar(event)"/>')
+                            //        .appendTo(container);
+
+                            //    salesInput.kendoNumericTextBox({
+                            //        min: 14,
+                            //        step: 1,
+                            //        format: "#",
+                            //        decimals: 0
+                            //    });
+                            //}
 
                             function isValidChar(e) {
                                 var match = e.key.match(/[0-9]/);
@@ -298,5 +354,5 @@
                 </div>
             </div>
         </div>
-    </section>
+     </section>
 </form>

@@ -7,7 +7,9 @@ namespace StockManagementSystem.Core.Domain.Stores
     {
         public string GroupName { get; set; }
 
-        public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
+        //public virtual ICollection<StoreGroupingStores> StoreGroupingStore { get; set; }
+
+        public virtual ICollection<Store> Store { get; set; }
 
         #region IAppendTimestamps members
 

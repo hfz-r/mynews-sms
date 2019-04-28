@@ -96,7 +96,7 @@ namespace StockManagementSystem.Factories
                     pushNotificationsModel.Title = pushNotification.Title;
                     pushNotificationsModel.Description = pushNotification.Desc;
                     pushNotificationsModel.StockTakeNo = pushNotification.StockTakeNo;
-                    pushNotificationsModel.CategoryName = pushNotification.NotificationCategory.Name;
+                    pushNotificationsModel.CategoryName = pushNotification.NotificationCategory != null ? pushNotification.NotificationCategory.Name : null;
 
                     if (!string.IsNullOrEmpty(pushNotificationsModel.StockTakeNo))
                     {
@@ -254,13 +254,25 @@ namespace StockManagementSystem.Factories
                 model.Title = pushNotification.Title;
                 model.Description = pushNotification.Desc;
                 model.StockTakeNo = pushNotification.StockTakeNo;
-                model.CategoryName = pushNotification.NotificationCategory.Name;
-                List<int> catIds = new List<int>
+                model.CategoryName = pushNotification.NotificationCategory != null ? pushNotification.NotificationCategory.Name : null;
+
+                model.RemindMe = pushNotification.RemindMe;
+                model.SelectedRepeat = pushNotification.Interval;
+                model.StartTime = pushNotification.StartTime;
+                model.EndTime = pushNotification.EndTime;
+                model.JobName = pushNotification.JobName;
+                model.JobGroup = pushNotification.JobGroup;
+
+                List<int?> catIds = new List<int?>
                 {
                     pushNotification.NotificationCategoryId
                 };
                 model.SelectedNotificationCategoryIds = catIds;
-                model.SelectedStoreIds = pushNotification.PushNotificationStores.Select(pns => pns.StoreId).ToList();
+                if (pushNotification.PushNotificationStores != null && pushNotification.PushNotificationStores.Count > 0)
+                {
+                    model.SelectedStoreIds = pushNotification.PushNotificationStores.Select(pns => pns.StoreId).ToList();
+                }
+
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(pushNotification.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(pushNotification.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
             }

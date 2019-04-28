@@ -10,6 +10,6 @@ namespace StockManagementSystem.Core.Domain.Settings
 
         public string Name { get; set; }
 
-        public virtual ICollection<ShelfLocation> ShelfLocations { set; get; }
+        //public virtual ICollection<ShelfLocation> ShelfLocations { set; get; }
     }
 }
