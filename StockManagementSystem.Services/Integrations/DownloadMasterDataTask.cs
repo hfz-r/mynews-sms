@@ -280,45 +280,42 @@ namespace StockManagementSystem.Services.Integrations
 
             using (var conn = new SqlConnection(SqlHelper.ConnectionString))
             {
-                var commandText = @"SELECT TOP 10 [stock_code], [stock_name], [subc].[Category_Code], [price_level_01], [price_level_02], 
-                                    [price_level_03], [price_level_04], [price_level_05], [price_level_06], [price_level_07], [price_level_08],
-                                    [price_level_09], [price_level_10], [price_level_11], [price_level_12], [price_level_13], [price_level_14],
-                                    [price_level_15], [status], [order], [type], [variant1], [variant2] 
-                                    FROM [dbo].[btb_HHT_Stock] [stk] 
-                                    INNER JOIN [dbo].[btb_HHT_SubCategory] [subc] ON [stk].[sub_category_code] = [subc].[Sub_Category_Code]";
+                var commandText = @"SELECT TOP 10 [P_StockCode], [P_Desc], [P_SubCategoryID], [P_SPrice1], [P_SPrice2], 
+                                    [P_SPrice3], [P_SPrice4], [P_SPrice5], [P_SPrice6], [P_SPrice7], [P_SPrice8],
+                                    [P_SPrice9], [P_SPrice10], [P_SPrice11], [P_SPrice12], [P_SPrice13], [P_SPrice14],
+                                    [P_SPrice15], [P_ModifyDT], [P_OrderStatus], [P_DisplayShelfLife] 
+                                    FROM [dbo].[ItemMaster]";
 
                 var reader = await SqlHelper.ExecuteReader(conn, CommandType.Text, commandText, null);
                 while (reader.Read())
                 {
-                    var existingItem = _itemRepository.Table.FirstOrDefault(x => x.P_StockCode.Equals(reader["stock_code"].ToString(), StringComparison.InvariantCultureIgnoreCase));
+                    var existingItem = _itemRepository.Table.FirstOrDefault(x => x.P_StockCode.Equals(reader["P_StockCode"].ToString(), StringComparison.InvariantCultureIgnoreCase));
                     if (existingItem != null)
                         continue;
 
                     var item = new Item
                     {
-                        P_StockCode = reader["stock_code"].ToString(),
-                        P_Desc = reader["stock_name"].ToString(),
-                        P_GroupId = Convert.ToInt32(reader["Category_Code"].ToString()),
-                        P_SPrice1 = Convert.ToDouble(reader["price_level_01"].ToString()),
-                        P_SPrice2 = Convert.ToDouble(reader["price_level_02"].ToString()),
-                        P_SPrice3 = Convert.ToDouble(reader["price_level_03"].ToString()),
-                        P_SPrice4 = Convert.ToDouble(reader["price_level_04"].ToString()),
-                        P_SPrice5 = Convert.ToDouble(reader["price_level_05"].ToString()),
-                        P_SPrice6 = Convert.ToDouble(reader["price_level_06"].ToString()),
-                        P_SPrice7 = Convert.ToDouble(reader["price_level_07"].ToString()),
-                        P_SPrice8 = Convert.ToDouble(reader["price_level_08"].ToString()),
-                        P_SPrice9 = Convert.ToDouble(reader["price_level_09"].ToString()),
-                        P_SPrice10 = Convert.ToDouble(reader["price_level_10"].ToString()),
-                        P_SPrice11 = Convert.ToDouble(reader["price_level_11"].ToString()),
-                        P_SPrice12 = Convert.ToDouble(reader["price_level_12"].ToString()),
-                        P_SPrice13 = Convert.ToDouble(reader["price_level_13"].ToString()),
-                        P_SPrice14 = Convert.ToDouble(reader["price_level_14"].ToString()),
-                        P_SPrice15 = Convert.ToDouble(reader["price_level_15"].ToString()),
-                        P_RecStatus = reader["status"].ToString(),
-                        P_OrderStatus = Convert.ToInt32(reader["order"].ToString()),
-                        P_StockType = Convert.ToInt32(reader["type"].ToString()),
-                        P_Variant1 = reader["variant1"].ToString(),
-                        P_Variant2 = reader["variant2"].ToString(),
+                        P_StockCode = reader["P_StockCode"].ToString(),
+                        P_Desc = reader["P_Desc"].ToString(),
+                        P_SubCategoryID = Convert.ToInt32(reader["P_SubCategoryID"]),
+                        P_SPrice1 = Convert.ToDouble(reader["P_SPrice1"].ToString()),
+                        P_SPrice2 = Convert.ToDouble(reader["P_SPrice2"].ToString()),
+                        P_SPrice3 = Convert.ToDouble(reader["P_SPrice3"].ToString()),
+                        P_SPrice4 = Convert.ToDouble(reader["P_SPrice4"].ToString()),
+                        P_SPrice5 = Convert.ToDouble(reader["P_SPrice5"].ToString()),
+                        P_SPrice6 = Convert.ToDouble(reader["P_SPrice6"].ToString()),
+                        P_SPrice7 = Convert.ToDouble(reader["P_SPrice7"].ToString()),
+                        P_SPrice8 = Convert.ToDouble(reader["P_SPrice8"].ToString()),
+                        P_SPrice9 = Convert.ToDouble(reader["P_SPrice9"].ToString()),
+                        P_SPrice10 = Convert.ToDouble(reader["P_SPrice10"].ToString()),
+                        P_SPrice11 = Convert.ToDouble(reader["P_SPrice11"].ToString()),
+                        P_SPrice12 = Convert.ToDouble(reader["P_SPrice12"].ToString()),
+                        P_SPrice13 = Convert.ToDouble(reader["P_SPrice13"].ToString()),
+                        P_SPrice14 = Convert.ToDouble(reader["P_SPrice14"].ToString()),
+                        P_SPrice15 = Convert.ToDouble(reader["P_SPrice15"].ToString()),
+                        P_ModifyDT = Convert.ToDateTime(reader["P_ModifyDT"].ToString()),
+                        P_OrderStatus = Convert.ToInt32(reader["P_OrderStatus"].ToString()),
+                        P_DisplayShelfLife = Convert.ToInt32(reader["P_DisplayShelfLife"].ToString())
                     };
 
                     items.Add(item);

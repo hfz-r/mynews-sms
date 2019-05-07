@@ -8,10 +8,8 @@ namespace StockManagementSystem.Api.Services
     {
         Item GetItemById(int id);
 
-        IList<Item> GetItems(int? groupId = null, int? vendorId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-            int limit = 50, int page = 1, int sinceId = 0);
+        IList<Item> GetItems(int limit = 50, int page = 1, int sinceId = 0);
 
-        int GetItemsCount(int? groupId = null, int? vendorId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-            int limit = 50, int page = 1, int sinceId = 0);
+        int GetItemsCount(int limit = 50, int page = 1, int sinceId = 0);
     }
 }

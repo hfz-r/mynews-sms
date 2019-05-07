@@ -17,11 +17,10 @@ namespace StockManagementSystem.Api.Services
             _itemRepository = itemRepository;
         }
 
-        public IList<Item> GetItems(int? groupId = null, int? vendorId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue,
+        public IList<Item> GetItems(int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue,
             int sinceId = Configurations.DefaultSinceId)
         {
-            var query = GetItemsQuery(groupId, vendorId, createdAtMin, createdAtMax, sinceId);
+            var query = GetItemsQuery(sinceId);
 
             return new ApiList<Item>(query, page - 1, limit);
         }
@@ -36,30 +35,15 @@ namespace StockManagementSystem.Api.Services
             return item;
         }
 
-        public int GetItemsCount(int? groupId = null, int? vendorId = null, DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-            int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue,
+        public int GetItemsCount(int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue,
             int sinceId = Configurations.DefaultSinceId)
         {
-            return GetItemsQuery(groupId, vendorId, createdAtMin, createdAtMax, sinceId).Count();
+            return GetItemsQuery(sinceId).Count();
         }
 
-        private IQueryable<Item> GetItemsQuery(int? groupId = null, int? vendorId = null, DateTime? createdAtMin = null,
-            DateTime? createdAtMax = null,
-            int sinceId = 0)
+        private IQueryable<Item> GetItemsQuery(int sinceId = 0)
         {
             var query = _itemRepository.Table;
-
-            if (groupId != null)
-                query = query.Where(i => i.P_GroupId == groupId);
-
-            if (vendorId != null)
-                query = query.Where(i => i.VendorId == vendorId);
-
-            if (createdAtMin != null)
-                query = query.Where(i => i.CreatedOnUtc > createdAtMin.Value);
-
-            if (createdAtMax != null)
-                query = query.Where(i => i.CreatedOnUtc < createdAtMax.Value);
 
             if (sinceId > 0)
                 query = query.Where(i => i.Id > sinceId);

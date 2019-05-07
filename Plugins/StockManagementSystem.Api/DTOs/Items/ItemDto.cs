@@ -1,6 +1,7 @@
 ﻿using FluentValidation.Attributes;
 using Newtonsoft.Json;
 using StockManagementSystem.Api.Validators;
+using System;
 
 namespace StockManagementSystem.Api.DTOs.Items
 {
@@ -14,8 +15,8 @@ namespace StockManagementSystem.Api.DTOs.Items
         [JsonProperty("desc")]
         public string P_Desc { get; set; }
 
-        [JsonProperty("group_id")]
-        public int? P_GroupId { get; set; }
+        [JsonProperty("sub_category_code")]
+        public int P_SubCategoryID { get; set; }
 
         [JsonProperty("price_1")]
         public double? P_SPrice1 { get; set; }
@@ -59,25 +60,13 @@ namespace StockManagementSystem.Api.DTOs.Items
         [JsonProperty("price_14")]
         public double? P_SPrice14 { get; set; }
 
-        [JsonProperty("price_15")]
-        public double? P_SPrice15 { get; set; }
-
-        [JsonProperty("rec_status")]
-        public string P_RecStatus { get; set; }
+        [JsonProperty("modify_dt")]
+        public DateTime? P_ModifyDT { get; set; }
 
         [JsonProperty("order_status")]
         public int P_OrderStatus { get; set; }
 
-        [JsonProperty("stock_type")]
-        public int P_StockType { get; set; }
-
-        [JsonProperty("variant_1")]
-        public string P_Variant1 { get; set; }
-
-        [JsonProperty("variant_2")]
-        public string P_Variant2 { get; set; }
-
-        [JsonProperty("vendor_id")]
-        public int? VendorId { get; set; }
+        [JsonProperty("display_shelf_life")]
+        public int P_DisplayShelfLife { get; set; }
     }
 }

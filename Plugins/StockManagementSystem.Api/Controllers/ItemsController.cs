@@ -66,10 +66,6 @@ namespace StockManagementSystem.Api.Controllers
                 return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
             var itemsDto = _itemApiService.GetItems(
-                parameters.GroupId, 
-                parameters.VendorId, 
-                parameters.CreatedAtMin,
-                parameters.CreatedAtMax, 
                 parameters.Limit, 
                 parameters.Page, 
                 parameters.SinceId).Select(item => item.ToDto()).ToList();
@@ -184,7 +180,6 @@ namespace StockManagementSystem.Api.Controllers
                 return await Error(HttpStatusCode.NotFound, "item", "not found");
 
             itemDelta.Merge(currentItem);
-            currentItem.ModifiedOnUtc = DateTime.UtcNow;
 
             await _itemRepository.UpdateAsync(currentItem);
 
