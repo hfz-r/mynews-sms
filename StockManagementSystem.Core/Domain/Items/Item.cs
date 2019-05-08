@@ -1,16 +1,14 @@
 ﻿using System;
-using StockManagementSystem.Core.Domain.Settings;
-using System.Collections.Generic;
 
 namespace StockManagementSystem.Core.Domain.Items
 {
-    public class Item : BaseEntity, IAppendTimestamps
+    public class Item : BaseEntity
     {
         public string P_StockCode { get; set; }
 
         public string P_Desc { get; set; }
 
-        public int? P_GroupId { get; set; }
+        public int P_SubCategoryID { get; set; }
 
         public double? P_SPrice1 { get; set; }
 
@@ -42,26 +40,12 @@ namespace StockManagementSystem.Core.Domain.Items
 
         public double? P_SPrice15 { get; set; }
 
-        public string P_RecStatus { get; set; }
+        public DateTime? P_ModifyDT { get; set; }
 
         public int P_OrderStatus { get; set; }
 
-        public int P_StockType { get; set; }
+        public int P_DisplayShelfLife { get; set; }
 
-        public string P_Variant1 { get; set; }
-
-        public string P_Variant2 { get; set; }
-
-        public int? VendorId { get; set; }
-
-        public virtual ICollection<ShelfLocation> ShelfLocations { get; set; }
-
-        #region IAppendTimestamps members
-
-        public virtual DateTime CreatedOnUtc { get; set; }
-
-        public virtual DateTime? ModifiedOnUtc { get; set; }
-
-        #endregion
+        public byte Status { get; set; }
     }
 }
