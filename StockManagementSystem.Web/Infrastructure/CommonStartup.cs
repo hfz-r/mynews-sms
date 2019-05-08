@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using Castle.Core.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Infrastructure;
+using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Web.Infrastructure.Extensions;
 
 namespace StockManagementSystem.Web.Infrastructure
