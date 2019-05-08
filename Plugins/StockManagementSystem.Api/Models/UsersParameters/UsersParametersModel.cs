@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using StockManagementSystem.Api.Constants;
@@ -17,6 +18,8 @@ namespace StockManagementSystem.Api.Models.UsersParameters
             Fields = string.Empty;
             CreatedAtMax = null;
             CreatedAtMin = null;
+            RoleIds = null;
+            StoreIds = null;
         }
 
         /// <summary>
@@ -54,5 +57,17 @@ namespace StockManagementSystem.Api.Models.UsersParameters
         /// </summary>
         [JsonProperty("created_at_max")]
         public DateTime? CreatedAtMax { get; set; }
+
+        /// <summary>
+        /// Comma-separated list of role ids for filter users
+        /// </summary>
+        [JsonProperty("role_ids")]
+        public List<int> RoleIds { get; set; }
+
+        /// <summary>
+        /// Comma-separated list of store ids for filter users
+        /// </summary>
+        [JsonProperty("store_ids")]
+        public List<int> StoreIds { get; set; }
     }
 }

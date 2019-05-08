@@ -40,7 +40,7 @@ namespace StockManagementSystem.Services.Security
         /// <summary>
         /// Get permission records by role id
         /// </summary>
-        protected async Task<IList<Permission>> GetPermissionByRoleId(int roleId)
+        public async Task<IList<Permission>> GetPermissionByRoleId(int roleId)
         {
             var key = string.Format(SecurityDefaults.GetPermissionByRoleIdKey, roleId);
             return await _cacheManager.Get(key, async () =>

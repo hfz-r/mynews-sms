@@ -743,7 +743,7 @@ namespace StockManagementSystem.Controllers
                             data.Add(new ShelfLocation
                             {
                                 StoreId = Int32.Parse(worksheet.Cells[i, 1].Value.ToString()),
-                                Stock_Code = worksheet.Cells[i, 2].Value.ToString(),
+                                P_StockCode = worksheet.Cells[i, 2].Value.ToString(),
                                 Location = worksheet.Cells[i, 3].Value.ToString(),
                                 CreatedOnUtc = DateTime.Now
                             });

@@ -59,7 +59,7 @@ namespace Api.Tests.ControllersTests.Items
         public void Should_return_bad_request_when_id_equals_to_zero_or_less(int nonPositiveDeviceId)
         {
             //Arrange
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<ItemsRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<ItemsRootObject>(), It.IsAny<string>(), null))
                 .Returns(string.Empty);
 
             //Act
@@ -76,7 +76,7 @@ namespace Api.Tests.ControllersTests.Items
         public void Should_not_call_ItemApiService_when_id_equals_to_zero_or_less(int negativeDeviceId)
         {
             //Arrange
-            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null)).Returns(string.Empty);
+            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null, null)).Returns(string.Empty);
 
             //Act
             var result = _itemsController.GetItemById(negativeDeviceId).GetAwaiter().GetResult();
@@ -91,7 +91,7 @@ namespace Api.Tests.ControllersTests.Items
             var nonExistingItemId = 5;
 
             //Arrange
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<ItemsRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<ItemsRootObject>(), It.IsAny<string>(), null))
                 .Returns(string.Empty);
 
             _itemApiService.Setup(x => x.GetItemById(nonExistingItemId)).Returns(() => null);

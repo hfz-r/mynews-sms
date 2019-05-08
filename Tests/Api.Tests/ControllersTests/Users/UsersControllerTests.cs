@@ -16,6 +16,7 @@ using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Stores;
 using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 
@@ -33,6 +34,7 @@ namespace Api.Tests.ControllersTests.Users
         private Mock<IUserApiService> _userApiService;
         private Mock<IGenericAttributeService> _genericAttributeService;
         private Mock<IEncryptionService> _encryptionService;
+        private Mock<IStoreService> _storeService;
         private Mock<IFactory<User>> _factoryUser;
 
         private UsersController _usersController;
@@ -49,6 +51,7 @@ namespace Api.Tests.ControllersTests.Users
             _userApiService = new Mock<IUserApiService>();
             _genericAttributeService = new Mock<IGenericAttributeService>();
             _encryptionService = new Mock<IEncryptionService>();
+            _storeService = new Mock<IStoreService>();
             _factoryUser = new Mock<IFactory<User>>();
 
             _usersController = new UsersController(
@@ -61,6 +64,7 @@ namespace Api.Tests.ControllersTests.Users
                 _userApiService.Object,
                 _genericAttributeService.Object,
                 _encryptionService.Object,
+                _storeService.Object,
                 _factoryUser.Object);
         }
 
@@ -69,7 +73,7 @@ namespace Api.Tests.ControllersTests.Users
         [Test]
         public void Should_return_ok_with_count_equals_zero_when_no_user_exists()
         {
-            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null)).Returns(String.Empty);
+            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null, null)).Returns(String.Empty);
             _userApiService.Setup(x => x.GetUsersCount()).Returns(0);
 
             var result = _usersController.GetUsersCount().GetAwaiter().GetResult();
@@ -81,7 +85,7 @@ namespace Api.Tests.ControllersTests.Users
         [Test]
         public void Should_return_ok_with_count_equals_one_when_single_user_exists()
         {
-            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null)).Returns(String.Empty);
+            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null, null)).Returns(String.Empty);
             _userApiService.Setup(x => x.GetUsersCount()).Returns(1);
 
             var result = _usersController.GetUsersCount().GetAwaiter().GetResult();
@@ -93,7 +97,7 @@ namespace Api.Tests.ControllersTests.Users
         [Test]
         public void Should_return_ok_with_count_equals_to_same_users_when_certain_number_users_exists()
         {
-            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null)).Returns(String.Empty);
+            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null, null)).Returns(String.Empty);
             _userApiService.Setup(x => x.GetUsersCount()).Returns(666);
 
             var result = _usersController.GetUsersCount().GetAwaiter().GetResult();
@@ -115,13 +119,13 @@ namespace Api.Tests.ControllersTests.Users
                 CreatedAtMin = DateTime.Now,
                 CreatedAtMax = DateTime.Now,
                 Page = Configurations.DefaultPageValue + 1, // some different than default page
-                Limit = Configurations.MinLimit + 1 // some different than default limit
+                Limit = Configurations.MinLimit + 1, // some different than default limit
             };
 
             _usersController.GetUsers(parameters).GetAwaiter().GetResult();
 
             _userApiService.Verify(x => x.GetUserDtos(parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId));
+                parameters.Limit, parameters.Page, parameters.SinceId, null, null));
         }
 
         [Test]
@@ -137,13 +141,13 @@ namespace Api.Tests.ControllersTests.Users
 
             _userApiService
                 .Setup(x => x.GetUserDtos(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Limit,
-                    parameters.Page, parameters.SinceId)).Returns(returnedUsersDtoCollection);
+                    parameters.Page, parameters.SinceId, null, null)).Returns(returnedUsersDtoCollection);
 
             _usersController.GetUsers(parameters).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x =>
                 x.Serialize(It.Is<UsersRootObject>(r => r.Users.Count == returnedUsersDtoCollection.Count),
-                    It.IsIn(parameters.Fields)));
+                    It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -154,13 +158,13 @@ namespace Api.Tests.ControllersTests.Users
 
             _userApiService
                 .Setup(x => x.GetUserDtos(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Limit,
-                    parameters.Page, parameters.SinceId)).Returns(returnedUsersDtoCollection);
+                    parameters.Page, parameters.SinceId, null, null)).Returns(returnedUsersDtoCollection);
 
             _usersController.GetUsers(parameters).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x =>
                 x.Serialize(It.Is<UsersRootObject>(r => r.Users.Count == returnedUsersDtoCollection.Count),
-                    It.IsIn(parameters.Fields)));
+                    It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -173,7 +177,7 @@ namespace Api.Tests.ControllersTests.Users
 
             _usersController.GetUsers(parameters).GetAwaiter().GetResult();
 
-            _jsonFieldsSerializer.Verify(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(parameters.Fields)));
+            _jsonFieldsSerializer.Verify(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -186,7 +190,7 @@ namespace Api.Tests.ControllersTests.Users
                 Limit = invalidLimit
             };
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             var result = _usersController.GetUsers(parameters).GetAwaiter().GetResult();
@@ -205,7 +209,7 @@ namespace Api.Tests.ControllersTests.Users
                 Page = invalidPage
             };
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             var result = _usersController.GetUsers(parameters).GetAwaiter().GetResult();
@@ -224,7 +228,7 @@ namespace Api.Tests.ControllersTests.Users
             int nonExistingUserId = 5;
 
             _userApiService.Setup(x => x.GetUserById(nonExistingUserId, false));
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             var result = _usersController.GetUserById(nonExistingUserId).GetAwaiter().GetResult();
@@ -238,7 +242,7 @@ namespace Api.Tests.ControllersTests.Users
         [TestCase(-20)]
         public void Should_return_bad_request_when_id_equals_0_or_less(int nonPositiveUserId)
         {
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             var result = _usersController.GetUserById(nonPositiveUserId).GetAwaiter().GetResult();
@@ -259,7 +263,7 @@ namespace Api.Tests.ControllersTests.Users
             _usersController.GetUserById(existingUserId).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x => x.Serialize(It.Is<UsersRootObject>(s => s.Users[0] == existingUserDto),
-                It.Is<string>(fields => fields == "")));
+                It.Is<string>(fields => fields == ""), null));
         }
 
         [Test]
@@ -274,7 +278,7 @@ namespace Api.Tests.ControllersTests.Users
             _usersController.GetUserById(existingUserId, fields).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x => x.Serialize(It.Is<UsersRootObject>(s => s.Users[0] == existingUserDto),
-                It.Is<string>(fieldsParameter => fieldsParameter == fields)));
+                It.Is<string>(fieldsParameter => fieldsParameter == fields), null));
         }
 
         #endregion
@@ -308,13 +312,13 @@ namespace Api.Tests.ControllersTests.Users
 
             var defaultParameters = new UsersSearchParametersModel();
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+            _jsonFieldsSerializer.Setup(x => x.Serialize(expectedRootObject, defaultParameters.Fields, null));
             _userApiService.Setup(x => x.Search(null, null, 1, 50)).Returns(expectedUsersCollection);
 
             _usersController.Search(defaultParameters).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x =>
-                x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(defaultParameters.Fields)));
+                x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(defaultParameters.Fields), null));
         }
 
         [Test]
@@ -329,13 +333,13 @@ namespace Api.Tests.ControllersTests.Users
 
             var defaultParameters = new UsersSearchParametersModel();
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(expectedRootObject, defaultParameters.Fields));
+            _jsonFieldsSerializer.Setup(x => x.Serialize(expectedRootObject, defaultParameters.Fields, null));
             _userApiService.Setup(x => x.Search(null, null, 1, 50)).Returns(expectedUsersCollection);
 
             _usersController.Search(defaultParameters).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x =>
-                x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(defaultParameters.Fields)));
+                x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(defaultParameters.Fields), null));
         }
 
         [Test]
@@ -349,7 +353,7 @@ namespace Api.Tests.ControllersTests.Users
             _usersController.Search(defaultParametersModel).GetAwaiter().GetResult();
 
             _jsonFieldsSerializer.Verify(x =>
-                x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(defaultParametersModel.Fields)));
+                x.Serialize(It.IsAny<UsersRootObject>(), It.IsIn(defaultParametersModel.Fields), null));
         }
 
         [Test]
@@ -363,7 +367,7 @@ namespace Api.Tests.ControllersTests.Users
                 Limit = invalidLimit
             };
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             var result = _usersController.Search(parametersModel).GetAwaiter().GetResult();
@@ -382,7 +386,7 @@ namespace Api.Tests.ControllersTests.Users
                 Page = nonPositivePage
             };
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<UsersRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             var result = _usersController.Search(parametersModel).GetAwaiter().GetResult();

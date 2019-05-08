@@ -20,7 +20,7 @@ namespace StockManagementSystem.Core.Domain.Users
         public virtual ICollection<PermissionRoles> PermissionRoles
         {
             get => _permissionRoles ?? (_permissionRoles = new List<PermissionRoles>());
-            protected set => _permissionRoles = value;
+            set => _permissionRoles = value;
         }
     }
 }

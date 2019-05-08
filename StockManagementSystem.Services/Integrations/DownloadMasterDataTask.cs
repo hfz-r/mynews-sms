@@ -354,6 +354,6 @@ namespace StockManagementSystem.Services.Integrations
 
         public string Schedule => "0 17 * * *";
 
-        public bool Enabled => true;
+        public bool Enabled => false;
     }
 }

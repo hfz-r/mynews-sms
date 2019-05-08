@@ -12,15 +12,18 @@ namespace StockManagementSystem.Api.Helpers
         private readonly IAclService _aclService;
         private readonly ITenantMappingService _tenantMappingService;
         private readonly ITenantService _tenantService;
+        private readonly IPermissionService _permissionService;
 
         public DtoHelper(
             IAclService aclService, 
             ITenantMappingService tenantMappingService, 
-            ITenantService tenantService)
+            ITenantService tenantService,
+            IPermissionService permissionService)
         {
             _aclService = aclService;
             _tenantMappingService = tenantMappingService;
             _tenantService = tenantService;
+            _permissionService = permissionService;
         }
 
         public DeviceDto PrepareDeviceDto(Device device)

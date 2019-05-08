@@ -21,6 +21,8 @@ namespace StockManagementSystem.Services.Security
 
         Task<IList<Permission>> GetAllPermissions();
 
+        Task<IList<Permission>> GetPermissionByRoleId(int roleId);
+
         Permission GetPermissionBySystemName(string systemName);
 
         Task InstallPermissionsAsync(IPermissionProvider permissionProvider);

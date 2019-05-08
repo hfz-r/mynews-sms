@@ -7,6 +7,8 @@ namespace StockManagementSystem.Core.Domain.Settings
     {
         //public int Percentage { get; set; } //Remove Percentage criteria; Not required - 05032019
 
+        private ICollection<OrderLimitStore> _orderLimitStores;
+
         public int DeliveryPerWeek { get; set; }
 
         public int Safety { get; set; }
@@ -15,7 +17,11 @@ namespace StockManagementSystem.Core.Domain.Settings
 
         public int OrderRatio { get; set; }
 
-        public virtual ICollection<OrderLimitStore> OrderLimitStores { get; set; }
+        public virtual ICollection<OrderLimitStore> OrderLimitStores
+        {
+            get => _orderLimitStores ?? (_orderLimitStores = new List<OrderLimitStore>());
+            set => _orderLimitStores = value;
+        }
 
         #region IAppendTimestamps members
 

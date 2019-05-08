@@ -110,7 +110,7 @@ namespace Api.Tests.ControllersTests.Devices
 
             //Assert
             _jsonFieldsSerializer.Verify(x => x.Serialize(It.Is<DevicesRootObject>(d => d.Devices.Count == returnedDevicesList.Count), 
-                It.IsIn(parameters.Fields)));
+                It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace Api.Tests.ControllersTests.Devices
 
             //Assert
             _jsonFieldsSerializer.Verify(x => x.Serialize(It.Is<DevicesRootObject>(d => d.Devices.Count == returnedDevicesList.Count), 
-                It.IsIn(parameters.Fields)));
+                It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -148,7 +148,7 @@ namespace Api.Tests.ControllersTests.Devices
             _devicesController.GetDevices(parameters).GetAwaiter().GetResult();
 
             //Assert
-            _jsonFieldsSerializer.Verify(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsIn(parameters.Fields)));
+            _jsonFieldsSerializer.Verify(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace Api.Tests.ControllersTests.Devices
             _deviceApiService.Setup(x => x.GetDevices(parameters.Ids, parameters.Limit, parameters.Page, parameters.SinceId,
                 parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Status)).Returns(returnedDevicesList);
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             //Act
@@ -192,7 +192,7 @@ namespace Api.Tests.ControllersTests.Devices
             _deviceApiService.Setup(x => x.GetDevices(parameters.Ids, parameters.Limit, parameters.Page, parameters.SinceId,
                 parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Status)).Returns(returnedDevicesList);
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>(), null))
                 .Returns(String.Empty);
 
             //Act
