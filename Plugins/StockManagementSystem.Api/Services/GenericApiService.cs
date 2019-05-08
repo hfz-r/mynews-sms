@@ -7,6 +7,7 @@ using StockManagementSystem.Api.DataStructures;
 using StockManagementSystem.Api.DTOs;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Core.Data;
+using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Infrastructure;
@@ -72,6 +73,151 @@ namespace StockManagementSystem.Api.Services
 
                 return lst.Select(t => t.ToDto()).ToList() as IList<T>;
             }
+            //master table - start
+            else if (instance is ASNDetailMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<ASNDetailMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is ASNHeaderMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ASNHeaderMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<ASNHeaderMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is BarcodeMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<BarcodeMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<BarcodeMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is BranchMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<BranchMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<BranchMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is MainCategoryMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<MainCategoryMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<MainCategoryMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is OrderBranchMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<OrderBranchMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<OrderBranchMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is SalesMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SalesMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<SalesMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is ShelfLocationMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocationMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<ShelfLocationMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is ShiftControlMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ShiftControlMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<ShiftControlMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is StockTakeControlMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<StockTakeControlMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<StockTakeControlMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is StockTakeRightMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<StockTakeRightMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<StockTakeRightMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is SubCategoryMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SubCategoryMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<SubCategoryMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            else if (instance is SupplierMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SupplierMaster>>();
+
+                var query = repository.Table;
+                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+
+                var lst = new ApiList<SupplierMaster>(query, page - 1, limit);
+
+                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+            }
+            //master table - end
 
             return null;
         }
@@ -107,6 +253,112 @@ namespace StockManagementSystem.Api.Services
 
                 return entity.ToDto() as T;
             }
+            //master table - start
+            else if (instance is ASNDetailMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is ASNHeaderMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ASNHeaderMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is BarcodeMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<BarcodeMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is BranchMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<BranchMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is MainCategoryMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<MainCategoryMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is OrderBranchMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<OrderBranchMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is SalesMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SalesMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is ShelfLocationMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocationMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is ShiftControlMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ShiftControlMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is StockTakeControlMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<StockTakeControlMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is StockTakeRightMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<StockTakeRightMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is SubCategoryMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SubCategoryMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            else if (instance is SupplierMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SupplierMaster>>();
+
+                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+
+                return entity.ToDto() as T;
+            }
+            //master table - end
 
             return null;
         }
@@ -133,6 +385,86 @@ namespace StockManagementSystem.Api.Services
 
                 return repository.Table.Count();
             }
+            //master table - start
+            else if (instance is ASNDetailMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is ASNHeaderMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is BarcodeMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<BarcodeMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is BranchMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<BranchMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is MainCategoryMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<MainCategoryMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is OrderBranchMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<OrderBranchMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is SalesMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SalesMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is ShelfLocationMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocationMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is ShiftControlMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<ShiftControlMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is StockTakeControlMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<StockTakeControlMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is StockTakeRightMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<StockTakeRightMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is SubCategoryMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SubCategoryMaster>>();
+
+                return repository.Table.Count();
+            }
+            else if (instance is SupplierMaster)
+            {
+                var repository = EngineContext.Current.Resolve<IRepository<SupplierMaster>>();
+
+                return repository.Table.Count();
+            }
+            //master table - end
 
             return 0;
         }

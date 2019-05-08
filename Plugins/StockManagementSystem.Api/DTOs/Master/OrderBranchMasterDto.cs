@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using StockManagementSystem.Api.Attributes;
 
 namespace StockManagementSystem.Api.DTOs.Master
 {
+    [GeneratedController("api/master/orderbranch")]
     [JsonObject(Title = "orderBranch")]
     public class OrderBranchMasterDto : BaseDto
     {

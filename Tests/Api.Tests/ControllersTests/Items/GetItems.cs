@@ -70,15 +70,13 @@ namespace Api.Tests.ControllersTests.Items
                 Limit = Configurations.MinLimit + 1 // some different than default limit
             };
 
-            _itemApiService.Setup(x => x.GetItems(null, null, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId)).Returns(new List<Item>());
+            _itemApiService.Setup(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId)).Returns(new List<Item>());
 
             //Act
             _itemsController.GetItems(parameters).GetAwaiter().GetResult();
 
             //Assert
-            _itemApiService.Verify(x => x.GetItems(null, null, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId));
+            _itemApiService.Verify(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId));
         }
 
         [Test]
@@ -92,8 +90,7 @@ namespace Api.Tests.ControllersTests.Items
                 new Item(),
             };
 
-            _itemApiService.Setup(x => x.GetItems(parameters.GroupId, parameters.VendorId, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
+            _itemApiService.Setup(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
 
             //Act
             _itemsController.GetItems(parameters).GetAwaiter().GetResult();
@@ -110,8 +107,7 @@ namespace Api.Tests.ControllersTests.Items
             var parameters = new ItemsParametersModel();
             var returnedItemsCollection = new List<Item>();
 
-            _itemApiService.Setup(x => x.GetItems(parameters.GroupId, parameters.VendorId, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
+            _itemApiService.Setup(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
 
             //Act
             _itemsController.GetItems(parameters).GetAwaiter().GetResult();
@@ -128,8 +124,7 @@ namespace Api.Tests.ControllersTests.Items
             var parameters = new ItemsParametersModel {Fields = "stock_code,price_1,price_2,price_3,stock_type"};
             var returnedItemsCollection = new List<Item>();
 
-            _itemApiService.Setup(x => x.GetItems(parameters.GroupId, parameters.VendorId, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
+            _itemApiService.Setup(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
 
             //Act
             _itemsController.GetItems(parameters).GetAwaiter().GetResult();
@@ -148,8 +143,7 @@ namespace Api.Tests.ControllersTests.Items
 
             var returnedItemsCollection = new List<Item>();
 
-            _itemApiService.Setup(x => x.GetItems(parameters.GroupId, parameters.VendorId, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
+            _itemApiService.Setup(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
 
             //Act
             var result = _itemsController.GetItems(parameters).GetAwaiter().GetResult();
@@ -169,8 +163,7 @@ namespace Api.Tests.ControllersTests.Items
 
             var returnedItemsCollection = new List<Item>();
 
-            _itemApiService.Setup(x => x.GetItems(parameters.GroupId, parameters.VendorId, parameters.CreatedAtMin, parameters.CreatedAtMax,
-                parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
+            _itemApiService.Setup(x => x.GetItems(parameters.Limit, parameters.Page, parameters.SinceId)).Returns(returnedItemsCollection);
 
             //Act
             var result = _itemsController.GetItems(parameters).GetAwaiter().GetResult();

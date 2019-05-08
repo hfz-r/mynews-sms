@@ -47,8 +47,6 @@ namespace StockManagementSystem.Api
                 context.Request.EnableBuffering();
                 await next();
             });
-
-            application.UseMvc();
         }
 
         public int Order => new AuthenticationStartup().Order + 1;
