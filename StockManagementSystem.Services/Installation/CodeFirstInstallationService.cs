@@ -94,7 +94,7 @@ namespace StockManagementSystem.Services.Installation
                 UsernamesEnabled = false,
                 CheckUsernameAvailabilityEnabled = false,
                 AllowUsersToChangeUsernames = false,
-                DefaultPasswordFormat = PasswordFormat.Hashed,
+                DefaultPasswordFormat = PasswordFormat.Clear,
                 HashedPasswordFormat = UserServiceDefaults.DefaultHashedPasswordFormat,
                 PasswordMinLength = 6,
                 PasswordRequireDigit = false,
@@ -174,7 +174,7 @@ namespace StockManagementSystem.Services.Installation
             };
             var urGuests = new Role
             {
-                Name = "Guests",
+                Name = "Cashier",
                 Active = true,
                 IsSystemRole = true,
                 SystemName = UserDefaults.GuestsRoleName,
@@ -215,7 +215,7 @@ namespace StockManagementSystem.Services.Installation
             //set hashed password
             var userRegistrationService = EngineContext.Current.Resolve<IUserRegistrationService>();
             userRegistrationService.ChangePasswordAsync(new ChangePasswordRequest(defaultUserEmail, false,
-                    PasswordFormat.Hashed, defaultUserPassword, null, UserServiceDefaults.DefaultHashedPasswordFormat))
+                    PasswordFormat.Clear, defaultUserPassword, null, UserServiceDefaults.DefaultHashedPasswordFormat))
                 .GetAwaiter().GetResult();
 
             //built-in user for background tasks
@@ -223,7 +223,6 @@ namespace StockManagementSystem.Services.Installation
             {
                 Email = "builtin@background-task-record.com",
                 UserGuid = Guid.NewGuid(),
-                AdminComment = "Built-in system record used for background tasks.",
                 Active = true,
                 IsSystemAccount = true,
                 SystemName = UserDefaults.BackgroundTaskUserName,

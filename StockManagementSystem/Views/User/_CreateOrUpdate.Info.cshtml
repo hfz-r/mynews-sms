@@ -19,7 +19,7 @@
             <_label asp-for="Email" />
         </div>
         <div class="col-md-9">
-            <_editor asp-for="Email" />
+            <_editor asp-for="Email" asp-disabled="true" />
             <span asp-validation-for="Email"></span>
         </div>
     </div>
@@ -140,7 +140,7 @@
             <_label asp-for="FirstName" />
         </div>
         <div class="col-md-9">
-            <_editor asp-for="FirstName" />
+            <_editor asp-for="FirstName" asp-disabled="true" />
             <span asp-validation-for="FirstName"></span>
         </div>
     </div>
@@ -149,7 +149,7 @@
             <_label asp-for="LastName" />
         </div>
         <div class="col-md-9">
-            <_editor asp-for="LastName" />
+            <_editor asp-for="LastName" asp-disabled="true" />
             <span asp-validation-for="LastName"></span>
         </div>
     </div>
@@ -177,7 +177,7 @@
             </div>
         </div>
     }
-    <div class="form-group">
+    @*<div class="form-group">
         <div class="col-md-3">
             <_label asp-for="AdminComment" />
         </div>
@@ -185,7 +185,7 @@
             <_textarea asp-for="AdminComment" />
             <span asp-validation-for="AdminComment"></span>
         </div>
-    </div>
+    </div>*@
     @if (Model.AllowUsersToSetTimeZone)
     {
         <div class="form-group">
@@ -207,7 +207,7 @@
             <span asp-validation-for="Active"></span>
         </div>
     </div>
-    @if (Model.Id > 0 && !string.IsNullOrEmpty(Model.LastIpAddress))
+    @*@if (Model.Id > 0 && !string.IsNullOrEmpty(Model.LastIpAddress))
     {
         <div class="form-group">
             <div class="col-md-3">
@@ -217,7 +217,7 @@
                 <div class="form-text-row">@Model.LastIpAddress</div>
             </div>
         </div>
-    }
+    }*@
     @if (Model.Id > 0 && !Model.CreatedOn.Equals(DateTime.MinValue))
     {
         <div class="form-group">

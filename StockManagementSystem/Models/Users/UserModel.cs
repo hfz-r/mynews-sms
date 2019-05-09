@@ -65,8 +65,8 @@ namespace StockManagementSystem.Models.Users
         [Display(Name = "Phone")]
         public string Phone { get; set; }
 
-        [Display(Name = "Admin comment")]
-        public string AdminComment { get; set; }
+        [Display(Name = "Barcode")]
+        public string Barcode { get; set; }
 
         [Display(Name = "Active")]
         public bool Active { get; set; }

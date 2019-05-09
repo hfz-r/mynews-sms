@@ -37,8 +37,8 @@ namespace StockManagementSystem.Api.DTOs.Users
         [JsonProperty("gender")]
         public string Gender { get; set; }
 
-        [JsonProperty("admin_comment")]
-        public string AdminComment { get; set; }
+        [JsonProperty("barcode")]
+        public string Barcode { get; set; }
 
         [JsonProperty("active")]
         public bool? Active { get; set; }

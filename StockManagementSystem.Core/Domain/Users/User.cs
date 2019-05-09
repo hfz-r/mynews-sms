@@ -22,7 +22,7 @@ namespace StockManagementSystem.Core.Domain.Users
 
         public string Email { get; set; }
 
-        public string AdminComment { get; set; }
+        public string Barcode { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating number of failed login attempts (wrong password)

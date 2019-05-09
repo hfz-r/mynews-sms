@@ -111,7 +111,7 @@ namespace StockManagementSystem.Factories
                 {
                     var userModel = user.ToModel<UserModel>();
 
-                    userModel.Email = user.IsRegistered() ? user.Email : "Guest";
+                    userModel.Email = user.Email;
                     userModel.FullName = _userService.GetUserFullNameAsync(user).GetAwaiter().GetResult();
                     userModel.Phone = _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.PhoneAttribute).GetAwaiter().GetResult();
                     userModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
@@ -168,7 +168,7 @@ namespace StockManagementSystem.Factories
                 {
                     model.Email = user.Email;
                     model.Username = user.Username;
-                    model.AdminComment = user.AdminComment;
+                    model.Barcode = user.Barcode;
                     model.Active = user.Active;
                     model.FirstName = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.FirstNameAttribute);
                     model.LastName = await _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.LastNameAttribute);

@@ -18,7 +18,7 @@ BEGIN
 	((@CreatedToUtc is null) OR (u.[CreatedOnUtc] < @CreatedToUtc))
 	AND
 	--guests only
-	(EXISTS(SELECT 1 FROM [UserRole] ur with (NOLOCK) inner join [User] with (NOLOCK) on ur.[User_Id]=u.[Id] inner join [Role] r with (NOLOCK) on r.[Id]=ur.[Role_Id] WHERE r.[SystemName] = N'Guests'))
+	(EXISTS(SELECT 1 FROM [UserRole] ur with (NOLOCK) inner join [User] with (NOLOCK) on ur.[User_Id]=u.[Id] inner join [Role] r with (NOLOCK) on r.[Id]=ur.[Role_Id] WHERE r.[SystemName] = N'Cashier'))
 	AND
 	--no system accounts
 	(u.IsSystemAccount = 0)

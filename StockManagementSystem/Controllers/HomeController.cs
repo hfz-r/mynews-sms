@@ -222,7 +222,6 @@ namespace StockManagementSystem.Controllers
                                 UserGuid = Guid.NewGuid(),
                                 Username = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_no"].ToString().ToLower()),
                                 Email = reader["email"].ToString().Trim(),
-                                //AdminComment = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["role"].ToString().ToLower()),
                                 //Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_name"].ToString().ToLower()),
                                 Active = true,
                                 CreatedOnUtc = DateTime.UtcNow,

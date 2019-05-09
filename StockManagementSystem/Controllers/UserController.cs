@@ -71,9 +71,9 @@ namespace StockManagementSystem.Controllers
             var isInGuestsRole = roles.FirstOrDefault(r => r.SystemName == UserDefaults.GuestsRoleName) != null;
             var isInRegisteredRole = roles.FirstOrDefault(r => r.SystemName == UserDefaults.RegisteredRoleName) != null;
             if (isInGuestsRole && isInRegisteredRole)
-                return "User cannot be in both 'Guests' and 'Registered' roles";
+                return "User cannot be in both 'Cashier' and 'Registered' roles";
             if (!isInGuestsRole && !isInRegisteredRole)
-                return "Add user to 'Guests' or 'Registered' role";
+                return "Add user to 'Cashier' or 'Registered' role";
 
             //no errors
             return string.Empty;
@@ -160,8 +160,6 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
-                    user.AdminComment = model.AdminComment;
-
                     //prevent deactivation of the last active administrator
                     if (!user.IsAdmin() || model.Active || await SecondAdminAccountExists(user))
                         user.Active = model.Active;

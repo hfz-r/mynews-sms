@@ -199,7 +199,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(entity => entity.IsSystemAccount, options => options.Ignore())
                 .ForMember(entity => entity.SystemName, options => options.Ignore())
                 .ForMember(entity => entity.LastLoginDateUtc, options => options.Ignore())
-                .ForMember(entity => entity.AdminComment, options => options.Ignore())
+                .ForMember(entity => entity.Barcode, options => options.Ignore())
                 .ForMember(entity => entity.Username, options => options.Ignore())
                 .ForMember(entity => entity.UserRoles, options => options.Ignore())
                 .ForMember(entity => entity.Active, options => options.Ignore())
