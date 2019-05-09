@@ -144,7 +144,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="401">Unauthorized</response>
-        [HttpGet("/count")]
+        [HttpGet("count")]
         [ProducesResponseType(typeof(GenericCountRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]

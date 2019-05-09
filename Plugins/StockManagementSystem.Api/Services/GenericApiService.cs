@@ -1,25 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.DataStructures;
 using StockManagementSystem.Api.DTOs;
+using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
-using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Infrastructure;
+using StockManagementSystem.Data;
+using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Api.Services
 {
     public class GenericApiService<T> : IGenericApiService<T> where T : BaseDto
     {
+        private readonly ILogger _logger;
+
+        public GenericApiService(ILogger logger)
+        {
+            _logger = logger;
+        }
+
         #region Private methods
 
         private object GetInstance()
         {
+            if (typeof(T).BaseType != typeof(BaseDto))
+                throw new Exception("Generics only applied to 'BaseDto' subclass");
+
             var className = typeof(T).Name.Remove(typeof(T).Name.Length - 3);
 
             var type = AppDomain.CurrentDomain.GetAssemblies()
@@ -27,6 +38,21 @@ namespace StockManagementSystem.Api.Services
                 .First(t => string.Equals(t.Name, className, StringComparison.Ordinal));
 
             return type != null ? Activator.CreateInstance(type) : null;
+        }
+
+        private static dynamic RepositoryActivator(Type type)
+        {
+            if (type == null)
+                return null;
+
+            var contextType = typeof(Repository<>).MakeGenericType(type);
+
+            var context = Activator.CreateInstance(contextType, EngineContext.Current?.Resolve<IDbContext>());
+            dynamic repository = EngineContext.Current?.ResolveUnregistered(context.GetType());
+
+            var q = repository;
+
+            return q;
         }
 
         #endregion
@@ -40,186 +66,176 @@ namespace StockManagementSystem.Api.Services
         {
             var instance = GetInstance();
 
-            if (instance is Transaction)
+            switch (instance)
             {
-                var repository = EngineContext.Current.Resolve<IRepository<Transaction>>();
+                case Transaction _:
+                {
+                    var repository = RepositoryActivator(typeof(Transaction));
+                    var query = repository.Table as IQueryable<Transaction>;
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var lst = new ApiList<Transaction>(query, page - 1, limit);
+                    return new ApiList<Transaction>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case ShelfLocation _:
+                {
+                    var repository = RepositoryActivator(typeof(ShelfLocation));
+                    var query = repository.Table as IQueryable<ShelfLocation>;
 
-                return lst.Select(trans => trans.ToDto()).ToList() as IList<T>;
-            }
-            else if(instance is ShelfLocation)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocation>>();
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    return new ApiList<ShelfLocation>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case TransporterTransaction _:
+                {
+                    var repository = RepositoryActivator(typeof(TransporterTransaction));
+                    var query = repository.Table as IQueryable<TransporterTransaction>;
 
-                var lst = new ApiList<ShelfLocation>(query, page - 1, limit);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                return lst.Select(sl => sl.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is TransporterTransaction)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<TransporterTransaction>>();
+                    return new ApiList<TransporterTransaction>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case ASNDetailMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ASNDetailMaster));
+                    var query = repository.Table as IQueryable<ASNDetailMaster>;
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var lst = new ApiList<TransporterTransaction>(query, page - 1, limit);
+                    return new ApiList<ASNDetailMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case ASNHeaderMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ASNHeaderMaster));
+                    var query = repository.Table as IQueryable<ASNHeaderMaster>;
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            //master table - start
-            else if (instance is ASNDetailMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    return new ApiList<ASNHeaderMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case BarcodeMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(BarcodeMaster));
+                    var query = repository.Table as IQueryable<BarcodeMaster>;
 
-                var lst = new ApiList<ASNDetailMaster>(query, page - 1, limit);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is ASNHeaderMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ASNHeaderMaster>>();
+                    return new ApiList<BarcodeMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case BranchMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(BranchMaster));
+                    var query = repository.Table as IQueryable<BranchMaster>;
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var lst = new ApiList<ASNHeaderMaster>(query, page - 1, limit);
+                    return new ApiList<BranchMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case MainCategoryMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(MainCategoryMaster));
+                    var query = repository.Table as IQueryable<MainCategoryMaster>;
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is BarcodeMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<BarcodeMaster>>();
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    return new ApiList<MainCategoryMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case OrderBranchMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(OrderBranchMaster));
+                    var query = repository.Table as IQueryable<OrderBranchMaster>;
 
-                var lst = new ApiList<BarcodeMaster>(query, page - 1, limit);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is BranchMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<BranchMaster>>();
+                    return new ApiList<OrderBranchMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case SalesMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SalesMaster));
+                    var query = repository.Table as IQueryable<SalesMaster>;
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var lst = new ApiList<BranchMaster>(query, page - 1, limit);
+                    return new ApiList<SalesMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case ShelfLocationMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ShelfLocationMaster));
+                    var query = repository.Table as IQueryable<ShelfLocationMaster>;
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is MainCategoryMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<MainCategoryMaster>>();
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    return new ApiList<ShelfLocationMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case ShiftControlMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ShiftControlMaster));
+                    var query = repository.Table as IQueryable<ShiftControlMaster>;
 
-                var lst = new ApiList<MainCategoryMaster>(query, page - 1, limit);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is OrderBranchMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<OrderBranchMaster>>();
+                    return new ApiList<ShiftControlMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case StockTakeControlMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeControlMaster));
+                    var query = repository.Table as IQueryable<StockTakeControlMaster>;
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var lst = new ApiList<OrderBranchMaster>(query, page - 1, limit);
+                    return new ApiList<StockTakeControlMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case StockTakeRightMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeRightMaster));
+                    var query = repository.Table as IQueryable<StockTakeRightMaster>;
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is SalesMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SalesMaster>>();
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    return new ApiList<StockTakeRightMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case SubCategoryMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SubCategoryMaster));
+                    var query = repository.Table as IQueryable<SubCategoryMaster>;
 
-                var lst = new ApiList<SalesMaster>(query, page - 1, limit);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is ShelfLocationMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocationMaster>>();
+                    return new ApiList<SubCategoryMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case SupplierMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SupplierMaster));
+                    var query = repository.Table as IQueryable<SupplierMaster>;
 
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                var lst = new ApiList<ShelfLocationMaster>(query, page - 1, limit);
+                    return new ApiList<SupplierMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                default:
+                {
+                    _logger.Information("Null.");
 
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is ShiftControlMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShiftControlMaster>>();
-
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
-
-                var lst = new ApiList<ShiftControlMaster>(query, page - 1, limit);
-
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is StockTakeControlMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<StockTakeControlMaster>>();
-
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
-
-                var lst = new ApiList<StockTakeControlMaster>(query, page - 1, limit);
-
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is StockTakeRightMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<StockTakeRightMaster>>();
-
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
-
-                var lst = new ApiList<StockTakeRightMaster>(query, page - 1, limit);
-
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is SubCategoryMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SubCategoryMaster>>();
-
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
-
-                var lst = new ApiList<SubCategoryMaster>(query, page - 1, limit);
-
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
-            }
-            else if (instance is SupplierMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SupplierMaster>>();
-
-                var query = repository.Table;
-                query = query.GetQueryDynamic(sortColumn, descending, sinceId);
-
-                var lst = new ApiList<SupplierMaster>(query, page - 1, limit);
-
-                return lst.Select(t => t.ToDto()).ToList() as IList<T>;
+                    return null;
+                }
             }
             //master table - end
-
-            return null;
         }
 
         public T GetEntityById(int id)
@@ -229,293 +245,259 @@ namespace StockManagementSystem.Api.Services
 
             var instance = GetInstance();
 
-            if (instance is Transaction)
+            switch (instance)
             {
-                var repository = EngineContext.Current.Resolve<IRepository<Transaction>>();
+                case Transaction _:
+                {
+                    var repository = RepositoryActivator(typeof(Transaction));
+                    var entity = (repository.Table as IQueryable<Transaction>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case ShelfLocation _:
+                {
+                    var repository = RepositoryActivator(typeof(ShelfLocation));
+                    var entity = (repository.Table as IQueryable<ShelfLocation>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if(instance is ShelfLocation)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocation>>();
+                    return entity.ToDto() as T;
+                }
+                case TransporterTransaction _:
+                {
+                    var repository = RepositoryActivator(typeof(TransporterTransaction));
+                    var entity =
+                        (repository.Table as IQueryable<TransporterTransaction>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case ASNDetailMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ASNDetailMaster));
+                    var entity = (repository.Table as IQueryable<ASNDetailMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if (instance is TransporterTransaction)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<TransporterTransaction>>();
+                    return entity.ToDto() as T;
+                }
+                case ASNHeaderMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ASNHeaderMaster));
+                    var entity = (repository.Table as IQueryable<ASNHeaderMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case BarcodeMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(BarcodeMaster));
+                    var entity = (repository.Table as IQueryable<BarcodeMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            //master table - start
-            else if (instance is ASNDetailMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+                    return entity.ToDto() as T;
+                }
+                case BranchMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(BranchMaster));
+                    var entity = (repository.Table as IQueryable<BranchMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case MainCategoryMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(MainCategoryMaster));
+                    var entity = (repository.Table as IQueryable<MainCategoryMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if (instance is ASNHeaderMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ASNHeaderMaster>>();
+                    return entity.ToDto() as T;
+                }
+                case OrderBranchMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(OrderBranchMaster));
+                    var entity = (repository.Table as IQueryable<OrderBranchMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case SalesMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SalesMaster));
+                    var entity = (repository.Table as IQueryable<SalesMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if (instance is BarcodeMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<BarcodeMaster>>();
+                    return entity.ToDto() as T;
+                }
+                case ShelfLocationMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ShelfLocationMaster));
+                    var entity = (repository.Table as IQueryable<ShelfLocationMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case ShiftControlMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ShiftControlMaster));
+                    var entity = (repository.Table as IQueryable<ShiftControlMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if (instance is BranchMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<BranchMaster>>();
+                    return entity.ToDto() as T;
+                }
+                case StockTakeControlMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeControlMaster));
+                    var entity =
+                        (repository.Table as IQueryable<StockTakeControlMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case StockTakeRightMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeRightMaster));
+                    var entity =
+                        (repository.Table as IQueryable<StockTakeRightMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if (instance is MainCategoryMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<MainCategoryMaster>>();
+                    return entity.ToDto() as T;
+                }
+                case SubCategoryMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SubCategoryMaster));
+                    var entity = (repository.Table as IQueryable<SubCategoryMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
+                    return entity.ToDto() as T;
+                }
+                case SupplierMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SupplierMaster));
+                    var entity = (repository.Table as IQueryable<SupplierMaster>)?.FirstOrDefault(e => e.Id == id);
 
-                return entity.ToDto() as T;
-            }
-            else if (instance is OrderBranchMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<OrderBranchMaster>>();
+                    return entity.ToDto() as T;
+                }
+                default:
+                {
+                    _logger.Information("Null.");
 
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is SalesMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SalesMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is ShelfLocationMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocationMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is ShiftControlMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShiftControlMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is StockTakeControlMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<StockTakeControlMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is StockTakeRightMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<StockTakeRightMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is SubCategoryMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SubCategoryMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
-            }
-            else if (instance is SupplierMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SupplierMaster>>();
-
-                var entity = repository.Table.FirstOrDefault(r => r.Id == id);
-
-                return entity.ToDto() as T;
+                    return null;
+                }
             }
             //master table - end
-
-            return null;
         }
 
         public int GetEntityCount()
         {
             var instance = GetInstance();
 
-            if (instance is Transaction)
+            switch (instance)
             {
-                var repository = EngineContext.Current.Resolve<IRepository<Transaction>>();
+                case Transaction _:
+                {
+                    var repository = RepositoryActivator(typeof(Transaction));
 
-                return repository.Table.Count();
-            }
-            else if (instance is ShelfLocation)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocation>>();
+                    return (repository.Table as IQueryable<Transaction> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case ShelfLocation _:
+                {
+                    var repository = RepositoryActivator(typeof(ShelfLocation));
 
-                return repository.Table.Count();
-            }
-            else if (instance is TransporterTransaction)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<TransporterTransaction>>();
+                    return (repository.Table as IQueryable<ShelfLocation> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case TransporterTransaction _:
+                {
+                    var repository = RepositoryActivator(typeof(TransporterTransaction));
 
-                return repository.Table.Count();
-            }
-            //master table - start
-            else if (instance is ASNDetailMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+                    return (repository.Table as IQueryable<TransporterTransaction> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case ASNDetailMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ASNDetailMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is ASNHeaderMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ASNDetailMaster>>();
+                    return (repository.Table as IQueryable<ASNDetailMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case ASNHeaderMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ASNHeaderMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is BarcodeMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<BarcodeMaster>>();
+                    return (repository.Table as IQueryable<ASNHeaderMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case BarcodeMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(BarcodeMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is BranchMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<BranchMaster>>();
+                    return (repository.Table as IQueryable<BarcodeMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case BranchMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(BranchMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is MainCategoryMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<MainCategoryMaster>>();
+                    return (repository.Table as IQueryable<BranchMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case MainCategoryMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(MainCategoryMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is OrderBranchMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<OrderBranchMaster>>();
+                    return (repository.Table as IQueryable<MainCategoryMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case OrderBranchMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(OrderBranchMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is SalesMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SalesMaster>>();
+                    return (repository.Table as IQueryable<OrderBranchMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case SalesMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SalesMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is ShelfLocationMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShelfLocationMaster>>();
+                    return (repository.Table as IQueryable<SalesMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case ShelfLocationMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ShelfLocationMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is ShiftControlMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<ShiftControlMaster>>();
+                    return (repository.Table as IQueryable<ShelfLocationMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case ShiftControlMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(ShiftControlMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is StockTakeControlMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<StockTakeControlMaster>>();
+                    return (repository.Table as IQueryable<ShiftControlMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case StockTakeControlMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeControlMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is StockTakeRightMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<StockTakeRightMaster>>();
+                    return (repository.Table as IQueryable<StockTakeControlMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case StockTakeRightMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeRightMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is SubCategoryMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SubCategoryMaster>>();
+                    return (repository.Table as IQueryable<StockTakeRightMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case SubCategoryMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SubCategoryMaster));
 
-                return repository.Table.Count();
-            }
-            else if (instance is SupplierMaster)
-            {
-                var repository = EngineContext.Current.Resolve<IRepository<SupplierMaster>>();
+                    return (repository.Table as IQueryable<SubCategoryMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case SupplierMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(SupplierMaster));
 
-                return repository.Table.Count();
+                    return (repository.Table as IQueryable<SupplierMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                default:
+                {
+                    _logger.Information("Null.");
+
+                    return 0;
+                }
             }
             //master table - end
-
-            return 0;
-        }
-    }
-
-    public static class GenericApiServiceExtension
-    {
-        private static MethodCallExpression GetSinceIdQuery<T>(IQueryable<T> query, ParameterExpression parameter, int sinceId = 0)
-        {
-            if (sinceId > 0)
-            {
-                var property = Expression.Property(parameter, "Id");
-                var constant = Expression.Constant(sinceId);
-                var expression = Expression.GreaterThan(property, constant);
-
-                // query.Where(p => p.CreatedOnUtc > value)
-                MethodCallExpression whereCallExpression = Expression.Call(
-                    typeof(Queryable),
-                    "Where",
-                    new[] { typeof(T) },
-                    query.Expression,
-                    Expression.Lambda<Func<T, bool>>(expression, parameter));
-
-                return whereCallExpression;
-            }
-
-            return null;
-        }
-
-        public static IQueryable<T> GetQueryDynamic<T>(this IQueryable<T> query, string sortColumn, bool descending, int sinceId = 0)
-        {
-            var parameter = Expression.Parameter(typeof(T), "p");
-
-            string command = "OrderBy";
-
-            if (descending)
-                command = "OrderByDescending";
-
-            var property = typeof(T).GetProperty(sortColumn);
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-
-            var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-
-            MethodCallExpression orderByCallExpression = Expression.Call(
-                typeof(Queryable), 
-                command, 
-                new[] { typeof(T), property.PropertyType },
-                GetSinceIdQuery(query, parameter, sinceId) ?? query.Expression,
-                Expression.Quote(orderByExpression));
-
-            return query.Provider.CreateQuery<T>(orderByCallExpression);
         }
     }
 }

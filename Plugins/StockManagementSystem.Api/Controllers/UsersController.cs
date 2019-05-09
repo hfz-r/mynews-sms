@@ -37,11 +37,9 @@ namespace StockManagementSystem.Api.Controllers
         private readonly IStoreService _storeService;
         private readonly IFactory<User> _factory;
 
-        // Auto mocking testing requirements - not support concrete types as dependencies 
+        // Mocking testing requirements - not support concrete types as dependencies 
         private UserSettings _userSettings;
-
-        private UserSettings UserSettings =>
-            _userSettings ?? (_userSettings = EngineContext.Current.Resolve<UserSettings>());
+        private UserSettings UserSettings => _userSettings ?? (_userSettings = EngineContext.Current.Resolve<UserSettings>());
 
         public UsersController(
             IJsonFieldsSerializer jsonFieldsSerializer,

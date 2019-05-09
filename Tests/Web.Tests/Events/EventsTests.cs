@@ -23,11 +23,11 @@ namespace Web.Tests.Events
             hostingEnvironment.Setup(x => x.WebRootPath).Returns(System.IO.Directory.GetCurrentDirectory());
             CommonHelper.DefaultFileProvider = new FileProviderHelper(hostingEnvironment.Object);
 
-            var nopEngine = new Mock<Engine>();
+            var engine = new Mock<Engine>();
             var serviceProvider = new TestServiceProvider();
-            nopEngine.Setup(x => x.ServiceProvider).Returns(serviceProvider);
-            nopEngine.Setup(x => x.ResolveAll<IConsumer<DateTime>>()).Returns(new List<IConsumer<DateTime>> { new DateTimeConsumer() });
-            EngineContext.Replace(nopEngine.Object);
+            engine.Setup(x => x.ServiceProvider).Returns(serviceProvider);
+            engine.Setup(x => x.ResolveAll<IConsumer<DateTime>>()).Returns(new List<IConsumer<DateTime>> { new DateTimeConsumer() });
+            EngineContext.Replace(engine.Object);
             _eventPublisher = new EventPublisher();
         }
 

@@ -18,7 +18,8 @@ namespace Web.Tests.Validators
             var serviceProvider = new TestServiceProvider();
 
             engine.Setup(x => x.ServiceProvider).Returns(serviceProvider);
-            //engine.Setup(x => x.ResolveUnregistered(typeof()));
+            //engine.Setup(x => x.ResolveUnregistered(typeof(AddressValidator))).Returns(new AddressValidator(serviceProvider.LocalizationService.Object));
+
             EngineContext.Replace(engine.Object);
         }
     }
