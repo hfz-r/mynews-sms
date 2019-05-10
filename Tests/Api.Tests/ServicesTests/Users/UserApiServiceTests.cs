@@ -9,8 +9,10 @@ using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Users;
+using StockManagementSystem.Services.Users;
 using Tests;
 
 namespace Api.Tests.ServicesTests.Users
@@ -19,8 +21,11 @@ namespace Api.Tests.ServicesTests.Users
     public class UserApiServiceTests
     {
         private Mock<IRepository<User>> _userRepository;
+        private Mock<IRepository<UserRole>> _userRoleRepository;
+        private Mock<IRepository<UserStore>> _userStoreRepository;
         private Mock<IRepository<GenericAttribute>> _genericAttributeRepository;
         private Mock<ITenantContext> _tenantContext;
+        private Mock<IUserService> _userService;
         private UserApiService _userApiService;
         private DateTime _baseDate;
         private Tenant _tenant;
@@ -122,7 +127,13 @@ namespace Api.Tests.ServicesTests.Users
 
             #endregion
 
-            _userApiService = new UserApiService(_userRepository.Object, _genericAttributeRepository.Object, _tenantContext.Object);
+            _userApiService = new UserApiService(
+                _tenantContext.Object, 
+                _userRepository.Object, 
+                (_userRoleRepository = new Mock<IRepository<UserRole>>()).Object,
+                (_userStoreRepository = new Mock<IRepository<UserStore>>()).Object,
+                _genericAttributeRepository.Object, 
+                (_userService = new Mock<IUserService>()).Object);
 
             AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<User, UserDto>();
         }

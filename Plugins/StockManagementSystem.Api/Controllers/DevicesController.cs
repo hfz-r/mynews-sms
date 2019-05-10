@@ -93,7 +93,7 @@ namespace StockManagementSystem.Api.Controllers
         /// <response code="401">Unauthorized</response>
         [HttpGet]
         [Route("/api/devices/count")]
-        [ProducesResponseType(typeof(DevicesRootObject), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(DevicesCountRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [GetRequestsErrorInterceptorActionFilter]

@@ -11,7 +11,13 @@ namespace StockManagementSystem.Api.Validators
             Dictionary<string, object> requestJsonDictionary) : base(httpContextAccessor, jsonHelper,
             requestJsonDictionary)
         {
+            SetNameRule();
             SetSystemNameRule();
+        }
+
+        private void SetNameRule()
+        {
+            SetNotNullOrEmptyCreateOrUpdateRule(r => r.Name, "name required", "name");
         }
 
         private void SetSystemNameRule()

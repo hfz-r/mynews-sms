@@ -21,8 +21,10 @@ namespace StockManagementSystem.Api.Validators
             SetEmailRule();
             SetPasswordRule();
             SetRoleIdsRule();
+            SetStoreIdsRule();
 
-            //TODO: proper role assignation
+            //TODO: role validation
+            //TODO: store validation
             //SetRoleRule();
         }
 
@@ -95,6 +97,17 @@ namespace StockManagementSystem.Api.Validators
                             .WithMessage("must be in guest or register role")
                         )
                     );
+            }
+        }
+
+        private void SetStoreIdsRule()
+        {
+            if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("store_ids"))
+            {
+                RuleFor(x => x.StoreIds)
+                    .NotNull()
+                    .Must(r => r.Count > 0)
+                    .WithMessage("store_ids required");
             }
         }
     }

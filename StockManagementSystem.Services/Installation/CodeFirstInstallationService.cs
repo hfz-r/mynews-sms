@@ -275,6 +275,18 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "AddNewOrderLimit",
+                    Enabled = true,
+                    Name = "Add a new order limit"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewPushNotification",
+                    Enabled = true,
+                    Name = "Add a new push notification"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "DeleteUser",
                     Enabled = true,
                     Name = "Delete a user"
@@ -311,6 +323,18 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "DeleteOrderLimit",
+                    Enabled = true,
+                    Name = "Delete an order limit"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeletePushNotification",
+                    Enabled = true,
+                    Name = "Delete a push notification"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "EditUser",
                     Enabled = true,
                     Name = "Edit a user"
@@ -344,6 +368,18 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "EditStore",
                     Enabled = true,
                     Name = "Edit a store"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditOrderLimit",
+                    Enabled = true,
+                    Name = "Edit an order limit"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditPushNotification",
+                    Enabled = true,
+                    Name = "Edit a push notification"
                 },
                 new ActivityLogType
                 {
@@ -547,7 +583,7 @@ namespace StockManagementSystem.Services.Installation
             var categories = new[] { "Stock Transfer Out", "Stock Transfer In", "Stock Order", "Stock Receive", "Stock Adjustment" };
 
             var transFaker = new Faker<Transaction>()
-                .RuleFor(t => t.Category, f => f.PickRandom(categories))
+                .RuleFor(t => t.P_StockCode, f => f.PickRandom(categories))
                 .RuleFor(t => t.CreatedOnUtc, f => f.Date.Between(new DateTime(2000, 1, 1), new DateTime(2018, 12, 1)))
                 .RuleFor(t => t.Branch, f => f.PickRandom(_branchRepository.Table.ToList()))
                 .FinishWith((f, t) => Console.WriteLine($"Transaction created. Id={t.Id}"));

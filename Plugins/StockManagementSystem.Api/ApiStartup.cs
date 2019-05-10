@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StockManagementSystem.Api.Controllers.Generics;
 using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Infrastructure;
@@ -21,6 +22,11 @@ namespace StockManagementSystem.Api
 
             services.AddTokenGenerationPipeline();
             services.AddAuthorizationPipeline();
+
+            services
+                .AddMvc(options => options.Conventions.Add(new GenericControllerRouteConvention()))
+                .ConfigureApplicationPartManager(manager =>
+                    manager.FeatureProviders.Add(new GenericTypeControllerFeatureProvider()));
         }
 
         public void Configure(IApplicationBuilder application)

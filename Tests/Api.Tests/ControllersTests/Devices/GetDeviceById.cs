@@ -66,7 +66,7 @@ namespace Api.Tests.ControllersTests.Devices
         public void Should_return_bad_request_when_id_equals_to_zero_or_less(int nonPositiveDeviceId)
         {
             //Arrange
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>(), null))
                 .Returns(string.Empty);
 
             //Act
@@ -83,7 +83,7 @@ namespace Api.Tests.ControllersTests.Devices
         public void Should_not_call_DeviceApiService_when_id_equals_to_zero_or_less(int negativeDeviceId)
         {
             //Arrange
-            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null)).Returns(string.Empty);
+            _jsonFieldsSerializer.Setup(x => x.Serialize(null, null, null)).Returns(string.Empty);
 
             //Act
             _devicesController.GetDeviceById(negativeDeviceId).GetAwaiter().GetResult();
@@ -100,7 +100,7 @@ namespace Api.Tests.ControllersTests.Devices
             //Arrange
             _deviceApiService.Setup(x => x.GetDeviceById(nonExistingDeviceId)).Returns(() => null);
 
-            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>()))
+            _jsonFieldsSerializer.Setup(x => x.Serialize(It.IsAny<DevicesRootObject>(), It.IsAny<string>(), null))
                 .Returns(string.Empty);
 
             //Act

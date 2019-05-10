@@ -16,11 +16,13 @@ using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Api.ModelBinders;
 using StockManagementSystem.Api.Models.UsersParameters;
 using StockManagementSystem.Api.Services;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Security;
+using StockManagementSystem.Services.Stores;
 using StockManagementSystem.Services.Tenants;
 using StockManagementSystem.Services.Users;
 
@@ -32,13 +34,12 @@ namespace StockManagementSystem.Api.Controllers
         private readonly IUserApiService _userApiService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IEncryptionService _encryptionService;
+        private readonly IStoreService _storeService;
         private readonly IFactory<User> _factory;
 
-        // Auto mocking testing requirements - not support concrete types as dependencies 
+        // Mocking testing requirements - not support concrete types as dependencies 
         private UserSettings _userSettings;
-
-        private UserSettings UserSettings =>
-            _userSettings ?? (_userSettings = EngineContext.Current.Resolve<UserSettings>());
+        private UserSettings UserSettings => _userSettings ?? (_userSettings = EngineContext.Current.Resolve<UserSettings>());
 
         public UsersController(
             IJsonFieldsSerializer jsonFieldsSerializer,
@@ -50,12 +51,14 @@ namespace StockManagementSystem.Api.Controllers
             IUserApiService userApiService,
             IGenericAttributeService genericAttributeService,
             IEncryptionService encryptionService,
+            IStoreService storeService,
             IFactory<User> factory)
             : base(jsonFieldsSerializer, aclService, userService, tenantMappingService, tenantService, userActivityService)
         {
             _userApiService = userApiService;
             _genericAttributeService = genericAttributeService;
             _encryptionService = encryptionService;
+            _storeService = storeService;
             _factory = factory;
         }
 
@@ -80,7 +83,7 @@ namespace StockManagementSystem.Api.Controllers
                 return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
             var users = _userApiService.GetUserDtos(parameters.CreatedAtMin, parameters.CreatedAtMax, parameters.Limit,
-                parameters.Page, parameters.SinceId);
+                parameters.Page, parameters.SinceId, parameters.RoleIds, parameters.StoreIds);
 
             var usersRootObject = new UsersRootObject
             {
@@ -197,19 +200,24 @@ namespace StockManagementSystem.Api.Controllers
             await UserService.InsertUserAsync(newUser);
             await InsertFirstAndLastNameGenericAttributes(userDelta.Dto.FirstName, userDelta.Dto.LastName, newUser);
 
-            //password
+            //password 
             if (!string.IsNullOrWhiteSpace(userDelta.Dto.Password))
                 await AddPassword(userDelta.Dto.Password, newUser);
 
+            //roles
             if (userDelta.Dto.RoleIds.Count > 0)
-            {
                 AddValidRoles(userDelta, newUser);
-                await UserService.UpdateUserAsync(newUser);
-            }
+
+            //stores
+            if (userDelta.Dto.StoreIds.Count > 0)
+                await AddValidStores(userDelta, newUser);
+
+            await UserService.UpdateUserAsync(newUser);
 
             var newUserDto = newUser.ToDto();
             newUserDto.FirstName = userDelta.Dto.FirstName;
             newUserDto.LastName = userDelta.Dto.LastName;
+            newUserDto.UserPassword = _userApiService.GetUserPassword(newUserDto.Id);
 
             //activity log
             await UserActivityService.InsertActivityAsync("AddNewUser", $"Added a new user (ID = {newUser.Id})", newUser);
@@ -242,15 +250,21 @@ namespace StockManagementSystem.Api.Controllers
                 return await Error(HttpStatusCode.NotFound, "user", "not found");
 
             userDelta.Merge(currentUser);
-            if (userDelta.Dto.RoleIds.Count > 0)
-                AddValidRoles(userDelta, currentUser);
-
-            await UserService.UpdateUserAsync(currentUser);
-            await InsertFirstAndLastNameGenericAttributes(userDelta.Dto.FirstName, userDelta.Dto.LastName, currentUser);
 
             //password
             if (!string.IsNullOrWhiteSpace(userDelta.Dto.Password))
                 await AddPassword(userDelta.Dto.Password, currentUser);
+
+            //roles
+            if (userDelta.Dto.RoleIds.Count > 0)
+                AddValidRoles(userDelta, currentUser);
+
+            //stores
+            if (userDelta.Dto.StoreIds.Count > 0)
+                await AddValidStores(userDelta, currentUser);
+
+            await UserService.UpdateUserAsync(currentUser);
+            await InsertFirstAndLastNameGenericAttributes(userDelta.Dto.FirstName, userDelta.Dto.LastName, currentUser);
 
             // Preparing the result dto of the new user
             var updatedUser = currentUser.ToDto();
@@ -266,6 +280,8 @@ namespace StockManagementSystem.Api.Controllers
                 .FirstOrDefault(x => x.Key == "LastName");
             if (lastNameGenericAttribute != null)
                 updatedUser.LastName = lastNameGenericAttribute.Value;
+
+            updatedUser.UserPassword = _userApiService.GetUserPassword(updatedUser.Id);
 
             //activity log
             await UserActivityService.InsertActivityAsync("EditUser", $"Edited a user (ID = {currentUser.Id})", currentUser);
@@ -331,6 +347,24 @@ namespace StockManagementSystem.Api.Controllers
                     if (currentUser.UserRoles.Count(mapping => mapping.RoleId == role.Id) > 0)
                         currentUser.RemoveUserRole(
                             currentUser.UserRoles.FirstOrDefault(mapping => mapping.RoleId == role.Id));
+                }
+            }
+        }
+
+        private async Task AddValidStores(Delta<UserDto> userDelta, User currentUser)
+        {
+            var stores = await _storeService.GetStores();
+            foreach (var store in stores)
+            {
+                if (userDelta.Dto.StoreIds.Contains(store.P_BranchNo))
+                {
+                    if (currentUser.UserStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                        currentUser.UserStores.Add(new UserStore { Store = store });
+                }
+                else
+                {
+                    if (currentUser.UserStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                        currentUser.UserStores.Remove(currentUser.UserStores.FirstOrDefault(mapping => mapping.StoreId == store.P_BranchNo));
                 }
             }
         }

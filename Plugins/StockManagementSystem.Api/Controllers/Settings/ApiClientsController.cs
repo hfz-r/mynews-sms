@@ -41,18 +41,8 @@ namespace StockManagementSystem.Api.Controllers.Settings
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
-            var client = await _clientService.FindClientByIdAsync(model.Id);
-            if (client != null)
-            {
-                if (client.ClientId != model.ClientId)
-                {
-                    var findClientId = await _clientService.FindClientByClientIdAsync(model.ClientId) != null;
-                    if (findClientId)
-                        return $"The client with (ClientID = {model.ClientId}) existed.";
-                }
-            }
-
-            return string.Empty;
+            var client = await _clientService.FindClientByClientIdAsync(model.ClientId) != null;
+            return client ? $"The client with (ClientID = {model.ClientId}) existed." : string.Empty;
         }
 
         [Route("List")]

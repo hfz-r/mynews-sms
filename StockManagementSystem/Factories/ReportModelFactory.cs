@@ -138,7 +138,7 @@ namespace StockManagementSystem.Factories
             if (searchModel.CreatedOnTo.HasValue)
                 query = query.Where(item => searchModel.CreatedOnTo.Value >= item.CreatedOnUtc);
             if (searchModel.BranchId.HasValue && searchModel.BranchId.Value > 0)
-                query = query.Where(item => searchModel.BranchId.Value == item.BranchId);
+                query = query.Where(item => searchModel.BranchId.Value == item.P_BranchNo);
 
             var model = (await query.ToListAsync()).Select(q =>
             {

@@ -1,6 +1,4 @@
-﻿using StockManagementSystem.Core.Domain.Stores;
-using StockManagementSystem.Core.Domain.Items;
-using System;
+﻿using System;
 
 namespace StockManagementSystem.Core.Domain.Settings
 {
@@ -8,13 +6,21 @@ namespace StockManagementSystem.Core.Domain.Settings
     {
         public int StoreId { get; set; }
 
-        public string Stock_Code { get; set; }
-        
         public string Location { get; set; }
 
-        //public virtual Store Stores { set; get; }
+        public string P_StockCode { get; set; }
 
-        //public virtual Item Items { get; set; }
+        public int? P_BranchNo { get; set; }
+
+        public string P_Gondola { get; set; }
+
+        public string P_Row { get; set; }
+
+        public string P_Face { get; set; }
+
+        public bool? IsPost { get; set; }
+
+        public string IssueRef { get; set; }
 
         #region IAppendTimestamps members
 

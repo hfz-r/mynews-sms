@@ -18,6 +18,11 @@ namespace StockManagementSystem.Api.Helpers
             return jsonObject;
         }
 
+        public static bool HasDefaultConstructor(this Type t)
+        {
+            return t.IsValueType || t.GetConstructor(Type.EmptyTypes) != null;
+        }
+
         public static Type GetGenericElementType(Type type)
             => type.HasElementType ? type.GetElementType() : type.GetTypeInfo().GenericTypeArguments[0];
     }

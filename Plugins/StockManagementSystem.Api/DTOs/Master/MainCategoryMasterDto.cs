@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using StockManagementSystem.Api.Attributes;
 
 namespace StockManagementSystem.Api.DTOs.Master
 {
+    [GeneratedController("api/master/maincategory")]
     [JsonObject(Title = "mainCategory")]
     public class MainCategoryMasterDto : BaseDto
     {

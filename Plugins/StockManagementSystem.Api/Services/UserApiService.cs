@@ -11,7 +11,9 @@ using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Users;
+using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Services
 {
@@ -24,23 +26,37 @@ namespace StockManagementSystem.Api.Services
 
         private readonly ITenantContext _tenantContext;
         private readonly IRepository<User> _userRepository;
+        private readonly IRepository<UserRole> _userRoleRepository;
+        private readonly IRepository<UserStore> _userStoreRepository;
         private readonly IRepository<GenericAttribute> _genericAttributeRepository;
+        private readonly IUserService _userService;
 
         public UserApiService(
-            IRepository<User> userRepository, 
+            ITenantContext tenantContext,
+            IRepository<User> userRepository,
+            IRepository<UserRole> userRoleRepository,
+            IRepository<UserStore> userStoreRepository,
             IRepository<GenericAttribute> genericAttributeRepository,
-            ITenantContext tenantContext)
+            IUserService userService)
         {
-            _userRepository = userRepository;
-            _genericAttributeRepository = genericAttributeRepository;
             _tenantContext = tenantContext;
+            _userRepository = userRepository;
+            _userRoleRepository = userRoleRepository;
+            _userStoreRepository = userStoreRepository;
+            _genericAttributeRepository = genericAttributeRepository;
+            _userService = userService;
         }
 
-        public IList<UserDto> GetUserDtos(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+        public IList<UserDto> GetUserDtos(
+            DateTime? createdAtMin = null, 
+            DateTime? createdAtMax = null,
             int limit = Configurations.DefaultLimit,
-            int page = Configurations.DefaultPageValue, int sinceId = Configurations.DefaultSinceId)
+            int page = Configurations.DefaultPageValue, 
+            int sinceId = Configurations.DefaultSinceId,
+            IList<int> roleIds = null,
+            IList<int> storeIds = null)
         {
-            var query = GetUsersQuery(createdAtMin, createdAtMax, sinceId);
+            var query = GetUsersQuery(createdAtMin, createdAtMax, sinceId, roleIds, storeIds);
 
             var result = HandleUserGenericAttributes(null, query, limit, page);
 
@@ -114,6 +130,8 @@ namespace StockManagementSystem.Api.Services
                 var user = userAttributeMappings.First().User;
                 userDto = user.ToDto();
 
+                userDto.UserPassword = GetUserPassword(userDto.Id);
+
                 foreach (var mapping in userAttributeMappings)
                 {
                     if (!showDeleted && mapping.User.Deleted)
@@ -146,6 +164,13 @@ namespace StockManagementSystem.Api.Services
             }
 
             return userDto;
+        }
+
+        public UserPasswordDto GetUserPassword(int userId)
+        {
+            var userPassword = _userService.GetCurrentPassword(userId);
+
+            return userPassword.ToDto();
         }
 
         private Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> parseSearchQuery)
@@ -239,6 +264,8 @@ namespace StockManagementSystem.Api.Services
                 IList<UserAttributeMappingDto> mappingsForMerge = group.Select(x => x).ToList();
                 var userDto = Merge(mappingsForMerge);
 
+                userDto.UserPassword = GetUserPassword(userDto.Id);
+
                 userDtos.Add(userDto);
             }
 
@@ -281,7 +308,8 @@ namespace StockManagementSystem.Api.Services
             return userAttributesMappingByKey;
         }
 
-        private IQueryable<User> GetUsersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, int sinceId = 0)
+        private IQueryable<User> GetUsersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
+            int sinceId = 0, IList<int> roleIds = null, IList<int> storeIds = null)
         {
             var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount);
 
@@ -294,12 +322,28 @@ namespace StockManagementSystem.Api.Services
             if (createdAtMax != null)
                 query = query.Where(c => c.CreatedOnUtc < createdAtMax.Value);
 
+            if (roleIds != null && roleIds.Count > 0)
+            {
+                query = query.Join(_userRoleRepository.Table, x => x.Id, y => y.UserId, (x, y) => new {User = x, UserRole = y})
+                    .Where(z => roleIds.Contains(z.UserRole.RoleId))
+                    .Select(z => z.User)
+                    .Distinct();
+            }
+
+            if (storeIds != null && storeIds.Count > 0)
+            {
+                query = query.Join(_userStoreRepository.Table, x => x.Id, y => y.UserId, (x, y) => new {User = x, UserStore = y})
+                    .Where(z => storeIds.Contains(z.UserStore.StoreId))
+                    .Select(z => z.User)
+                    .Distinct();
+            }
+
             query = query.OrderBy(user => user.Id);
 
             if (sinceId > 0)
                 query = query.Where(user => user.Id > sinceId);
 
             return query;
-        }
+        } 
     }
 }

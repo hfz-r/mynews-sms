@@ -97,7 +97,7 @@ namespace Api.Tests.ControllersTests.Items
 
             //Assert
             _jsonFieldsSerializer.Verify(x => x.Serialize(It.Is<ItemsRootObject>(i => i.Items.Count == returnedItemsCollection.Count), 
-                It.IsIn(parameters.Fields)));
+                It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Api.Tests.ControllersTests.Items
 
             //Assert
             _jsonFieldsSerializer.Verify(x => x.Serialize(It.Is<ItemsRootObject>(i => i.Items.Count == returnedItemsCollection.Count),
-                It.IsIn(parameters.Fields)));
+                It.IsIn(parameters.Fields), null));
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Api.Tests.ControllersTests.Items
             _itemsController.GetItems(parameters).GetAwaiter().GetResult();
 
             //Assert
-            _jsonFieldsSerializer.Verify(x => x.Serialize(It.IsAny<ItemsRootObject>(), It.IsIn(parameters.Fields)));
+            _jsonFieldsSerializer.Verify(x => x.Serialize(It.IsAny<ItemsRootObject>(), It.IsIn(parameters.Fields), null));
         }
 
         [Test]

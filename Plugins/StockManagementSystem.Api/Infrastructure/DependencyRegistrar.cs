@@ -13,6 +13,7 @@ using StockManagementSystem.Api.Services;
 using StockManagementSystem.Api.Validators;
 using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Domain.Devices;
+using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Core.Infrastructure.DependencyManagement;
@@ -44,6 +45,10 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<UserApiService>().As<IUserApiService>().InstancePerLifetimeScope();
             builder.RegisterType<DeviceApiService>().As<IDeviceApiService>().InstancePerLifetimeScope();
             builder.RegisterType<ItemApiService>().As<IItemApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<RoleApiService>().As<IRoleApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderLimitApiService>().As<IOrderLimitApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<PushNotificationApiService>().As<IPushNotificationApiService>().InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(GenericApiService<>)).As(typeof(IGenericApiService<>)).InstancePerLifetimeScope();
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();
@@ -62,6 +67,8 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<ApiSettingModelFactory>().As<IApiSettingModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<UserFactory>().As<IFactory<User>>().InstancePerLifetimeScope();
             builder.RegisterType<DeviceFactory>().As<IFactory<Device>>().InstancePerLifetimeScope();
+            builder.RegisterType<RoleFactory>().As<IFactory<Role>>().InstancePerLifetimeScope();
+            builder.RegisterType<OrderLimitFactory>().As<IFactory<OrderLimit>>().InstancePerLifetimeScope();
 
             builder.RegisterType<JsonPropertyMapper>().As<IJsonPropertyMapper>().InstancePerLifetimeScope();
 

@@ -14,11 +14,11 @@ namespace StockManagementSystem.Data.Mapping.Transactions
             builder.ToTable(nameof(Transaction));
             builder.HasKey(trnx => trnx.Id);
 
-            builder.Property(trnx => trnx.Category).HasMaxLength(400);
+            builder.Property(trnx => trnx.P_StockCode).HasMaxLength(400);
 
             builder.HasOne(trnx => trnx.Branch)
                 .WithMany()
-                .HasForeignKey(trnx => trnx.BranchId)
+                .HasForeignKey(trnx => trnx.P_BranchNo)
                 .IsRequired();
 
             base.Configure(builder);
