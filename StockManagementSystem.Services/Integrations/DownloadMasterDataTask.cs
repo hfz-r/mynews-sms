@@ -74,29 +74,28 @@ namespace StockManagementSystem.Services.Integrations
                 while (reader.Read())
                 {
                     var existingStore = await _storeRepository.GetByIdAsync(Convert.ToInt32(reader["outlet_no"]));
-                    if (existingStore != null && (existingStore.Active || existingStore.UserStores.Any()))
+                    if (existingStore != null && (existingStore.Status == Convert.ToByte(true) || existingStore.UserStores.Any()))
                         continue;
 
                     var store = new Store
                     {
                         P_BranchNo = Convert.ToInt32(reader["outlet_no"]),
                         P_Name = reader["outlet_name"].ToString(),
-                        P_SellPriceLevel = reader["price_level"].ToString(),
                         P_AreaCode = reader["area_code"].ToString(),
                         P_Addr1 = reader["address1"].ToString(),
                         P_Addr2 = reader["address2"].ToString(),
                         P_Addr3 = reader["address3"].ToString(),
-                        P_PostCode = reader["postcode"].ToString(),
+                        P_Postcode = Convert.ToInt32(reader["postcode"].ToString()),
                         P_City = reader["city"].ToString(),
                         P_State = reader["state"].ToString(),
                         P_Country = reader["country"].ToString()
                     };
 
-                    if (!string.IsNullOrEmpty(store.P_Addr1) && !string.IsNullOrEmpty(store.P_PostCode) &&
+                    if (!string.IsNullOrEmpty(store.P_Addr1) && store.P_Postcode != 0 &&
                         !string.IsNullOrEmpty(store.P_State) && !string.IsNullOrEmpty(store.P_Country))
                     {
                         var getCoordinates = await geocode.GeocodeAsync(
-                            $"{store.P_Addr1}{store.P_Addr2}{store.P_Addr3}{store.P_PostCode}{store.P_City}{store.P_State}{store.P_Country}");
+                            $"{store.P_Addr1}{store.P_Addr2}{store.P_Addr3}{store.P_Postcode}{store.P_City}{store.P_State}{store.P_Country}");
 
                         var addresses = getCoordinates as IList<GoogleAddress> ?? getCoordinates.ToList();
                         if (addresses.Any())
@@ -114,7 +113,7 @@ namespace StockManagementSystem.Services.Integrations
             {
                 var clearStores = 
                     from s in _storeRepository.Table
-                    where !s.Active
+                    where s.Status != Convert.ToByte(true)
                     select s;
                 if (clearStores.Any(s => s.UserStores.Count.Equals(0)))
                 {
@@ -256,7 +255,7 @@ namespace StockManagementSystem.Services.Integrations
                             _userPasswordRepository.Insert(new UserPassword
                             {
                                 User = user,
-                                Password = "password123",
+                                Password = "12345678",
                                 PasswordFormat = PasswordFormat.Clear,
                                 PasswordSalt = string.Empty,
                                 CreatedOnUtc = DateTime.UtcNow

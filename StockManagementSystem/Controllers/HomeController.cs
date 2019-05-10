@@ -18,6 +18,7 @@ using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
+using System.IO;
 
 namespace StockManagementSystem.Controllers
 {
@@ -31,6 +32,7 @@ namespace StockManagementSystem.Controllers
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<UserPassword> _userPasswordRepository;
         private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
 
         #region Constructor
 
@@ -77,195 +79,134 @@ namespace StockManagementSystem.Controllers
 
         public async Task<IActionResult> DownloadMasterData()
         {
-            string conString = ConfigurationExtensions.GetConnectionString(this._iconfiguration, "HQ");
-            List<Store> stores = new List<Store>();
-            List<User> users = new List<User>();
-            List<Role> roles = new List<Role>();
-            string sSQL = string.Empty;
+            FileInfo file = null;
+            SqlConnection connection = null;
 
-            using (SqlConnection connection = new SqlConnection(conString))
+            using (connection = new SqlConnection(DataSettingsManager.LoadSettings().DataConnectionString))
             {
                 connection.Open();
 
-                #region Store
+                #region ASN Detail 
 
-                sSQL = "SELECT [outlet_no], [outlet_name], [price_level], [area_code], ";
-                sSQL += "[address1], [address2], [address3], [postcode], [city], [state], [country] ";
-                sSQL += "FROM [dbo].[btb_HHT_Outlet] WHERE [status] = 1";
-
-                using (SqlCommand command = new SqlCommand(sSQL, connection))
-                {
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        stores.Add(new Store()
-                        {
-                            P_BranchNo = Convert.ToInt32(reader["outlet_no"]),
-                            P_Name = reader["outlet_name"].ToString(),
-                            P_SellPriceLevel = reader["price_level"].ToString(),
-                            P_AreaCode = reader["area_code"].ToString(),
-                            P_Addr1 = reader["address1"].ToString(),
-                            P_Addr2 = reader["address2"].ToString(),
-                            P_Addr3 = reader["address3"].ToString(),
-                            P_PostCode = reader["postcode"].ToString(),
-                            P_City = reader["city"].ToString(),
-                            P_State = reader["state"].ToString(),
-                            P_Country = reader["country"].ToString()
-                        });
-                    }
-                }
-                var storeList = await _storeService.GetStores();
-                await _storeService.DeleteStore(storeList);
-
-                if (stores != null && stores.Count > 0)
-                {
-                    IGeocoder geocoder = new GoogleGeocoder() { ApiKey = _iconfiguration["APIKey"].ToString() };
-
-                    foreach (var item in stores)
-                    {
-                        if (!string.IsNullOrEmpty(item.P_Addr1) && !string.IsNullOrEmpty(item.P_PostCode) && !string.IsNullOrEmpty(item.P_State) && !string.IsNullOrEmpty(item.P_Country))
-                        {
-                            string address = item.P_Addr1 + item.P_Addr2 + item.P_Addr3 + item.P_PostCode + item.P_City + item.P_State + item.P_Country;
-                            IEnumerable<Address> addresses = await geocoder.GeocodeAsync(address);
-
-                            if (addresses != null && addresses.Count() > 0)
-                            {
-                                item.Latitude = addresses.First().Coordinates.Latitude;
-                                item.Longitude = addresses.First().Coordinates.Longitude;
-                            }
-                        }
-
-                        await _storeService.InsertStore(item);
-                    }
-                }
-                connection.Close();
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "ASNDetail.sql"); //*.sql file path
+                ExecuteScript(file, connection);
 
                 #endregion
 
-                #region Role
+                #region ASN Header 
 
-                connection.Open();
-
-                sSQL = "SELECT DISTINCT(CASE WHEN [role] = '' OR[role] IS NULL THEN 'Outlet' ELSE[role] END) AS Role ";
-                sSQL += "FROM [dbo].[btb_HHT_Staff]";
-
-                using (SqlCommand command = new SqlCommand(sSQL, connection))
-                {
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        roles.Add(new Role()
-                        {
-                            Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["Role"].ToString().ToLower()),
-                            SystemName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["Role"].ToString().ToLower())
-                        });
-                    }
-                }
-                connection.Close();
-
-                //Don't use cache-able service for data seed.
-                //var RoleList = _userService.GetRoles();
-                var RoleList = _roleRepository.Table;
-                foreach (var itemRoleDelete in RoleList)
-                {
-                    if (!itemRoleDelete.Name.ToLower().Contains("admin") &&
-                        !itemRoleDelete.Name.ToLower().Contains("manager") &&
-                        !itemRoleDelete.Name.ToLower().Contains("registered"))
-                    {
-                        await _userService.DeleteRoleAsync(itemRoleDelete);
-                    }
-                }
-
-                if (roles != null && roles.Count > 0)
-                {
-                    foreach (var itemRoleAdd in roles)
-                    {
-                        if (!itemRoleAdd.Name.Contains("Admin") &&
-                            !itemRoleAdd.Name.Contains("Manager") &&
-                            !itemRoleAdd.Name.Contains("Registered"))
-                        {
-                            await _userService.InsertRoleAsync(itemRoleAdd);
-                        }
-                    }
-                    _logger.Information("Role created successfully.");
-                }
-
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "ASNHeader.sql"); //*.sql file path
+                ExecuteScript(file, connection);
 
                 #endregion
 
-                #region Staff
+                #region Barcode 
 
-                connection.Open();
-
-                sSQL = "SELECT [staff_no], [staff_barcode], [staff_name], [department_code], [role], [email] ";
-                sSQL += "FROM [dbo].[btb_HHT_Staff]";
-
-                var UserList = _userService.GetUsers();
-                var filterList = UserList.Where(x => !(x.Username.Contains("Admin"))).ToList();
-                if (filterList != null && filterList.Count() > 0)
-                {
-                    _userService.DeleteUser(filterList);
-                }
-
-                using (SqlCommand command = new SqlCommand(sSQL, connection))
-                {
-                    SqlDataReader reader = command.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        if (!string.IsNullOrEmpty(reader["email"].ToString()))
-                        {
-                            var user = new User
-                            {
-                                UserGuid = Guid.NewGuid(),
-                                Username = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_no"].ToString().ToLower()),
-                                Email = reader["email"].ToString().Trim(),
-                                //Name = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(reader["staff_name"].ToString().ToLower()),
-                                Active = true,
-                                CreatedOnUtc = DateTime.UtcNow,
-                            };
-
-                            var getRoleStr = string.IsNullOrEmpty(reader["role"].ToString())
-                                ? "Outlet" : reader["role"].ToString() == "Admin"
-                                    ? "Administrators" : reader["role"].ToString();
-                            var role = _userService.GetRoleBySystemName(getRoleStr);
-
-                            user.AddUserRole(new UserRole { Role = role });
-
-                            try
-                            {
-                                await _userService.InsertUserAsync(user);
-                                await _genericAttributeService.SaveAttributeAsync(user, UserDefaults.FirstNameAttribute,
-                                    reader["staff_name"].ToString());
-
-                                _userPasswordRepository.Insert(new UserPassword
-                                {
-                                    User = user,
-                                    Password = "password123",
-                                    PasswordFormat = PasswordFormat.Clear,
-                                    PasswordSalt = string.Empty,
-                                    CreatedOnUtc = DateTime.UtcNow
-                                });
-                            }
-                            catch
-                            {
-                                // ignored
-                            }
-                        }
-                    }
-                }
-
-                _logger.Information("Users created a new account with default password(password123).");
-
-                connection.Close();
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "Barcode.sql"); //*.sql file path
+                ExecuteScript(file, connection);
 
                 #endregion
+
+                #region Branch 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "Branch.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Item 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "Item.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Main Category 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "MainCategory.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Order Branch 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "OrderBranch.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Item 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "Role User User Role.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Sales 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "Sales.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Shift Control
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "ShiftControl.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Shelf Location 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "ShelfLocation.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Stock Take Control 
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "StockTakeControl.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Stock Take Control Outlet
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "StockTakeControlOutlet.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region SubCategory
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "SubCategory.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                #region Supplier
+
+                file = new FileInfo(_iconfiguration["ScriptFolder"].ToString() + "Supplier.sql"); //*.sql file path
+                ExecuteScript(file, connection);
+
+                #endregion
+
+                connection.Close();
             }
 
             _notificationService.SuccessNotification("Master data successfully downloaded.");
             return View("Dashboard");
+        }
+
+        private void ExecuteScript(FileInfo file, SqlConnection connection)
+        {
+            string script = string.Empty;
+
+            script = file.OpenText().ReadToEnd();
+            using (SqlCommand command = new SqlCommand(script, connection))
+            {
+                command.ExecuteScalar();
+            }
         }
 
         private void AddErrors(IdentityResult result)

@@ -158,7 +158,7 @@ namespace StockManagementSystem.Services.Stores
             if (!entity.LimitedToStores)
                 return true;
 
-            foreach (var store1 in user.AppliedStores.Where(s => s.Active))
+            foreach (var store1 in user.AppliedStores.Where(s => s.Status == Convert.ToByte(true)))
             foreach (var store2Id in GetStoresIdsWithAccess(entity))
                 if (store1.P_BranchNo == store2Id)
                     //yes, we have such permission

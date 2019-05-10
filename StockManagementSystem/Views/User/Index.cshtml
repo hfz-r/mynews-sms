@@ -34,15 +34,7 @@
                 <div class="panel panel-default panel-search">
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <div class="col-md-4">
-                                        <_label asp-for="SearchEmail" />
-                                    </div>
-                                    <div class="col-md-8">
-                                        <_editor asp-for="SearchEmail" />
-                                    </div>
-                                </div>
+                            <div class="col-md-5">                                
                                 @if (Model.UsernamesEnabled)
                                 {
                                     <div class="form-group">
@@ -104,7 +96,7 @@
                                 }
                             </div>
                             <div class="col-md-7">
-                                @if (Model.PhoneEnabled)
+                                @*@if (Model.PhoneEnabled)
                                 {
                                     <div class="form-group">
                                         <div class="col-md-4">
@@ -114,15 +106,23 @@
                                             <_editor asp-for="SearchPhone" />
                                         </div>
                                     </div>
-                                }
+                                }*@
                                 <div class="form-group">
+                                    <div class="col-md-4">
+                                        <_label asp-for="SearchEmail" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <_editor asp-for="SearchEmail" />
+                                    </div>
+                                </div>
+                                @*<div class="form-group">
                                     <div class="col-md-4">
                                         <_label asp-for="SearchIpAddress" />
                                     </div>
                                     <div class="col-md-8">
                                         <_editor asp-for="SearchIpAddress" />
                                     </div>
-                                </div>
+                                </div>*@
                                 <div class="form-group">
                                     <div class="col-md-4">
                                         <_label asp-for="SelectedRoleIds" />
@@ -192,10 +192,10 @@
                                         SearchUsername: $('#@Html.IdFor(model => model.SearchUsername)').val(),
                                         SearchFirstName: $('#@Html.IdFor(model => model.SearchFirstName)').val(),
                                         SearchLastName: $('#@Html.IdFor(model => model.SearchLastName)').val(),
-                                        SearchDayOfBirth: $('#@Html.IdFor(model => model.SearchDayOfBirth)').val(),
+                                        @*SearchDayOfBirth: $('#@Html.IdFor(model => model.SearchDayOfBirth)').val(),
                                         SearchMonthOfBirth: $('#@Html.IdFor(model => model.SearchMonthOfBirth)').val(),
-                                        SearchPhone: $('#@Html.IdFor(model => model.SearchPhone)').val(),
-                                        SearchIpAddress: $('#@Html.IdFor(model => model.SearchIpAddress)').val()
+                                        SearchPhone: $('#@Html.IdFor(model => model.SearchPhone)').val(),*@
+                                        //SearchIpAddress: $('#@Html.IdFor(model => model.SearchIpAddress)').val()
                                     };
                                     addAntiForgeryToken(data);
                                     return data;

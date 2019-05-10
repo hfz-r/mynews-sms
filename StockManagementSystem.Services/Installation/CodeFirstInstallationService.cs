@@ -7,6 +7,7 @@ using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
 using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Domain.Media;
+using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Tenants;
@@ -25,6 +26,7 @@ namespace StockManagementSystem.Services.Installation
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IRepository<ActivityLog> _activityLogRepository;
         private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
+        private readonly IRepository<NotificationCategory> _notificationCategoryRepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<Branch> _branchRepository;
@@ -36,6 +38,7 @@ namespace StockManagementSystem.Services.Installation
             IGenericAttributeService genericAttributeService, 
             IRepository<ActivityLog> activityLogRepository, 
             IRepository<ActivityLogType> activityLogTypeRepository,
+            IRepository<NotificationCategory> notificationCategoryRepository,
             IRepository<Role> roleRepository,
             IRepository<User> userRepository,
             IRepository<Branch> branchRepository,
@@ -46,6 +49,7 @@ namespace StockManagementSystem.Services.Installation
             _genericAttributeService = genericAttributeService;
             _activityLogRepository = activityLogRepository;
             _activityLogTypeRepository = activityLogTypeRepository;
+            _notificationCategoryRepository = notificationCategoryRepository;
             _roleRepository = roleRepository;
             _userRepository = userRepository;
             _branchRepository = branchRepository;
@@ -479,6 +483,24 @@ namespace StockManagementSystem.Services.Installation
             });
         }
 
+        protected void InstallNotificationCategory()
+        {
+            var notificationCategory = new List<NotificationCategory>
+            {
+                new NotificationCategory
+                {
+                    Code = "ST",
+                    Name = "Stock Take"
+                },
+                new NotificationCategory
+                {
+                    Code = "OT",
+                    Name = "Others"
+                },
+            };
+            _notificationCategoryRepository.Insert(notificationCategory);
+        }
+
         #region Faker data
 
         protected void InstallFakerData()
@@ -542,6 +564,7 @@ namespace StockManagementSystem.Services.Installation
             InstallTenants();
             InstallSettings();
             InstallUsersAndRoles(defaultUserEmail, defaultUsername, defaultUserPassword);
+            InstallNotificationCategory();
             InstallActivityLogTypes();
 
             if (!installSampleData)

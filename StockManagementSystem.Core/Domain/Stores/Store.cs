@@ -16,12 +16,6 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public string P_Name { get; set; }
 
-        public string P_RecStatus { get; set; }
-
-        public string P_CompID { get; set; }
-
-        public string P_SellPriceLevel { get; set; }
-
         public string P_AreaCode { get; set; }
 
         public string P_Addr1 { get; set; }
@@ -36,15 +30,23 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public string P_Country { get; set; }
 
-        public string P_PostCode { get; set; }
+        public int P_Postcode { get; set; }
 
-        public string P_Brand { get; set; }
+        public int P_PriceLevel { get; set; }
 
-        public bool Active { get; set; }
+        public string P_DBIPAddress { get; set; }
 
-        public double Longitude { get; set; }
+        public string P_DBName { get; set; }
 
-        public double Latitude { get; set; }
+        public string P_DBUsername { get; set; }
+
+        public string P_DBPassword { get; set; }
+
+        public double? Latitude { get; set; }
+
+        public double? Longitude { get; set; }
+
+        public byte Status { get; set; }
 
         public int? StoreGroupingId { get; set; }
 

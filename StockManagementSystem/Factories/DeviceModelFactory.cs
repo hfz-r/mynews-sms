@@ -127,7 +127,7 @@ namespace StockManagementSystem.Factories
 
             foreach (var item in model.Devices)
             {
-                double distance = getDistance(item.Latitude, item.Longitude, item.Store.Latitude, item.Store.Longitude) / 1000; //returns in KM
+                double distance = getDistance(item.Latitude, item.Longitude, (double)item.Store.Latitude, (double)item.Store.Longitude) / 1000; //returns in KM
                 if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                 {
                     item.Status = "2";
@@ -208,7 +208,7 @@ namespace StockManagementSystem.Factories
                     var mapListModel = mapLst.ToModel<MapDeviceModel>();
                     mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
 
-                    double distance = getDistance(mapLst.Latitude, mapLst.Longitude, mapLst.Store.Latitude, mapLst.Store.Longitude) / 1000; //returns in KM
+                    double distance = getDistance(mapLst.Latitude, mapLst.Longitude, (double)mapLst.Store.Latitude, (double)mapLst.Store.Longitude) / 1000; //returns in KM
                     if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                     {
                         mapLst.Status = "2";

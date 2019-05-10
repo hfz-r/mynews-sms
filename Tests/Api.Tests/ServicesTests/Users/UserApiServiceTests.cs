@@ -86,22 +86,22 @@ namespace Api.Tests.ServicesTests.Users
                 Id = 3,
                 KeyGroup = "User",
                 Key = "FirstName",
-                Value = "Brian",
+                Value = "Administrator",
                 EntityId = 2,
                 TenantId = 0,
             };
 
-            var genericAttibute4 = new GenericAttribute()
-            {
-                Id = 4,
-                KeyGroup = "User",
-                Key = "LastName",
-                Value = "Eno",
-                EntityId = 2,
-                TenantId = 0,
-            };
+            //var genericAttibute4 = new GenericAttribute()
+            //{
+            //    Id = 4,
+            //    KeyGroup = "User",
+            //    Key = "LastName",
+            //    Value = "Eno",
+            //    EntityId = 2,
+            //    TenantId = 0,
+            //};
 
-            var mockGenericAttributes = new List<GenericAttribute> { genericAttibute1, genericAttibute2, genericAttibute3, genericAttibute4 }
+            var mockGenericAttributes = new List<GenericAttribute> { genericAttibute1, genericAttibute2, genericAttibute3 }
                 .AsQueryable().BuildMockDbSet();
             _genericAttributeRepository.Setup(x => x.Table).Returns(mockGenericAttributes.Object);
 
@@ -187,7 +187,7 @@ namespace Api.Tests.ServicesTests.Users
         [Test]
         public void Can_search_users_by_query()
         {
-            var query = "first_name:brian";
+            var query = "first_name:administrator";
             var usersResult = _userApiService.Search(query);
 
             usersResult.Count.ShouldEqual(1);
