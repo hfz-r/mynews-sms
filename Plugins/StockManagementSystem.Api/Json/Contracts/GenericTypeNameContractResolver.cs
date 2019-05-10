@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using StockManagementSystem.Api.Attributes;
@@ -24,10 +25,21 @@ namespace StockManagementSystem.Api.Json.Contracts
                 if (attr.TypeParameterPosition >= typeArgs.Length)
                     throw new ArgumentException($"Can't get type argument at position {attr.TypeParameterPosition}; {type} has only {typeArgs.Length} type arguments");
 
-                var name = typeArgs[attr.TypeParameterPosition].Name;
-                var normalizedName = name.Remove(name.Length - 3).ToLowerInvariant();
+                string normalizedName = String.Empty;
+                var typeName = typeArgs[attr.TypeParameterPosition].Name;
 
-                prop.PropertyName = normalizedName;
+                string[] patternList = { "Dto", "MasterDto" };
+                string pattern = $"({string.Join("|", patternList)})";
+
+                Regex regex =  new Regex(pattern, RegexOptions.IgnoreCase);
+
+                var match = regex.Match(typeName);
+                if (match.Success)
+                    normalizedName = typeName.Substring(0, typeName.IndexOf(match.Value, StringComparison.InvariantCultureIgnoreCase));
+
+                prop.PropertyName = !string.IsNullOrEmpty(normalizedName)
+                    ? string.Concat(normalizedName, "s").ToLowerInvariant()
+                    : throw new InvalidOperationException($"{typeName} is not from'MasterDto'");
             }
 
             return prop;
