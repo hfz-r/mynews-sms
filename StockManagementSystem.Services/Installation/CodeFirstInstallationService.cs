@@ -10,6 +10,7 @@ using StockManagementSystem.Core.Domain.Media;
 using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Tenants;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Domain.Users;
@@ -29,7 +30,7 @@ namespace StockManagementSystem.Services.Installation
         private readonly IRepository<NotificationCategory> _notificationCategoryRepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<User> _userRepository;
-        private readonly IRepository<Branch> _branchRepository;
+        private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Transaction> _transRepository;
         private readonly IRepository<Tenant> _tenantRepository;
         private readonly IWebHelper _webHelper;
@@ -41,7 +42,7 @@ namespace StockManagementSystem.Services.Installation
             IRepository<NotificationCategory> notificationCategoryRepository,
             IRepository<Role> roleRepository,
             IRepository<User> userRepository,
-            IRepository<Branch> branchRepository,
+            IRepository<Store> storeRepository,
             IRepository<Transaction> transRepository,
             IRepository<Tenant> tenantRepository,
             IWebHelper webHelper)
@@ -52,7 +53,7 @@ namespace StockManagementSystem.Services.Installation
             _notificationCategoryRepository = notificationCategoryRepository;
             _roleRepository = roleRepository;
             _userRepository = userRepository;
-            _branchRepository = branchRepository;
+            _storeRepository = storeRepository;
             _transRepository = transRepository;
             _tenantRepository = tenantRepository;
             _webHelper = webHelper;
@@ -541,41 +542,26 @@ namespace StockManagementSystem.Services.Installation
 
         protected void InstallFakerData()
         {
-            SeedBranch();
+            SeedStore();
             SeedTransaction();
         }
 
-        protected void SeedBranch()
+        protected void SeedStore()
         {
-            var branches = new List<Branch>
-            {
-                new Branch
-                {
-                    Name = "One Utama",
-                    Location = "Selangor"
-                },
-                new Branch
-                {
-                    Name = "Ipoh Parade",
-                    Location = "Perak"
-                },
-                new Branch
-                {
-                    Name = "Alor Star Mall",
-                    Location = "Kedah"
-                },
-                new Branch
-                {
-                    Name = "IKEA Cheras",
-                    Location = "Kuala Lumpur"
-                },
-                new Branch
-                {
-                    Name = "Kuantan Mall",
-                    Location = "Pahang"
-                },
-            };
-            _branchRepository.Insert(branches);
+            var storesFaker = new Faker<Store>()
+                .RuleFor(s => s.P_BranchNo, s=> s.Random.Number(1000, 10000))
+                .RuleFor(s=> s.P_Name, s => s.Company.CompanyName())
+                .RuleFor(s => s.P_AreaCode, s => s.Address.CountryCode())
+                .RuleFor(s => s.P_Addr1, s => s.Address.FullAddress())
+                .RuleFor(s => s.P_State, s => s.Address.State())
+                .RuleFor(s => s.P_City, s => s.Address.City())
+                .RuleFor(s => s.P_Country, s => s.Address.Country())
+                .RuleFor(s => s.Latitude, s => s.Address.Latitude())
+                .RuleFor(s => s.Longitude, s => s.Address.Longitude());
+
+            var stores = storesFaker.Generate(50);
+
+            _storeRepository.Insert(stores);
         }
 
         protected void SeedTransaction()
@@ -585,7 +571,7 @@ namespace StockManagementSystem.Services.Installation
             var transFaker = new Faker<Transaction>()
                 .RuleFor(t => t.P_StockCode, f => f.PickRandom(categories))
                 .RuleFor(t => t.CreatedOnUtc, f => f.Date.Between(new DateTime(2000, 1, 1), new DateTime(2018, 12, 1)))
-                .RuleFor(t => t.Branch, f => f.PickRandom(_branchRepository.Table.ToList()))
+                .RuleFor(t => t.Store, f => f.PickRandom(_storeRepository.Table?.ToList()))
                 .FinishWith((f, t) => Console.WriteLine($"Transaction created. Id={t.Id}"));
 
             var trans = transFaker.Generate(300);

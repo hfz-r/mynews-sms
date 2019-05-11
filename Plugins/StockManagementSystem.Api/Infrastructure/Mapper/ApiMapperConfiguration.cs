@@ -10,7 +10,6 @@ using StockManagementSystem.Api.DTOs.Master;
 using StockManagementSystem.Api.DTOs.OrderLimit;
 using StockManagementSystem.Api.DTOs.PushNotifications;
 using StockManagementSystem.Api.DTOs.Roles;
-using StockManagementSystem.Api.DTOs.Stores;
 using StockManagementSystem.Api.DTOs.Users;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Models.ApiSettings;
@@ -55,7 +54,6 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             CreateMap<ASNDetailMaster, ASNDetailMasterDto>();
             CreateMap<ASNHeaderMaster, ASNHeaderMasterDto>();
             CreateMap<BarcodeMaster, BarcodeMasterDto>();
-            CreateMap<BranchMaster, BranchMasterDto>();
             CreateMap<MainCategoryMaster, MainCategoryMasterDto>();
             CreateMap<OrderBranchMaster, OrderBranchMasterDto>();
             CreateMap<SalesMaster, SalesMasterDto>();

@@ -1,4 +1,4 @@
-﻿using StockManagementSystem.Api.DTOs.Stores;
+﻿using StockManagementSystem.Api.DTOs.Generics;
 using StockManagementSystem.Core.Domain.Stores;
 
 namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
@@ -8,11 +8,6 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
         public static StoreDto ToDto(this Store store)
         {
             return store.MapTo<Store, StoreDto>();
-        }
-
-        public static Store ToEntity(this StoreDto storeDto)
-        {
-            return storeDto.MapTo<StoreDto, Store>();
         }
     }
 }

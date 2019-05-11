@@ -280,7 +280,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
                 .ForMember(model => model.Branch, options => options.Ignore())
                 .ForMember(model => model.CreatedOn, options => options.Ignore());
             CreateMap<TransActivityModel, Transaction>()
-                .ForMember(entity => entity.Branch, options => options.Ignore())
+                .ForMember(entity => entity.Store, options => options.Ignore())
                 .ForMember(entity => entity.P_BranchNo, options => options.Ignore())
                 .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore());
         }

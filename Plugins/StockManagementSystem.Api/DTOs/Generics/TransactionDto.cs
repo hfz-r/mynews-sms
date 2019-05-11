@@ -92,9 +92,6 @@ namespace StockManagementSystem.Api.DTOs.Generics
         [JsonProperty("unit")]
         public int? P_Unit { get; set; }
 
-        [JsonProperty("branch_no_st")]
-        public string P_BranchNoST { get; set; }
-
         [JsonProperty("st_location")]
         public string STLocation { get; set; }
 

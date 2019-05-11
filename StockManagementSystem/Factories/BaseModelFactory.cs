@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using StockManagementSystem.Core.Data;
-using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Plugins;
 using StockManagementSystem.Services;
 using StockManagementSystem.Services.Helpers;
@@ -22,22 +20,19 @@ namespace StockManagementSystem.Factories
         private readonly IUserActivityService _userActivityService;
         private readonly IUserService _userService;
         private readonly IStoreService _storeService;
-        private readonly IRepository<Branch> _branchRepository;
 
         public BaseModelFactory(
             IDateTimeHelper dateTimeHelper, 
             IPluginService pluginService, 
             IUserActivityService userActivityService, 
             IUserService userService,
-            IStoreService storeService,
-            IRepository<Branch> branchRepository)
+            IStoreService storeService)
         {
             _dateTimeHelper = dateTimeHelper;
             _pluginService = pluginService;
             _userActivityService = userActivityService;
             _userService = userService;
             _storeService = storeService;
-            _branchRepository = branchRepository;
         }
 
         #region Utilities
@@ -151,25 +146,6 @@ namespace StockManagementSystem.Factories
             foreach (var group in availablePluginGroups)
             {
                 items.Add(new SelectListItem { Value = group, Text = group });
-            }
-
-            PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Represent fake branch select list 
-        /// </summary>
-        public Task PrepareBranches(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items));
-
-            var availableBranches = _branchRepository.Table;
-            foreach (var branch in availableBranches.ToList())
-            {
-                items.Add(new SelectListItem { Value = branch.Id.ToString(), Text = branch.Name });
             }
 
             PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);

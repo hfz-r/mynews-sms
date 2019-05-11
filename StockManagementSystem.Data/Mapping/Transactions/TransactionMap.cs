@@ -16,7 +16,7 @@ namespace StockManagementSystem.Data.Mapping.Transactions
 
             builder.Property(trnx => trnx.P_StockCode).HasMaxLength(400);
 
-            builder.HasOne(trnx => trnx.Branch)
+            builder.HasOne(trnx => trnx.Store)
                 .WithMany()
                 .HasForeignKey(trnx => trnx.P_BranchNo)
                 .IsRequired();

@@ -1,4 +1,5 @@
 ﻿using System;
+using StockManagementSystem.Core.Domain.Stores;
 
 namespace StockManagementSystem.Core.Domain.Transactions
 {
@@ -8,7 +9,8 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public string DeviceSerialNo { get; set; }
 
-        public int? P_BranchNo { get; set; }
+        //key map to Store
+        public int P_BranchNo { get; set; }
 
         public int? P_StaffNo { get; set; }
 
@@ -60,8 +62,6 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public int? P_Unit { get; set; }
 
-        public string P_BranchNoST { get; set; }
-
         public string STLocation { get; set; }
 
         public string Barcode { get; set; }
@@ -76,7 +76,7 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public string LogNo { get; set; }
 
-        public virtual Branch Branch { get; set; }
+        public virtual Store Store { get; set; }
 
         //TODO: other navigation?
 

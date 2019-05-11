@@ -20,11 +20,6 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
             return entity.MapTo<BarcodeMaster, BarcodeMasterDto>();
         }
 
-        public static BranchMasterDto ToDto(this BranchMaster entity)
-        {
-            return entity.MapTo<BranchMaster, BranchMasterDto>();
-        }
-
         public static MainCategoryMasterDto ToDto(this MainCategoryMaster entity)
         {
             return entity.MapTo<MainCategoryMaster, MainCategoryMasterDto>();
@@ -53,6 +48,11 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
         public static StockTakeRightMasterDto ToDto(this StockTakeRightMaster entity)
         {
             return entity.MapTo<StockTakeRightMaster, StockTakeRightMasterDto>();
+        }
+
+        public static StockTakeControlOutletMasterDto ToDto(this StockTakeControlOutletMaster entity)
+        {
+            return entity.MapTo<StockTakeControlOutletMaster, StockTakeControlOutletMasterDto>();
         }
 
         public static ShiftControlMasterDto ToDto(this ShiftControlMaster entity)

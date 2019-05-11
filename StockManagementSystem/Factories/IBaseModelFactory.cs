@@ -16,8 +16,6 @@ namespace StockManagementSystem.Factories
 
         Task PrepareTimeZones(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
 
-        Task PrepareBranches(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
-
         Task PrepareStores(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
 
         Task PrepareStoreAreaCodes(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);

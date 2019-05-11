@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
+using StockManagementSystem.Api.Attributes;
 
-namespace StockManagementSystem.Api.DTOs.Stores
+namespace StockManagementSystem.Api.DTOs.Generics
 {
+    [GeneratedController("api/store")]
     [JsonObject(Title = "store")]
-    //TODO: StoreDtoValidator
     public class StoreDto : BaseDto
     {
         [JsonProperty("branch_no")]

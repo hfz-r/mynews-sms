@@ -61,7 +61,7 @@ namespace StockManagementSystem.Factories
                 throw new ArgumentNullException(nameof(searchModel));
 
             //prepare selectlist
-            await _baseModelFactory.PrepareBranches(searchModel.Branches);
+            await _baseModelFactory.PrepareStores(searchModel.Branches);
 
             searchModel.SetGridPageSize();
 
@@ -143,7 +143,7 @@ namespace StockManagementSystem.Factories
             var model = (await query.ToListAsync()).Select(q =>
             {
                 var m = q.ToModel<TransActivityModel>();
-                m.Branch = q.Branch.Name;
+                m.Branch = q.Store.P_Name;
                 m.CreatedOn = q.CreatedOnUtc;
 
                 return m;

@@ -8,6 +8,7 @@ using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Settings;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Transactions;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Data;
@@ -78,6 +79,16 @@ namespace StockManagementSystem.Api.Services
                     return new ApiList<Transaction>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
+                case Store _:
+                {
+                    var repository = RepositoryActivator(typeof(Store));
+                    var query = repository.Table as IQueryable<Store>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<Store>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
                 case ShelfLocation _:
                 {
                     var repository = RepositoryActivator(typeof(ShelfLocation));
@@ -126,16 +137,6 @@ namespace StockManagementSystem.Api.Services
                     query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
                     return new ApiList<BarcodeMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
-                }
-                case BranchMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(BranchMaster));
-                    var query = repository.Table as IQueryable<BranchMaster>;
-
-                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
-
-                    return new ApiList<BranchMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
                 case MainCategoryMaster _:
@@ -208,6 +209,16 @@ namespace StockManagementSystem.Api.Services
                     return new ApiList<StockTakeRightMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
+                case StockTakeControlOutletMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeControlOutletMaster));
+                    var query = repository.Table as IQueryable<StockTakeControlOutletMaster>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<StockTakeControlOutletMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
                 case SubCategoryMaster _:
                 {
                     var repository = RepositoryActivator(typeof(SubCategoryMaster));
@@ -254,6 +265,13 @@ namespace StockManagementSystem.Api.Services
 
                     return entity.ToDto() as T;
                 }
+                case Store _:
+                {
+                    var repository = RepositoryActivator(typeof(Store));
+                    var entity = (repository.Table as IQueryable<Store>)?.FirstOrDefault(e => e.P_BranchNo == id);
+
+                    return entity.ToDto() as T;
+                }
                 case ShelfLocation _:
                 {
                     var repository = RepositoryActivator(typeof(ShelfLocation));
@@ -287,13 +305,6 @@ namespace StockManagementSystem.Api.Services
                 {
                     var repository = RepositoryActivator(typeof(BarcodeMaster));
                     var entity = (repository.Table as IQueryable<BarcodeMaster>)?.FirstOrDefault(e => e.Id == id);
-
-                    return entity.ToDto() as T;
-                }
-                case BranchMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(BranchMaster));
-                    var entity = (repository.Table as IQueryable<BranchMaster>)?.FirstOrDefault(e => e.Id == id);
 
                     return entity.ToDto() as T;
                 }
@@ -348,6 +359,14 @@ namespace StockManagementSystem.Api.Services
 
                     return entity.ToDto() as T;
                 }
+                case StockTakeControlOutletMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeControlOutletMaster));
+                    var entity =
+                        (repository.Table as IQueryable<StockTakeControlOutletMaster>)?.FirstOrDefault(e => e.Id == id);
+
+                    return entity.ToDto() as T;
+                }
                 case SubCategoryMaster _:
                 {
                     var repository = RepositoryActivator(typeof(SubCategoryMaster));
@@ -385,6 +404,13 @@ namespace StockManagementSystem.Api.Services
                     return (repository.Table as IQueryable<Transaction> ?? throw new InvalidOperationException())
                         .Count();
                 }
+                case Store _:
+                {
+                    var repository = RepositoryActivator(typeof(Store));
+
+                    return (repository.Table as IQueryable<Store> ?? throw new InvalidOperationException())
+                        .Count();
+                }
                 case ShelfLocation _:
                 {
                     var repository = RepositoryActivator(typeof(ShelfLocation));
@@ -396,7 +422,8 @@ namespace StockManagementSystem.Api.Services
                 {
                     var repository = RepositoryActivator(typeof(TransporterTransaction));
 
-                    return (repository.Table as IQueryable<TransporterTransaction> ?? throw new InvalidOperationException())
+                    return (repository.Table as IQueryable<TransporterTransaction> ??
+                            throw new InvalidOperationException())
                         .Count();
                 }
                 case ASNDetailMaster _:
@@ -418,13 +445,6 @@ namespace StockManagementSystem.Api.Services
                     var repository = RepositoryActivator(typeof(BarcodeMaster));
 
                     return (repository.Table as IQueryable<BarcodeMaster> ?? throw new InvalidOperationException())
-                        .Count();
-                }
-                case BranchMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(BranchMaster));
-
-                    return (repository.Table as IQueryable<BranchMaster> ?? throw new InvalidOperationException())
                         .Count();
                 }
                 case MainCategoryMaster _:
@@ -452,7 +472,8 @@ namespace StockManagementSystem.Api.Services
                 {
                     var repository = RepositoryActivator(typeof(ShelfLocationMaster));
 
-                    return (repository.Table as IQueryable<ShelfLocationMaster> ?? throw new InvalidOperationException())
+                    return (repository.Table as IQueryable<ShelfLocationMaster> ??
+                            throw new InvalidOperationException())
                         .Count();
                 }
                 case ShiftControlMaster _:
@@ -466,14 +487,24 @@ namespace StockManagementSystem.Api.Services
                 {
                     var repository = RepositoryActivator(typeof(StockTakeControlMaster));
 
-                    return (repository.Table as IQueryable<StockTakeControlMaster> ?? throw new InvalidOperationException())
+                    return (repository.Table as IQueryable<StockTakeControlMaster> ??
+                            throw new InvalidOperationException())
                         .Count();
                 }
                 case StockTakeRightMaster _:
                 {
                     var repository = RepositoryActivator(typeof(StockTakeRightMaster));
 
-                    return (repository.Table as IQueryable<StockTakeRightMaster> ?? throw new InvalidOperationException())
+                    return (repository.Table as IQueryable<StockTakeRightMaster> ??
+                            throw new InvalidOperationException())
+                        .Count();
+                }
+                case StockTakeControlOutletMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockTakeControlOutletMaster));
+
+                    return (repository.Table as IQueryable<StockTakeControlOutletMaster> ??
+                            throw new InvalidOperationException())
                         .Count();
                 }
                 case SubCategoryMaster _:

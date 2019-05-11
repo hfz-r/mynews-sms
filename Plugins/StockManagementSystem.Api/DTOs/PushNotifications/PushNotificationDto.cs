@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using StockManagementSystem.Api.DTOs.Stores;
+using StockManagementSystem.Api.DTOs.Generics;
 
 namespace StockManagementSystem.Api.DTOs.PushNotifications
 {
