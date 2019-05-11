@@ -117,9 +117,7 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                 .IgnoreAllNonExisting()
                 .ForMember(model => model.BranchNo, z => z.MapFrom(e => e.P_BranchNo))
                 .ForMember(model => model.Name, z => z.MapFrom(e => e.P_Name))
-                .ForMember(model => model.RecStatus, z => z.MapFrom(e => e.P_RecStatus))
-                .ForMember(model => model.CompId, z => z.MapFrom(e => e.P_CompID))
-                .ForMember(model => model.SellPriceLevel, z => z.MapFrom(e => e.P_SellPriceLevel))
+                .ForMember(model => model.Status, z => z.MapFrom(e => e.Status))
                 .ForMember(model => model.AreaCode, z => z.MapFrom(e => e.P_AreaCode))
                 .ForMember(model => model.Address1, z => z.MapFrom(e => e.P_Addr1))
                 .ForMember(model => model.Address2, z => z.MapFrom(e => e.P_Addr2))
@@ -127,8 +125,12 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                 .ForMember(model => model.State, z => z.MapFrom(e => e.P_State))
                 .ForMember(model => model.City, z => z.MapFrom(e => e.P_City))
                 .ForMember(model => model.Country, z => z.MapFrom(e => e.P_Country))
-                .ForMember(model => model.PostCode, z => z.MapFrom(e => e.P_PostCode))
-                .ForMember(model => model.Brand, z => z.MapFrom(e => e.P_Brand));
+                .ForMember(model => model.Postcode, z => z.MapFrom(e => e.P_Postcode))
+                .ForMember(model => model.PriceLevel, z => z.MapFrom(e => e.P_PriceLevel))
+                .ForMember(model => model.DBIPAddress, z => z.MapFrom(e => e.P_DBIPAddress))
+                .ForMember(model => model.DBName, z => z.MapFrom(e => e.P_DBName))
+                .ForMember(model => model.DBUsername, z => z.MapFrom(e => e.P_DBUsername))
+                .ForMember(model => model.DBPassword, z => z.MapFrom(e => e.P_DBPassword));
         }
 
         private static void CreateRoleMaps()

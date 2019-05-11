@@ -12,14 +12,8 @@ namespace StockManagementSystem.Api.DTOs.Stores
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("rec_status")]
-        public string RecStatus { get; set; }
-
-        [JsonProperty("comp_id")]
-        public string CompId { get; set; }
-
-        [JsonProperty("sell_price_level")]
-        public string SellPriceLevel { get; set; }
+        [JsonProperty("status")]
+        public string Status { get; set; }
 
         [JsonProperty("area_code")]
         public string AreaCode { get; set; }
@@ -43,10 +37,7 @@ namespace StockManagementSystem.Api.DTOs.Stores
         public string Country { get; set; }
 
         [JsonProperty("postcode")]
-        public string PostCode { get; set; }
-
-        [JsonProperty("brand")]
-        public string Brand { get; set; }
+        public string Postcode { get; set; }
 
         [JsonProperty("active")]
         public bool Active { get; set; }
@@ -56,5 +47,20 @@ namespace StockManagementSystem.Api.DTOs.Stores
 
         [JsonProperty("latitude")]
         public double Latitude { get; set; }
+
+        [JsonProperty("price_level")]
+        public int PriceLevel { get; set; }
+
+        [JsonProperty("db_ipaddress")]
+        public string DBIPAddress { get; set; }
+
+        [JsonProperty("db_name")]
+        public string DBName { get; set; }
+
+        [JsonProperty("db_username")]
+        public string DBUsername { get; set; }
+
+        [JsonProperty("db_password")]
+        public string DBPassword { get; set; }
     }
 }

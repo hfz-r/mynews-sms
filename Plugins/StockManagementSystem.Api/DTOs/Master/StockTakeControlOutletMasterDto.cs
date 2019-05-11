@@ -1,8 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System;
+using StockManagementSystem.Api.Attributes;
 
 namespace StockManagementSystem.Api.DTOs.Master
 {
+    [GeneratedController("api/master/stocktakecontroloutlet")]
     [JsonObject(Title = "stockTakeControlOutlet")]
     public class StockTakeControlOutletMasterDto : BaseDto
     {
