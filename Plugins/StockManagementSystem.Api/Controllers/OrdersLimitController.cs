@@ -35,16 +35,16 @@ namespace StockManagementSystem.Api.Controllers
         private readonly IFactory<OrderLimit> _factory;
 
         public OrdersLimitController(
-            IJsonFieldsSerializer jsonFieldsSerializer, 
-            IAclService aclService, 
-            IUserService userService, 
-            ITenantMappingService tenantMappingService, 
-            ITenantService tenantService, 
+            IJsonFieldsSerializer jsonFieldsSerializer,
+            IAclService aclService,
+            IUserService userService,
+            ITenantMappingService tenantMappingService,
+            ITenantService tenantService,
             IUserActivityService userActivityService,
             IOrderLimitApiService orderLimitApiService,
             IOrderLimitService orderLimitService,
             IStoreService storeService,
-            IFactory<OrderLimit> factory) 
+            IFactory<OrderLimit> factory)
             : base(jsonFieldsSerializer, aclService, userService, tenantMappingService, tenantService, userActivityService)
         {
             _orderLimitApiService = orderLimitApiService;
@@ -53,217 +53,217 @@ namespace StockManagementSystem.Api.Controllers
             _factory = factory;
         }
 
-        /// <summary>
-        /// Retrieve all orders limit
-        /// </summary>
-        /// <response code="200">OK</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">Unauthorized</response>
-        [HttpGet]
-        [Route("/api/orderlimit")]
-        [ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetOrdersLimit(OrdersLimitParametersModel parameters)
-        {
-            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
-                return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
+        ///// <summary>
+        ///// Retrieve all orders limit
+        ///// </summary>
+        ///// <response code="200">OK</response>
+        ///// <response code="400">Bad Request</response>
+        ///// <response code="401">Unauthorized</response>
+        //[HttpGet]
+        //[Route("/api/orderlimit")]
+        //[ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        //[GetRequestsErrorInterceptorActionFilter]
+        //public async Task<IActionResult> GetOrdersLimit(OrdersLimitParametersModel parameters)
+        //{
+        //    if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+        //        return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
 
-            if (parameters.Page < Configurations.DefaultPageValue)
-                return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
+        //    if (parameters.Page < Configurations.DefaultPageValue)
+        //        return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
-            IList<OrderLimitDto> orderLimitDto =
-                _orderLimitApiService.GetOrdersLimit(
-                        parameters.CreatedAtMin,
-                        parameters.CreatedAtMax,
-                        parameters.Limit,
-                        parameters.Page,
-                        parameters.SinceId,
-                        parameters.StoreIds)
-                    .Select(ol => ol.ToDto()).ToList();
+        //    IList<OrderLimitDto> orderLimitDto =
+        //        _orderLimitApiService.GetOrdersLimit(
+        //                parameters.CreatedAtMin,
+        //                parameters.CreatedAtMax,
+        //                parameters.Limit,
+        //                parameters.Page,
+        //                parameters.SinceId,
+        //                parameters.StoreIds)
+        //            .Select(ol => ol.ToDto()).ToList();
 
-            var rootObj = new OrderLimitRootObject {OrdersLimit = orderLimitDto};
+        //    var rootObj = new OrderLimitRootObject {OrdersLimit = orderLimitDto};
 
-            var json = JsonFieldsSerializer.Serialize(rootObj, parameters.Fields);
+        //    var json = JsonFieldsSerializer.Serialize(rootObj, parameters.Fields);
 
-            return new RawJsonActionResult(json);
-        }
+        //    return new RawJsonActionResult(json);
+        //}
 
-        /// <summary>
-        /// Get a count of all orders limit
-        /// </summary>
-        /// <response code="200">OK</response>
-        /// <response code="401">Unauthorized</response>
-        [HttpGet]
-        [Route("/api/orderlimit/count")]
-        [ProducesResponseType(typeof(OrderLimitCountRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetOrdersLimitCount()
-        {
-            var olCount = _orderLimitApiService.GetOrdersLimitCount();
+        ///// <summary>
+        ///// Get a count of all orders limit
+        ///// </summary>
+        ///// <response code="200">OK</response>
+        ///// <response code="401">Unauthorized</response>
+        //[HttpGet]
+        //[Route("/api/orderlimit/count")]
+        //[ProducesResponseType(typeof(OrderLimitCountRootObject), (int) HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        //public async Task<IActionResult> GetOrdersLimitCount()
+        //{
+        //    var olCount = _orderLimitApiService.GetOrdersLimitCount();
 
-            var countRootObj = new OrderLimitCountRootObject{Count = olCount};
+        //    var countRootObj = new OrderLimitCountRootObject{Count = olCount};
 
-            return await Task.FromResult<IActionResult>(Ok(countRootObj));
-        }
+        //    return await Task.FromResult<IActionResult>(Ok(countRootObj));
+        //}
 
-        /// <summary>
-        /// Retrieve order limit by id
-        /// </summary>
-        /// <param name="id">Id of the order limit</param>
-        /// <param name="fields">Fields from the order limit you want your json to contain</param>
-        /// <response code="200">OK</response>
-        /// <response code="404">Not Found</response>
-        /// <response code="401">Unauthorized</response>
-        [HttpGet]
-        [Route("/api/orderlimit/{id}")]
-        [ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetOrderLimitById(int id, string fields = "")
-        {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
+        ///// <summary>
+        ///// Retrieve order limit by id
+        ///// </summary>
+        ///// <param name="id">Id of the order limit</param>
+        ///// <param name="fields">Fields from the order limit you want your json to contain</param>
+        ///// <response code="200">OK</response>
+        ///// <response code="404">Not Found</response>
+        ///// <response code="401">Unauthorized</response>
+        //[HttpGet]
+        //[Route("/api/orderlimit/{id}")]
+        //[ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        //[GetRequestsErrorInterceptorActionFilter]
+        //public async Task<IActionResult> GetOrderLimitById(int id, string fields = "")
+        //{
+        //    if (id <= 0)
+        //        return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            var ol = _orderLimitApiService.GetOrderLimitById(id);
-            if (ol == null)
-                return await Error(HttpStatusCode.NotFound, "order_limit", "not found");
+        //    var ol = _orderLimitApiService.GetOrderLimitById(id);
+        //    if (ol == null)
+        //        return await Error(HttpStatusCode.NotFound, "order_limit", "not found");
 
-            var rootObj = new OrderLimitRootObject();
-            rootObj.OrdersLimit.Add(ol.ToDto());
+        //    var rootObj = new OrderLimitRootObject();
+        //    rootObj.OrdersLimit.Add(ol.ToDto());
 
-            var json = JsonFieldsSerializer.Serialize(rootObj, fields);
+        //    var json = JsonFieldsSerializer.Serialize(rootObj, fields);
 
-            return new RawJsonActionResult(json);
-        }
+        //    return new RawJsonActionResult(json);
+        //}
 
-        /// <summary>
-        /// Create new order limit
-        /// </summary>
-        [HttpPost]
-        [Route("/api/orderlimit")]
-        [ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), 422)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> CreateOrderLimit([ModelBinder(typeof(JsonModelBinder<OrderLimitDto>))] Delta<OrderLimitDto> orderLimitDelta)
-        {
-            if (!ModelState.IsValid)
-                return await Error();
+        ///// <summary>
+        ///// Create new order limit
+        ///// </summary>
+        //[HttpPost]
+        //[Route("/api/orderlimit")]
+        //[ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), 422)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        //public async Task<IActionResult> CreateOrderLimit([ModelBinder(typeof(JsonModelBinder<OrderLimitDto>))] Delta<OrderLimitDto> orderLimitDelta)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return await Error();
 
-            var newOrderLimit = _factory.Initialize();
-            orderLimitDelta.Merge(newOrderLimit);
+        //    var newOrderLimit = _factory.Initialize();
+        //    orderLimitDelta.Merge(newOrderLimit);
 
-            await _orderLimitService.InsertOrderLimit(newOrderLimit);
+        //    await _orderLimitService.InsertOrderLimit(newOrderLimit);
 
-            //stores
-            if (orderLimitDelta.Dto.StoreIds.Count > 0)
-            {
-                await AddValidStores(orderLimitDelta, newOrderLimit);
-                _orderLimitService.UpdateOrderLimit(newOrderLimit);
-            }
+        //    //stores
+        //    if (orderLimitDelta.Dto.StoreIds.Count > 0)
+        //    {
+        //        await AddValidStores(orderLimitDelta, newOrderLimit);
+        //        _orderLimitService.UpdateOrderLimit(newOrderLimit);
+        //    }
 
-            await UserActivityService.InsertActivityAsync("AddNewOrderLimit", $"Added a new order limit (ID = {newOrderLimit.Id})", newOrderLimit);
+        //    await UserActivityService.InsertActivityAsync("AddNewOrderLimit", $"Added a new order limit (ID = {newOrderLimit.Id})", newOrderLimit);
 
-            var newOrderLimitDto = newOrderLimit.ToDto();
+        //    var newOrderLimitDto = newOrderLimit.ToDto();
 
-            var rootObj = new OrderLimitRootObject();
-            rootObj.OrdersLimit.Add(newOrderLimitDto);
+        //    var rootObj = new OrderLimitRootObject();
+        //    rootObj.OrdersLimit.Add(newOrderLimitDto);
 
-            var json = JsonFieldsSerializer.Serialize(rootObj, string.Empty);
+        //    var json = JsonFieldsSerializer.Serialize(rootObj, string.Empty);
 
-            return new RawJsonActionResult(json);
-        }
+        //    return new RawJsonActionResult(json);
+        //}
 
-        /// <summary>
-        /// Update order limit by id
-        /// </summary>
-        [HttpPut]
-        [Route("/api/orderlimit/{id}")]
-        [ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), 422)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> UpdateOrderLimit([ModelBinder(typeof(JsonModelBinder<OrderLimitDto>))] Delta<OrderLimitDto> orderLimitDelta)
-        {
-            if (!ModelState.IsValid)
-                return await Error();
+        ///// <summary>
+        ///// Update order limit by id
+        ///// </summary>
+        //[HttpPut]
+        //[Route("/api/orderlimit/{id}")]
+        //[ProducesResponseType(typeof(OrderLimitRootObject), (int) HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), 422)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        //public async Task<IActionResult> UpdateOrderLimit([ModelBinder(typeof(JsonModelBinder<OrderLimitDto>))] Delta<OrderLimitDto> orderLimitDelta)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return await Error();
 
-            var currentOrderLimit = _orderLimitApiService.GetOrderLimitById(orderLimitDelta.Dto.Id);
-            if (currentOrderLimit == null)
-                return await Error(HttpStatusCode.NotFound, "order_limit", "not found");
+        //    var currentOrderLimit = _orderLimitApiService.GetOrderLimitById(orderLimitDelta.Dto.Id);
+        //    if (currentOrderLimit == null)
+        //        return await Error(HttpStatusCode.NotFound, "order_limit", "not found");
 
-            orderLimitDelta.Merge(currentOrderLimit);
+        //    orderLimitDelta.Merge(currentOrderLimit);
 
-            //stores
-            if (orderLimitDelta.Dto.StoreIds.Count > 0)
-                await AddValidStores(orderLimitDelta, currentOrderLimit);
+        //    //stores
+        //    if (orderLimitDelta.Dto.StoreIds.Count > 0)
+        //        await AddValidStores(orderLimitDelta, currentOrderLimit);
 
-            _orderLimitService.UpdateOrderLimit(currentOrderLimit);
+        //    _orderLimitService.UpdateOrderLimit(currentOrderLimit);
 
-            await UserActivityService.InsertActivityAsync("EditOrderLimit", $"Edited an order limit (ID = {currentOrderLimit.Id})", currentOrderLimit);
+        //    await UserActivityService.InsertActivityAsync("EditOrderLimit", $"Edited an order limit (ID = {currentOrderLimit.Id})", currentOrderLimit);
 
-            var orderLimitDto = currentOrderLimit.ToDto();
+        //    var orderLimitDto = currentOrderLimit.ToDto();
 
-            var rootObj = new OrderLimitRootObject();
-            rootObj.OrdersLimit.Add(orderLimitDto);
+        //    var rootObj = new OrderLimitRootObject();
+        //    rootObj.OrdersLimit.Add(orderLimitDto);
 
-            var json = JsonFieldsSerializer.Serialize(rootObj, string.Empty);
+        //    var json = JsonFieldsSerializer.Serialize(rootObj, string.Empty);
 
-            return new RawJsonActionResult(json);
-        }
+        //    return new RawJsonActionResult(json);
+        //}
 
-        /// <summary>
-        /// Delete order limit by id
-        /// </summary>
-        [HttpDelete]
-        [Route("/api/orderlimit/{id}")]
-        [ProducesResponseType(typeof(void), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> DeleteOrderLimit(int id)
-        {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "Invalid id");
+        ///// <summary>
+        ///// Delete order limit by id
+        ///// </summary>
+        //[HttpDelete]
+        //[Route("/api/orderlimit/{id}")]
+        //[ProducesResponseType(typeof(void), (int) HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
+        //[ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        //[GetRequestsErrorInterceptorActionFilter]
+        //public async Task<IActionResult> DeleteOrderLimit(int id)
+        //{
+        //    if (id <= 0)
+        //        return await Error(HttpStatusCode.BadRequest, "id", "Invalid id");
 
-            var orderLimit = _orderLimitApiService.GetOrderLimitById(id);
-            if (orderLimit == null)
-                return await Error(HttpStatusCode.NotFound, "order_limit", "not found");
+        //    var orderLimit = _orderLimitApiService.GetOrderLimitById(id);
+        //    if (orderLimit == null)
+        //        return await Error(HttpStatusCode.NotFound, "order_limit", "not found");
 
-            _orderLimitService.DeleteOrderLimit(orderLimit);
+        //    _orderLimitService.DeleteOrderLimit(orderLimit);
 
-            await UserActivityService.InsertActivityAsync("DeleteOrderLimit", $"Deleted an order limit (ID = {id})", orderLimit);
+        //    await UserActivityService.InsertActivityAsync("DeleteOrderLimit", $"Deleted an order limit (ID = {id})", orderLimit);
 
-            return new RawJsonActionResult("{}");
-        }
+        //    return new RawJsonActionResult("{}");
+        //}
 
-        #region Private methods
+        //#region Private methods
 
-        private async Task AddValidStores(Delta<OrderLimitDto> orderLimitDelta, OrderLimit currentOrderLimit)
-        {
-            var stores = await _storeService.GetStores();
-            foreach (var store in stores)
-            {
-                if (orderLimitDelta.Dto.StoreIds.Contains(store.P_BranchNo))
-                {
-                    if (currentOrderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
-                        currentOrderLimit.OrderLimitStores.Add(new OrderLimitStore { Store = store });
-                }
-                else
-                {
-                    if (currentOrderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
-                        currentOrderLimit.OrderLimitStores.Remove(currentOrderLimit.OrderLimitStores.FirstOrDefault(mapping => mapping.StoreId == store.P_BranchNo));
-                }
-            }
-        }
+        //private async Task AddValidStores(Delta<OrderLimitDto> orderLimitDelta, OrderLimit currentOrderLimit)
+        //{
+        //    var stores = await _storeService.GetStores();
+        //    foreach (var store in stores)
+        //    {
+        //        if (orderLimitDelta.Dto.StoreIds.Contains(store.P_BranchNo))
+        //        {
+        //            if (currentOrderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+        //                currentOrderLimit.OrderLimitStores.Add(new OrderLimitStore { Store = store });
+        //        }
+        //        else
+        //        {
+        //            if (currentOrderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+        //                currentOrderLimit.OrderLimitStores.Remove(currentOrderLimit.OrderLimitStores.FirstOrDefault(mapping => mapping.StoreId == store.P_BranchNo));
+        //        }
+        //    }
+        //}
 
-        #endregion
+        //#endregion
     }
 }
