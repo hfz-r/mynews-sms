@@ -125,7 +125,7 @@ namespace StockManagementSystem.Controllers
 
                 #region Item 
 
-                file = new FileInfo(_configuration["ScriptFolder"].ToString() + "Role User User Role.sql"); //*.sql file path
+                file = new FileInfo(_configuration["ScriptFolder"].ToString() + "RoleUserUserRole.sql"); //*.sql file path
                 ExecuteScript(file, connection);
 
                 #endregion

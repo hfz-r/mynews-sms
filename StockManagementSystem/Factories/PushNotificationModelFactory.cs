@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
+using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Models.PushNotifications;
@@ -137,7 +138,7 @@ namespace StockManagementSystem.Factories
 
         private string GetStockTakeStore(string stockTakeNo)
         {
-            string conString = ConfigurationExtensions.GetConnectionString(this._iconfiguration, "HQ");
+            string conString = DataSettingsManager.LoadSettings().DataConnectionString;
 
             var model = new PushNotificationModel();
             List<StockTakeHeader> stockTakeList = new List<StockTakeHeader>();
@@ -146,16 +147,24 @@ namespace StockManagementSystem.Factories
             using (SqlConnection connection = new SqlConnection(conString))
             {
                 connection.Open();
-                string sSQL = "SELECT  STH.Stock_Take_No, STO.Outlet_No, O.Outlet_Name FROM [dbo].[btb_HHT_StockTakeHeader] STH ";
-                sSQL += "INNER JOIN [dbo].[btb_HHT_StockTakeOutlet] STO ";
-                sSQL += "ON STH.Stock_Take_No = STO.Stock_Take_No ";
-                sSQL += "INNER JOIN [dbo].[btb_HHT_Outlet] O ";
-                sSQL += "ON STO.Outlet_No = O.Outlet_No ";
-                sSQL += " WHERE [End_Date] >= GETDATE() ";
+                string sSQL = "SELECT STCM.P_StockTakeNo, -99 AS P_BranchNo, 'ALL' AS P_Name FROM [dbo].[StockTakeControlMaster] STCM";
+                sSQL += " INNER JOIN [dbo].[Store] S ON STCM.P_BranchNo = S.P_BranchNo";
+                sSQL += " WHERE STCM.P_EndDate >= GETDATE() AND STCM.P_BranchNo != 1";
 
                 if (!string.IsNullOrEmpty(stockTakeNo))
                 {
-                    sSQL += "AND STH.Stock_Take_No = '" + stockTakeNo + "'";
+                    sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
+                }
+
+                sSQL += " UNION";
+                sSQL += " SELECT STCM.P_StockTakeNo, STCOM.P_BranchNo, S.P_Name FROM [dbo].[StockTakeControlMaster] STCM";
+                sSQL += " RIGHT JOIN [dbo].[StockTakeControlOutletMaster] STCOM ON STCM.P_StockTakeNo = STCOM.P_StockTakeNo AND STCM.P_BranchNo = 1";
+                sSQL += " INNER JOIN [dbo].[Store] S ON STCOM.P_BranchNo = S.P_BranchNo "; //--LEFT
+                sSQL += " WHERE STCM.P_EndDate >= GETDATE()";
+
+                if (!string.IsNullOrEmpty(stockTakeNo))
+                {
+                    sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
                 }
 
                 using (SqlCommand command = new SqlCommand(sSQL, connection))
@@ -163,9 +172,9 @@ namespace StockManagementSystem.Factories
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var stNo = reader["Stock_Take_No"].ToString();
-                        var storeNo = reader["Outlet_No"].ToString();
-                        var storeName = reader["Outlet_Name"].ToString();
+                        var stNo = reader["P_StockTakeNo"].ToString();
+                        var storeNo = reader["P_BranchNo"].ToString();
+                        var storeName = reader["P_Name"].ToString();
 
                         if (stockTakeList != null & stockTakeList.Count > 0)
                         {
@@ -224,7 +233,7 @@ namespace StockManagementSystem.Factories
             {
                 foreach (var child in parent.Stores)
                 {
-                    storeNames += child.StoreNo + " - " + child.StoreName;
+                    storeNames += child.StoreName == "ALL" ? child.StoreName : child.StoreNo + " - " + child.StoreName;
                     storeNames += ", ";
                 }
             }
