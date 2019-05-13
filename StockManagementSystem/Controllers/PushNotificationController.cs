@@ -201,7 +201,6 @@ namespace StockManagementSystem.Controllers
                     pushNotification.RemindMe = model.RemindMe;
                     pushNotification.StartTime = model.RemindMe ? model.StartTime : null;
                     pushNotification.EndTime = model.RemindMe ? model.EndTime : null;
-                    pushNotification.CreatedOnUtc = DateTime.Now;
 
                     if (model.SelectedNotificationCategoryIds.FirstOrDefault() == 1)
                     {

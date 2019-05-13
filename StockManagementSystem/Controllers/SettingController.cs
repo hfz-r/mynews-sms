@@ -41,6 +41,7 @@ using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using StockManagementSystem.Core.Domain.Master;
 
 namespace StockManagementSystem.Controllers
 {
@@ -149,60 +150,43 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageOrderLimit))
                 return AccessDeniedView();
 
-            OrderLimit orderLimit = new OrderLimit();
+            OrderBranchMaster orderLimit = new OrderBranchMaster();
 
-            if (model.SelectedStoreIds.Count == 0)
+            if (ModelState.IsValid)
             {
-                _notificationService.ErrorNotification("Store is required to register a device");
-                model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
-                model.SelectedStoreIds = new List<int>();
-                return View(model);
-            }
-
-            try
-            {
-                var isExist = await _orderLimitService.IsStoreExistAsync(model.SelectedStoreIds);
-                if (isExist)
+                try
                 {
-                    ModelState.AddModelError(string.Empty, "Store has existed in current order limit.");
-                    _notificationService.ErrorNotification("Store has existed in current order limit.");
-                    return new NullJsonResult();
-                }
-
-                orderLimit = new OrderLimit
-                {
-                    //Percentage = model.Percentage, //Remove Percentage criteria; Not required - 05032019
-                    DeliveryPerWeek = model.DeliveryPerWeek,
-                    Safety = model.Safety,
-                    InventoryCycle = model.InventoryCycle,
-                    OrderRatio = model.OrderRatio,
-
-                    OrderLimitStores = new List<OrderLimitStore>()
-                };
-
-                //Add store
-                foreach (var store in model.SelectedStoreIds)
-                {
-                    var orderLimitStore = new OrderLimitStore
+                    var isExist = await _orderLimitService.IsStoreExistAsync(model.SelectedStoreIds);
+                    if (isExist)
                     {
-                        OrderLimitId = orderLimit.Id,
-                        StoreId = store
+                        ModelState.AddModelError(string.Empty, "Store has existed in current order limit.");
+                        _notificationService.ErrorNotification("Store has existed in current order limit.");
+                        return new NullJsonResult();
+                    }
+
+                    orderLimit = new OrderBranchMaster
+                    {
+                        P_DeliveryPerWeek = model.DeliveryPerWeek,
+                        P_Safety = model.Safety,
+                        P_InventoryCycle = model.InventoryCycle,
+                        P_OrderRatio = model.OrderRatio,
+                        P_BranchNo = model.SelectedStoreIds,
+                        Status = 1
                     };
 
-                    orderLimit.OrderLimitStores.Add(orderLimitStore);
+                    await _orderLimitService.InsertOrderLimit(orderLimit);
+
+                    return RedirectToAction("Order");
                 }
+                catch (Exception e)
+                {
+                    ModelState.AddModelError(string.Empty, e.Message);
+                    _notificationService.ErrorNotification(e.Message);
 
-                await _orderLimitService.InsertOrderLimit(orderLimit);
-
-                return RedirectToAction("Order");
+                    return Json(e.Message);
+                }
             }
-            catch (Exception e)
-            {
-                ModelState.AddModelError(string.Empty, e.Message);
-                _notificationService.ErrorNotification(e.Message);
-
-                return Json(e.Message);
-            }
+            else { return View(model); }
         }
         
         public async Task<IActionResult> AddOrderLimit()
@@ -256,53 +240,17 @@ namespace StockManagementSystem.Controllers
             var allStores = await _storeService.GetStores();
             var newStores = new List<Store>();
             foreach (var store in allStores)
-                if (model.SelectedStoreIds.Contains(store.P_BranchNo))
+                if (model.SelectedStoreIds == store.P_BranchNo)
                     newStores.Add(store);
-
-            if (model.SelectedStoreIds.Count == 0)
-            {
-                _notificationService.ErrorNotification("Store is required");
-                model = await _orderLimitModelFactory.PrepareOrderLimitModel(model, orderLimit);
-                model.SelectedStoreIds = new List<int>();
-
-                return View(model);
-            }
 
             if (ModelState.IsValid)
                 try
                 {
-                    //orderLimit.Percentage = model.Percentage; //Remove Percentage criteria; Not required - 05032019
-                    orderLimit.DeliveryPerWeek = model.DeliveryPerWeek;
-                    orderLimit.Safety = model.Safety;
-                    orderLimit.InventoryCycle = model.InventoryCycle;
-                    orderLimit.OrderRatio = model.OrderRatio;
-
-                    //stores
-
-                    var orderLimitStoreList = new List<OrderLimitStore>();
-
-                    foreach (var store in allStores)
-                        if (model.SelectedStoreIds.Contains(store.P_BranchNo))
-                        {
-                            //new store
-                            if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
-                            {
-                                var orderLimitStore = new OrderLimitStore
-                                {
-                                    OrderLimitId = orderLimit.Id,
-                                    StoreId = store.P_BranchNo
-                                };
-
-
-                                orderLimit.OrderLimitStores.Add(orderLimitStore);
-                            }
-                        }
-                        else
-                        {
-                            //remove store
-                            if (orderLimit.OrderLimitStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
-                                _orderLimitService.DeleteOrderLimitStore(model.Id, store);
-                        }
+                    orderLimit.P_DeliveryPerWeek = model.DeliveryPerWeek;
+                    orderLimit.P_Safety = model.Safety;
+                    orderLimit.P_InventoryCycle = model.InventoryCycle;
+                    orderLimit.P_OrderRatio = model.OrderRatio;
+                    orderLimit.P_BranchNo = model.SelectedStoreIds;
 
                     _orderLimitService.UpdateOrderLimit(orderLimit);
 

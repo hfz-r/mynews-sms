@@ -90,10 +90,10 @@
                     <script>
                         $(document).ready(function() {
                             var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
-                                .kendoMultiSelect({
-                                    autoClose: false,
-                                    filter: "contains"
-                                }).data("kendoMultiSelect");
+                                .kendoDropDownList({
+                                    autoBind: false,
+                                    filter: "contains",
+                                }).data("kendoDropDownList");
 
                             @if (Model.AvailableStores.Count == 0)
                             {

@@ -18,11 +18,11 @@ namespace StockManagementSystem.Core.Domain.Master
 
         #region IAppendTimestamps members
 
-        public virtual DateTime CreatedBy { get; set; }
+        public virtual string CreatedBy { get; set; }
 
         public virtual DateTime CreatedOnUtc { get; set; }
 
-        public virtual DateTime? ModifiedBy { get; set; }
+        public virtual string ModifiedBy { get; set; }
 
         public virtual DateTime? ModifiedOnUtc { get; set; }
 

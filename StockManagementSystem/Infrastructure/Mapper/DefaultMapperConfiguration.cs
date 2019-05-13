@@ -24,6 +24,7 @@ using StockManagementSystem.Models.Management;
 using StockManagementSystem.Models.Stores;
 using StockManagementSystem.Models.Replenishments;
 using StockManagementSystem.Models.Tenants;
+using StockManagementSystem.Core.Domain.Master;
 
 namespace StockManagementSystem.Infrastructure.Mapper
 {
@@ -264,11 +265,11 @@ namespace StockManagementSystem.Infrastructure.Mapper
         /// </summary>
         protected virtual void CreateOrderLimitMaps()
         {
-            CreateMap<OrderLimit, OrderLimitModel>()
+            CreateMap<OrderBranchMaster, OrderLimitModel>()
                 .ForMember(model => model.StoreName, options => options.Ignore());
-            CreateMap<OrderLimitModel, OrderLimit>()
+            CreateMap<OrderLimitModel, OrderBranchMaster>();
                 //.ForMember(entity => entity.Percentage, options => options.Ignore()) //Remove Percentage criteria; Not required - 05032019
-                .ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
+                //.ForMember(entity => entity.OrderLimitStores, options => options.Ignore());
         }
 
         /// <summary>

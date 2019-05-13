@@ -75,7 +75,7 @@ namespace StockManagementSystem.Factories
                     devicesModel.SerialNo = device.SerialNo;
                     devicesModel.ModelNo = device.ModelNo;
                     devicesModel.SelectedStoreId = device.StoreId;
-                    devicesModel.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
+                    devicesModel.StoreName = device.Store != null ? device.Store.P_BranchNo + " - " + device.Store.P_Name : string.Empty;
                     devicesModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
                     devicesModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
@@ -119,6 +119,7 @@ namespace StockManagementSystem.Factories
         public async Task<DeviceModel> PrepareDeviceListModel()
         {
             var devices = await _deviceService.GetAllDevicesAsync();
+            double distance = 0;
 
             var model = new DeviceModel
             {
@@ -127,7 +128,16 @@ namespace StockManagementSystem.Factories
 
             foreach (var item in model.Devices)
             {
-                double distance = getDistance(item.Latitude, item.Longitude, (double)item.Store.Latitude, (double)item.Store.Longitude) / 1000; //returns in KM
+                if (item.Store != null && item.Store.Latitude != null && item.Store.Longitude != null)
+                {
+                    distance = getDistance(item.Latitude, item.Longitude, (double)item.Store.Latitude, (double)item.Store.Longitude) / 1000; //returns in KM                    
+                }
+                else
+                {
+                    //no master location
+                    distance = getDistance(item.Latitude, item.Longitude, 0, 0) / 1000; //returns in KM                    
+                }
+
                 if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                 {
                     item.Status = "2";
@@ -157,7 +167,7 @@ namespace StockManagementSystem.Factories
                 model.Id = device.Id;
                 model.SerialNo = device.SerialNo;
                 model.ModelNo = device.ModelNo;
-                model.StoreName = device.Store.P_BranchNo + " - " + device.Store.P_Name;
+                model.StoreName = device.Store != null ? device.Store.P_BranchNo + " - " + device.Store.P_Name : string.Empty;
                 model.SelectedStoreId = device.StoreId;
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(device.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(device.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
@@ -193,6 +203,8 @@ namespace StockManagementSystem.Factories
 
         public async Task<MapDeviceListModel> PrepareMapDeviceListingModel(MapDeviceSearchModel searchModel)
         {
+            double distance = 0;
+
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
@@ -207,13 +219,23 @@ namespace StockManagementSystem.Factories
                 {
                     var mapListModel = mapLst.ToModel<MapDeviceModel>();
                     mapListModel.StoreName = mapLst.Store.P_BranchNo + " - " + mapLst.Store.P_Name;
+                    
+                    if (mapLst.Store != null && mapLst.Store.Latitude != null && mapLst.Store.Longitude != null)
+                    {
+                        distance = getDistance(mapLst.Latitude, mapLst.Longitude, (double)mapLst.Store.Latitude, (double)mapLst.Store.Longitude) / 1000; //returns in KM
+                    }
+                    else
+                    {
+                        distance = getDistance(mapLst.Latitude, mapLst.Longitude, 0, 0) / 1000; //returns in KM
+                    }
 
-                    double distance = getDistance(mapLst.Latitude, mapLst.Longitude, (double)mapLst.Store.Latitude, (double)mapLst.Store.Longitude) / 1000; //returns in KM
                     if (distance > Convert.ToDouble(_configuration["OutofRadarRadius"]))
                     {
                         mapLst.Status = "2";
                     }
-                    mapListModel.Status = (mapLst.Status == null || mapLst.Status == "0" ) ? "Offline" : mapLst.Status == "1" ? "Online" : mapLst.Status == "2" ? "Out of radar" : "N/A";
+
+                    mapListModel.Status = (mapLst.Status == null || mapLst.Status == "0") ? "Offline" : mapLst.Status == "1" ? "Online" : mapLst.Status == "2" ? "Out of radar" : "N/A";
+
                     return mapListModel;
                 }),
                 Total = mapList.Count

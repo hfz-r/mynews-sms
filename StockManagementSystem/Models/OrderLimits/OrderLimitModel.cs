@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Web.Models;
@@ -12,7 +13,7 @@ namespace StockManagementSystem.Models.OrderLimits
     {
         public OrderLimitModel()
         {
-            SelectedStoreIds = new List<int>();
+            SelectedStoreIds = new int();
             AvailableStores = new List<SelectListItem>();
         }
 
@@ -55,10 +56,10 @@ namespace StockManagementSystem.Models.OrderLimits
 
         [Display(Name = "Stores")]
         [Required(ErrorMessage = "Store is required")]
-        public IList<int> SelectedStoreIds { get; set; }
+        public int SelectedStoreIds { get; set; }
 
         public IList<SelectListItem> AvailableStores { get; set; }
 
-        public ICollection<OrderLimit> OrderLimits { get; set; }
+        public ICollection<OrderBranchMaster> OrderLimits { get; set; }
     }
 }

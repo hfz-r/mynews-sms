@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Infrastructure.Mapper.Extensions;
@@ -59,7 +60,6 @@ namespace StockManagementSystem.Factories
 
             var orderLimits = await _orderLimitService.GetOrderLimitsAsync(
                 storeIds: searchModel.SelectedStoreIds.ToArray(),
-                //percentage: searchModel.SearchPercentage, //Remove Percentage criteria; Not required - 05032019
                 pageIndex: searchModel.Page - 1,
                 pageSize: searchModel.PageSize);
 
@@ -69,12 +69,13 @@ namespace StockManagementSystem.Factories
                 {
                     var orderLimitsModel = orderLimit.ToModel<OrderLimitModel>();
 
-                    //orderLimitsModel.Percentage = orderLimit.Percentage; //Remove Percentage criteria; Not required - 05032019
-                    orderLimitsModel.DeliveryPerWeek = orderLimit.DeliveryPerWeek;
-                    orderLimitsModel.Safety = orderLimit.Safety;
-                    orderLimitsModel.InventoryCycle = orderLimit.InventoryCycle;
-                    orderLimitsModel.OrderRatio = orderLimit.OrderRatio;
-                    orderLimitsModel.StoreName = String.Join(", ", orderLimit.OrderLimitStores.Select(store => store.Store.P_BranchNo + " - " + store.Store.P_Name));
+                    orderLimitsModel.DeliveryPerWeek = orderLimit.P_DeliveryPerWeek;
+                    orderLimitsModel.Safety = orderLimit.P_Safety;
+                    orderLimitsModel.InventoryCycle = orderLimit.P_InventoryCycle;
+                    orderLimitsModel.OrderRatio = orderLimit.P_OrderRatio;
+
+                    var storeName = _storeService.GetStoreById(orderLimit.P_BranchNo);
+                    orderLimitsModel.StoreName = orderLimit.P_BranchNo + " - " + storeName.P_Name;
                     orderLimitsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                     orderLimitsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
@@ -115,20 +116,18 @@ namespace StockManagementSystem.Factories
             return model;
         }
 
-        public async Task<OrderLimitModel> PrepareOrderLimitModel(OrderLimitModel model, OrderLimit orderLimit)
+        public async Task<OrderLimitModel> PrepareOrderLimitModel(OrderLimitModel model, OrderBranchMaster orderLimit)
         {
             if (orderLimit != null)
             {
                 model = model ?? new OrderLimitModel();
 
                 model.Id = orderLimit.Id;
-                //model.Percentage = orderLimit.Percentage; //Remove Percentage criteria; Not required - 05032019
-                model.DeliveryPerWeek = orderLimit.DeliveryPerWeek;
-                model.Safety = orderLimit.Safety;
-                model.InventoryCycle = orderLimit.InventoryCycle;
-                model.OrderRatio = orderLimit.OrderRatio;
-                model.SelectedStoreIds = orderLimit.OrderLimitStores != null && orderLimit.OrderLimitStores.Count > 0 ? 
-                    orderLimit.OrderLimitStores.Select(ols => ols.StoreId).ToList() : null;
+                model.DeliveryPerWeek = orderLimit.P_DeliveryPerWeek;
+                model.Safety = orderLimit.P_Safety;
+                model.InventoryCycle = orderLimit.P_InventoryCycle;
+                model.OrderRatio = orderLimit.P_OrderRatio;
+                model.SelectedStoreIds = orderLimit.P_BranchNo;
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
             }
@@ -138,15 +137,18 @@ namespace StockManagementSystem.Factories
             }
 
             var stores = await _storeService.GetStores();
-            var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();
-            var orderLimitStoreList = orderLimitStore.Select(x => x.StoreId).ToArray();
-            var newStore = stores.Where(x => !orderLimitStoreList.Except(model.SelectedStoreIds).Contains(x.P_BranchNo));
-
+            var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();   
+            var existingBranch = orderLimitStore.Select(x => x.P_BranchNo).ToList();
+            List<int> ids = new List<int>();
+            ids.Add(model.SelectedStoreIds);
+            var newStore = stores.Where(x => !existingBranch.Except(ids).Contains(x.P_BranchNo));
+            
             model.AvailableStores = newStore.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
+
 
             return await Task.FromResult(model);
         }
