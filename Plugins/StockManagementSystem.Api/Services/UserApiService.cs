@@ -313,8 +313,8 @@ namespace StockManagementSystem.Api.Services
         {
             var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount);
 
-            query = query.Where(user => !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
-                (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
+            //query = query.Where(user => !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
+            //    (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
 
             if (createdAtMin != null)
                 query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);
