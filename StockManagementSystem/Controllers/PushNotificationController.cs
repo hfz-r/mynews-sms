@@ -199,8 +199,9 @@ namespace StockManagementSystem.Controllers
                     pushNotification.JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmss") : null;
                     pushNotification.Interval = model.RemindMe ? model.SelectedRepeat : null;
                     pushNotification.RemindMe = model.RemindMe;
-                    pushNotification.StartTime = model.StartTime;
-                    pushNotification.EndTime = model.EndTime;
+                    pushNotification.StartTime = model.RemindMe ? model.StartTime : null;
+                    pushNotification.EndTime = model.RemindMe ? model.EndTime : null;
+                    pushNotification.CreatedOnUtc = DateTime.Now;
 
                     if (model.SelectedNotificationCategoryIds.FirstOrDefault() == 1)
                     {
@@ -228,9 +229,19 @@ namespace StockManagementSystem.Controllers
                             pushNotificationStore.StoreId = item;
                             pushNotification.PushNotificationStores.Add(pushNotificationStore);
                         }
+                        else if (item == -99) //All stores
+                        {
+                            foreach(var store in allStores)
+                            {
+                                PushNotificationStore pushNotificationStore = new PushNotificationStore();
+                                pushNotificationStore.PushNotificationId = pushNotification.Id;
+                                pushNotificationStore.StoreId = store.P_BranchNo;
+                                pushNotification.PushNotificationStores.Add(pushNotificationStore);
+                            }
+                        }
                     }
 
-                    _pushNotificationService.UpdatePushNotification(pushNotification);
+                    await _pushNotificationService.InsertPushNotification(pushNotification);
 
                     _notificationService.SuccessNotification("Push Notification has been added successfully.");
 
@@ -638,12 +649,22 @@ namespace StockManagementSystem.Controllers
             using (SqlConnection connection = new SqlConnection(conString))
             {
                 connection.Open();
-                string sSQL = "SELECT STCM.P_StockTakeNo, STCOM.P_BranchNo, S.P_Name FROM [dbo].[StockTakeControlMaster] STCM ";
-                sSQL += "INNER JOIN [dbo].[StockTakeControlOutletMaster] STCOM ";
-                sSQL += "ON STCM.P_StockTakeNo = STCOM.P_StockTakeNo ";
-                sSQL += "INNER JOIN [dbo].[Store] S ";
-                sSQL += "ON STCOM.P_BranchNo = S.P_BranchNo ";
-                sSQL += " WHERE STCM.P_EndDate >= GETDATE() ";
+                storeList = new List<StoreList>();
+
+                string sSQL = "SELECT STCM.P_StockTakeNo, -99 AS P_BranchNo, 'ALL' AS P_Name FROM [dbo].[StockTakeControlMaster] STCM";
+                sSQL += " INNER JOIN [dbo].[Store] S ON STCM.P_BranchNo = S.P_BranchNo";
+                sSQL += " WHERE STCM.P_EndDate >= GETDATE() AND STCM.P_BranchNo != 1";
+
+                if (!string.IsNullOrEmpty(stockTakeNo))
+                {
+                    sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
+                }
+
+                sSQL += " UNION";
+                sSQL += " SELECT STCM.P_StockTakeNo, STCOM.P_BranchNo, S.P_Name FROM [dbo].[StockTakeControlMaster] STCM";
+                sSQL += " RIGHT JOIN [dbo].[StockTakeControlOutletMaster] STCOM ON STCM.P_StockTakeNo = STCOM.P_StockTakeNo AND STCM.P_BranchNo = 1";
+                sSQL += " INNER JOIN [dbo].[Store] S ON STCOM.P_BranchNo = S.P_BranchNo "; //--LEFT
+                sSQL += " WHERE STCM.P_EndDate >= GETDATE()";
 
                 if (!string.IsNullOrEmpty(stockTakeNo))
                 {
@@ -655,7 +676,7 @@ namespace StockManagementSystem.Controllers
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        var stNo = reader["StockTakeNo"].ToString();
+                        var stNo = reader["P_StockTakeNo"].ToString();
                         var storeNo = reader["P_BranchNo"].ToString();
                         var storeName = reader["P_Name"].ToString();
 
@@ -722,7 +743,7 @@ namespace StockManagementSystem.Controllers
             {
                 foreach (var child in parent.Stores)
                 {
-                    storeNames += child.StoreNo + " - " + child.StoreName;
+                    storeNames += child.StoreName == "ALL" ? child.StoreName : child.StoreNo + " - " + child.StoreName;
                     storeNames += ", ";
                 }
             }

@@ -8,8 +8,6 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
 
         public int StoreId { get; set; }
 
-        public bool? IsHHTDownloaded { get; set; }
-
         public virtual PushNotification PushNotification { get; set; }
 
         public virtual Store Store { get; set; }
