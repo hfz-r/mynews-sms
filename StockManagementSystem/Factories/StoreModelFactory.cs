@@ -77,7 +77,7 @@ namespace StockManagementSystem.Factories
                     var storeModel = store.ToModel<StoreModel>();
 
                     storeModel.BranchNo = store.P_BranchNo;
-                    storeModel.Name = store.P_Name;
+                    storeModel.Name = store.P_BranchNo + " - " + store.P_Name;
                     storeModel.AreaCode = store.P_AreaCode;
                     storeModel.Address1 = store.P_Addr1;
                     storeModel.Address2 = store.P_Addr2;
@@ -126,7 +126,7 @@ namespace StockManagementSystem.Factories
 
                 if (!excludeProperties)
                 {
-                    model.Name = store.P_Name;
+                    model.Name = store.P_BranchNo + " - " + store.P_Name;
                     model.AreaCode = store.P_AreaCode;
                     model.Address1 = store.P_Addr1;
                     model.Address2 = store.P_Addr2;
