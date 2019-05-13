@@ -60,6 +60,9 @@ namespace StockManagementSystem.Api.DTOs.Items
         [JsonProperty("price_14")]
         public double? P_SPrice14 { get; set; }
 
+        [JsonProperty("price_15")]
+        public double? P_SPrice15 { get; set; }
+
         [JsonProperty("modify_dt")]
         public DateTime? P_ModifyDT { get; set; }
 
