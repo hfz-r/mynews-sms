@@ -42,8 +42,7 @@ namespace StockManagementSystem.Models.OrderLimits
 
         [Display(Name = "Order Ratio")]
         [Required(ErrorMessage = "Order Ratio is required")]
-        [DataType("Integer")]
-        public int OrderRatio { get; set; }
+        public float OrderRatio { get; set; }
 
         [Display(Name = "Created on")]
         public DateTime CreatedOn { get; set; }

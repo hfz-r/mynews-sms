@@ -134,21 +134,30 @@ namespace StockManagementSystem.Factories
             else
             {
                 model = new OrderLimitModel();
+                model.SelectedStoreIds = -99;
             }
 
             var stores = await _storeService.GetStores();
             var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();   
             var existingBranch = orderLimitStore.Select(x => x.P_BranchNo).ToList();
-            List<int> ids = new List<int>();
-            ids.Add(model.SelectedStoreIds);
-            var newStore = stores.Where(x => !existingBranch.Except(ids).Contains(x.P_BranchNo));
+            IEnumerable<Store> newStore = new List<Store>();
+
+            if (model.SelectedStoreIds != -99)
+            {
+                List<int> ids = new List<int>();
+                ids.Add(model.SelectedStoreIds);
+                newStore = stores.Where(x => !existingBranch.Except(ids).Contains(x.P_BranchNo));
+            }
+            else
+            {
+                newStore = stores.Where(x => !existingBranch.Contains(x.P_BranchNo));
+            }
             
             model.AvailableStores = newStore.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
-
 
             return await Task.FromResult(model);
         }

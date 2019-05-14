@@ -20,7 +20,7 @@ namespace StockManagementSystem.Api.DTOs.Master
         public int P_InventoryCycle { get; set; }
 
         [JsonProperty("order_ratio")]
-        public int P_OrderRatio { get; set; }
+        public float P_OrderRatio { get; set; }
 
         [JsonProperty("status")]
         public byte Status { get; set; }
