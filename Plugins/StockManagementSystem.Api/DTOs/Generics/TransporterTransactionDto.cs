@@ -24,5 +24,8 @@ namespace StockManagementSystem.Api.DTOs.Generics
 
         [JsonProperty("qty")]
         public int? Qty { get; set; }
+
+        [JsonProperty("branch_no")]
+        public int BranchNo { get; set; }
     }
 }
