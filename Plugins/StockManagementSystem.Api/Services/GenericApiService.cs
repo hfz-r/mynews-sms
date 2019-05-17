@@ -219,6 +219,16 @@ namespace StockManagementSystem.Api.Services
                     return new ApiList<StockTakeControlOutletMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
+                case StockSupplierMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockSupplierMaster));
+                    var query = repository.Table as IQueryable<StockSupplierMaster>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<StockSupplierMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
                 case SubCategoryMaster _:
                 {
                     var repository = RepositoryActivator(typeof(SubCategoryMaster));
@@ -367,6 +377,14 @@ namespace StockManagementSystem.Api.Services
 
                     return entity.ToDto() as T;
                 }
+                case StockSupplierMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockSupplierMaster));
+                    var entity =
+                        (repository.Table as IQueryable<StockSupplierMaster>)?.FirstOrDefault(e => e.Id == id);
+
+                    return entity.ToDto() as T;
+                }
                 case SubCategoryMaster _:
                 {
                     var repository = RepositoryActivator(typeof(SubCategoryMaster));
@@ -504,6 +522,14 @@ namespace StockManagementSystem.Api.Services
                     var repository = RepositoryActivator(typeof(StockTakeControlOutletMaster));
 
                     return (repository.Table as IQueryable<StockTakeControlOutletMaster> ??
+                            throw new InvalidOperationException())
+                        .Count();
+                }
+                case StockSupplierMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(StockSupplierMaster));
+
+                    return (repository.Table as IQueryable<StockSupplierMaster> ??
                             throw new InvalidOperationException())
                         .Count();
                 }

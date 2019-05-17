@@ -55,6 +55,11 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
             return entity.MapTo<StockTakeControlOutletMaster, StockTakeControlOutletMasterDto>();
         }
 
+        public static StockSupplierMasterDto ToDto(this StockSupplierMaster entity)
+        {
+            return entity.MapTo<StockSupplierMaster, StockSupplierMasterDto>();
+        }
+
         public static ShiftControlMasterDto ToDto(this ShiftControlMaster entity)
         {
             return entity.MapTo<ShiftControlMaster, ShiftControlMasterDto>();

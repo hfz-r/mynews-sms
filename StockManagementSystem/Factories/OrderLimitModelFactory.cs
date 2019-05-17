@@ -139,8 +139,7 @@ namespace StockManagementSystem.Factories
             var stores = await _storeService.GetStores();
             var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();   
             var existingBranch = orderLimitStore.Select(x => x.P_BranchNo).ToList();
-            List<int> ids = new List<int>();
-            ids.Add(model.SelectedStoreIds);
+            List<int> ids = new List<int> {model.SelectedStoreIds};
             var newStore = stores.Where(x => !existingBranch.Except(ids).Contains(x.P_BranchNo));
             
             model.AvailableStores = newStore.Select(store => new SelectListItem
