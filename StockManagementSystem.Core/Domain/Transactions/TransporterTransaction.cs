@@ -16,6 +16,8 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public int? Qty { get; set; }
 
+        public int BranchNo { get; set; }
+
         #region IAppendTimestamps members
 
         public DateTime CreatedOnUtc { get; set; }

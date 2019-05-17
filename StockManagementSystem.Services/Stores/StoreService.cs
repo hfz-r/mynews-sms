@@ -71,9 +71,6 @@ namespace StockManagementSystem.Services.Stores
 
         public virtual Store GetStoreById(int storeId)
         {
-            if (storeId == 0)
-                return null;
-
             var key = string.Format(StoreDefaults.StoresByIdCacheKey, storeId);
             return _cacheManager.Get(key, () => _storeRepository.GetById(storeId));
         }

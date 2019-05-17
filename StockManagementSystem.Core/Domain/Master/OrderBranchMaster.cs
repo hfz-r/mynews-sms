@@ -12,7 +12,7 @@ namespace StockManagementSystem.Core.Domain.Master
 
         public int P_InventoryCycle { get; set; }
 
-        public int P_OrderRatio { get; set; }
+        public float P_OrderRatio { get; set; }
 
         public byte Status { get; set; }
 

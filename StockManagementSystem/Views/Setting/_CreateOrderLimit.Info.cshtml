@@ -51,7 +51,7 @@
                     <label asp-for="Safety" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input id="safety" asp-for="Safety" class="form-control" value="" type="text" min="1" onkeypress='return validateQty(event);' />
+                    <input id="safety" asp-for="Safety" class="form-control" value="" type="text" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="Safety"></span>
                 </div>
             </div>
@@ -71,7 +71,7 @@
                     <label asp-for="OrderRatio" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input id="order" asp-for="OrderRatio" class="form-control" value="" type="text" min="1" onkeypress='return validateQty(event);' />
+                    <input id="order" asp-for="OrderRatio" value="" type="number" min="0.1" />
                     <span asp-validation-for="OrderRatio"></span>
                 </div>
             </div>
@@ -128,11 +128,34 @@
         //    decimals: 0,
         //    restrictDecimals: true
         //});
-        //$("#order").kendoNumericTextBox({
-        //    format: "#",
-        //    decimals: 0,
-        //    restrictDecimals: true
-        //});
+        $("#order").kendoNumericTextBox({
+            format: "n1",
+            min: 0.1,
+            decimals: 1,
+            step: 0.1,
+            restrictDecimals: false,
+            spin: function (e) {
+                var inputElement = this.element;
+                addTrailingZeros(inputElement, this);
+            }
+        }).on("focus", function (e) {
+            var inputElement = $(this);
+            addTrailingZeros(inputElement, numeric)
+        }).data("kendoNumericTextBox");
+
+        function addTrailingZeros(input, numeric) {
+            // floats
+            if (input.val().split(".").length > 1
+                && input.val().split(".")[1].length < numeric.options.decimals) {
+                var inputValue = input.val() + "0";
+                input.val(inputValue);
+            }
+            // integers
+            if (input.val() && input.val().split(".").length === 1) {
+                var inputValue = input.val() + "." + Array(numeric.options.decimals + 1).join("0");
+                input.val(inputValue);
+            }
+        }
 
         $("#delivery").focus(function () {
             var input = $(this);
