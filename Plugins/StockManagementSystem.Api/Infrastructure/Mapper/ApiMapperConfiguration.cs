@@ -60,6 +60,7 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             CreateMap<ShelfLocationMaster, ShelfLocationMasterDto>();
             CreateMap<StockTakeControlMaster, StockTakeControlMasterDto>();
             CreateMap<StockTakeRightMaster, StockTakeRightMasterDto>();
+            CreateMap<StockTakeControlOutletMaster, StockTakeControlOutletMasterDto>();
             CreateMap<ShiftControlMaster, ShiftControlMasterDto>();
             CreateMap<SubCategoryMaster, SubCategoryMasterDto>();
             CreateMap<SupplierMaster, SupplierMasterDto>();
