@@ -15,5 +15,7 @@
         public string P_ContainerID { get; set; }
 
         public byte Status { get; set; }
+
+        public int RowNum { get; set; } //for Edi purpose only
     }
 }

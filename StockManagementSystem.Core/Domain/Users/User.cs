@@ -24,6 +24,10 @@ namespace StockManagementSystem.Core.Domain.Users
 
         public string Barcode { get; set; }
 
+        public bool LoginToken { get; set; } //for HHT 
+
+        public DateTime? PasswordLastModified { get; set; } //for HHT 
+
         /// <summary>
         /// Gets or sets a value indicating number of failed login attempts (wrong password)
         /// </summary>

@@ -6,7 +6,7 @@ namespace StockManagementSystem.Core.Domain.Master
     {
         public int P_StockTakeNo { get; set; }
 
-        public int P_BranchNo { get; set; }
+        public int P_BranchNo { get; set; } //BranchParticipant 0: All outlet; 1: Selected outlet
 
         public DateTime P_BeginDate { get; set; }
 

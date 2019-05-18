@@ -30,6 +30,12 @@ namespace StockManagementSystem.Api.DTOs.Users
         [JsonProperty("password")]
         public string Password { get; set; }
 
+        [JsonProperty("login_token")]
+        public bool LoginToken { get; set; }//for HHT 
+
+        [JsonProperty("password_last_modified")]
+        public DateTime? PasswordLastModified { get; set; } //for HHT 
+
         [JsonProperty("user_password")]
         public UserPasswordDto UserPassword { get; set; }
 
