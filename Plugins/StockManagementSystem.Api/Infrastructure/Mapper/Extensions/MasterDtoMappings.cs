@@ -74,5 +74,10 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions
         {
             return entity.MapTo<SupplierMaster, SupplierMasterDto>();
         }
+
+        public static WarehouseDeliveryScheduleMasterDto ToDto(this WarehouseDeliveryScheduleMaster entity)
+        {
+            return entity.MapTo<WarehouseDeliveryScheduleMaster, WarehouseDeliveryScheduleMasterDto>();
+        }
     }
 }

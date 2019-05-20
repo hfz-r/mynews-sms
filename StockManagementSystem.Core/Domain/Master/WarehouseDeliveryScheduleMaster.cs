@@ -8,19 +8,19 @@ namespace StockManagementSystem.Core.Domain.Master
     {
         public int P_BranchNo { get; set; }
 
-        public byte Day1 { get; set; }
+        public byte P_Day1 { get; set; }
 
-        public byte Day2 { get; set; }
+        public byte P_Day2 { get; set; }
 
-        public byte Day3 { get; set; }
+        public byte P_Day3 { get; set; }
 
-        public byte Day4 { get; set; }
+        public byte P_Day4 { get; set; }
 
-        public byte Day5 { get; set; }
+        public byte P_Day5 { get; set; }
 
-        public byte Day6 { get; set; }
+        public byte P_Day6 { get; set; }
 
-        public byte Day7 { get; set; }
+        public byte P_Day7 { get; set; }
 
         public byte Status { get; set; }
     }

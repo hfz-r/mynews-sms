@@ -249,6 +249,16 @@ namespace StockManagementSystem.Api.Services
                     return new ApiList<SupplierMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
+                case WarehouseDeliveryScheduleMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(WarehouseDeliveryScheduleMaster));
+                    var query = repository.Table as IQueryable<WarehouseDeliveryScheduleMaster>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<WarehouseDeliveryScheduleMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
                 default:
                 {
                     _logger.Information("Null.");
@@ -399,6 +409,14 @@ namespace StockManagementSystem.Api.Services
 
                     return entity.ToDto() as T;
                 }
+                case WarehouseDeliveryScheduleMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(WarehouseDeliveryScheduleMaster));
+                    var entity =
+                        (repository.Table as IQueryable<WarehouseDeliveryScheduleMaster>)?.FirstOrDefault(e => e.Id == id);
+
+                    return entity.ToDto() as T;
+                }
                 default:
                 {
                     _logger.Information("Null.");
@@ -545,6 +563,14 @@ namespace StockManagementSystem.Api.Services
                     var repository = RepositoryActivator(typeof(SupplierMaster));
 
                     return (repository.Table as IQueryable<SupplierMaster> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case WarehouseDeliveryScheduleMaster _:
+                {
+                    var repository = RepositoryActivator(typeof(WarehouseDeliveryScheduleMaster));
+
+                    return (repository.Table as IQueryable<WarehouseDeliveryScheduleMaster> ??
+                            throw new InvalidOperationException())
                         .Count();
                 }
                 default:
