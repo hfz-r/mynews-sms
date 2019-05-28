@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
-using StockManagementSystem.Api.Attributes;
 
-namespace StockManagementSystem.Api.DTOs.Generics
+namespace StockManagementSystem.Api.DTOs.ShelfLocation
 {
-    [GeneratedController("api/shelflocation")]
     [JsonObject(Title = "shelf_location")]
+    //TODO: ShelfLocationDtoValidator
     public class ShelfLocationDto : BaseDto
     {
         [JsonIgnore]

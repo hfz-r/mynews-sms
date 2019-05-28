@@ -288,6 +288,24 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "AddNewTransaction",
+                    Enabled = true,
+                    Name = "Add a new transaction"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewTransporterTransaction",
+                    Enabled = true,
+                    Name = "Add a new transporter transaction"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "AddNewShelfLocation",
+                    Enabled = true,
+                    Name = "Add a new shelf location"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "DeleteUser",
                     Enabled = true,
                     Name = "Delete a user"
@@ -336,6 +354,24 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "DeleteTransaction",
+                    Enabled = true,
+                    Name = "Delete a transaction"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteTransporterTransaction",
+                    Enabled = true,
+                    Name = "Delete a transporter transaction"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteShelfLocation",
+                    Enabled = true,
+                    Name = "Delete a shelf location"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "EditUser",
                     Enabled = true,
                     Name = "Edit a user"
@@ -381,6 +417,24 @@ namespace StockManagementSystem.Services.Installation
                     SystemKeyword = "EditPushNotification",
                     Enabled = true,
                     Name = "Edit a push notification"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditTransaction",
+                    Enabled = true,
+                    Name = "Edit a transaction"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditTransporterTransaction",
+                    Enabled = true,
+                    Name = "Edit a transporter transaction"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditShelfLocation",
+                    Enabled = true,
+                    Name = "Edit a shelf location"
                 },
                 new ActivityLogType
                 {

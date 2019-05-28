@@ -1,4 +1,4 @@
-﻿using StockManagementSystem.Api.DTOs.Generics;
+﻿using StockManagementSystem.Api.DTOs.ShelfLocation;
 using StockManagementSystem.Core.Domain.Settings;
 
 namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions

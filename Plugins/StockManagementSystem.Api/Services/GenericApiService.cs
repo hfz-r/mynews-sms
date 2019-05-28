@@ -7,9 +7,11 @@ using StockManagementSystem.Api.DTOs;
 using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Core.Domain.Master;
+using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Settings;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Transactions;
+using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Data;
 using StockManagementSystem.Services.Logging;
@@ -69,16 +71,6 @@ namespace StockManagementSystem.Api.Services
 
             switch (instance)
             {
-                case Transaction _:
-                {
-                    var repository = RepositoryActivator(typeof(Transaction));
-                    var query = repository.Table as IQueryable<Transaction>;
-
-                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
-
-                    return new ApiList<Transaction>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
-                }
                 case Store _:
                 {
                     var repository = RepositoryActivator(typeof(Store));
@@ -89,24 +81,44 @@ namespace StockManagementSystem.Api.Services
                     return new ApiList<Store>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
-                case ShelfLocation _:
+                case Permission _:
                 {
-                    var repository = RepositoryActivator(typeof(ShelfLocation));
-                    var query = repository.Table as IQueryable<ShelfLocation>;
+                    var repository = RepositoryActivator(typeof(Permission));
+                    var query = repository.Table as IQueryable<Permission>;
 
                     query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                    return new ApiList<ShelfLocation>(query, page - 1, limit).Select(entity => entity.ToDto())
+                    return new ApiList<Permission>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
-                case TransporterTransaction _:
+                case UserStore _:
                 {
-                    var repository = RepositoryActivator(typeof(TransporterTransaction));
-                    var query = repository.Table as IQueryable<TransporterTransaction>;
+                    var repository = RepositoryActivator(typeof(UserStore));
+                    var query = repository.Table as IQueryable<UserStore>;
 
                     query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                    return new ApiList<TransporterTransaction>(query, page - 1, limit).Select(entity => entity.ToDto())
+                    return new ApiList<UserStore>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case UserRole _:
+                {
+                    var repository = RepositoryActivator(typeof(UserRole));
+                    var query = repository.Table as IQueryable<UserRole>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<UserRole>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case PermissionRoles _:
+                {
+                    var repository = RepositoryActivator(typeof(PermissionRoles));
+                    var query = repository.Table as IQueryable<PermissionRoles>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<PermissionRoles>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
                 case ASNDetailMaster _:
@@ -278,13 +290,6 @@ namespace StockManagementSystem.Api.Services
 
             switch (instance)
             {
-                case Transaction _:
-                {
-                    var repository = RepositoryActivator(typeof(Transaction));
-                    var entity = (repository.Table as IQueryable<Transaction>)?.FirstOrDefault(e => e.Id == id);
-
-                    return entity.ToDto() as T;
-                }
                 case Store _:
                 {
                     var repository = RepositoryActivator(typeof(Store));
@@ -292,18 +297,10 @@ namespace StockManagementSystem.Api.Services
 
                     return entity.ToDto() as T;
                 }
-                case ShelfLocation _:
+                case Permission _:
                 {
-                    var repository = RepositoryActivator(typeof(ShelfLocation));
-                    var entity = (repository.Table as IQueryable<ShelfLocation>)?.FirstOrDefault(e => e.Id == id);
-
-                    return entity.ToDto() as T;
-                }
-                case TransporterTransaction _:
-                {
-                    var repository = RepositoryActivator(typeof(TransporterTransaction));
-                    var entity =
-                        (repository.Table as IQueryable<TransporterTransaction>)?.FirstOrDefault(e => e.Id == id);
+                    var repository = RepositoryActivator(typeof(Permission));
+                    var entity = (repository.Table as IQueryable<Permission>)?.FirstOrDefault(e => e.Id == id);
 
                     return entity.ToDto() as T;
                 }
@@ -433,13 +430,6 @@ namespace StockManagementSystem.Api.Services
 
             switch (instance)
             {
-                case Transaction _:
-                {
-                    var repository = RepositoryActivator(typeof(Transaction));
-
-                    return (repository.Table as IQueryable<Transaction> ?? throw new InvalidOperationException())
-                        .Count();
-                }
                 case Store _:
                 {
                     var repository = RepositoryActivator(typeof(Store));
@@ -447,19 +437,32 @@ namespace StockManagementSystem.Api.Services
                     return (repository.Table as IQueryable<Store> ?? throw new InvalidOperationException())
                         .Count();
                 }
-                case ShelfLocation _:
+                case Permission _:
                 {
-                    var repository = RepositoryActivator(typeof(ShelfLocation));
+                    var repository = RepositoryActivator(typeof(Permission));
 
-                    return (repository.Table as IQueryable<ShelfLocation> ?? throw new InvalidOperationException())
+                    return (repository.Table as IQueryable<Permission> ?? throw new InvalidOperationException())
                         .Count();
                 }
-                case TransporterTransaction _:
+                case UserStore _:
                 {
-                    var repository = RepositoryActivator(typeof(TransporterTransaction));
+                    var repository = RepositoryActivator(typeof(UserStore));
 
-                    return (repository.Table as IQueryable<TransporterTransaction> ??
-                            throw new InvalidOperationException())
+                    return (repository.Table as IQueryable<UserStore> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case UserRole _:
+                {
+                    var repository = RepositoryActivator(typeof(UserRole));
+
+                    return (repository.Table as IQueryable<UserRole> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case PermissionRoles _:
+                {
+                    var repository = RepositoryActivator(typeof(PermissionRoles));
+
+                    return (repository.Table as IQueryable<PermissionRoles> ?? throw new InvalidOperationException())
                         .Count();
                 }
                 case ASNDetailMaster _:

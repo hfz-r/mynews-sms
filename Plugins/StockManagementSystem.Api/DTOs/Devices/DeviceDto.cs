@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using FluentValidation.Attributes;
 using Newtonsoft.Json;
+using StockManagementSystem.Api.DTOs.Stores;
 using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.Devices
@@ -37,12 +38,13 @@ namespace StockManagementSystem.Api.DTOs.Devices
         [JsonProperty("status")]
         public string Status { get; set; }
 
-        //TODO: StoreDto
-
         [JsonProperty("limited_to_tenants")]
         public bool LimitedToTenants { get; set; }
 
         [JsonProperty("tenant_ids")]
         public List<int> TenantIds { get; set; }
+
+        [JsonProperty("store")]
+        public StoreDto StoreDto { get; set; }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Newtonsoft.Json;
-using StockManagementSystem.Api.Attributes;
 
-namespace StockManagementSystem.Api.DTOs.Generics
+namespace StockManagementSystem.Api.DTOs.TransporterTransaction
 {
-    [GeneratedController("api/transporter")]
     [JsonObject(Title = "transporter_transaction")]
+    //TODO: TransporterDtoValidator
     public class TransporterTransactionDto : BaseDto
     {
         [JsonProperty("driver_name")]

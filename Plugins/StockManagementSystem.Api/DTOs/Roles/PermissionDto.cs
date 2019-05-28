@@ -1,9 +1,10 @@
 ﻿using Newtonsoft.Json;
+using StockManagementSystem.Api.Attributes;
 
 namespace StockManagementSystem.Api.DTOs.Roles
 {
+    [GeneratedController("api/permissions")]
     [JsonObject(Title = "permission")]
-    //TODO: PermissionDtoValidator
     public class PermissionDto : BaseDto
     {
         [JsonProperty("name")]

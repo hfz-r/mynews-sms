@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using StockManagementSystem.Api.Attributes;
 
-namespace StockManagementSystem.Api.DTOs.Generics
+namespace StockManagementSystem.Api.DTOs.Stores
 {
-    [GeneratedController("api/store")]
+    [GeneratedController("api/stores")]
     [JsonObject(Title = "store")]
     public class StoreDto : BaseDto
     {

@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace StockManagementSystem.Api.DTOs.OrderLimit
+namespace StockManagementSystem.Api.DTOs.Transactions
 {
-    public class OrderLimitCountRootObject
+    public class TransactionsCountRootObject
     {
         [JsonProperty("count")]
         public int Count { get; set; }

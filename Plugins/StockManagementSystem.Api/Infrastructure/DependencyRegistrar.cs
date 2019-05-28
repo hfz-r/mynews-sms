@@ -46,8 +46,10 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<DeviceApiService>().As<IDeviceApiService>().InstancePerLifetimeScope();
             builder.RegisterType<ItemApiService>().As<IItemApiService>().InstancePerLifetimeScope();
             builder.RegisterType<RoleApiService>().As<IRoleApiService>().InstancePerLifetimeScope();
-            builder.RegisterType<OrderLimitApiService>().As<IOrderLimitApiService>().InstancePerLifetimeScope();
             builder.RegisterType<PushNotificationApiService>().As<IPushNotificationApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<TransactionApiService>().As<ITransactionApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<TransporterTransactionApiService>().As<ITransporterTransactionApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<ShelfLocationApiService>().As<IShelfLocationApiService>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(GenericApiService<>)).As(typeof(IGenericApiService<>)).InstancePerLifetimeScope();
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();

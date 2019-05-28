@@ -7,7 +7,7 @@ using StockManagementSystem.Api.ModelBinders;
 namespace StockManagementSystem.Api.Models.ItemsParameters
 {
     [ModelBinder(typeof(ParametersModelBinder<ItemsParametersModel>))]
-    public class ItemsParametersModel : BaseItemsParametersModel
+    public class ItemsParametersModel
     {
         public ItemsParametersModel()
         {

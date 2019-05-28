@@ -1499,7 +1499,6 @@ button, .button-1, .button-2 { cursor: pointer; }
 }
 
 .message-error,
-.field-validation-error,
 .username-not-available-status,
 .poll-vote-error, .password-error {
   display: block;

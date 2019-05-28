@@ -9,6 +9,15 @@
 @{
     const string hideInfoBlockAttributeName = "ApiSettingsPage.HideInfoBlock";
     var hideInfoBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideInfoBlockAttributeName);
+
+    const string redirectUrisBlockAttributeName = "ApiSettingsPage.HideRedirectUrisBlock";
+    var redirectUrisBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, redirectUrisBlockAttributeName);
+
+    const string postLogoutUrisBlockAttributeName = "ApiSettingsPage.HidePostLogoutUrisBlock";
+    var postLogoutUrisBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, postLogoutUrisBlockAttributeName);
+
+    const string corsOriginUrisBlockAttributeName = "ApiSettingsPage.HideCorsOriginUrisBlock";
+    var corsOriginUrisBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, corsOriginUrisBlockAttributeName);
 }
 
 <div asp-validation-summary="All"></div>
@@ -18,6 +27,9 @@
     <div class="form-horizontal">
         <my-panels id="client-panels">
             <my-panel asp-name="client-info" asp-icon="fa fa-user-circle" asp-title="Client info" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock">@await Html.PartialAsync(ViewNames.ApiClientsCreateOrUpdateInfo, Model)</my-panel>
+            <my-panel asp-name="redirect-uris" asp-icon="fa fa-link" asp-title="Redirect uri" asp-hide-block-attribute-name="@redirectUrisBlockAttributeName" asp-hide="@redirectUrisBlock">@await Html.PartialAsync(ViewNames.ApiClientsRedirectUris, Model)</my-panel>
+            <my-panel asp-name="postlogout-uris" asp-icon="fa fa-sign-out" asp-title="Post-logout uri" asp-hide-block-attribute-name="@postLogoutUrisBlockAttributeName" asp-hide="@postLogoutUrisBlock">@await Html.PartialAsync(ViewNames.ApiClientsPostLogoutUris, Model)</my-panel>
+            <my-panel asp-name="corsorigin-uris" asp-icon="fa fa-external-link" asp-title="CORS origin uri" asp-hide-block-attribute-name="@corsOriginUrisBlockAttributeName" asp-hide="@corsOriginUrisBlock">@await Html.PartialAsync(ViewNames.ApiClientsCorsOriginUris, Model)</my-panel>
         </my-panels>
     </div>
 </section>

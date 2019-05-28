@@ -10,6 +10,7 @@ using IdentityServer4.Models;
 using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Models.ApiSettings.Clients;
+using StockManagementSystem.Core;
 using Client = IdentityServer4.EntityFramework.Entities.Client;
 
 namespace StockManagementSystem.Api.Services
@@ -23,37 +24,48 @@ namespace StockManagementSystem.Api.Services
             _configurationDbContext = configurationDbContext;
         }
 
-        public async Task<IList<ClientModel>> GetAllClientsAsync()
+        #region Utilities
+
+        private static void AddOrUpdateClientSecret(Client currentClient, string modelClientSecretDescription)
         {
-            IQueryable<Client> query = _configurationDbContext.Clients
-                .Include(y => y.ClientSecrets)
-                .Include(z => z.RedirectUris);
+            // Ensure the client secrets collection is not null
+            if (currentClient.ClientSecrets == null)
+                currentClient.ClientSecrets = new List<ClientSecret>();
 
-            IList<Client> clients = await query.ToListAsync();
-            IList<ClientModel> clientConfigurationModels = clients.Select(client => client.ToApiModel()).ToList();
+            var currentClientSecret = currentClient.ClientSecrets.FirstOrDefault();
+            // Add new secret
+            if ((currentClientSecret != null && currentClientSecret.Description != modelClientSecretDescription) ||
+                currentClientSecret == null)
+            {
+                // Remove all secrets as we may have only one valid.
+                currentClient.ClientSecrets.Clear();
 
-            return clientConfigurationModels;
+                currentClient.ClientSecrets.Add(new ClientSecret
+                {
+                    Client = currentClient,
+                    Value = modelClientSecretDescription.Sha256(),
+                    Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret,
+                    Description = modelClientSecretDescription
+                });
+            }
         }
 
-        public async Task<int> InsertClientAsync(ClientModel model)
+        private static void SetJavaScriptBasedClient(Client client)
         {
-            if (model == null)
-                throw new ArgumentNullException(nameof(model));
-
-            var client = new Client
+            client.AllowedGrantTypes.Clear();
+            client.AllowedGrantTypes = new List<ClientGrantType>
             {
-                ClientId = model.ClientId,
-                ClientName = model.ClientName,
-                Enabled = model.Enabled,
-                // Needed to be able to obtain refresh token.
-                AllowOfflineAccess = true,
-                AccessTokenLifetime = model.AccessTokenLifetime,
-                AbsoluteRefreshTokenLifetime = model.RefreshTokenLifetime
+                new ClientGrantType
+                {
+                    Client = client,
+                    GrantType = OidcConstants.GrantTypes.Implicit
+                }
             };
+        }
 
-            AddOrUpdateClientSecret(client, model.ClientSecret);
-            AddOrUpdateClientRedirectUrl(client, model.RedirectUrl);
-
+        private static void SetMvcBasedClient(Client client)
+        {
+            client.AllowedGrantTypes.Clear();
             client.AllowedGrantTypes = new List<ClientGrantType>
             {
                 new ClientGrantType
@@ -72,6 +84,47 @@ namespace StockManagementSystem.Api.Services
                     GrantType = OidcConstants.GrantTypes.JwtBearer
                 }
             };
+        }
+
+        #endregion
+
+        public async Task<IList<ClientModel>> GetAllClientsAsync()
+        {
+            IQueryable<Client> query = _configurationDbContext.Clients
+                .Include(z => z.ClientSecrets)
+                .Include(y => y.RedirectUris)
+                .Include(x => x.PostLogoutRedirectUris)
+                .Include(w => w.AllowedCorsOrigins);
+
+            IList<ClientModel> clientConfigurationModels = await query.Select(client => client.ToModel()).ToListAsync();
+
+            return clientConfigurationModels;
+        }
+
+        public async Task<int> InsertClientAsync(ClientModel model)
+        {
+            if (model == null)
+                throw new ArgumentNullException(nameof(model));
+
+            var client = new Client
+            {
+                ClientId = model.ClientId,
+                ClientName = model.ClientName,
+                Enabled = model.Enabled,
+                AllowOfflineAccess = true,
+                AccessTokenLifetime = model.AccessTokenLifetime,
+                AbsoluteRefreshTokenLifetime = model.RefreshTokenLifetime,
+                AccessTokenType = (int)AccessTokenType.Reference,
+                UpdateAccessTokenClaimsOnRefresh = true,
+                RequireConsent = false,
+            };
+
+            AddOrUpdateClientSecret(client, model.ClientSecret);
+
+            if (model.JavaScriptClient)
+                SetJavaScriptBasedClient(client);
+            else
+                SetMvcBasedClient(client);
 
             client.AllowedScopes = new List<ClientScope>
             {
@@ -98,27 +151,33 @@ namespace StockManagementSystem.Api.Services
                 }
             };
 
-            await _configurationDbContext.Clients.AddAsync(client);
-            await _configurationDbContext.SaveChangesAsync();
+            try
+            {
+                await _configurationDbContext.Clients.AddAsync(client);
+                await _configurationDbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                throw new DefaultException(e.Message);
+            }
 
             return client.Id;
         }
 
-        public async Task UpdateClientAsync(ClientModel model)
+        public async Task UpdateClientInfo(ClientModel model)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
             var currentClient = _configurationDbContext.Clients
                 .Include(client => client.ClientSecrets)
-                .Include(client => client.RedirectUris)
+                .Include(client => client.AllowedGrantTypes)
                 .FirstOrDefault(client => client.Id == model.Id);
 
             if (currentClient == null)
                 throw new ArgumentNullException(nameof(currentClient));
 
             AddOrUpdateClientSecret(currentClient, model.ClientSecret);
-            AddOrUpdateClientRedirectUrl(currentClient, model.RedirectUrl);
 
             currentClient.ClientId = model.ClientId;
             currentClient.ClientName = model.ClientName;
@@ -126,18 +185,37 @@ namespace StockManagementSystem.Api.Services
             currentClient.AccessTokenLifetime = model.AccessTokenLifetime;
             currentClient.AbsoluteRefreshTokenLifetime = model.RefreshTokenLifetime;
 
-            _configurationDbContext.Clients.Update(currentClient);
-            await _configurationDbContext.SaveChangesAsync();
+            if (model.JavaScriptClient)
+                SetJavaScriptBasedClient(currentClient);
+            else
+                SetMvcBasedClient(currentClient);
+
+            try
+            {
+                _configurationDbContext.Clients.Update(currentClient);
+                await _configurationDbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new DefaultException($"The client with (ClientId = {model.ClientId}) existed");
+            }
+            catch (Exception ex)
+            {
+                throw new DefaultException(ex.Message);
+            }
         }
 
-        public async Task<ClientModel> FindClientByIdAsync(int id)
+        public async Task<Client> FindClientByIdAsync(int id)
         {
             var currentClient = await _configurationDbContext.Clients
+                .Include(client => client.AllowedGrantTypes)
                 .Include(client => client.ClientSecrets)
                 .Include(client => client.RedirectUris)
+                .Include(client => client.PostLogoutRedirectUris)
+                .Include(client => client.AllowedCorsOrigins)
                 .FirstOrDefaultAsync(client => client.Id == id);
 
-            return currentClient?.ToApiModel();
+            return currentClient;
         }
 
         public async Task<ClientModel> FindClientByClientIdAsync(string clientId)
@@ -145,9 +223,11 @@ namespace StockManagementSystem.Api.Services
             var currentClient = await _configurationDbContext.Clients
                 .Include(client => client.ClientSecrets)
                 .Include(client => client.RedirectUris)
+                .Include(x => x.PostLogoutRedirectUris)
+                .Include(w => w.AllowedCorsOrigins)
                 .FirstOrDefaultAsync(client => client.ClientId == clientId);
 
-            return currentClient?.ToApiModel();
+            return currentClient?.ToModel();
         }
 
         public async Task DeleteClientAsync(int id)
@@ -155,6 +235,8 @@ namespace StockManagementSystem.Api.Services
             var client = await _configurationDbContext.Clients
                 .Include(entity => entity.ClientSecrets)
                 .Include(entity => entity.RedirectUris)
+                .Include(x => x.PostLogoutRedirectUris)
+                .Include(w => w.AllowedCorsOrigins)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (client != null)
@@ -164,50 +246,38 @@ namespace StockManagementSystem.Api.Services
             }
         }
 
-        private static void AddOrUpdateClientRedirectUrl(Client currentClient, string modelRedirectUrl)
+        public async Task<IPagedList<ClientRedirectUri>> GetRedirectUris(int clientId, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            // Ensure the client redirect url collection is not null
-            if (currentClient.RedirectUris == null)
-                currentClient.RedirectUris = new List<ClientRedirectUri>();
+            var client = await FindClientByIdAsync(clientId);
 
-            var currentClientRedirectUri = currentClient.RedirectUris.FirstOrDefault();
-            // Add new redirectUri
-            if ((currentClientRedirectUri != null && currentClientRedirectUri.RedirectUri != modelRedirectUrl) ||
-                currentClientRedirectUri == null)
-            {
-                // Remove all redirect uris as we may have only one.
-                currentClient.RedirectUris.Clear();
-
-                currentClient.RedirectUris.Add(new ClientRedirectUri
-                {
-                    Client = currentClient,
-                    RedirectUri = modelRedirectUrl
-                });
-            }
+            return await Task.FromResult<IPagedList<ClientRedirectUri>>(
+                new PagedList<ClientRedirectUri>(client.RedirectUris, pageIndex, pageSize));
         }
 
-        private static void AddOrUpdateClientSecret(Client currentClient, string modelClientSecretDescription)
+        public async Task<IPagedList<ClientPostLogoutRedirectUri>> GetPostLogoutUris(int clientId, int pageIndex = 0, int pageSize = int.MaxValue)
         {
-            // Ensure the client secrets collection is not null
-            if (currentClient.ClientSecrets == null)
-                currentClient.ClientSecrets = new List<ClientSecret>();
+            var client = await FindClientByIdAsync(clientId);
 
-            var currentClientSecret = currentClient.ClientSecrets.FirstOrDefault();
-            // Add new secret
-            if ((currentClientSecret != null && currentClientSecret.Description != modelClientSecretDescription) ||
-                currentClientSecret == null)
-            {
-                // Remove all secrets as we may have only one valid.
-                currentClient.ClientSecrets.Clear();
+            return await Task.FromResult<IPagedList<ClientPostLogoutRedirectUri>>(
+                new PagedList<ClientPostLogoutRedirectUri>(
+                    client.PostLogoutRedirectUris, pageIndex, pageSize));
+        }
 
-                currentClient.ClientSecrets.Add(new ClientSecret
-                {
-                    Client = currentClient,
-                    Value = modelClientSecretDescription.Sha256(),
-                    Type = IdentityServerConstants.ParsedSecretTypes.SharedSecret,
-                    Description = modelClientSecretDescription
-                });
-            }
+        public async Task<IPagedList<ClientCorsOrigin>> GetCostOriginsUris(int clientId, int pageIndex = 0, int pageSize = int.MaxValue)
+        {
+            var client = await FindClientByIdAsync(clientId);
+
+            return await Task.FromResult<IPagedList<ClientCorsOrigin>>(
+                new PagedList<ClientCorsOrigin>(client.AllowedCorsOrigins, pageIndex, pageSize));
+        }
+
+        public async Task UpdateClient(Client client)
+        {
+            if (client == null)
+                throw new ArgumentNullException(nameof(client));
+
+            _configurationDbContext.Clients.Update(client);
+            await _configurationDbContext.SaveChangesAsync();
         }
     }
 }

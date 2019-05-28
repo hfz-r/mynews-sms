@@ -10,6 +10,6 @@ namespace StockManagementSystem.Api.Services
 
         IList<Item> GetItems(int limit = 50, int page = 1, int sinceId = 0);
 
-        int GetItemsCount(int limit = 50, int page = 1, int sinceId = 0);
+        int GetItemsCount();
     }
 }

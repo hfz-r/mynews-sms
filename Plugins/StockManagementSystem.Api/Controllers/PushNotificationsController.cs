@@ -56,7 +56,7 @@ namespace StockManagementSystem.Api.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/pushnotification")]
+        [Route("/api/push_notification")]
         [ProducesResponseType(typeof(PushNotificationRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
@@ -92,7 +92,7 @@ namespace StockManagementSystem.Api.Controllers
         /// <response code="200">OK</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/pushnotification/count")]
+        [Route("/api/push_notification/count")]
         [ProducesResponseType(typeof(PushNotificationCountRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
@@ -114,7 +114,7 @@ namespace StockManagementSystem.Api.Controllers
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/pushnotification/{id}")]
+        [Route("/api/push_notification/{id}")]
         [ProducesResponseType(typeof(PushNotificationRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
@@ -141,7 +141,7 @@ namespace StockManagementSystem.Api.Controllers
         /// Create new push notification
         /// </summary>
         [HttpPost]
-        [Route("/api/pushnotification")]
+        [Route("/api/push_notification")]
         [ProducesResponseType(typeof(PushNotificationRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), 422)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
@@ -177,7 +177,7 @@ namespace StockManagementSystem.Api.Controllers
         /// Update push notification by id
         /// </summary>
         [HttpPut]
-        [Route("/api/pushnotification/{id}")]
+        [Route("/api/push_notification/{id}")]
         [ProducesResponseType(typeof(PushNotificationRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), 422)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
@@ -214,7 +214,7 @@ namespace StockManagementSystem.Api.Controllers
         /// Delete push notification by id
         /// </summary>
         [HttpDelete]
-        [Route("/api/pushnotification/{id}")]
+        [Route("/api/push_notification/{id}")]
         [ProducesResponseType(typeof(void), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]

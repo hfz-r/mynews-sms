@@ -5,21 +5,27 @@ using Newtonsoft.Json;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.ModelBinders;
 
-namespace StockManagementSystem.Api.Models.OrdersLimitParameters
+namespace StockManagementSystem.Api.Models.TransactionsParameters
 {
-    [ModelBinder(typeof(ParametersModelBinder<OrdersLimitParametersModel>))]
-    public class OrdersLimitParametersModel
+    [ModelBinder(typeof(ParametersModelBinder<TransporterTransactionParametersModel>))]
+    public class TransporterTransactionParametersModel
     {
-        public OrdersLimitParametersModel()
+        public TransporterTransactionParametersModel()
         {
+            Ids = null;
             Limit = Configurations.DefaultLimit;
             Page = Configurations.DefaultPageValue;
-            SinceId = 0;
+            SinceId = Configurations.DefaultSinceId;
             Fields = string.Empty;
             CreatedAtMax = null;
             CreatedAtMin = null;
-            StoreIds = null;
         }
+
+        /// <summary>
+        /// A comma-separated list of transporter transaction ids
+        /// </summary>
+        [JsonProperty("ids")]
+        public List<int> Ids { get; set; }
 
         /// <summary>
         /// Amount of results (default: 50) (maximum: 250)
@@ -46,22 +52,15 @@ namespace StockManagementSystem.Api.Models.OrdersLimitParameters
         public string Fields { get; set; }
 
         /// <summary>
-        /// Show orders limit created after date (format: 2008-12-31 03:00)
+        /// Show transporter transaction created after date (format: 2008-12-31 03:00)
         /// </summary>
         [JsonProperty("created_at_min")]
         public DateTime? CreatedAtMin { get; set; }
 
         /// <summary>
-        /// Show orders limit created before date (format: 2008-12-31 03:00)
+        /// Show transporter transaction created before date (format: 2008-12-31 03:00)
         /// </summary>
         [JsonProperty("created_at_max")]
         public DateTime? CreatedAtMax { get; set; }
-
-
-        /// <summary>
-        /// Comma-separated list of store ids for filter orders limit
-        /// </summary>
-        [JsonProperty("store_ids")]
-        public List<int> StoreIds { get; set; }
     }
 }

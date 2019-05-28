@@ -4,12 +4,14 @@ using AutoMapper;
 using IdentityServer4.EntityFramework.Entities;
 using StockManagementSystem.Api.Domain;
 using StockManagementSystem.Api.DTOs.Devices;
-using StockManagementSystem.Api.DTOs.Generics;
 using StockManagementSystem.Api.DTOs.Items;
 using StockManagementSystem.Api.DTOs.Master;
-using StockManagementSystem.Api.DTOs.OrderLimit;
 using StockManagementSystem.Api.DTOs.PushNotifications;
 using StockManagementSystem.Api.DTOs.Roles;
+using StockManagementSystem.Api.DTOs.ShelfLocation;
+using StockManagementSystem.Api.DTOs.Stores;
+using StockManagementSystem.Api.DTOs.Transactions;
+using StockManagementSystem.Api.DTOs.TransporterTransaction;
 using StockManagementSystem.Api.DTOs.Users;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Models.ApiSettings;
@@ -38,19 +40,22 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             //permission
             CreateMap<Permission, PermissionDto>();
 
-            //device
-            CreateMap<Device, DeviceDto>();
-
             //item
             CreateMap<Item, ItemDto>();
 
             //user password
             CreateMap<UserPassword, UserPasswordDto>();
 
-            //generic class
+            //transaction
             CreateMap<Transaction, TransactionDto>();
-            CreateMap<ShelfLocation, ShelfLocationDto>();
+
+            //transporter transaction
             CreateMap<TransporterTransaction, TransporterTransactionDto>();
+
+            //shelf location
+            CreateMap<ShelfLocation, ShelfLocationDto>();
+
+            //master classes
             CreateMap<ASNDetailMaster, ASNDetailMasterDto>();
             CreateMap<ASNHeaderMaster, ASNHeaderMasterDto>();
             CreateMap<BarcodeMaster, BarcodeMasterDto>();
@@ -68,10 +73,16 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             CreateMap<WarehouseDeliveryScheduleMaster, WarehouseDeliveryScheduleMasterDto>();
 
             CreateClientMaps();
+            CreateRedirectUrisMaps();
+            CreatePostLogoutUrisMaps();
+            CreateCorsOriginsUrisMaps();
             CreateUserMaps();
             CreateStoreMaps();
+            CreateDeviceMaps();
+            CreateUserStoreMaps();
             CreateRoleMaps();
-            CreateOrderLimitMaps();
+            CreateUserRoleMaps();
+            CreatePermissionRolesMaps();
             CreatePushNotificationMaps();
         }
 
@@ -85,13 +96,32 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
         private static void CreateClientMaps()
         {
             AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<Client, ClientModel>()
-                .ForMember(model => model.ClientSecret,
-                    x => x.MapFrom(entity => entity.ClientSecrets.FirstOrDefault().Description))
-                .ForMember(model => model.RedirectUrl,
-                    x => x.MapFrom(entity => entity.RedirectUris.FirstOrDefault().RedirectUri))
+                .ForMember(model => model.ClientSecret, x => x.MapFrom(entity => entity.ClientSecrets.FirstOrDefault().Description))
                 .ForMember(model => model.AccessTokenLifetime, x => x.MapFrom(entity => entity.AccessTokenLifetime))
-                .ForMember(model => model.RefreshTokenLifetime,
-                    x => x.MapFrom(entity => entity.AbsoluteRefreshTokenLifetime));
+                .ForMember(model => model.RefreshTokenLifetime, x => x.MapFrom(entity => entity.AbsoluteRefreshTokenLifetime));
+        }
+
+        private static void CreateRedirectUrisMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<ClientRedirectUri, RedirectUrisModel>()
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.Url, x => x.MapFrom(entity => entity.RedirectUri));
+        }
+
+        private static void CreatePostLogoutUrisMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression
+                .CreateMap<ClientPostLogoutRedirectUri, PostLogoutUrisModel>()
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.Url, x => x.MapFrom(entity => entity.PostLogoutRedirectUri));
+        }
+
+        private static void CreateCorsOriginsUrisMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression
+                .CreateMap<ClientCorsOrigin, CorsOriginUrisModel>()
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.Url, x => x.MapFrom(entity => entity.Origin));
         }
 
         private static void CreateUserMaps()
@@ -134,6 +164,24 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                 .ForMember(model => model.DBPassword, z => z.MapFrom(e => e.P_DBPassword));
         }
 
+        private static void CreateDeviceMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<Device, DeviceDto>()
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.StoreDto,
+                    y => y.MapFrom(entity => entity.Store.GetWithDefault(store => store, new Store()).ToDto()));
+        }
+
+        private static void CreateUserStoreMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<UserStore, UserStoreDto>()
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.StoreDto,
+                    y => y.MapFrom(entity => entity.Store.GetWithDefault(store => store, new Store()).ToDto()))
+                .ForMember(model => model.UserDto,
+                    y => y.MapFrom(entity => entity.User.GetWithDefault(user => user, new User()).ToDto()));
+        }
+
         private static void CreateRoleMaps()
         {
             AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<Role, RoleDto>()
@@ -146,15 +194,24 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                             x => x.Permission.GetWithDefault(w => w, new Permission()).ToDto())));
         }
 
-        private static void CreateOrderLimitMaps()
+        private static void CreateUserRoleMaps()
         {
-            AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<OrderLimit, OrderLimitDto>()
+            AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<UserRole, UserRoleDto>()
                 .IgnoreAllNonExisting()
-                .ForMember(model => model.StoreIds,
-                    y => y.MapFrom(entity => entity.OrderLimitStores.Select(x => x.StoreId)))
-                .ForMember(model => model.Stores,
-                    y => y.MapFrom(entity =>
-                        entity.OrderLimitStores.Select(x => x.Store.GetWithDefault(w => w, new Store()).ToDto())));
+                .ForMember(model => model.UserDto,
+                    y => y.MapFrom(entity => entity.User.GetWithDefault(user => user, new User()).ToDto()))
+                .ForMember(model => model.RoleDto,
+                    y => y.MapFrom(entity => entity.Role.GetWithDefault(role => role, new Role()).ToDto()));
+        }
+
+        private static void CreatePermissionRolesMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<PermissionRoles, PermissionRolesDto>()
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.RoleDto,
+                    y => y.MapFrom(entity => entity.Role.GetWithDefault(role => role, new Role()).ToDto()))
+                .ForMember(model => model.PermissionDto,
+                    y => y.MapFrom(entity => entity.Permission.GetWithDefault(permission => permission, new Permission()).ToDto()));
         }
 
         private static void CreatePushNotificationMaps()

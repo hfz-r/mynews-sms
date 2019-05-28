@@ -1,4 +1,4 @@
-﻿using StockManagementSystem.Api.DTOs.Generics;
+﻿using StockManagementSystem.Api.DTOs.TransporterTransaction;
 using StockManagementSystem.Core.Domain.Transactions;
 
 namespace StockManagementSystem.Api.Infrastructure.Mapper.Extensions

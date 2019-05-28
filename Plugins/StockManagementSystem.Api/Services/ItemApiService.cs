@@ -35,10 +35,9 @@ namespace StockManagementSystem.Api.Services
             return item;
         }
 
-        public int GetItemsCount(int limit = Configurations.DefaultLimit, int page = Configurations.DefaultPageValue,
-            int sinceId = Configurations.DefaultSinceId)
+        public int GetItemsCount()
         {
-            return GetItemsQuery(sinceId).Count();
+            return _itemRepository.Table.Count();
         }
 
         private IQueryable<Item> GetItemsQuery(int sinceId = 0)

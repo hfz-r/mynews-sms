@@ -1,11 +1,10 @@
 ﻿using System;
 using Newtonsoft.Json;
-using StockManagementSystem.Api.Attributes;
 
-namespace StockManagementSystem.Api.DTOs.Generics
+namespace StockManagementSystem.Api.DTOs.Transactions
 {
-    [GeneratedController("api/transaction")]
     [JsonObject(Title = "transaction")]
+    //TODO: TransactionDtoValidator
     public class TransactionDto : BaseDto
     {
         [JsonProperty("module_id")]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using StockManagementSystem.Api.Attributes;
+using StockManagementSystem.Api.Helpers;
 
 namespace StockManagementSystem.Api.DTOs.Generics
 {
@@ -16,7 +17,12 @@ namespace StockManagementSystem.Api.DTOs.Generics
 
         public string GetPrimaryPropertyName()
         {
-            return typeof(T).Name.Remove(typeof(T).Name.Length - 3).ToLowerInvariant();
+            var typeName = typeof(T).Name;
+            var normalizedName = GenericPropertyHelper.GetGenericProperty(typeName);
+
+            return !string.IsNullOrEmpty(normalizedName)
+                ? string.Concat(normalizedName, "s").ToLowerInvariant()
+                : throw new InvalidOperationException($"{typeName} is not a valid context.");
         }
 
         public Type GetPrimaryPropertyType()

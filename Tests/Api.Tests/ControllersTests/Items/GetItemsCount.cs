@@ -55,7 +55,7 @@ namespace Api.Tests.ControllersTests.Items
         public void Should_return_ok_with_count_equals_zero_when_no_item_exists()
         {
             //Arrange
-            _itemApiService.Setup(x => x.GetItemsCount(50, 1, 0)).Returns(0);
+            _itemApiService.Setup(x => x.GetItemsCount()).Returns(0);
 
             //Act
             var result = _itemsController.GetItemsCount().GetAwaiter().GetResult();
@@ -69,7 +69,7 @@ namespace Api.Tests.ControllersTests.Items
         public void Should_return_ok_with_count_equal_to_one_when_single_item_exists()
         {
             //Arrange
-            _itemApiService.Setup(x => x.GetItemsCount(50, 1, 0)).Returns(1);
+            _itemApiService.Setup(x => x.GetItemsCount()).Returns(1);
 
             //Act
             var result = _itemsController.GetItemsCount().GetAwaiter().GetResult();
@@ -85,7 +85,7 @@ namespace Api.Tests.ControllersTests.Items
             var itemsCount = 20;
 
             //Arrange
-            _itemApiService.Setup(x => x.GetItemsCount(50, 1, 0)).Returns(itemsCount);
+            _itemApiService.Setup(x => x.GetItemsCount()).Returns(itemsCount);
 
             //Act
             var result = _itemsController.GetItemsCount().GetAwaiter().GetResult();

@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using StockManagementSystem.Api.DTOs.Generics;
+using StockManagementSystem.Api.DTOs.Transactions;
 using StockManagementSystem.Api.Infrastructure.Mapper;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core.Data;

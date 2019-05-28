@@ -27,6 +27,9 @@
         <None Remove="Views\ApiSettings\Clients\Edit.cshtml" />
         <None Remove="Views\ApiSettings\Clients\CreateOrUpdate.cshtml" />
         <None Remove="Views\ApiSettings\Clients\CreateOrUpdate.Info.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\RedirectUris.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\PostLogoutUris.cshtml" />
+        <None Remove="Views\ApiSettings\Clients\CorsOriginUris.cshtml" />
     </ItemGroup>
     <ItemGroup>
         <Content Include="plugin.json">
@@ -54,6 +57,15 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Content Include="Views\ApiSettings\Clients\CreateOrUpdate.Info.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\RedirectUris.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\PostLogoutUris.cshtml">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\ApiSettings\Clients\CorsOriginUris.cshtml">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

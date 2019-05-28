@@ -1,0 +1,208 @@
+﻿@model ClientModel
+@using StockManagementSystem.Api.Models.ApiSettings.Clients
+
+@if (Model.Id > 0)
+{
+    <div class="panel-body">
+        <p>
+            <em>Specifies allowed URIs to redirect to after logout.</em>
+        </p>
+        <div id="grid-postlogout"></div>
+        <style>
+            .hidden { display: none; }
+
+            .custom-button {
+                color: #444444;
+                padding-right: 10px;
+                font-size: 1.5em;
+            }
+        </style>
+        <script>
+            $(document).ready(function() {
+                var grid = $("#grid-postlogout").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("PostLogoutList", "ApiClients"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        ClientId: '@(Model.Id)'
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            },
+                            create: {
+                                url: "@Html.Raw(Url.Action("AddPostLogout", "ApiClients"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        clientId: '@(Model.Id)'
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            },
+                            update: {
+                                url: "@Html.Raw(Url.Action("UpdatePostLogout", "ApiClients"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("RemovePostLogout", "ApiClients"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: addAntiForgeryToken
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    Id: { editable: false, type: "number" },
+                                    Url: {
+                                        editable: true,
+                                        type: "string",
+                                        validation: {
+                                            required: true,
+                                            duplicate: function(input) {
+                                                if (input.is("[name='Url']") && input.val() !== "") {
+                                                    // get data
+                                                    var url = input.val();
+                                                    var grid = $("#grid-postlogout").data('kendoGrid');
+                                                    var view = grid.dataSource.view();
+                                                    var dataItem = grid.dataItem('tr.k-grid-edit-row');
+                                                    var urlEdit = dataItem.Url;
+                                                    // validate
+                                                    var valid = true;
+                                                    for (var i = 0; i < view.length; i++) {
+                                                        if ((url === view[i].Url) && (url !== urlEdit) && view[i].id) {
+                                                            valid = false;
+                                                            input.attr("data-duplicate-msg", "Duplicates not allowed.");
+                                                            break;
+                                                        }
+                                                    }
+                                                    return valid;
+                                                }
+                                                return true;
+                                            },
+                                            isurl: function(input) {
+                                                var pattern =
+                                                    /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@@!\$&'\(\)\*\+,;=.]+$/g;
+
+                                                if (input.is("[name='Url']") && input.val() !== "") {
+                                                    var valid = true;
+                                                    var url = input.val();
+                                                    if (pattern.test(url) === false) {
+                                                        valid = false;
+                                                        input.attr("data-isurl-msg", "Invalid url schema.");
+                                                    }
+                                                    return valid;
+                                                }
+                                                return true;
+                                            }
+                                        }
+                                    },
+                                    ClientId: { editable: false, type: "number" }
+                                }
+                            }
+                        },
+                        requestEnd: function(e) {
+                            if (e.type === "create" || e.type === "update") {
+                                this.read();
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        pageSize: @(Model.UrisSearchModel.PageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    sortable: {
+                        mode: "single",
+                        allowUnsort: false
+                    },
+                    filterable: true,
+                    resizable: true,
+                    columnMenu: { columns: false },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(Model.UrisSearchModel.AvailablePageSizes)],
+                        @await Html.PartialAsync("~/Views/Shared/_GridPagerMessages.cshtml")
+                    },
+                    toolbar: [
+                        {
+                            name: "create",
+                            text: "Add",
+                            iconClass: "glyphicon btn-glyphicon glyphicon-plus img-circle text-danger"
+                        }
+                    ],
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "Url",
+                            title: "Post Logout Uri",
+                            width: 250
+                        },
+                        {
+                            template:
+                                "<a href='\\#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
+                                "<a href='\\#' title='Update' class='custom-button update-button hidden'><i class='glyphicon glyphicon-ok-circle'></i></a>" +
+                                "<a href='\\#' title='Cancel' class='custom-button cancel-button hidden'><i class='glyphicon glyphicon-remove-circle'></i></a>" +
+                                "<a href='\\#' title='Destroy' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 10
+                        }
+                    ],
+                    editable: {
+                        confirmation: "Are you sure you want to delete this item?",
+                        mode: "inline"
+                    },
+                    edit: function(e) {
+                        // Change buttons visibility when the Grid enters edit mode.
+                        var editRow = e.container;
+                        editRow.find(".custom-button").toggleClass("hidden");
+                    }
+                }).data("kendoGrid");
+
+                $("#grid-postlogout").on("click",
+                    ".custom-button",
+                    function(e) {
+                        var btn = $(this);
+                        e.preventDefault();
+
+                        if (btn.hasClass("edit-button")) {
+                            var row = btn.closest("tr");
+                            grid.editRow(row);
+                        } else if (btn.hasClass("cancel-button")) {
+                            grid.cancelRow();
+                        } else if (btn.hasClass("update-button")) {
+                            grid.saveChanges();
+                        } else if (btn.hasClass("destroy-button")) {
+                            var row = btn.closest("tr");
+                            grid.removeRow(row);
+                        }
+                    });
+            });
+        </script>
+
+    </div>
+}
+else
+{
+    <div class="panel-body">
+        You need to save the client before you can add post-logout uri for this client page.
+    </div>
+}

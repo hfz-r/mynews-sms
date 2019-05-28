@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using FluentValidation.Attributes;
 using Newtonsoft.Json;
-using StockManagementSystem.Api.DTOs.Generics;
 using StockManagementSystem.Api.DTOs.Roles;
+using StockManagementSystem.Api.DTOs.Stores;
 using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.Users
