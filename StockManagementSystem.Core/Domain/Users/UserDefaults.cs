@@ -10,7 +10,9 @@
 
         public static string RegisteredRoleName => "Registered";
 
-        public static string GuestsRoleName => "Cashier";
+        public static string GuestsRoleName => "Guest";
+
+        public static string CashierRoleName => "Cashier";
 
         #endregion
 

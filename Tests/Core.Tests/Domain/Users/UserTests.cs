@@ -17,7 +17,7 @@ namespace Core.Tests.Domain.Users
         private Role roleGuest = new Role
         {
             Active = true,
-            Name = "Cashier",
+            Name = "Guest",
             SystemName = UserDefaults.GuestsRoleName
         };
 

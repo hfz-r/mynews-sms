@@ -395,6 +395,14 @@ namespace StockManagementSystem.Services.Security
                 },
                 new DefaultPermission
                 {
+                    RoleSystemName = UserDefaults.CashierRoleName,
+                    Permissions = new[]
+                    {
+                        AccessPanel,
+                    }
+                },
+                new DefaultPermission
+                {
                     RoleSystemName = UserDefaults.GuestsRoleName,
                 },
             };

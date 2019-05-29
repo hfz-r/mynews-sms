@@ -605,7 +605,7 @@ namespace StockManagementSystem.Services.Users
             //add to 'Guests' role
             var guestRole = GetRoleBySystemName(UserDefaults.GuestsRoleName);
             if (guestRole == null)
-                throw new DefaultException("'Cashiers' role could not be loaded");
+                throw new DefaultException("'Guest' role could not be loaded");
 
             user.AddUserRole(new UserRole() { Role = guestRole });
 

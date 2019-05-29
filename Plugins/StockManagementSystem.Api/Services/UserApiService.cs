@@ -65,9 +65,13 @@ namespace StockManagementSystem.Api.Services
 
         public int GetUsersCount()
         {
-            return _userRepository.Table.Count(user =>
-                !user.Deleted && (user.RegisteredInTenantId == 0 ||
-                                  user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
+            var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount && user.Active);
+
+            query = query.Where(user =>
+                !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
+                (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
+
+            return query.Count();
         }
 
         public IList<UserDto> Search(string queryParams = "", string order = Configurations.DefaultOrder,
@@ -311,10 +315,11 @@ namespace StockManagementSystem.Api.Services
         private IQueryable<User> GetUsersQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
             int sinceId = 0, IList<int> roleIds = null, IList<int> storeIds = null)
         {
-            var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount);
+            var query = _userRepository.Table.Where(user => !user.Deleted && !user.IsSystemAccount && user.Active);
 
-            //query = query.Where(user => !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
-            //    (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
+            query = query.Where(user =>
+                !user.UserRoles.Any(ur => ur.Role.Active && ur.Role.SystemName == UserDefaults.GuestsRoleName) &&
+                (user.RegisteredInTenantId == 0 || user.RegisteredInTenantId == _tenantContext.CurrentTenant.Id));
 
             if (createdAtMin != null)
                 query = query.Where(c => c.CreatedOnUtc > createdAtMin.Value);

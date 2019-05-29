@@ -71,9 +71,9 @@ namespace StockManagementSystem.Controllers
             var isInGuestsRole = roles.FirstOrDefault(r => r.SystemName == UserDefaults.GuestsRoleName) != null;
             var isInRegisteredRole = roles.FirstOrDefault(r => r.SystemName == UserDefaults.RegisteredRoleName) != null;
             if (isInGuestsRole && isInRegisteredRole)
-                return "User cannot be in both 'Cashier' and 'Registered' roles";
+                return "User cannot be in both 'Guest' and 'Registered' roles";
             if (!isInGuestsRole && !isInRegisteredRole)
-                return "Add user to 'Cashier' or 'Registered' role";
+                return "Add user to 'Guest' or 'Registered' role";
 
             //no errors
             return string.Empty;

@@ -179,13 +179,20 @@ namespace StockManagementSystem.Services.Installation
             };
             var urGuests = new Role
             {
-                Name = "Cashier",
+                Name = "Guest",
                 Active = true,
                 IsSystemRole = true,
                 SystemName = UserDefaults.GuestsRoleName,
             };
+            var urCashier = new Role
+            {
+                Name = "Cashier",
+                Active = true,
+                IsSystemRole = true,
+                SystemName = UserDefaults.CashierRoleName,
+            };
 
-            var roles = new List<Role> { urSysAdmin, urAdministrator, urRegistered, urGuests };
+            var roles = new List<Role> { urSysAdmin, urAdministrator, urRegistered, urGuests, urCashier };
             _roleRepository.Insert(roles);
 
             //default tenant 

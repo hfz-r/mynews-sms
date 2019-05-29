@@ -34,7 +34,7 @@ namespace StockManagementSystem.Api.DTOs.Stores
         [JsonProperty("city")]
         public string City { get; set; }
 
-        [JsonProperty("county")]
+        [JsonProperty("country")]
         public string Country { get; set; }
 
         [JsonProperty("postcode")]
