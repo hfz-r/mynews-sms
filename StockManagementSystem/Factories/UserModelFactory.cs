@@ -86,6 +86,10 @@ namespace StockManagementSystem.Factories
             if (registeredRole != null)
                 searchModel.SelectedRoleIds.Add(registeredRole.Id);
 
+            registeredRole = _userService.GetRoleBySystemName(UserDefaults.CashierRoleName);
+            if (registeredRole != null)
+                searchModel.SelectedRoleIds.Add(registeredRole.Id);
+
             //prepare available user roles
             _aclSupportedModelFactory.PrepareModelRoles(searchModel);
 
