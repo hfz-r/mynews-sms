@@ -52,6 +52,9 @@ namespace StockManagementSystem.Api.Services
 
         private static void SetJavaScriptBasedClient(Client client)
         {
+            // Ensure the client redirect url collection is not null
+            if (client.AllowedGrantTypes == null) client.AllowedGrantTypes = new List<ClientGrantType>();
+
             client.AllowedGrantTypes.Clear();
             client.AllowedGrantTypes = new List<ClientGrantType>
             {
@@ -65,6 +68,9 @@ namespace StockManagementSystem.Api.Services
 
         private static void SetMvcBasedClient(Client client)
         {
+            // Ensure the client redirect url collection is not null
+            if (client.AllowedGrantTypes == null) client.AllowedGrantTypes = new List<ClientGrantType>();
+
             client.AllowedGrantTypes.Clear();
             client.AllowedGrantTypes = new List<ClientGrantType>
             {
@@ -111,10 +117,10 @@ namespace StockManagementSystem.Api.Services
                 ClientId = model.ClientId,
                 ClientName = model.ClientName,
                 Enabled = model.Enabled,
-                AllowOfflineAccess = true,
                 AccessTokenLifetime = model.AccessTokenLifetime,
                 AbsoluteRefreshTokenLifetime = model.RefreshTokenLifetime,
-                AccessTokenType = (int)AccessTokenType.Reference,
+                AllowOfflineAccess = true,
+                AllowAccessTokensViaBrowser = true,
                 UpdateAccessTokenClaimsOnRefresh = true,
                 RequireConsent = false,
             };
@@ -128,6 +134,16 @@ namespace StockManagementSystem.Api.Services
 
             client.AllowedScopes = new List<ClientScope>
             {
+                new ClientScope
+                {
+                    Client = client,
+                    Scope = IdentityServerConstants.StandardScopes.OpenId,
+                },
+                new ClientScope
+                {
+                    Client = client,
+                    Scope = IdentityServerConstants.StandardScopes.Profile,
+                },
                 new ClientScope
                 {
                     Client = client,

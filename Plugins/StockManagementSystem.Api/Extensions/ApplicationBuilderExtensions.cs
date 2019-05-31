@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Entities;
+using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Hosting;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Builder;
@@ -12,9 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.Helpers;
+using StockManagementSystem.Api.IdentityServer.Infrastructure;
 using StockManagementSystem.Api.IdentityServer.Middlewares;
 using StockManagementSystem.Core.Infrastructure;
-using ApiResource = IdentityServer4.EntityFramework.Entities.ApiResource;
 
 namespace StockManagementSystem.Api.Extensions
 {
@@ -38,31 +37,29 @@ namespace StockManagementSystem.Api.Extensions
         {
             using (var serviceScope = application.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                var configurationContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+                var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
 
-                if (!configurationContext.ApiResources.Any())
+                if (!context.IdentityResources.Any())
                 {
-                    /* In the simple case an API has exactly one scope. 
-                     * But there are cases where you might want to sub-divide the functionality of an API, 
-                     * and give different clients access to different parts. */
-                    configurationContext.ApiResources.Add(new ApiResource()
+                    foreach (var resource in Config.GetIdentityResources())
                     {
-                        Enabled = true,
-                        Scopes = new List<ApiScope>()
-                        {
-                            new ApiScope()
-                            {
-                                Name = "sms_api",
-                                DisplayName = "sms_api"
-                            }
-                        },
-                        Name = "sms_api"
-                    });
-
-                    configurationContext.SaveChanges();
-
-                    TryRunUpgradeScript(configurationContext).GetAwaiter().GetResult();
+                        context.IdentityResources.Add(resource.ToEntity());
+                    }
+                    context.SaveChanges();
                 }
+
+                if (!context.ApiResources.Any())
+                {
+                    foreach (var resource in Config.GetApiResource())
+                    {
+                        context.ApiResources.Add(resource.ToEntity());
+                    }
+                    context.SaveChanges();
+                }
+
+                context.SaveChanges();
+
+                TryRunUpgradeScript(context).GetAwaiter().GetResult();
             }
         }
 
