@@ -16,7 +16,7 @@ namespace StockManagementSystem.Api.DTOs.TransporterTransaction
         public string DocNo { get; set; }
 
         [JsonProperty("container_id")]
-        public int? ContainerId { get; set; }
+        public string ContainerId { get; set; }
 
         [JsonProperty("module_code")]
         public string ModuleCode { get; set; }

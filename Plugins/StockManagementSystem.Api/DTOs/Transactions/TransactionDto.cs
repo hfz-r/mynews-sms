@@ -8,7 +8,7 @@ namespace StockManagementSystem.Api.DTOs.Transactions
     public class TransactionDto : BaseDto
     {
         [JsonProperty("module_id")]
-        public int ModuleId { get; set; }
+        public string ModuleId { get; set; }
 
         [JsonProperty("device_serial_no")]
         public string DeviceSerialNo { get; set; }
@@ -107,7 +107,7 @@ namespace StockManagementSystem.Api.DTOs.Transactions
         public string POSDoc { get; set; }
 
         [JsonProperty("container_id")]
-        public int? ContainerId { get; set; }
+        public string ContainerId { get; set; }
 
         [JsonProperty("log_no")]
         public string LogNo { get; set; }
