@@ -5,7 +5,7 @@ namespace StockManagementSystem.Core.Domain.Transactions
 {
     public class Transaction : BaseEntity, IAppendTimestamps
     {
-        public int ModuleId { get; set; }
+        public string ModuleId { get; set; }
 
         public string DeviceSerialNo { get; set; }
 
@@ -72,7 +72,7 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public string POSDoc { get; set; }
 
-        public int? ContainerId { get; set; }
+        public string ContainerId { get; set; }
 
         public string LogNo { get; set; }
 

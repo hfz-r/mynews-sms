@@ -10,7 +10,7 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public string DocNo { get; set; }
 
-        public int? ContainerId { get; set; }
+        public string ContainerId { get; set; }
 
         public string ModuleCode { get; set; }
 
