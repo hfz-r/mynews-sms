@@ -5,6 +5,7 @@ using Bogus;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Core.Domain.Directory;
 using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Domain.Media;
 using StockManagementSystem.Core.Domain.PushNotifications;
@@ -33,6 +34,7 @@ namespace StockManagementSystem.Services.Installation
         private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Transaction> _transRepository;
         private readonly IRepository<Tenant> _tenantRepository;
+        private readonly IRepository<State> _stateRepository;
         private readonly IWebHelper _webHelper;
 
         public CodeFirstInstallationService(
@@ -45,6 +47,7 @@ namespace StockManagementSystem.Services.Installation
             IRepository<Store> storeRepository,
             IRepository<Transaction> transRepository,
             IRepository<Tenant> tenantRepository,
+            IRepository<State> stateRepository,
             IWebHelper webHelper)
         {
             _genericAttributeService = genericAttributeService;
@@ -56,6 +59,7 @@ namespace StockManagementSystem.Services.Installation
             _storeRepository = storeRepository;
             _transRepository = transRepository;
             _tenantRepository = tenantRepository;
+            _stateRepository = stateRepository;
             _webHelper = webHelper;
         }
 
@@ -599,6 +603,822 @@ namespace StockManagementSystem.Services.Installation
             _notificationCategoryRepository.Insert(notificationCategory);
         }
 
+        protected void InstallStatesAndHolidays()
+        {
+            var states = new List<State>
+            {
+                new State
+                {
+                    Description = "",
+                    Abbreviation = "",
+                    IsSameWeekend = null,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Chinese Lunar New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 2, 5),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Second day of Chinese Lunar New Year",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 2, 6),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Labour Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 1),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Wesak Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 19),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Wesak Day observed",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 20),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Hari Raya Puasa",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 6, 5),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Hari Raya Puasa Day 2",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 6, 6),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Hari Raya Haji",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 8, 11),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Malaysia's National Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 8, 31),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Muharram/New Year",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 9, 1),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "The Yang di-Pertuan Agong's Birthday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 9, 9),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Malaysia Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 9, 16),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "The Prophet Muhammad's Birthday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 11, 9),
+                        },
+                        new Holiday
+                        {
+                            Type = "Federal",
+                            Description = "Christmas Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 12, 25),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "JOHOR",
+                    Abbreviation = "JHR",
+                    IsSameWeekend = false,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Johor",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 3, 23),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Almarhum Sultan Iskandar Hol Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 5),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Ramadan begins",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 6),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "KEDAH",
+                    Abbreviation = "KDH",
+                    IsSameWeekend = false,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Isra and Mi'raj",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 3),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Ramadan begins",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 6),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Hari Raya Haji (Day 2)",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 8, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "KELANTAN",
+                    Abbreviation = "KTN",
+                    IsSameWeekend = false,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Kelantan",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 11, 11),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Kelantan (Day 2)",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 11, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Hari Raya Haji (Day 2)",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 8, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "MELAKA",
+                    Abbreviation = "MLK",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Declaration of Malacca as Historical City",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 15),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Governor of Malacca",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 11),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Ramadan begins",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 6),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "NEGERI SEMBILAN",
+                    Abbreviation = "NSN",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of Yang di-Pertuan Besar",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 14),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Isra and Mi'raj",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 3),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "PAHANG",
+                    Abbreviation = "PHG",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Pahang State Holiday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 7),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Pahang",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 24),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "PULAU PINANG",
+                    Abbreviation = "PNG",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "George Town World Heritage City Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 7, 7),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Penang Governor's Birthday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 7, 13),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "PERAK",
+                    Abbreviation = "PRK",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Perak",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 11, 1),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "PERLIS",
+                    Abbreviation = "PLS",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Raja of Perlis",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 7, 17),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Isra and Mi'raj",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 3),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Hari Raya Haji (Day 2)",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 8, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "SELANGOR",
+                    Abbreviation = "SGR",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Selangor",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 12, 11),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "TERENGGANU",
+                    Abbreviation = "TRG",
+                    IsSameWeekend = false,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Anniversary of the coronation of the Sultan of Terengganu",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 3, 4),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Sultan of Terengganu",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Hari Raya Haji (Day 2)",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 8, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "SABAH",
+                    Abbreviation = "SBH",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Governor of Sabah",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 5),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Good Friday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 19),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Harvest Festival",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 30),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Harvest Festival Day 2",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 31),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "SARAWAK",
+                    Abbreviation = "SWK",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Gawai Dayak",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 6, 1),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Gawai Dayak Holiday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 6, 2),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Gawai Dayak Holiday observed",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 6, 3),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Sarawak Independence Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 7, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Birthday of the Governor of Sarawak",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 12),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Good Friday",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 4, 19),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "KUALA LUMPUR",
+                    Abbreviation = "KUL",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Federal Territory Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 2, 11),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "LABUAN",
+                    Abbreviation = "LBN",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Harvest Festival",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 30),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Harvest Festival Day 2",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 31),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Federal Territory Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 2, 1),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+                new State
+                {
+                    Description = "PUTRAJAYA",
+                    Abbreviation = "PJY",
+                    IsSameWeekend = true,
+                    Holidays = new List<Holiday>
+                    {
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Federal Territory Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 2, 1),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Thaipusam",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 21),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Nuzul Al-Quran",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 5, 22),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 27),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "Diwali/Deepavali",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 10, 28),
+                        },
+                        new Holiday
+                        {
+                            Type = "State",
+                            Description = "New Year's Day",
+                            FullDateTime = new DateTime(DateTime.Now.Year, 1, 1),
+                        },
+                    }
+                },
+            };
+
+            _stateRepository.Insert(states);
+        }
+
         #region Faker data
 
         protected void InstallFakerData()
@@ -649,6 +1469,7 @@ namespace StockManagementSystem.Services.Installation
             InstallUsersAndRoles(defaultUserEmail, defaultUsername, defaultUserPassword);
             InstallNotificationCategory();
             InstallActivityLogTypes();
+            InstallStatesAndHolidays();
 
             if (!installSampleData)
                 return;

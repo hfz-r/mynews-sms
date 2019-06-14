@@ -17,5 +17,12 @@ namespace StockManagementSystem.Api.Services
         T GetEntityById(int id);
 
         int GetEntityCount();
+
+        IList<T> Search(
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false);
     }
 }

@@ -158,5 +158,39 @@ namespace StockManagementSystem.Api.Controllers.Generics
 
             return await Task.FromResult<IActionResult>(Ok(rootObj));
         }
+
+        /// <summary>
+        /// Search for related matching supplied query
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(GenericRootObject<>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> Search(GenericSearchParametersModel parameters)
+        {
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+                return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
+
+            if (parameters.Page < Configurations.DefaultPageValue)
+                return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
+
+            var entities =
+                GenericApiService.Search(
+                    parameters.Query,
+                    parameters.Limit,
+                    parameters.Page,
+                    parameters.SortColumn,
+                    parameters.Descending);
+
+            var rootObj = new GenericRootObject<T> {Entities = entities};
+
+            var json = JsonFieldsSerializer.Serialize(rootObj, parameters.Fields,
+                new JsonSerializer {ContractResolver = new GenericTypeNameContractResolver()});
+
+            return new RawJsonActionResult(json);
+        }
     }
 }

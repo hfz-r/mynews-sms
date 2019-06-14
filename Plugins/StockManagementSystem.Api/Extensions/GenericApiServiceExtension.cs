@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using System.Reflection;
+using StockManagementSystem.Api.Helpers;
 
 namespace StockManagementSystem.Api.Extensions
 {
@@ -37,7 +41,7 @@ namespace StockManagementSystem.Api.Extensions
             if (descending)
                 command = "OrderByDescending";
 
-            var property = typeof(T).GetProperty(sortColumn);
+            var property = typeof(T).GetProperty(sortColumn, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
 
             var orderByExpression = Expression.Lambda(propertyAccess, parameter);
@@ -50,6 +54,40 @@ namespace StockManagementSystem.Api.Extensions
                 Expression.Quote(orderByExpression));
 
             return query.Provider.CreateQuery<T>(orderByCallExpression);
+        }
+
+        public static IQueryable<T> HandleSearchParams<T>(this IQueryable<T> query, IReadOnlyDictionary<string, string> searchParams, string order, bool _)
+        {
+            foreach (var searchParam in searchParams)
+            {
+                if (ReflectionHelper.GetPropertyInfo(searchParam.Key, typeof(T)) is PropertyInfo pi)
+                {
+                    LambdaExpression expression;
+
+                    if (pi.PropertyType == typeof(string))
+                    {
+                        expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
+                            $"{searchParam.Key} = @0 || {searchParam.Key}.Contains(@0)", searchParam.Value);
+                    }
+                    else if (pi.PropertyType == typeof(DateTime))
+                    {
+                        var today = DateTime.Now;
+                        var dateToCompare = today.AddDays(Convert.ToDouble(searchParam.Value));
+
+                        expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
+                            $"{searchParam.Key} >= @0 and {searchParam.Key} < @1", dateToCompare, today);
+                    }
+                    else
+                    {
+                        expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
+                            $"{searchParam.Key} = @0", searchParam.Value);
+                    }
+
+                    query = query.Where("@0(it)", expression);
+                }
+            }
+
+            return query.GetQueryDynamic(sortColumn:order, descending:_);
         }
     }
 }

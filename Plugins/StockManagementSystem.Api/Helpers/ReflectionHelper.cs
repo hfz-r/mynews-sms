@@ -11,6 +11,11 @@ namespace StockManagementSystem.Api.Helpers
             return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) != null;
         }
 
+        public static PropertyInfo GetPropertyInfo(string propertyName, Type type)
+        {
+            return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+        }
+
         public static JsonObjectAttribute GetJsonObjectAttribute(Type objectType)
         {
             var jsonObject = objectType.GetCustomAttribute(typeof(JsonObjectAttribute)) as JsonObjectAttribute;

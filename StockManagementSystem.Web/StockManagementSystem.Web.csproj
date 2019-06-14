@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
     <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.138" />
     <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.138" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.9.2" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.15" />
   </ItemGroup>
 
   <ItemGroup>
