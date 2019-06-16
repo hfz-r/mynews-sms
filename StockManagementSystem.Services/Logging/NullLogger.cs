@@ -9,9 +9,8 @@ namespace StockManagementSystem.Services.Logging
 {
     public class NullLogger : ILogger
     {
-        public Task ClearLog()
+        public void ClearLog()
         {
-            return Task.CompletedTask;
         }
 
         public Task DeleteLog(Log log)

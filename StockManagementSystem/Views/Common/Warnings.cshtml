@@ -1,0 +1,88 @@
+﻿@model IList<SystemWarningModel>
+
+@{
+    ViewBag.Title = "System warnings";
+    Html.SetActiveMenuItemSystemName("admin.system.warnings");
+}
+
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cube"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a asp-action="Warnings">@ViewBag.Title</a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    @foreach (var warning in Model)
+                    {
+                        switch (warning.Level)
+                        {
+                            case SystemWarningLevel.Pass:
+                                {
+                                    <p class="text-green">
+                                        <i class="icon fa fa-check"></i>
+                                        @if (warning.DontEncode)
+                                        {
+                                            @Html.Raw(warning.Text)
+                                        }
+                                        else
+                                        {
+                                            @warning.Text
+                                        }
+                                    </p>
+                                }
+                                break;
+                            case SystemWarningLevel.Recommendation:
+                            case SystemWarningLevel.Warning:
+                                {
+                                    <p class="text-yellow">
+                                        <i class="icon fa fa-warning"></i>
+                                        @if (warning.DontEncode)
+                                        {
+                                            @Html.Raw(warning.Text)
+                                        }
+                                        else
+                                        {
+                                            @warning.Text
+                                        }
+                                    </p>
+                                }
+                                break;
+                            case SystemWarningLevel.Fail:
+                                {
+                                    <p class="text-red">
+                                        <i class="icon fa fa-ban"></i>
+                                        @if (warning.DontEncode)
+                                        {
+                                            @Html.Raw(warning.Text)
+                                        }
+                                        else
+                                        {
+                                            @warning.Text
+                                        }
+                                    </p>
+                                }
+                                break;
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

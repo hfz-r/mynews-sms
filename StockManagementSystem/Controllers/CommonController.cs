@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Core;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Domain.Common;
+using StockManagementSystem.Factories;
+using StockManagementSystem.Models.Common;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
+using StockManagementSystem.Services.Security;
 using StockManagementSystem.Web.Controllers;
 
 namespace StockManagementSystem.Controllers
@@ -14,20 +17,26 @@ namespace StockManagementSystem.Controllers
     public class CommonController : BaseController
     {
         private readonly CommonSettings _commonSettings;
+        private readonly ICommonModelFactory _commonModelFactory;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IPermissionService _permissionService;
         private readonly IStaticCacheManager _cacheManager;
         private readonly IWorkContext _workContext;
         private readonly ILogger _logger;
 
         public CommonController(
             CommonSettings commonSettings,
+            ICommonModelFactory commonModelFactory,
             IGenericAttributeService genericAttributeService,
+            IPermissionService permissionService,
             IStaticCacheManager cacheManager,
             IWorkContext workContext,
             ILogger logger)
         {
             _commonSettings = commonSettings;
+            _commonModelFactory = commonModelFactory;
             _genericAttributeService = genericAttributeService;
+            _permissionService = permissionService;
             _cacheManager = cacheManager;
             _workContext = workContext;
             _logger = logger;
@@ -73,6 +82,26 @@ namespace StockManagementSystem.Controllers
             Response.ContentType = "text/html";
 
             return View();
+        }
+
+        public async Task<IActionResult> SystemInfo()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageMaintenance))
+                return AccessDeniedView();
+
+            var model = await _commonModelFactory.PrepareSystemInfoModel(new SystemInfoModel());
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> Warnings()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageMaintenance))
+                return AccessDeniedView();
+
+            var model = await _commonModelFactory.PrepareSystemWarningModels();
+
+            return View(model);
         }
     }
 }

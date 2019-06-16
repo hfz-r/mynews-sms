@@ -13,7 +13,7 @@ namespace StockManagementSystem.Services.Logging
 
         Task DeleteActivityTypeAsync(ActivityLogType activityLogType);
 
-        Task ClearAllActivitiesAsync();
+        void ClearAllActivities();
 
         Task<ActivityLog> GetActivityByIdAsync(int activityLogId);
 

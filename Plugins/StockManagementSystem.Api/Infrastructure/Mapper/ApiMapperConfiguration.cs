@@ -4,6 +4,7 @@ using AutoMapper;
 using IdentityServer4.EntityFramework.Entities;
 using StockManagementSystem.Api.Domain;
 using StockManagementSystem.Api.DTOs.Devices;
+using StockManagementSystem.Api.DTOs.Directory;
 using StockManagementSystem.Api.DTOs.Items;
 using StockManagementSystem.Api.DTOs.Master;
 using StockManagementSystem.Api.DTOs.PushNotifications;
@@ -17,6 +18,7 @@ using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Models.ApiSettings;
 using StockManagementSystem.Api.Models.ApiSettings.Clients;
 using StockManagementSystem.Core.Domain.Devices;
+using StockManagementSystem.Core.Domain.Directory;
 using StockManagementSystem.Core.Domain.Items;
 using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.PushNotifications;
@@ -54,6 +56,12 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
 
             //shelf location
             CreateMap<ShelfLocation, ShelfLocationDto>();
+
+            //state
+            CreateMap<LocalState, LocalStateDto>();
+
+            //holiday
+            CreateMap<Holiday, HolidayDto>();
 
             //master classes
             CreateMap<ASNDetailMaster, ASNDetailMasterDto>();

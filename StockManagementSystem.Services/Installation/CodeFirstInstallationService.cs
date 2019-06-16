@@ -34,7 +34,7 @@ namespace StockManagementSystem.Services.Installation
         private readonly IRepository<Store> _storeRepository;
         private readonly IRepository<Transaction> _transRepository;
         private readonly IRepository<Tenant> _tenantRepository;
-        private readonly IRepository<State> _stateRepository;
+        private readonly IRepository<LocalState> _stateRepository;
         private readonly IWebHelper _webHelper;
 
         public CodeFirstInstallationService(
@@ -47,7 +47,7 @@ namespace StockManagementSystem.Services.Installation
             IRepository<Store> storeRepository,
             IRepository<Transaction> transRepository,
             IRepository<Tenant> tenantRepository,
-            IRepository<State> stateRepository,
+            IRepository<LocalState> stateRepository,
             IWebHelper webHelper)
         {
             _genericAttributeService = genericAttributeService;
@@ -347,6 +347,12 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "DeleteSystemLog",
+                    Enabled = true,
+                    Name = "Delete system log"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "DeleteStore",
                     Enabled = true,
                     Name = "Delete a store"
@@ -605,9 +611,9 @@ namespace StockManagementSystem.Services.Installation
 
         protected void InstallStatesAndHolidays()
         {
-            var states = new List<State>
+            var states = new List<LocalState>
             {
-                new State
+                new LocalState
                 {
                     Description = "",
                     Abbreviation = "",
@@ -700,7 +706,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "JOHOR",
                     Abbreviation = "JHR",
@@ -739,7 +745,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "KEDAH",
                     Abbreviation = "KDH",
@@ -772,7 +778,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "KELANTAN",
                     Abbreviation = "KTN",
@@ -811,7 +817,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "MELAKA",
                     Abbreviation = "MLK",
@@ -856,7 +862,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "NEGERI SEMBILAN",
                     Abbreviation = "NSN",
@@ -901,7 +907,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "PAHANG",
                     Abbreviation = "PHG",
@@ -946,7 +952,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "PULAU PINANG",
                     Abbreviation = "PNG",
@@ -997,7 +1003,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "PERAK",
                     Abbreviation = "PRK",
@@ -1042,7 +1048,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "PERLIS",
                     Abbreviation = "PLS",
@@ -1087,7 +1093,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "SELANGOR",
                     Abbreviation = "SGR",
@@ -1132,7 +1138,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "TERENGGANU",
                     Abbreviation = "TRG",
@@ -1171,7 +1177,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "SABAH",
                     Abbreviation = "SBH",
@@ -1222,7 +1228,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "SARAWAK",
                     Abbreviation = "SWK",
@@ -1273,7 +1279,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "KUALA LUMPUR",
                     Abbreviation = "KUL",
@@ -1318,7 +1324,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "LABUAN",
                     Abbreviation = "LBN",
@@ -1369,7 +1375,7 @@ namespace StockManagementSystem.Services.Installation
                         },
                     }
                 },
-                new State
+                new LocalState
                 {
                     Description = "PUTRAJAYA",
                     Abbreviation = "PJY",

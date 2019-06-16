@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StockManagementSystem.Core.Domain.Logging;
 using StockManagementSystem.Core.Plugins;
 using StockManagementSystem.Services;
 using StockManagementSystem.Services.Helpers;
@@ -232,6 +233,26 @@ namespace StockManagementSystem.Factories
             }
 
             PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
+        }
+
+        /// <summary>
+        /// Prepare available log levels
+        /// </summary>
+        public Task PrepareLogLevels(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null)
+        {
+            if (items == null)
+                throw new ArgumentNullException(nameof(items));
+
+            //prepare available log levels
+            var availableLogLevelItems = LogLevel.Debug.ToSelectList(false);
+            foreach (var logLevelItem in availableLogLevelItems)
+            {
+                items.Add(logLevelItem);
+            }
+
+            PrepareDefaultItem(items, withSpecialDefaultItem, defaultItemText);
+
+            return Task.CompletedTask;
         }
     }
 }

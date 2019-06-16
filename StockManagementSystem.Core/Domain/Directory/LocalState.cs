@@ -2,7 +2,7 @@
 
 namespace StockManagementSystem.Core.Domain.Directory
 {
-    public class State : BaseEntity
+    public class LocalState : BaseEntity
     {
         private ICollection<Holiday> _holidays;
 

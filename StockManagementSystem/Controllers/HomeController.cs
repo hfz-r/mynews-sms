@@ -11,6 +11,11 @@ using StockManagementSystem.Core.Domain.Users;
 using StockManagementSystem.Services.Common;
 using StockManagementSystem.Services.Logging;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using StockManagementSystem.Factories;
+using StockManagementSystem.Models.Common;
+using StockManagementSystem.Services.Security;
 
 namespace StockManagementSystem.Controllers
 {
@@ -21,6 +26,8 @@ namespace StockManagementSystem.Controllers
         private readonly INotificationService _notificationService;
         private readonly IConfiguration _configuration;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ICommonModelFactory _commonModelFactory;
+        private readonly IPermissionService _permissionService;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<UserPassword> _userPasswordRepository;
         private readonly ILogger _logger;
@@ -31,6 +38,8 @@ namespace StockManagementSystem.Controllers
             INotificationService notificationService,
             IConfiguration configuration,
             IGenericAttributeService genericAttributeService,
+            ICommonModelFactory commonModelFactory,
+            IPermissionService permissionService,
             IRepository<Role> roleRepository,
             IRepository<UserPassword> userPasswordRepository,
             ILogger logger)
@@ -40,19 +49,25 @@ namespace StockManagementSystem.Controllers
             _notificationService = notificationService;
             _configuration = configuration;
             _genericAttributeService = genericAttributeService;
+            _commonModelFactory = commonModelFactory;
+            _permissionService = permissionService;
             _roleRepository = roleRepository;
             _userPasswordRepository = userPasswordRepository;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View("Dashboard");
-        }
+            //display a warning to admin if there are some error
+            if (await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageMaintenance))
+            {
+                var warnings = await _commonModelFactory.PrepareSystemWarningModels();
+                if (warnings.Any(warning => warning.Level == SystemWarningLevel.Fail || warning.Level == SystemWarningLevel.Warning))
+                    _notificationService.WarningNotification(
+                        "The store has some error(s) or warning(s). Please find more information on the Warnings page.");
+            }
 
-        public IActionResult Dashboard()
-        {
-            return View();
+            return View("Dashboard");
         }
 
         public IActionResult PanelServerComponent()

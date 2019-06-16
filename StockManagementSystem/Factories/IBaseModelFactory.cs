@@ -23,5 +23,7 @@ namespace StockManagementSystem.Factories
         Task PrepareStoreCities(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
 
         Task PrepareStoreStates(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
+
+        Task PrepareLogLevels(IList<SelectListItem> items, bool withSpecialDefaultItem = true, string defaultItemText = null);
     }
 }

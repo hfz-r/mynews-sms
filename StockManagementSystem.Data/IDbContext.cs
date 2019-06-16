@@ -34,7 +34,7 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Executes the given SQL against the database
         /// </summary>
-        Task<int> ExecuteSqlCommandAsync(RawSqlString sql, bool doNotEnsureTransaction = false, int? timeout = null, params object[] parameters);
+        int ExecuteSqlCommand(RawSqlString sql, bool doNotEnsureTransaction = false, int? timeout = null, params object[] parameters);
 
         /// <summary>
         /// Detach an entity from the context

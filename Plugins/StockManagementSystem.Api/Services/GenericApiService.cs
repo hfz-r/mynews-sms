@@ -7,6 +7,7 @@ using StockManagementSystem.Api.DataStructures;
 using StockManagementSystem.Api.DTOs;
 using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
+using StockManagementSystem.Core.Domain.Directory;
 using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Security;
 using StockManagementSystem.Core.Domain.Stores;
@@ -161,6 +162,26 @@ namespace StockManagementSystem.Api.Services
                     query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
                     return new ApiList<PermissionRoles>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case LocalState _:
+                {
+                    var repository = RepositoryActivator(typeof(LocalState));
+                    var query = repository.Table as IQueryable<LocalState>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<LocalState>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case Holiday _:
+                {
+                    var repository = RepositoryActivator(typeof(Holiday));
+                    var query = repository.Table as IQueryable<Holiday>;
+
+                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+
+                    return new ApiList<Holiday>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
                 case ASNDetailMaster _:
@@ -345,6 +366,13 @@ namespace StockManagementSystem.Api.Services
 
                     return entity.ToDto() as T;
                 }
+                case Holiday _:
+                {
+                    var repository = RepositoryActivator(typeof(Holiday));
+                    var entity = (repository.Table as IQueryable<Holiday>)?.FirstOrDefault(e => e.Id == id);
+
+                    return entity.ToDto() as T;
+                }
                 case ASNDetailMaster _:
                 {
                     var repository = RepositoryActivator(typeof(ASNDetailMaster));
@@ -503,6 +531,20 @@ namespace StockManagementSystem.Api.Services
                     var repository = RepositoryActivator(typeof(PermissionRoles));
 
                     return (repository.Table as IQueryable<PermissionRoles> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case LocalState _:
+                {
+                    var repository = RepositoryActivator(typeof(LocalState));
+
+                    return (repository.Table as IQueryable<LocalState> ?? throw new InvalidOperationException())
+                        .Count();
+                }
+                case Holiday _:
+                {
+                    var repository = RepositoryActivator(typeof(Holiday));
+
+                    return (repository.Table as IQueryable<Holiday> ?? throw new InvalidOperationException())
                         .Count();
                 }
                 case ASNDetailMaster _:
@@ -704,6 +746,34 @@ namespace StockManagementSystem.Api.Services
                     }
 
                     return new ApiList<PermissionRoles>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case LocalState _:
+                {
+                    var repository = RepositoryActivator(typeof(LocalState));
+                    var query = repository.Table as IQueryable<LocalState>;
+
+                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                    if (searchParams != null)
+                    {
+                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
+                    }
+
+                    return new ApiList<LocalState>(query, page - 1, limit).Select(entity => entity.ToDto())
+                        .ToList() as IList<T>;
+                }
+                case Holiday _:
+                {
+                    var repository = RepositoryActivator(typeof(Holiday));
+                    var query = repository.Table as IQueryable<Holiday>;
+
+                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                    if (searchParams != null)
+                    {
+                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
+                    }
+
+                    return new ApiList<Holiday>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
                 case ASNDetailMaster _:

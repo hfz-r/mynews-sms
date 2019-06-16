@@ -15,6 +15,7 @@ namespace StockManagementSystem.Api.Models.GenericsParameters
             SortColumn = Configurations.DefaultOrder;
             Descending = false;
             Fields = string.Empty;
+            Count = false;
             Query = string.Empty;
         }
 
@@ -32,6 +33,12 @@ namespace StockManagementSystem.Api.Models.GenericsParameters
 
         [JsonProperty("fields")]
         public string Fields { get; set; }
+
+        /// <summary>
+        /// Get total count from the search result (default: false)
+        /// </summary>
+        [JsonProperty("count")]
+        public bool Count { get; set; }
 
         /// <summary>
         /// Comma-separated list of attributes to include in the search

@@ -9,7 +9,7 @@ namespace StockManagementSystem.Services.Logging
 {
     public interface ILogger
     {
-        Task ClearLog();
+        void ClearLog();
 
         Task DeleteLog(Log log);
 

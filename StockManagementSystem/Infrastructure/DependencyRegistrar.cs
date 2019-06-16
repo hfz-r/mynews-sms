@@ -35,6 +35,7 @@ namespace StockManagementSystem.Infrastructure
             builder.RegisterType<LocationModelFactory>().As<ILocationModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<FormatSettingModelFactory>().As<IFormatSettingModelFactory>().InstancePerLifetimeScope();
             builder.RegisterType<SecurityModelFactory>().As<ISecurityModelFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<LogModelFactory>().As<ILogModelFactory>().InstancePerLifetimeScope();
         }
 
         public int Order => 2;

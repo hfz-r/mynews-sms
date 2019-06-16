@@ -149,7 +149,8 @@ namespace StockManagementSystem.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageActivityLog))
                 return AccessDeniedView();
 
-            await _userActivityService.ClearAllActivitiesAsync();
+            _userActivityService.ClearAllActivities();
+
             await _userActivityService.InsertActivityAsync("DeleteActivityLog", "Deleted activity log");
 
             return RedirectToAction("Index");

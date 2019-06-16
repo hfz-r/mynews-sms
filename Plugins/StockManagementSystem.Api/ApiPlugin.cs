@@ -55,7 +55,7 @@ namespace StockManagementSystem.Api
                 Url = _webHelper.GetLocation() + "ApiSettings/Index",
                 Visible = canManagePlugin,
                 SystemName = "api.settings",
-                IconClass = "fa fa-space-shuttle"
+                IconClass = "glyphicon glyphicon-send"
             };
 
             var settingNode = rootNode.ChildNodes.FirstOrDefault(node => node.SystemName.Equals("Configuration"));

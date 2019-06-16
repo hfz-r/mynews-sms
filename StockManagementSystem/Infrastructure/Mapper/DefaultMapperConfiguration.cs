@@ -38,7 +38,7 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateDeviceMaps();
             CreateStoreMaps();
             CreateOrderLimitMaps();
-            CreateFakerMaps();
+            CreateTransactionMaps();
             CreateTenantMaps();
             CreateMediaMaps();
             CreatePushNotificationMaps();
@@ -187,6 +187,15 @@ namespace StockManagementSystem.Infrastructure.Mapper
             CreateMap<ActivityLogTypeModel, ActivityLogType>()
                 .ForMember(entity => entity.SystemKeyword, options => options.Ignore());
 
+            CreateMap<Log, LogModel>()
+                .ForMember(model => model.CreatedOn, options => options.Ignore())
+                .ForMember(model => model.FullMessage, options => options.Ignore())
+                .ForMember(model => model.UserEmail, options => options.Ignore());
+            CreateMap<LogModel, Log>()
+                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore())
+                .ForMember(entity => entity.User, options => options.Ignore())
+                .ForMember(entity => entity.LogLevelId, options => options.Ignore());
+
             CreateMap<User, SignedInLogModel>()
                 .ForMember(model => model.UserId, options => options.Ignore())
                 .ForMember(model => model.LastLoginDate, options => options.Ignore());
@@ -273,17 +282,49 @@ namespace StockManagementSystem.Infrastructure.Mapper
         }
 
         /// <summary>
-        /// Represent faker mapping entity
+        /// Represent transaction mapping entity
         /// </summary>
-        protected virtual void CreateFakerMaps()
+        protected virtual void CreateTransactionMaps()
         {
             CreateMap<Transaction, TransActivityModel>()
-                .ForMember(model => model.Branch, options => options.Ignore())
-                .ForMember(model => model.CreatedOn, options => options.Ignore());
+                .ForMember(model => model.Branch, options => options.Ignore());
             CreateMap<TransActivityModel, Transaction>()
-                .ForMember(entity => entity.Store, options => options.Ignore())
+                .ForMember(entity => entity.ModuleId, options => options.Ignore())
+                .ForMember(entity => entity.DeviceSerialNo, options => options.Ignore())
                 .ForMember(entity => entity.P_BranchNo, options => options.Ignore())
-                .ForMember(entity => entity.CreatedOnUtc, options => options.Ignore());
+                .ForMember(entity => entity.P_StaffNo, options => options.Ignore())
+                .ForMember(entity => entity.P_StockCode, options => options.Ignore())
+                .ForMember(entity => entity.P_Qty, options => options.Ignore())
+                .ForMember(entity => entity.P_UnitMeasurementCode, options => options.Ignore())
+                .ForMember(entity => entity.P_Remark, options => options.Ignore())
+                .ForMember(entity => entity.P_Resend, options => options.Ignore())
+                .ForMember(entity => entity.P_IssRef, options => options.Ignore())
+                .ForMember(entity => entity.P_Doc, options => options.Ignore())
+                .ForMember(entity => entity.P_Ref, options => options.Ignore())
+                .ForMember(entity => entity.P_SysMod, options => options.Ignore())
+                .ForMember(entity => entity.P_RecType, options => options.Ignore())
+                .ForMember(entity => entity.PcsQty, options => options.Ignore())
+                .ForMember(entity => entity.CtnQty, options => options.Ignore())
+                .ForMember(entity => entity.OtrQty, options => options.Ignore())
+                .ForMember(entity => entity.IsPost, options => options.Ignore())
+                .ForMember(entity => entity.P_ShiftNo, options => options.Ignore())
+                .ForMember(entity => entity.P_ReasonCode, options => options.Ignore())
+                .ForMember(entity => entity.P_ParentId, options => options.Ignore())
+                .ForMember(entity => entity.P_GroupId, options => options.Ignore())
+                .ForMember(entity => entity.P_UnitCost, options => options.Ignore())
+                .ForMember(entity => entity.P_Loc, options => options.Ignore())
+                .ForMember(entity => entity.P_SellPrice, options => options.Ignore())
+                .ForMember(entity => entity.P_Cost, options => options.Ignore())
+                .ForMember(entity => entity.P_Desc, options => options.Ignore())
+                .ForMember(entity => entity.P_Unit, options => options.Ignore())
+                .ForMember(entity => entity.STLocation, options => options.Ignore())
+                .ForMember(entity => entity.Barcode, options => options.Ignore())
+                .ForMember(entity => entity.DeliveryDate, options => options.Ignore())
+                .ForMember(entity => entity.ExpiryDate, options => options.Ignore())
+                .ForMember(entity => entity.POSDoc, options => options.Ignore())
+                .ForMember(entity => entity.ContainerId, options => options.Ignore())
+                .ForMember(entity => entity.LogNo, options => options.Ignore())
+                .ForMember(entity => entity.Store, options => options.Ignore());
         }
 
         /// <summary>

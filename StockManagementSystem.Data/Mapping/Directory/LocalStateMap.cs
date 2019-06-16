@@ -4,11 +4,11 @@ using StockManagementSystem.Core.Domain.Directory;
 
 namespace StockManagementSystem.Data.Mapping.Directory
 {
-    public partial class StateMap : EntityTypeConfiguration<State>
+    public partial class LocalStateMap : EntityTypeConfiguration<LocalState>
     {
-        public override void Configure(EntityTypeBuilder<State> builder)
+        public override void Configure(EntityTypeBuilder<LocalState> builder)
         {
-            builder.ToTable(nameof(State));
+            builder.ToTable(nameof(LocalState));
             builder.HasKey(state => state.Abbreviation);
 
             builder.Ignore(state => state.Id);

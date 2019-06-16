@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StockManagementSystem.Models.Common;
 
 namespace StockManagementSystem.Factories
@@ -10,5 +11,9 @@ namespace StockManagementSystem.Factories
         Task<HeaderLinksModel> PrepareHeaderLinksModel();
 
         Task<LogoModel> PrepareLogoModel();
+
+        Task<SystemInfoModel> PrepareSystemInfoModel(SystemInfoModel model);
+
+        Task<IList<SystemWarningModel>> PrepareSystemWarningModels();
     }
 }

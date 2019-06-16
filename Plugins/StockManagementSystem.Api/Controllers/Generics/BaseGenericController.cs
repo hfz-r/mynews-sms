@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -70,6 +71,23 @@ namespace StockManagementSystem.Api.Controllers.Generics
             var errorsJson = JsonFieldsSerializer.Serialize(errorsRootObject, null);
 
             return await Task.FromResult<IActionResult>(new ErrorActionResult(errorsJson, statusCode));
+        }
+
+        protected async Task<IActionResult> CountRootObjectResult(IList<T> entities)
+        {
+            var rootObj = new GenericCountRootObject {Count = entities.Count > 0 ? entities.Count : 0};
+
+            return await Task.FromResult<IActionResult>(Ok(rootObj));
+        }
+
+        protected async Task<IActionResult> RootObjectResult(IList<T> entities, string fields)
+        {
+            var rootObj = new GenericRootObject<T> {Entities = entities};
+
+            var json = JsonFieldsSerializer.Serialize(rootObj, fields,
+                new JsonSerializer {ContractResolver = new GenericTypeNameContractResolver()});
+
+            return await Task.FromResult<IActionResult>(new RawJsonActionResult(json));
         }
 
         #endregion
@@ -177,20 +195,14 @@ namespace StockManagementSystem.Api.Controllers.Generics
             if (parameters.Page < Configurations.DefaultPageValue)
                 return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
-            var entities =
-                GenericApiService.Search(
-                    parameters.Query,
-                    parameters.Limit,
-                    parameters.Page,
-                    parameters.SortColumn,
-                    parameters.Descending);
+            var entities = GenericApiService.Search(
+                parameters.Query,
+                parameters.Limit,
+                parameters.Page,
+                parameters.SortColumn,
+                parameters.Descending);
 
-            var rootObj = new GenericRootObject<T> {Entities = entities};
-
-            var json = JsonFieldsSerializer.Serialize(rootObj, parameters.Fields,
-                new JsonSerializer {ContractResolver = new GenericTypeNameContractResolver()});
-
-            return new RawJsonActionResult(json);
+            return parameters.Count ? await CountRootObjectResult(entities) : await RootObjectResult(entities, parameters.Fields);
         }
     }
 }

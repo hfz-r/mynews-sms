@@ -628,7 +628,7 @@ namespace StockManagementSystem.Services.Users
             var pTotalRecordsDeleted = _dataProvider.GetOutputInt32Parameter("TotalRecordsDeleted");
 
             //invoke stored procedure
-            await _dbContext.ExecuteSqlCommandAsync(
+           _dbContext.ExecuteSqlCommand(
                 "EXEC [DeleteGuests] @CreatedFromUtc, @CreatedToUtc, @TotalRecordsDeleted OUTPUT",
                 false,
                 null,
@@ -637,7 +637,7 @@ namespace StockManagementSystem.Services.Users
                 pTotalRecordsDeleted);
 
             var totalRecordsDeleted = pTotalRecordsDeleted.Value != DBNull.Value ? Convert.ToInt32(pTotalRecordsDeleted.Value) : 0;
-            return totalRecordsDeleted;
+            return await Task.FromResult(totalRecordsDeleted) ;
         }
 
         #endregion

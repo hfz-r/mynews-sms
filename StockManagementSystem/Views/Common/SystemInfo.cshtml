@@ -1,0 +1,148 @@
+﻿@model SystemInfoModel
+
+@{
+    ViewBag.Title = "System information";
+    Html.SetActiveMenuItemSystemName("admin.system.systeminfo");
+}
+
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cube"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a asp-action="SystemInfo">@ViewBag.Title</a>
+        </li>
+    </ol>
+</section>
+
+<script>
+    function toggleLoadedAssemblies() {
+        $('#pnlLoadedAssemblies').toggle();
+        if ($('#pnlLoadedAssemblies').css('display') === 'none') {
+            $('#loadedAssembliesShowHide').html('Show');
+        }
+        else {
+            $('#loadedAssembliesShowHide').html('Hide');
+        }
+    }
+
+    function toggleLoadedHeaders() {
+        $('#pnlHeaders').toggle();
+        if ($('#pnlHeaders').css('display') === 'none') {
+            $('#headersShowHide').html('Show');
+        }
+        else {
+            $('#headersShowHide').html('Hide');
+        }
+    }
+</script>
+
+<section class="content">
+    <div class="form-horizontal">
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="Version" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.Version</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="OperatingSystem" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.OperatingSystem</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="AspNetInfo" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.AspNetInfo</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="IsFullTrust" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.IsFullTrust</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="ServerTimeZone" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.ServerTimeZone</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="ServerLocalTime" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.ServerLocalTime.ToString("F")</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="UtcTime" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.UtcTime.ToString("F")</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="CurrentUserTime" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.CurrentUserTime.ToString("F")</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="HttpHost" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-text-row">@Model.HttpHost</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <_label asp-for="Headers" />
+                        </div>
+                        <div class="col-md-9">
+                            <a id="headersShowHide" href="javascript:toggleLoadedHeaders();">Show</a>
+                            <div id="pnlHeaders" style="display: none; word-break: break-all">
+                                <ul>
+                                    @foreach (var header in Model.Headers)
+                                    {
+                                        <li>
+                                            <strong>@header.Name</strong>: @header.Value
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

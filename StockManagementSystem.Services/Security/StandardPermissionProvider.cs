@@ -81,11 +81,14 @@ namespace StockManagementSystem.Services.Security
             new Permission { Name = "(Web) Manage Plugins", SystemName = "ManagePlugins", Category = "Configuration" };
 
         public static readonly Permission ManageMaintenance =
-            new Permission { Name = "(Web) Manage Maintenance", SystemName = "ManageMaintenance", Category = "Configuration" };
+            new Permission { Name = "(Web) Manage Maintenance", SystemName = "ManageMaintenance", Category = "Maintenance" };
 
         public static readonly Permission ManageSettings =
             new Permission { Name = "(Web) Manage Settings", SystemName = "ManageSettings", Category = "Configuration" };
-        
+
+        public static readonly Permission ManageSystemLog =
+            new Permission { Name = "(Web) Manage System Log", SystemName = "ManageSystemLog", Category = "Maintenance" };
+
         #region HHT modules
 
         public static readonly Permission ManageTransporterReceive = new Permission
@@ -261,6 +264,7 @@ namespace StockManagementSystem.Services.Security
                 ManagePlugins,
                 ManageMaintenance,
                 ManageSettings,
+                ManageSystemLog,
                 ManageTransporterReceive,
                 ManageStockReceive,
                 ManageStockReceiveEnquiry,
@@ -315,6 +319,7 @@ namespace StockManagementSystem.Services.Security
                         ManagePlugins,
                         ManageMaintenance,
                         ManageSettings,
+                        ManageSystemLog,
                         ManageTransporterReceive,
                         ManageStockReceive,
                         ManageStockReceiveEnquiry,

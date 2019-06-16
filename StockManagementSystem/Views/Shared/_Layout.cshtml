@@ -2,6 +2,7 @@
 @inject IWorkContext WorkContext
 @inject IGenericAttributeService GenericAttributeService
 @using StockManagementSystem.Web.UI
+@using Version = StockManagementSystem.Core.Version
 
 @{
     var returnUrl = WebHelper.GetRawUrl(Context.Request);
@@ -119,7 +120,7 @@
 
         <footer class="main-footer">
             <div class="pull-right hidden-xs">
-                <b>Version</b> 1.2.0 @*TO DO: Change to assembly version*@
+                <b>Version</b> @Version.CurrentVersion
             </div>
             <strong>Copyright &copy; 2018 <a href="https://www.b-excelle.com">B Excelle</a>.</strong> All rights reserved.
         </footer>

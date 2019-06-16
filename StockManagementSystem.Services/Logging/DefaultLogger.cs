@@ -52,10 +52,10 @@ namespace StockManagementSystem.Services.Logging
             await _logRepository.DeleteAsync(logs);
         }
 
-        public async Task ClearLog()
+        public void ClearLog()
         {
             var logTableName = _dbContext.GetTableName<Log>();
-            await _dbContext.ExecuteSqlCommandAsync($"TRUNCATE TABLE [{logTableName}]");
+            _dbContext.ExecuteSqlCommand($"TRUNCATE TABLE [{logTableName}]");
         }
 
         public Task<IPagedList<Log>> GetAllLogs(

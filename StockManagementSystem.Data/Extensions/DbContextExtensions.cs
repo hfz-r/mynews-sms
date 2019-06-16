@@ -198,7 +198,7 @@ namespace StockManagementSystem.Data.Extensions
 
             var sqlCommands = GetCommandsFromScript(sql);
             foreach (var command in sqlCommands)
-                context.ExecuteSqlCommandAsync(command).GetAwaiter().GetResult();
+                context.ExecuteSqlCommand(command);
         }
 
         /// <summary>

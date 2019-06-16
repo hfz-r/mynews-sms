@@ -174,10 +174,10 @@ namespace StockManagementSystem.Services.Logging
             await _activityLogRepository.DeleteAsync(activityLog);
         }
 
-        public async Task ClearAllActivitiesAsync()
+        public void ClearAllActivities()
         {
             var activityLogTableName = _dbContext.GetTableName<ActivityLog>();
-            await  _dbContext.ExecuteSqlCommandAsync($"TRUNCATE TABLE [{activityLogTableName}]");
+            _dbContext.ExecuteSqlCommand($"TRUNCATE TABLE [{activityLogTableName}]");
         }
 
         public IPagedList<ActivityLog> GetAllActivities(

@@ -16,9 +16,11 @@ namespace StockManagementSystem.Services.Logging
             _logger = logger;
         }
 
-        public async Task ExecuteAsync(CancellationToken cancellationToken)
+        public Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await _logger.ClearLog();
+            _logger.ClearLog();
+
+            return Task.CompletedTask;
         }
 
         public string Schedule => "0 */2 * * *";

@@ -98,25 +98,24 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Executes the given SQL against the database
         /// </summary>
-        public async Task<int> ExecuteSqlCommandAsync(RawSqlString sql, bool doNotEnsureTransaction = false,
-            int? timeout = null, params object[] parameters)
+        public virtual int ExecuteSqlCommand(RawSqlString sql, bool doNotEnsureTransaction = false, int? timeout = null, params object[] parameters)
         {
             //set specific command timeout
             var previousTimeout = Database.GetCommandTimeout();
             Database.SetCommandTimeout(timeout);
 
-            int result;
+            var result = 0;
             if (!doNotEnsureTransaction)
             {
                 //use with transaction
-                using (var transaction = await Database.BeginTransactionAsync())
+                using (var transaction = Database.BeginTransaction())
                 {
-                    result = await Database.ExecuteSqlCommandAsync(sql, parameters);
+                    result = Database.ExecuteSqlCommand(sql, parameters);
                     transaction.Commit();
                 }
             }
             else
-                result = await Database.ExecuteSqlCommandAsync(sql, parameters);
+                result = Database.ExecuteSqlCommand(sql, parameters);
 
             //return previous timeout back
             Database.SetCommandTimeout(previousTimeout);

@@ -78,13 +78,13 @@ namespace StockManagementSystem.Factories
             if (registeredRole != null)
                 searchModel.SelectedRoleIds.Add(registeredRole.Id);
 
-            registeredRole = _userService.GetRoleBySystemName(UserDefaults.SysAdminRoleName);
-            if (registeredRole != null)
-                searchModel.SelectedRoleIds.Add(registeredRole.Id);
+            //registeredRole = _userService.GetRoleBySystemName(UserDefaults.SysAdminRoleName);
+            //if (registeredRole != null)
+            //    searchModel.SelectedRoleIds.Add(registeredRole.Id);
 
-            registeredRole = _userService.GetRoleBySystemName(UserDefaults.GuestsRoleName);
-            if (registeredRole != null)
-                searchModel.SelectedRoleIds.Add(registeredRole.Id);
+            //registeredRole = _userService.GetRoleBySystemName(UserDefaults.GuestsRoleName);
+            //if (registeredRole != null)
+            //    searchModel.SelectedRoleIds.Add(registeredRole.Id);
 
             registeredRole = _userService.GetRoleBySystemName(UserDefaults.CashierRoleName);
             if (registeredRole != null)

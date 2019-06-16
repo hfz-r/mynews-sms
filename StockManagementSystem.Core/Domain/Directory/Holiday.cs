@@ -30,6 +30,6 @@ namespace StockManagementSystem.Core.Domain.Directory
             }
         }
 
-        public virtual State State { get; set; }
+        public virtual LocalState State { get; set; }
     }
 }
