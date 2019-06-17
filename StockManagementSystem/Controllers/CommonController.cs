@@ -103,5 +103,11 @@ namespace StockManagementSystem.Controllers
 
             return View(model);
         }
+
+        public virtual IActionResult RobotsTextFile()
+        {
+            var robotsFileContent = _commonModelFactory.PrepareRobotsTextFile();
+            return Content(robotsFileContent, MimeTypes.TextPlain);
+        }
     }
 }

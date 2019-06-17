@@ -52,6 +52,10 @@ namespace StockManagementSystem.Web.Infrastructure
             routeBuilder.MapRoute("UserAvatar", "account/avatar",
                 new { controller = "Account", action = "Avatar" });
 
+            //robots.txt
+            routeBuilder.MapRoute("robots.txt", "robots.txt",
+                new { controller = "Common", action = "RobotsTextFile" });
+
             //install
             routeBuilder.MapRoute("Installation", "install",
                 new { controller = "Install", action = "Index" });

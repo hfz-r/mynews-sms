@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
@@ -342,6 +343,64 @@ namespace StockManagementSystem.Factories
             await PrepareFilePermissionsWarningModel(models);
 
             return models;
+        }
+
+        /// <summary>
+        /// Get robots.txt file
+        /// </summary>
+        public virtual string PrepareRobotsTextFile()
+        {
+            var sb = new StringBuilder();
+
+            //if robots.custom.txt exists, let's use it instead of hard-coded data below
+            var robotsFilePath = _fileProvider.Combine(_fileProvider.MapPath("~/"), "robots.custom.txt");
+            if (_fileProvider.FileExists(robotsFilePath))
+            {
+                var robotsFileContent = _fileProvider.ReadAllText(robotsFilePath, Encoding.UTF8);
+                sb.Append(robotsFileContent);
+            }
+            else
+            {
+                //doesn't exist. Let's generate it (default behavior)
+
+                var disallowPaths = new List<string>
+                {
+                    "/bin/",
+                    "/files/",
+                    "/install",
+                    "/account/avatar",
+                    "/account/changepassword",
+                    "/account/info",
+                    "/checkusernameavailability",
+                    "/forgotpassword/confirm",
+                };
+
+                const string newLine = "\r\n"; //Environment.NewLine
+                sb.Append("User-agent: *");
+                sb.Append(newLine);
+                //host
+                sb.AppendFormat("Host: {0}", _webHelper.GetLocation());
+                sb.Append(newLine);
+                //allow-paths
+                sb.Append("Allow: WebSurge");
+                sb.Append(newLine);
+                //disallow-paths
+                foreach (var path in disallowPaths)
+                {
+                    sb.AppendFormat("Disallow: {0}", path);
+                    sb.Append(newLine);
+                }
+
+                //load and add robots.txt additions to the end of file.
+                var robotsAdditionsFile = _fileProvider.Combine(_fileProvider.MapPath("~/"), "robots.additions.txt");
+                if (_fileProvider.FileExists(robotsAdditionsFile))
+                {
+                    var robotsFileContent = _fileProvider.ReadAllText(robotsAdditionsFile, Encoding.UTF8);
+                    sb.Append(robotsFileContent);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

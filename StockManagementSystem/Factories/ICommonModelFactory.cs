@@ -15,5 +15,7 @@ namespace StockManagementSystem.Factories
         Task<SystemInfoModel> PrepareSystemInfoModel(SystemInfoModel model);
 
         Task<IList<SystemWarningModel>> PrepareSystemWarningModels();
+
+        string PrepareRobotsTextFile();
     }
 }
