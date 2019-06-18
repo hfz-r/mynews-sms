@@ -7,6 +7,8 @@ using StockManagementSystem.Api.DataStructures;
 using StockManagementSystem.Api.DTOs;
 using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
+using StockManagementSystem.Api.Models.GenericsParameters;
+using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Directory;
 using StockManagementSystem.Core.Domain.Master;
 using StockManagementSystem.Core.Domain.Security;
@@ -18,6 +20,7 @@ using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Api.Services
 {
+    //TODO: need to factorized!
     public class GenericApiService<T> : IGenericApiService<T> where T : BaseDto
     {
         private readonly ILogger _logger;
@@ -99,6 +102,16 @@ namespace StockManagementSystem.Api.Services
             }
 
             return searchQuery;
+        }
+
+        protected IList<TEntity> ToListResult<TEntity>(IQueryable<TEntity> query, int page, int limit) where TEntity : BaseEntity
+        {
+            return new ApiList<TEntity>(query, page - 1, limit);
+        }
+
+        protected int ToCountResult<TEntity>(IQueryable<TEntity> query) where TEntity : BaseEntity
+        {
+            return query.Count();
         }
 
         #endregion
@@ -667,12 +680,13 @@ namespace StockManagementSystem.Api.Services
             }
         }
 
-        public IList<T> Search(
+        public SearchWrapper<T> Search(
             string queryParams = "",
             int limit = Configurations.DefaultLimit,
             int page = Configurations.DefaultPageValue,
             string sortColumn = Configurations.DefaultOrder,
-            bool descending = false)
+            bool descending = false,
+            bool count = false)
         {
             var instance = GetInstance();
 
@@ -689,8 +703,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<Store>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case Permission _:
                 {
@@ -703,8 +718,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<Permission>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case UserStore _:
                 {
@@ -717,8 +733,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<UserStore>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case UserRole _:
                 {
@@ -731,8 +748,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<UserRole>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case PermissionRoles _:
                 {
@@ -745,8 +763,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<PermissionRoles>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case LocalState _:
                 {
@@ -759,8 +778,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<LocalState>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case Holiday _:
                 {
@@ -773,8 +793,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<Holiday>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case ASNDetailMaster _:
                 {
@@ -787,8 +808,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<ASNDetailMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case ASNHeaderMaster _:
                 {
@@ -801,8 +823,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<ASNHeaderMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case BarcodeMaster _:
                 {
@@ -815,8 +838,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<BarcodeMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case MainCategoryMaster _:
                 {
@@ -829,8 +853,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<MainCategoryMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case OrderBranchMaster _:
                 {
@@ -843,8 +868,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<OrderBranchMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case SalesMaster _:
                 {
@@ -857,8 +883,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<SalesMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case ShelfLocationMaster _:
                 {
@@ -871,8 +898,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<ShelfLocationMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case ShiftControlMaster _:
                 {
@@ -885,8 +913,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<ShiftControlMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case StockTakeControlMaster _:
                 {
@@ -899,8 +928,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<StockTakeControlMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case StockTakeRightMaster _:
                 {
@@ -913,8 +943,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<StockTakeRightMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case StockTakeControlOutletMaster _:
                 {
@@ -927,9 +958,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<StockTakeControlOutletMaster>(query, page - 1, limit)
-                        .Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case StockSupplierMaster _:
                 {
@@ -942,8 +973,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<StockSupplierMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case SubCategoryMaster _:
                 {
@@ -956,8 +988,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<SubCategoryMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case SupplierMaster _:
                 {
@@ -970,8 +1003,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<SupplierMaster>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 case WarehouseDeliveryScheduleMaster _:
                 {
@@ -984,9 +1018,9 @@ namespace StockManagementSystem.Api.Services
                         query = query.HandleSearchParams(searchParams, sortColumn, @descending);
                     }
 
-                    return new ApiList<WarehouseDeliveryScheduleMaster>(query, page - 1, limit)
-                        .Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
+                    return count
+                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                 }
                 default:
                 {

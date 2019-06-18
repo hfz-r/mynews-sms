@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.DTOs;
+using StockManagementSystem.Api.Models.GenericsParameters;
 
 namespace StockManagementSystem.Api.Services
 {
@@ -18,11 +19,12 @@ namespace StockManagementSystem.Api.Services
 
         int GetEntityCount();
 
-        IList<T> Search(
+        SearchWrapper<T> Search(
             string queryParams = "",
             int limit = Configurations.DefaultLimit,
             int page = Configurations.DefaultPageValue,
             string sortColumn = Configurations.DefaultOrder,
-            bool descending = false);
+            bool descending = false,
+            bool count = false);
     }
 }

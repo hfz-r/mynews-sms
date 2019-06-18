@@ -38,7 +38,7 @@ namespace Api.Tests.ServicesTests.Generics
                 Id = 2,
                 P_BranchNo = 246,
                 P_Name = "Store Kacip Fatimah Maa`don",
-                CreatedOnUtc = DateTime.Parse("2019-06-10T10:11:09")
+                CreatedOnUtc = DateTime.Parse("2019-06-11T10:11:09")
             };
             var store3 = new Store
             {
@@ -99,30 +99,45 @@ namespace Api.Tests.ServicesTests.Generics
             var no_query = "";
             var search1 = apiService.Search(no_query);
 
-            search1.Count.ShouldEqual(3);
+            search1.ListResult.Count.ShouldEqual(3);
 
             var query_with_wrong_attribute = "P_BranchNo:246,P_Namee:Store Kosong";
             var search2 = apiService.Search(query_with_wrong_attribute);
 
-            search2.Count.ShouldEqual(2);
+            search2.ListResult.Count.ShouldEqual(2);
 
             var query_single_valid = "P_Name:Store Kosong";
             var search3 = apiService.Search(query_single_valid);
 
-            search3.Count.ShouldEqual(1);
+            search3.ListResult.Count.ShouldEqual(1);
 
             var query_multiple_all_valid = "P_BranchNo:246,P_Name:Store Kosong";
             var search4 = apiService.Search(query_multiple_all_valid);
 
-            search4.Count.ShouldEqual(1);
-            search4.First().Address1.ShouldEqual("Lorong Kosong");
+            search4.ListResult.Count.ShouldEqual(1);
+            search4.ListResult.First().Address1.ShouldEqual("Lorong Kosong");
 
             //2019-05-27T09:09:30.9814175
             var query_with_datetime = "createdonutc:-7";
             var search5 = apiService.Search(query_with_datetime);
 
-            search5.Count.ShouldEqual(2);
-            search5.Count(x => x.BranchNo == 246).ShouldEqual(2);
+            search5.ListResult.Count.ShouldEqual(2);
+            search5.ListResult.Count(x => x.BranchNo == 246).ShouldEqual(2);
+
+            var query_count = "createdonutc:-7";
+
+            var search6 = apiService.Search(query_count, count: true);
+            search6.CountResult.ShouldEqual(2);
+
+            var query_count_others = "p_branchno:246";
+
+            var search7 = apiService.Search(query_count_others, limit:1);
+            search7.ListResult.Count.ShouldEqual(1);
+            search7.CountResult.ShouldEqual(0);
+
+            var search8 = apiService.Search(query_count_others, limit: 1, count: true);
+            search8.CountResult.ShouldEqual(2);
+            search8.ListResult.ShouldBeNull();
         }
     }
 }

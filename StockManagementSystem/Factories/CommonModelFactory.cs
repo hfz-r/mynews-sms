@@ -381,9 +381,6 @@ namespace StockManagementSystem.Factories
                 //host
                 sb.AppendFormat("Host: {0}", _webHelper.GetLocation());
                 sb.Append(newLine);
-                //allow-paths
-                sb.Append("Allow: WebSurge");
-                sb.Append(newLine);
                 //disallow-paths
                 foreach (var path in disallowPaths)
                 {

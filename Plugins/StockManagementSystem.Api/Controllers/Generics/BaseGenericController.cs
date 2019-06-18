@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -73,9 +72,9 @@ namespace StockManagementSystem.Api.Controllers.Generics
             return await Task.FromResult<IActionResult>(new ErrorActionResult(errorsJson, statusCode));
         }
 
-        protected async Task<IActionResult> CountRootObjectResult(IList<T> entities)
+        protected async Task<IActionResult> CountRootObjectResult(int count)
         {
-            var rootObj = new GenericCountRootObject {Count = entities.Count > 0 ? entities.Count : 0};
+            var rootObj = new GenericCountRootObject {Count = count > 0 ? count : 0};
 
             return await Task.FromResult<IActionResult>(Ok(rootObj));
         }
@@ -200,9 +199,12 @@ namespace StockManagementSystem.Api.Controllers.Generics
                 parameters.Limit,
                 parameters.Page,
                 parameters.SortColumn,
-                parameters.Descending);
+                parameters.Descending,
+                parameters.Count);
 
-            return parameters.Count ? await CountRootObjectResult(entities) : await RootObjectResult(entities, parameters.Fields);
+            return parameters.Count
+                ? await CountRootObjectResult(entities.CountResult)
+                : await RootObjectResult(entities.ListResult, parameters.Fields);
         }
     }
 }

@@ -64,7 +64,7 @@ namespace StockManagementSystem.Controllers
                 var warnings = await _commonModelFactory.PrepareSystemWarningModels();
                 if (warnings.Any(warning => warning.Level == SystemWarningLevel.Fail || warning.Level == SystemWarningLevel.Warning))
                     _notificationService.WarningNotification(
-                        "The store has some error(s) or warning(s). Please find more information on the Warnings page.");
+                        "The web has some error(s) or warning(s). Please find more information on the Warnings page.");
             }
 
             return View("Dashboard");
