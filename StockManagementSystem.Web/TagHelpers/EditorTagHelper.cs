@@ -15,6 +15,7 @@ namespace StockManagementSystem.Web.TagHelpers
     {
         private const string ForAttributeName = "asp-for";
         private const string DisabledAttributeName = "asp-disabled";
+        private const string ReadOnlyAttributeName = "asp-readonly";
         private const string RequiredAttributeName = "asp-required";
         private const string RenderFormControlClassAttributeName = "asp-render-form-control-class";
         private const string TemplateAttributeName = "asp-template";
@@ -33,6 +34,12 @@ namespace StockManagementSystem.Web.TagHelpers
         /// </summary>
         [HtmlAttributeName(DisabledAttributeName)]
         public string IsDisabled { set; get; }
+
+        /// <summary>
+        /// Indicates whether the field is readonly
+        /// </summary>
+        [HtmlAttributeName(ReadOnlyAttributeName)]
+        public string IsReadOnly { get; set; }
 
         /// <summary>
         /// Indicates whether the field is required
@@ -85,6 +92,11 @@ namespace StockManagementSystem.Web.TagHelpers
             bool.TryParse(IsDisabled, out bool disabled);
             if (disabled)
                 htmlAttributes.Add("disabled", "disabled");
+
+            //readonly attribute
+            bool.TryParse(IsReadOnly, out bool @readonly);
+            if (@readonly)
+                htmlAttributes.Add("readonly", "readonly");
 
             //required asterisk
             bool.TryParse(IsRequired, out bool required);

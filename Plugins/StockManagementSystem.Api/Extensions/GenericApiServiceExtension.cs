@@ -56,7 +56,7 @@ namespace StockManagementSystem.Api.Extensions
             return query.Provider.CreateQuery<T>(orderByCallExpression);
         }
 
-        public static IQueryable<T> HandleSearchParams<T>(this IQueryable<T> query, IReadOnlyDictionary<string, string> searchParams, string order, bool _)
+        public static IQueryable<T> HandleSearchParams<T>(this IQueryable<T> query, IReadOnlyDictionary<string, string> searchParams)
         {
             foreach (var searchParam in searchParams)
             {
@@ -87,7 +87,7 @@ namespace StockManagementSystem.Api.Extensions
                 }
             }
 
-            return query.GetQueryDynamic(sortColumn:order, descending:_);
+            return query;
         }
     }
 }

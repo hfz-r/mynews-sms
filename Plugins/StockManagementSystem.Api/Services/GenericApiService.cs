@@ -693,341 +693,385 @@ namespace StockManagementSystem.Api.Services
             switch (instance)
             {
                 case Store _:
-                {
-                    var repository = RepositoryActivator(typeof(Store));
-                    var query = repository.Table as IQueryable<Store>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(Store));
+                        var query = repository.Table as IQueryable<Store>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case Permission _:
-                {
-                    var repository = RepositoryActivator(typeof(Permission));
-                    var query = repository.Table as IQueryable<Permission>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(Permission));
+                        var query = repository.Table as IQueryable<Permission>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case UserStore _:
-                {
-                    var repository = RepositoryActivator(typeof(UserStore));
-                    var query = repository.Table as IQueryable<UserStore>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(UserStore));
+                        var query = repository.Table as IQueryable<UserStore>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case UserRole _:
-                {
-                    var repository = RepositoryActivator(typeof(UserRole));
-                    var query = repository.Table as IQueryable<UserRole>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(UserRole));
+                        var query = repository.Table as IQueryable<UserRole>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case PermissionRoles _:
-                {
-                    var repository = RepositoryActivator(typeof(PermissionRoles));
-                    var query = repository.Table as IQueryable<PermissionRoles>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(PermissionRoles));
+                        var query = repository.Table as IQueryable<PermissionRoles>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case LocalState _:
-                {
-                    var repository = RepositoryActivator(typeof(LocalState));
-                    var query = repository.Table as IQueryable<LocalState>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(LocalState));
+                        var query = repository.Table as IQueryable<LocalState>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case Holiday _:
-                {
-                    var repository = RepositoryActivator(typeof(Holiday));
-                    var query = repository.Table as IQueryable<Holiday>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(Holiday));
+                        var query = repository.Table as IQueryable<Holiday>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case ASNDetailMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(ASNDetailMaster));
-                    var query = repository.Table as IQueryable<ASNDetailMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(ASNDetailMaster));
+                        var query = repository.Table as IQueryable<ASNDetailMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case ASNHeaderMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(ASNHeaderMaster));
-                    var query = repository.Table as IQueryable<ASNHeaderMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(ASNHeaderMaster));
+                        var query = repository.Table as IQueryable<ASNHeaderMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case BarcodeMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(BarcodeMaster));
-                    var query = repository.Table as IQueryable<BarcodeMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(BarcodeMaster));
+                        var query = repository.Table as IQueryable<BarcodeMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case MainCategoryMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(MainCategoryMaster));
-                    var query = repository.Table as IQueryable<MainCategoryMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(MainCategoryMaster));
+                        var query = repository.Table as IQueryable<MainCategoryMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case OrderBranchMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(OrderBranchMaster));
-                    var query = repository.Table as IQueryable<OrderBranchMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(OrderBranchMaster));
+                        var query = repository.Table as IQueryable<OrderBranchMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case SalesMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(SalesMaster));
-                    var query = repository.Table as IQueryable<SalesMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(SalesMaster));
+                        var query = repository.Table as IQueryable<SalesMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case ShelfLocationMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(ShelfLocationMaster));
-                    var query = repository.Table as IQueryable<ShelfLocationMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(ShelfLocationMaster));
+                        var query = repository.Table as IQueryable<ShelfLocationMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case ShiftControlMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(ShiftControlMaster));
-                    var query = repository.Table as IQueryable<ShiftControlMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(ShiftControlMaster));
+                        var query = repository.Table as IQueryable<ShiftControlMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case StockTakeControlMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(StockTakeControlMaster));
-                    var query = repository.Table as IQueryable<StockTakeControlMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(StockTakeControlMaster));
+                        var query = repository.Table as IQueryable<StockTakeControlMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case StockTakeRightMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(StockTakeRightMaster));
-                    var query = repository.Table as IQueryable<StockTakeRightMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(StockTakeRightMaster));
+                        var query = repository.Table as IQueryable<StockTakeRightMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case StockTakeControlOutletMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(StockTakeControlOutletMaster));
-                    var query = repository.Table as IQueryable<StockTakeControlOutletMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(StockTakeControlOutletMaster));
+                        var query = repository.Table as IQueryable<StockTakeControlOutletMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case StockSupplierMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(StockSupplierMaster));
-                    var query = repository.Table as IQueryable<StockSupplierMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(StockSupplierMaster));
+                        var query = repository.Table as IQueryable<StockSupplierMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case SubCategoryMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(SubCategoryMaster));
-                    var query = repository.Table as IQueryable<SubCategoryMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(SubCategoryMaster));
+                        var query = repository.Table as IQueryable<SubCategoryMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case SupplierMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(SupplierMaster));
-                    var query = repository.Table as IQueryable<SupplierMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
-                    }
+                        var repository = RepositoryActivator(typeof(SupplierMaster));
+                        var query = repository.Table as IQueryable<SupplierMaster>;
 
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                    }
                 case WarehouseDeliveryScheduleMaster _:
-                {
-                    var repository = RepositoryActivator(typeof(WarehouseDeliveryScheduleMaster));
-                    var query = repository.Table as IQueryable<WarehouseDeliveryScheduleMaster>;
-
-                    var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                    if (searchParams != null)
                     {
-                        query = query.HandleSearchParams(searchParams, sortColumn, @descending);
+                        var repository = RepositoryActivator(typeof(WarehouseDeliveryScheduleMaster));
+                        var query = repository.Table as IQueryable<WarehouseDeliveryScheduleMaster>;
+
+                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                        if (searchParams != null)
+                        {
+                            query = query.HandleSearchParams(searchParams);
+                        }
+
+                        query = query.GetQueryDynamic(sortColumn, @descending);
+
+                        return count
+                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                     }
-
-                    return count
-                        ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                        : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                }
                 default:
-                {
-                    _logger.Information("Null.");
+                    {
+                        _logger.Information("Null.");
 
-                    return null;
-                }
+                        return null;
+                    }
             }
         }
     }

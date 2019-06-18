@@ -92,21 +92,21 @@ namespace StockManagementSystem.Controllers
 
                 #region First time login
 
-                if (_userSettings.UsernamesEnabled)
+                var userFirstTime = _userSettings.UsernamesEnabled
+                    ? await _userService.GetUserByUsernameAsync(model.Username)
+                    : await _userService.GetUserByEmailAsync(model.Email);
+
+                if (userFirstTime == null)
                 {
-                    var userFirstTime = await _userService.GetUserByUsernameAsync(model.Username);
-                    if (userFirstTime == null)
-                    {
-                        ModelState.AddModelError(string.Empty, "Unknown user account");
-                        _notificationService.ErrorNotification("Unknown user account");
+                    ModelState.AddModelError(string.Empty, "Unknown user account");
+                    _notificationService.ErrorNotification("Unknown user account");
 
-                        model = await _userAccountModelFactory.PrepareLoginModel();
-                        return View(model);
-                    }
-
-                    if (userFirstTime.LastLoginDateUtc == null)
-                        return RedirectToAction("FirstTimeLogin", new { id = userFirstTime.Id });
+                    model = await _userAccountModelFactory.PrepareLoginModel();
+                    return View(model);
                 }
+
+                if (userFirstTime.LastLoginDateUtc == null)
+                    return RedirectToAction("FirstTimeLogin", new { id = userFirstTime.Id });
 
                 #endregion
 
@@ -200,6 +200,20 @@ namespace StockManagementSystem.Controllers
                         user.CannotLoginUntilDateUtc = null;
                         user.LastLoginDateUtc = DateTime.UtcNow;
                         user.RegisteredInTenantId = _tenantContext.CurrentTenant.Id;
+
+                        //add to 'Registered' role
+                        var registeredRole = _userService.GetRoleBySystemName(UserDefaults.RegisteredRoleName);
+                        if (registeredRole == null)
+                            throw new DefaultException("'Registered' role could not be loaded");
+
+                        user.AddUserRole(new UserRole { Role = registeredRole });
+
+                        //remove from 'Guests' role
+                        var guestRole = user.Roles.FirstOrDefault(r => r.SystemName == UserDefaults.GuestsRoleName);
+                        if (guestRole != null)
+                        {
+                            user.RemoveUserRole(user.UserRoles.FirstOrDefault(mapping => mapping.RoleId == guestRole.Id));
+                        }
 
                         await _userService.UpdateUserAsync(user);
 
