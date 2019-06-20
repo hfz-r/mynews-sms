@@ -42,6 +42,8 @@ namespace StockManagementSystem.Core.Domain.Stores
 
         public string P_DBPassword { get; set; }
 
+        public int? P_DeliveryPerWeek { get; set; }
+
         public double? Latitude { get; set; }
 
         public double? Longitude { get; set; }

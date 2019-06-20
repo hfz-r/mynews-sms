@@ -52,15 +52,15 @@ namespace StockManagementSystem.Services.OrderLimits
                 getOnlyTotalCount));
         }
 
-        public Task<bool> IsStoreExistAsync(int branchNo)
-        {
-            bool isExist = false;
-            var query = _orderLimitRepository.Table;
+        //public Task<bool> IsStoreExistAsync(int branchNo)
+        //{
+        //    bool isExist = false;
+        //    var query = _orderLimitRepository.Table;
 
-            isExist = query.Any(x => x.P_BranchNo == branchNo);
+        //    isExist = query.Any(x => x.P_BranchNo == branchNo);
 
-            return Task.FromResult<bool>(isExist);
-        }
+        //    return Task.FromResult<bool>(isExist);
+        //}
 
         public Task<ICollection<OrderBranchMaster>> GetAllOrderLimitsStoreAsync()
         {

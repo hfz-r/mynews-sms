@@ -44,6 +44,18 @@ namespace StockManagementSystem.Models.OrderLimits
         [Required(ErrorMessage = "Order Ratio is required")]
         public float OrderRatio { get; set; }
 
+        [Display(Name = "Min Day(s)")]
+        [Required(ErrorMessage = "Min Day(s) is required")]
+        public int MinDays { get; set; }
+
+        [Display(Name = "Max Day(s)")]
+        [Required(ErrorMessage = "Max Day(s) is required")]
+        public int MaxDays { get; set; }
+
+        [Display(Name = "Face Qty")]
+        [Required(ErrorMessage = "Face Qty is required")]
+        public int FaceQty { get; set; }
+
         [Display(Name = "Created on")]
         public DateTime CreatedOn { get; set; }
 

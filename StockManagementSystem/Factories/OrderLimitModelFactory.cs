@@ -73,9 +73,12 @@ namespace StockManagementSystem.Factories
                     orderLimitsModel.Safety = orderLimit.P_Safety;
                     orderLimitsModel.InventoryCycle = orderLimit.P_InventoryCycle;
                     orderLimitsModel.OrderRatio = orderLimit.P_OrderRatio;
+                    orderLimitsModel.MinDays = (int)orderLimit.P_MinDays;
+                    orderLimitsModel.MaxDays = (int)orderLimit.P_MaxDays;
+                    orderLimitsModel.FaceQty = (int)orderLimit.P_FaceQty;
 
-                    var storeName = _storeService.GetStoreById(orderLimit.P_BranchNo);
-                    orderLimitsModel.StoreName = orderLimit.P_BranchNo + " - " + storeName.P_Name;
+                    //var storeName = _storeService.GetStoreById(orderLimit.P_BranchNo);
+                    //orderLimitsModel.StoreName = orderLimit.P_BranchNo + " - " + storeName.P_Name;
                     orderLimitsModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                     orderLimitsModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
 
@@ -127,37 +130,40 @@ namespace StockManagementSystem.Factories
                 model.Safety = orderLimit.P_Safety;
                 model.InventoryCycle = orderLimit.P_InventoryCycle;
                 model.OrderRatio = orderLimit.P_OrderRatio;
-                model.SelectedStoreIds = orderLimit.P_BranchNo;
+                model.MinDays = (int)orderLimit.P_MinDays;
+                model.MaxDays = (int)orderLimit.P_MaxDays;
+                model.FaceQty = (int)orderLimit.P_FaceQty;
+                //model.SelectedStoreIds = orderLimit.P_BranchNo;
                 model.CreatedOn = _dateTimeHelper.ConvertToUserTime(orderLimit.CreatedOnUtc, DateTimeKind.Utc);
                 model.LastActivityDate = _dateTimeHelper.ConvertToUserTime(orderLimit.ModifiedOnUtc.GetValueOrDefault(DateTime.UtcNow), DateTimeKind.Utc);
             }
             else
             {
                 model = new OrderLimitModel();
-                model.SelectedStoreIds = -99;
+                //model.SelectedStoreIds = -99;
             }
 
-            var stores = await _storeService.GetStores();
-            var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();   
-            var existingBranch = orderLimitStore.Select(x => x.P_BranchNo).ToList();
-            IEnumerable<Store> newStore = new List<Store>();
+            //var stores = await _storeService.GetStores();
+            //var orderLimitStore = await _orderLimitService.GetAllOrderLimitsStoreAsync();   
+            //var existingBranch = orderLimitStore.Select(x => x.P_BranchNo).ToList();
+            //IEnumerable<Store> newStore = new List<Store>();
 
-            if (model.SelectedStoreIds != -99)
-            {
-                List<int> ids = new List<int>();
-                ids.Add(model.SelectedStoreIds);
-                newStore = stores.Where(x => !existingBranch.Except(ids).Contains(x.P_BranchNo));
-            }
-            else
-            {
-                newStore = stores.Where(x => !existingBranch.Contains(x.P_BranchNo));
-            }
+            //if (model.SelectedStoreIds != -99)
+            //{
+            //    List<int> ids = new List<int>();
+            //    ids.Add(model.SelectedStoreIds);
+            //    newStore = stores.Where(x => !existingBranch.Except(ids).Contains(x.P_BranchNo));
+            //}
+            //else
+            //{
+            //    newStore = stores.Where(x => !existingBranch.Contains(x.P_BranchNo));
+            //}
             
-            model.AvailableStores = newStore.Select(store => new SelectListItem
-            {
-                Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
-                Value = store.P_BranchNo.ToString()
-            }).ToList();
+            //model.AvailableStores = newStore.Select(store => new SelectListItem
+            //{
+            //    Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
+            //    Value = store.P_BranchNo.ToString()
+            //}).ToList();
 
             return await Task.FromResult(model);
         }
