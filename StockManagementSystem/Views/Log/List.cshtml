@@ -1,0 +1,284 @@
+﻿@model LogSearchModel
+
+@{
+    ViewBag.Title = "System log";
+    Html.SetActiveMenuItemSystemName("admin.system.log");
+}
+
+<form asp-controller="Log" asp-action="List" method="post">
+<section class="content-header clearfix">
+    <h1 class="pull-left">@ViewBag.Title</h1>
+    <ol class="breadcrumb pull-right">
+        <li class="#">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="glyphicon glyphicon-home"></i>
+            </a>
+        </li>
+        <li class="#">
+            <a href="#">
+                <i class="fa fa-cube"></i>
+            </a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a asp-action="Index">@ViewBag.Title</a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+<div class="form-horizontal">
+<div class="panel-group">
+<div class="panel panel-default panel-search">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="CreatedOnFrom"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_editor asp-for="CreatedOnFrom"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="CreatedOnTo"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_editor asp-for="CreatedOnTo"/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="Message"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_editor asp-for="Message"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <_label asp-for="LogLevelId"/>
+                    </div>
+                    <div class="col-md-8">
+                        <_select asp-for="LogLevelId" asp-items="Model.AvailableLogLevels"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-7 col-md-offset-5">
+                <button type="button" id="search-log" class="btn btn-primary btn-search">
+                    <i class="fa fa-search"></i> Search
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div id="log-grid"></div>
+
+        <style>
+            .custom-button {
+                color: #444444;
+                padding-right: 10px;
+                font-size: 1.5em;
+            }
+
+            #log-grid .k-grid-toolbar { padding: .6em 1.3em .6em .4em; }
+
+            .toolbar { float: right; }
+        </style>
+
+        <script type="text/x-kendo-template" id="template">
+            <div class="toolbar">
+                <button type="submit" id="clearall" name="clearall" class="btn bg-yellow-gradient btn-sm">
+                    <i class="fa fa-trash-o"></i> Clear log
+                </button>
+
+                <button type="button" id="delete-selected" class="btn bg-yellow-gradient btn-sm">
+                    <i class="fa fa-trash-o"></i> Delete selected
+                </button>
+            </div>
+        </script>
+
+        <script>
+            $(document).ready(function() {
+                $("#log-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("LogList", "Log"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = {
+                                        CreatedOnFrom: $('#@Html.IdFor(model => model.CreatedOnFrom)').val(),
+                                        CreatedOnTo: $('#@Html.IdFor(model => model.CreatedOnTo)').val(),
+                                        Message: $('#@Html.IdFor(model => model.Message)').val(),
+                                        LogLevelId: $('#@Html.IdFor(model => model.LogLevelId)').val()
+                                    };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors"
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        pageSize: @(Model.PageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(Model.AvailablePageSizes)],
+                        @await Html.PartialAsync("_GridPagerMessages")
+                    },
+                    toolbar: kendo.template($("#template").html()),
+                    scrollable: false,
+                    dataBound: onDataBound,
+                    columns: [
+                        {
+                            field: "Id",
+                            headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
+                            width: 50
+                        }, {
+                            field: "LogLevel",
+                            title: "Log level",
+                            width: 100
+                        }, {
+                            field: "ShortMessage",
+                            title: "Short message",
+                            encoded: false
+                        }, {
+                            field: "CreatedOn",
+                            title: "Created on",
+                            width: 200,
+                            type: "date",
+                            format: "{0:G}"
+                        }, {
+                            template:
+                                "<a href='View/#=Id#' title='View' class='custom-button edit-button'><i class='fa fa-eye'></i></a>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 50
+                        }
+                    ]
+                }).data("kendoGrid");
+            });
+
+        </script>
+
+        <script>
+            var selectedIds = [];
+
+            $(document).ready(function() {
+                //search button
+                $('#search-log').click(function() {
+                    //search
+                    var grid = $('#log-grid').data('kendoGrid');
+                    grid.dataSource.page(1);
+
+                    $('.checkboxGroups').attr('checked', false).change();
+                    selectedIds = [];
+                    return false;
+                });
+
+                //"delete selected" button
+                $("#delete-selected-action-confirmation-submit-button").bind("click",
+                    function() {
+                        var postData = {
+                            selectedIds: selectedIds
+                        };
+                        addAntiForgeryToken(postData);
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            url: "@(Url.Action("DeleteSelected", "Log"))",
+                            data: postData,
+                            complete: function(data) {
+                                var grid = $('#log-grid').data('kendoGrid');
+                                grid.dataSource.page(1);
+
+                                $('.checkboxGroups').attr('checked', false).change();
+                                selectedIds = [];
+                            },
+                            error: function(xhr, ajaxOptions, thrownError) {
+                                $('#deleteSelectedFailed-info').html(thrownError);
+                                $("#deleteSelectedFailed").click();
+                            },
+                            traditional: true
+                        });
+                        $('#delete-selected-action-confirmation').modal('toggle');
+                        return false;
+                    });
+
+                $('#mastercheckbox').click(function() {
+                    $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+                });
+
+                //wire up checkboxes.
+                $('#log-grid').on('change',
+                    'input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]',
+                    function(e) {
+                        var $check = $(this);
+                        var checked = jQuery.inArray($check.val(), selectedIds);
+                        if ($check.is(":checked") == true) {
+                            if (checked == -1) {
+                                //add id to selectedIds.
+                                selectedIds.push($check.val());
+                            }
+                        } else if (checked > -1) {
+                            //remove id from selectedIds.
+                            selectedIds = $.grep(selectedIds,
+                                function(item, index) {
+                                    return item != $check.val();
+                                });
+                        }
+                        updateMasterCheckbox();
+                    });
+            });
+
+            function onDataBound(e) {
+                $('#log-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').each(function() {
+                    var currentId = $(this).val();
+                    var checked = jQuery.inArray(currentId, selectedIds);
+                    //set checked based on if current checkbox's value is in selectedIds.
+                    $(this).attr('checked', checked > -1);
+                });
+
+                updateMasterCheckbox();
+            }
+
+            function updateMasterCheckbox() {
+                var numChkBoxes = $('#log-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').length;
+                var numChkBoxesChecked =
+                    $('#log-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]:checked').length;
+                $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+            }
+        </script>
+    </div>
+
+</div>
+</div>
+</div>
+</section>
+</form>
+<_alert asp-alert-id="deleteSelectedFailed"/>
+<_action-confirmation asp-button-id="delete-selected"/>
