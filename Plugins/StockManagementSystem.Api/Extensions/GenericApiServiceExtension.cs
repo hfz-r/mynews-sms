@@ -74,8 +74,14 @@ namespace StockManagementSystem.Api.Extensions
                         var today = DateTime.Now;
                         var dateToCompare = today.AddDays(Convert.ToDouble(searchParam.Value));
 
+                        object[] expObj = null;
+                        if (Convert.ToDouble(searchParam.Value) > 0)
+                            expObj = new object[] {today, dateToCompare};
+                        else if (Convert.ToDouble(searchParam.Value) < 0)
+                            expObj = new object[] {dateToCompare, today};
+
                         expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
-                            $"{searchParam.Key} >= @0 and {searchParam.Key} < @1", dateToCompare, today);
+                            $"{searchParam.Key} >= @0 and {searchParam.Key} < @1", expObj);
                     }
                     else
                     {
