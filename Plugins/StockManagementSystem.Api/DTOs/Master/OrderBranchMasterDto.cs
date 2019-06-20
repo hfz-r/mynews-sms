@@ -7,9 +7,6 @@ namespace StockManagementSystem.Api.DTOs.Master
     [JsonObject(Title = "orderBranch")]
     public class OrderBranchMasterDto : BaseDto
     {
-        [JsonProperty("branch_no")]
-        public int P_BranchNo { get; set; }
-
         [JsonProperty("delivery_per_week")]
         public int P_DeliveryPerWeek { get; set; }
 
@@ -21,6 +18,15 @@ namespace StockManagementSystem.Api.DTOs.Master
 
         [JsonProperty("order_ratio")]
         public float P_OrderRatio { get; set; }
+
+        [JsonProperty("min_days")]
+        public int? P_MinDays { get; set; }
+
+        [JsonProperty("max_days")]
+        public int? P_MaxDays { get; set; }
+
+        [JsonProperty("face_qty")]
+        public int? P_FaceQty { get; set; }
 
         [JsonProperty("status")]
         public byte Status { get; set; }

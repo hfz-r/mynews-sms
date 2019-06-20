@@ -13,7 +13,7 @@ namespace StockManagementSystem.Services.OrderLimits
         Task<ICollection<OrderBranchMaster>> GetAllOrderLimitsAsync();
         Task<OrderBranchMaster> GetOrderLimitByIdAsync(int orderLimitId);
         Task<IPagedList<OrderBranchMaster>> GetOrderLimitsAsync(int[] storeIds = null/*, int? percentage = 0*/, int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false); //Remove Percentage criteria; Not required - 05032019
-        Task<bool> IsStoreExistAsync(int branchNo);
+        //Task<bool> IsStoreExistAsync(int branchNo);
         Task<ICollection<OrderBranchMaster>> GetAllOrderLimitsStoreAsync();
         Task InsertOrderLimit(OrderBranchMaster orderLimit);
         void UpdateOrderLimit(OrderBranchMaster orderLimit);

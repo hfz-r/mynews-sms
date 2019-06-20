@@ -63,5 +63,8 @@ namespace StockManagementSystem.Api.DTOs.Stores
 
         [JsonProperty("db_password")]
         public string DBPassword { get; set; }
+
+        [JsonProperty("db_deliveryperweek")]
+        public int? DBDeliveryPerWeek { get; set; }
     }
 }

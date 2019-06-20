@@ -156,13 +156,13 @@ namespace StockManagementSystem.Controllers
             {
                 try
                 {
-                    var isExist = await _orderLimitService.IsStoreExistAsync(model.SelectedStoreIds);
-                    if (isExist)
-                    {
-                        ModelState.AddModelError(string.Empty, "Store has existed in current order limit.");
-                        _notificationService.ErrorNotification("Store has existed in current order limit.");
-                        return new NullJsonResult();
-                    }
+                    //var isExist = await _orderLimitService.IsStoreExistAsync(model.SelectedStoreIds);
+                    //if (isExist)
+                    //{
+                    //    ModelState.AddModelError(string.Empty, "Store has existed in current order limit.");
+                    //    _notificationService.ErrorNotification("Store has existed in current order limit.");
+                    //    return new NullJsonResult();
+                    //}
 
                     orderLimit = new OrderBranchMaster
                     {
@@ -170,7 +170,10 @@ namespace StockManagementSystem.Controllers
                         P_Safety = model.Safety,
                         P_InventoryCycle = model.InventoryCycle,
                         P_OrderRatio = model.OrderRatio,
-                        P_BranchNo = model.SelectedStoreIds,
+                        P_FaceQty = model.FaceQty,
+                        P_MinDays = model.MinDays,
+                        P_MaxDays = model.MaxDays,
+                        //P_BranchNo = model.SelectedStoreIds,
                         Status = 1
                     };
 
@@ -250,7 +253,10 @@ namespace StockManagementSystem.Controllers
                     orderLimit.P_Safety = model.Safety;
                     orderLimit.P_InventoryCycle = model.InventoryCycle;
                     orderLimit.P_OrderRatio = model.OrderRatio;
-                    orderLimit.P_BranchNo = model.SelectedStoreIds;
+                    orderLimit.P_MaxDays = model.MaxDays;
+                    orderLimit.P_MinDays = model.MinDays;
+                    orderLimit.P_FaceQty = model.FaceQty;
+                    // orderLimit.P_BranchNo = model.SelectedStoreIds;
 
                     _orderLimitService.UpdateOrderLimit(orderLimit);
 

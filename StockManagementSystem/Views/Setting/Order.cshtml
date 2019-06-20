@@ -29,7 +29,7 @@
     <section class="content">
         <div class="form-horizontal">
             <div class="panel-group">
-                <div class="panel panel-default panel-search">
+                @*<div class="panel panel-default panel-search">
                     <div class="panel-body">
                         <div class="row">
                             @*Remove Percentage criteria; Not required - 05032019*@
@@ -56,7 +56,8 @@
                                     </script>
                                 </div>
                             </div>*@
-                            <div class="col-xs-6">
+                            @*Remove Branch criteria; Not required - 20062019*@
+                            @*<div class="col-xs-6">
                                 <div class="form-group">
                                     <div class="col-xs-5">
                                         <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
@@ -93,7 +94,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>*@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         <div id="grid"></div>
@@ -105,7 +106,7 @@
                             }
                         </style>
                         <script>
-                            var datasource = @Html.Raw(Json.Serialize(Model.AvailableStores));
+                            //var datasource = @Html.Raw(Json.Serialize(Model.AvailableStores));
 
                             $(document).ready(function () {
                                 var grid = $("#grid").kendoGrid({
@@ -118,8 +119,8 @@
                                                 dataType: "json",
                                                 data: function () {
                                                     var data = {
-                                                        SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
-                                                    @*SearchPercentage: $('#@Html.IdFor(model => model.SearchPercentage)').val() //Remove Percentage criteria; Not required - 05032019*@
+                                                        @*SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),//Remove Branch criteria; Not required - 20062019**@
+                                                        @*SearchPercentage: $('#@Html.IdFor(model => model.SearchPercentage)').val() //Remove Percentage criteria; Not required - 05032019*@
                                                     };
                                                     addAntiForgeryToken(data);
                                                     return data;
@@ -163,8 +164,11 @@
                                                     Safety: { type: "string", validation: { required: true } },
                                                     InventoryLevel: { type: "string", validation: { required: true } },
                                                     OrderRatio: { type: "string", validation: { required: true } },
-                                                    StoreName: { type: "string" },
-                                                    SelectedStoreIds: { editable: true, validation: { required: true } }
+                                                    MinDays: { type: "string", validation: { required: true } },
+                                                    MaxDays: { type: "string", validation: { required: true } },
+                                                    FaceQty: { type: "string", validation: { required: true } },
+                                                    //StoreName: { type: "string" },
+                                                    //SelectedStoreIds: { editable: true, validation: { required: true } }
                                                 }
                                             }
                                         },
@@ -211,30 +215,24 @@
                                         //    field: "Percentage",
                                         //    title: "Percentage",
                                         //    width: 230,
-                                        //    editor: customEditor 
+                                        //    editor: customEditor
                                         //},
                                         //Remove criteria; Not required - 19042019
                                         //{
                                         //    field: "DaysofStock",
                                         //    title: "Buffer Days",
                                         //    width: 230,
-                                        //    editor: customEditor 
+                                        //    editor: customEditor
                                         //},
                                         //{
                                         //    field: "DaysofSales",
                                         //    title: "Days of Sales",
                                         //    width: 230,
-                                        //    editor: customEditorSales 
+                                        //    editor: customEditorSales
                                         //},
                                         {
                                             field: "DeliveryPerWeek",
                                             title: "Delivery Per Week",
-                                            width: 230,
-                                            editor: customEditor
-                                        },
-                                        {
-                                            field: "Safety",
-                                            title: "Safety",
                                             width: 230,
                                             editor: customEditor
                                         },
@@ -245,34 +243,59 @@
                                             editor: customEditor
                                         },
                                         {
+                                            field: "Safety",
+                                            title: "Safety",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
+                                            field: "MinDays",
+                                            title: "Min Day(s)",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
+                                            field: "MaxDays",
+                                            title: "Max Day(s)",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        {
                                             field: "OrderRatio",
                                             title: "Order Ratio",
                                             width: 230,
                                             editor: customEditor
                                         },
                                         {
-                                            field: "SelectedStoreIds",
-                                            title: "Store",
-                                            template: "#=StoreName#",
-                                            type: "string",
-                                            width: 300,
-                                            editor: function (container, option) { // use a dropdownlist as an editor
-                                                // create an input element with id and name set as the bound field (brandId)
-                                                var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '">')
-                                                // append to the editor container
-                                                input.appendTo(container);
+                                            field: "FaceQty",
+                                            title: "Face Qty",
+                                            width: 230,
+                                            editor: customEditor
+                                        },
+                                        //{
+                                        //    field: "SelectedStoreIds",
+                                        //    title: "Store",
+                                        //    template: "#=StoreName#",
+                                        //    type: "string",
+                                        //    width: 300,
+                                        //    editor: function (container, option) { // use a dropdownlist as an editor
+                                        //        // create an input element with id and name set as the bound field (brandId)
+                                        //        var input = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '">')
+                                        //        // append to the editor container
+                                        //        input.appendTo(container);
 
-                                                // initialize a dropdownlist
-                                                input.kendoMultiSelect({
-                                                    dataTextField: "Text",
-                                                    dataValueField: "Value",
-                                                    dataSource: datasource,
-                                                    optionLabel: " ",
-                                                    autoBind: "true",
-                                                    valuePrimitive: "true"
-                                                }).appendTo(container)
-                                            }
-                                        }, {
+                                        //        // initialize a dropdownlist
+                                        //        input.kendoMultiSelect({
+                                        //            dataTextField: "Text",
+                                        //            dataValueField: "Value",
+                                        //            dataSource: datasource,
+                                        //            optionLabel: " ",
+                                        //            autoBind: "true",
+                                        //            valuePrimitive: "true"
+                                        //        }).appendTo(container)
+                                        //    }
+                                        //},
+                                        {
                                             template:
                                                 "<a href='EditOrder/#=Id#' title='Edit' class='custom-button edit-button'><i class='glyphicon glyphicon-pencil'></i></a>" +
                                                 "<a href='DeleteOrderLimit/#=Id#' action='DeleteOrderLimit' title='Delete' class='custom-button destroy-button'><i class='glyphicon glyphicon-trash'></i></a>",

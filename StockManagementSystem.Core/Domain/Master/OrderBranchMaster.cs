@@ -4,8 +4,6 @@ namespace StockManagementSystem.Core.Domain.Master
 {
     public class OrderBranchMaster : BaseEntity , IAppendTimestamps
     {
-        public int P_BranchNo { get; set; }
-
         public int P_DeliveryPerWeek { get; set; }
 
         public int P_Safety { get; set; }
@@ -13,6 +11,12 @@ namespace StockManagementSystem.Core.Domain.Master
         public int P_InventoryCycle { get; set; }
 
         public float P_OrderRatio { get; set; }
+
+        public int? P_MinDays { get; set; }
+
+        public int? P_MaxDays { get; set; }
+
+        public int? P_FaceQty { get; set; }
 
         public byte Status { get; set; }
 

@@ -6,35 +6,35 @@
 
             @*Remove Percentage criteria; Not required - 05032019*@
             @*<div class="form-group">
-                    <div class="col-xs-3">
-                        <label asp-for="Percentage" class="control-label pull-right"></label>
-                    </div>
-                    <div class="col-xs-9">
-                        <input asp-for="Percentage" type="text" class="form-control" min="0" max="100" onkeypress='return validateQty(event);' />
-                        <span asp-validation-for="Percentage"></span>
-                    </div>
-                </div>*@
+            <div class="col-xs-3">
+                <label asp-for="Percentage" class="control-label pull-right"></label>
+            </div>
+            <div class="col-xs-9">
+                <input asp-for="Percentage" type="text" class="form-control" min="0" max="100" onkeypress='return validateQty(event);' />
+                <span asp-validation-for="Percentage"></span>
+            </div>
+        </div>*@
 
             @*Remove criteria; Not required - 19042019*@
             @*<div class="form-group">
-                    <div class="col-xs-3">
-                        <label asp-for="DaysofStock" class="control-label pull-right"></label>
-                    </div>
-                    <div class="col-xs-9">
-                        <input asp-for="DaysofStock" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
-                        <span asp-validation-for="DaysofStock"></span>
-                    </div>
-                </div>
+            <div class="col-xs-3">
+                <label asp-for="DaysofStock" class="control-label pull-right"></label>
+            </div>
+            <div class="col-xs-9">
+                <input asp-for="DaysofStock" type="text" class="form-control" min="0" onkeypress='return validateQty(event);' />
+                <span asp-validation-for="DaysofStock"></span>
+            </div>
+        </div>
 
-                <div class="form-group">
-                    <div class="col-xs-3">
-                        <label asp-for="DaysofSales" class="control-label pull-right"></label>
-                    </div>
-                    <div class="col-xs-9">
-                        <input asp-for="DaysofSales" type="text" class="form-control" min="14" onkeypress='return validateQty(event);' />
-                        <span asp-validation-for="DaysofSales"></span>
-                    </div>
-                </div>*@
+        <div class="form-group">
+            <div class="col-xs-3">
+                <label asp-for="DaysofSales" class="control-label pull-right"></label>
+            </div>
+            <div class="col-xs-9">
+                <input asp-for="DaysofSales" type="text" class="form-control" min="14" onkeypress='return validateQty(event);' />
+                <span asp-validation-for="DaysofSales"></span>
+            </div>
+        </div>*@
 
             <div class="form-group">
                 <div class="col-xs-3">
@@ -43,16 +43,6 @@
                 <div class="col-xs-9">
                     <input asp-for="DeliveryPerWeek" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
                     <span asp-validation-for="DeliveryPerWeek"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="col-xs-3">
-                    <label asp-for="Safety" class="control-label pull-right"></label>
-                </div>
-                <div class="col-xs-9">
-                    <input asp-for="Safety" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
-                    <span asp-validation-for="Safety"></span>
                 </div>
             </div>
 
@@ -68,44 +58,85 @@
 
             <div class="form-group">
                 <div class="col-xs-3">
+                    <label asp-for="Safety" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input asp-for="Safety" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <span asp-validation-for="Safety"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="MinDays" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input asp-for="MinDays" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <span asp-validation-for="MinDays"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
+                    <label asp-for="MaxDays" class="control-label pull-right"></label>
+                </div>
+                <div class="col-xs-9">
+                    <input asp-for="MaxDays" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <span asp-validation-for="MaxDays"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-xs-3">
                     <label asp-for="OrderRatio" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <input asp-for="OrderRatio" type="number" id="order" min="0.1" />
+                    <input asp-for="OrderRatio" type="number" id="order" min="0.01" />
                     <span asp-validation-for="OrderRatio"></span>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="col-xs-3">
-                    <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+                    <label asp-for="FaceQty" class="control-label pull-right"></label>
                 </div>
                 <div class="col-xs-9">
-                    <div class="input-group input-group-required">
-                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
-                        <div class="input-group-btn">
-                            <required />
-                        </div>
-                    </div>
-                    <script>
-                        $(document).ready(function() {
-                            var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
-                              .kendoDropDownList({
-                                autoBind: false,
-                                filter: "contains",
-                            }).data("kendoDropDownList");
-
-                            @if (Model.AvailableStores.Count == 0)
-                            {
-                                <text>
-                                    storesIdsInput.placeholder = "No stores available";
-                                    storesIdsInput.enable = false;
-                                </text>
-                            }
-                        });
-                    </script>
+                    <input asp-for="FaceQty" type="text" class="form-control" min="1" onkeypress='return validateQty(event);' />
+                    <span asp-validation-for="FaceQty"></span>
                 </div>
             </div>
+
+            @*Remove store criteria; Not required - 20062019*@
+            @*<div class="form-group">
+            <div class="col-xs-3">
+                <label asp-for="SelectedStoreIds" class="control-label pull-right"></label>
+            </div>
+            <div class="col-xs-9">
+                <div class="input-group input-group-required">
+                    <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                    <div class="input-group-btn">
+                        <required />
+                    </div>
+                </div>
+                <script>
+                    $(document).ready(function() {
+                        var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
+                          .kendoDropDownList({
+                            autoBind: false,
+                            filter: "contains",
+                        }).data("kendoDropDownList");
+
+                        @if (Model.AvailableStores.Count == 0)
+                        {
+                            <text>
+                                storesIdsInput.placeholder = "No stores available";
+                                storesIdsInput.enable = false;
+                            </text>
+                        }
+                    });
+                </script>
+            </div>
+        </div>*@
 
             @if (Model.Id > 0)
             {
@@ -136,9 +167,10 @@
 <script>
     $(document).ready(function () {
         $("#order").kendoNumericTextBox({
-            format: "n1",
-            decimals: 1,
-            step: 0.1,
+            format: "n2",
+            min: 0.01,
+            decimals: 2,
+            step: 0.01,
             restrictDecimals: false,
             spin: function (e) {
                 var inputElement = this.element;

@@ -169,7 +169,8 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                 .ForMember(model => model.DBIPAddress, z => z.MapFrom(e => e.P_DBIPAddress))
                 .ForMember(model => model.DBName, z => z.MapFrom(e => e.P_DBName))
                 .ForMember(model => model.DBUsername, z => z.MapFrom(e => e.P_DBUsername))
-                .ForMember(model => model.DBPassword, z => z.MapFrom(e => e.P_DBPassword));
+                .ForMember(model => model.DBPassword, z => z.MapFrom(e => e.P_DBPassword))
+                .ForMember(model => model.DBDeliveryPerWeek, z => z.MapFrom(e => e.P_DeliveryPerWeek));
         }
 
         private static void CreateDeviceMaps()
