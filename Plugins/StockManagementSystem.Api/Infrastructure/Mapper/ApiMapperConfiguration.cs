@@ -57,8 +57,8 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             //shelf location
             CreateMap<ShelfLocation, ShelfLocationDto>();
 
-            //state
-            CreateMap<LocalState, LocalStateDto>();
+            ////state
+            //CreateMap<LocalState, LocalStateDto>();
 
             //holiday
             CreateMap<Holiday, HolidayDto>();

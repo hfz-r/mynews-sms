@@ -177,16 +177,16 @@ namespace StockManagementSystem.Api.Services
                     return new ApiList<PermissionRoles>(query, page - 1, limit).Select(entity => entity.ToDto())
                         .ToList() as IList<T>;
                 }
-                case LocalState _:
-                {
-                    var repository = RepositoryActivator(typeof(LocalState));
-                    var query = repository.Table as IQueryable<LocalState>;
+                //case LocalState _:
+                //{
+                //    var repository = RepositoryActivator(typeof(LocalState));
+                //    var query = repository.Table as IQueryable<LocalState>;
 
-                    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
+                //    query = query.GetQueryDynamic(sortColumn, @descending, sinceId);
 
-                    return new ApiList<LocalState>(query, page - 1, limit).Select(entity => entity.ToDto())
-                        .ToList() as IList<T>;
-                }
+                //    return new ApiList<LocalState>(query, page - 1, limit).Select(entity => entity.ToDto())
+                //        .ToList() as IList<T>;
+                //}
                 case Holiday _:
                 {
                     var repository = RepositoryActivator(typeof(Holiday));
@@ -546,13 +546,13 @@ namespace StockManagementSystem.Api.Services
                     return (repository.Table as IQueryable<PermissionRoles> ?? throw new InvalidOperationException())
                         .Count();
                 }
-                case LocalState _:
-                {
-                    var repository = RepositoryActivator(typeof(LocalState));
+                //case LocalState _:
+                //{
+                //    var repository = RepositoryActivator(typeof(LocalState));
 
-                    return (repository.Table as IQueryable<LocalState> ?? throw new InvalidOperationException())
-                        .Count();
-                }
+                //    return (repository.Table as IQueryable<LocalState> ?? throw new InvalidOperationException())
+                //        .Count();
+                //}
                 case Holiday _:
                 {
                     var repository = RepositoryActivator(typeof(Holiday));
@@ -777,23 +777,23 @@ namespace StockManagementSystem.Api.Services
                             ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
                             : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
                     }
-                case LocalState _:
-                    {
-                        var repository = RepositoryActivator(typeof(LocalState));
-                        var query = repository.Table as IQueryable<LocalState>;
+                //case LocalState _:
+                //    {
+                //        var repository = RepositoryActivator(typeof(LocalState));
+                //        var query = repository.Table as IQueryable<LocalState>;
 
-                        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
-                        if (searchParams != null)
-                        {
-                            query = query.HandleSearchParams(searchParams);
-                        }
+                //        var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+                //        if (searchParams != null)
+                //        {
+                //            query = query.HandleSearchParams(searchParams);
+                //        }
 
-                        query = query.GetQueryDynamic(sortColumn, @descending);
+                //        query = query.GetQueryDynamic(sortColumn, @descending);
 
-                        return count
-                            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
-                            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
-                    }
+                //        return count
+                //            ? new SearchWrapper<T> { CountResult = ToCountResult(query) }
+                //            : new SearchWrapper<T> { ListResult = ToListResult(query, page, limit).Select(entity => entity.ToDto()).ToList() as IList<T> };
+                //    }
                 case Holiday _:
                     {
                         var repository = RepositoryActivator(typeof(Holiday));

@@ -21,5 +21,8 @@ namespace StockManagementSystem.Api.DTOs.Directory
 
         [JsonProperty("type")]
         public string Type { get; set; }
+
+        [JsonProperty("state")]
+        public string State { get; set; }
     }
 }

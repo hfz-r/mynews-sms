@@ -5,7 +5,7 @@ namespace StockManagementSystem.Core.Domain.Directory
 {
     public class Holiday : BaseEntity
     {
-        private DateTime _fullDateTime;
+        //private DateTime _fullDateTime;
 
         public int Year { get; set; }
 
@@ -17,19 +17,21 @@ namespace StockManagementSystem.Core.Domain.Directory
 
         public string Type { get; set; }
 
-        public DateTime FullDateTime
-        {
-            get => _fullDateTime;
-            set
-            {
-                _fullDateTime = value;
+        public string State { get; set; }
 
-                Year = _fullDateTime.Year;
-                Date = _fullDateTime.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
-                Day = _fullDateTime.ToString("ddd");
-            }
-        }
+        //public DateTime FullDateTime
+        //{
+        //    get => _fullDateTime;
+        //    set
+        //    {
+        //        _fullDateTime = value;
 
-        public virtual LocalState State { get; set; }
+        //        P_Year = _fullDateTime.Year;
+        //        P_Date = _fullDateTime.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+        //        P_Day = _fullDateTime.ToString("ddd");
+        //    }
+        //}
+
+        //public virtual LocalState State { get; set; }
     }
 }
