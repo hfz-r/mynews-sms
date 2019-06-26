@@ -11,12 +11,13 @@ namespace StockManagementSystem.Data.Mapping.Directory
             builder.ToTable(nameof(Holiday));
             builder.HasKey(holiday => holiday.Id);
 
-            builder.Ignore(holiday => holiday.FullDateTime);
+            //builder.Ignore(holiday => holiday.FullDateTime);
 
             builder.Property(holiday => holiday.Date).HasMaxLength(10);
             builder.Property(holiday => holiday.Day).HasMaxLength(5);
             builder.Property(holiday => holiday.Description).HasMaxLength(1000);
             builder.Property(holiday => holiday.Type).IsRequired();
+            builder.Property(holiday => holiday.State).HasMaxLength(200);
 
             base.Configure(builder);
         }
