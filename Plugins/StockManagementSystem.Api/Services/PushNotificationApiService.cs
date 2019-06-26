@@ -11,15 +11,21 @@ namespace StockManagementSystem.Api.Services
     public class PushNotificationApiService : IPushNotificationApiService
     {
         private readonly IRepository<PushNotification> _pushNotificationRepository;
+        private readonly IRepository<PushNotificationStore> _pushNotificationStoreRepository;
 
-        public PushNotificationApiService(IRepository<PushNotification> pushNotificationRepository)
+        public PushNotificationApiService(
+            IRepository<PushNotification> pushNotificationRepository,
+            IRepository<PushNotificationStore> pushNotificationStoreRepository)
         {
             _pushNotificationRepository = pushNotificationRepository;
+            _pushNotificationStoreRepository = pushNotificationStoreRepository;
         }
 
         #region Private methods
 
-        private IQueryable<PushNotification> GetPushNotificationQuery(DateTime? createdAtMin = null, DateTime? createdAtMax = null, IList<int> storeIds = null)
+        private IQueryable<PushNotification> GetPushNotificationQuery(DateTime? createdAtMin = null,
+            DateTime? createdAtMax = null, IList<int> storeIds = null, DateTime? startTime = null,
+            DateTime? endTime = null)
         {
             var query = _pushNotificationRepository.Table;
 
@@ -46,6 +52,12 @@ namespace StockManagementSystem.Api.Services
                 query = result.AsQueryable();
             }
 
+            if (startTime != null)
+                query = query.Where(c => c.StartTime > startTime.Value);
+
+            if (endTime != null)
+                query = query.Where(c => c.EndTime < endTime.Value);
+
             query = query.OrderBy(ol => ol.Id);
 
             return query;
@@ -59,9 +71,11 @@ namespace StockManagementSystem.Api.Services
             int limit = Configurations.DefaultLimit,
             int page = Configurations.DefaultPageValue,
             int sinceId = Configurations.DefaultSinceId,
-            IList<int> storeIds = null)
+            IList<int> storeIds = null,
+            DateTime? startTime = null,
+            DateTime? endTime = null)
         {
-            var query = GetPushNotificationQuery(createdAtMin, createdAtMax, storeIds);
+            var query = GetPushNotificationQuery(createdAtMin, createdAtMax, storeIds, startTime, endTime);
 
             if (sinceId > 0)
                 query = query.Where(ol => ol.Id > sinceId);
@@ -82,6 +96,18 @@ namespace StockManagementSystem.Api.Services
             var pushNotification = _pushNotificationRepository.Table.FirstOrDefault(pn => pn.Id == id);
 
             return pushNotification;
+        }
+
+        public IList<PushNotification> GetPushNotificationByStoreId(int storeId)
+        {
+            var pushNotifications = _pushNotificationRepository.Table;
+
+            var query = pushNotifications.Join(_pushNotificationStoreRepository.Table, x => x.Id,
+                    y => y.PushNotificationId, (x, y) => new {PushNotification = x, PushNotificationStore = y})
+                .Where(z => z.PushNotificationStore.StoreId == storeId)
+                .Select(pn => pn.PushNotification);
+
+            return query.ToList();
         }
     }
 }

@@ -11,6 +11,8 @@ namespace StockManagementSystem.Api.Services
 
         Device GetDeviceById(int id);
 
+        Device GetDeviceBySerialNo(string serialNo);
+
         int GetDevicesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, string status = "");
     }
 }

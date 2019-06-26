@@ -19,6 +19,8 @@ namespace StockManagementSystem.Api.Models.PushNotificationsParameters
             CreatedAtMax = null;
             CreatedAtMin = null;
             StoreIds = null;
+            StartTime = null;
+            EndTime = null;
         }
 
         /// <summary>
@@ -57,11 +59,22 @@ namespace StockManagementSystem.Api.Models.PushNotificationsParameters
         [JsonProperty("created_at_max")]
         public DateTime? CreatedAtMax { get; set; }
 
-
         /// <summary>
         /// Comma-separated list of store ids for filter push notifications
         /// </summary>
         [JsonProperty("store_ids")]
         public List<int> StoreIds { get; set; }
+
+        /// <summary>
+        /// Show output created after start date (format: 2008-12-31 03:00)
+        /// </summary>
+        [JsonProperty("start_time")]
+        public DateTime? StartTime { get; set; }
+
+        /// <summary>
+        /// Show output created before end date (format: 2008-12-31 03:00)
+        /// </summary>
+        [JsonProperty("end_time")]
+        public DateTime? EndTime { get; set; }
     }
 }

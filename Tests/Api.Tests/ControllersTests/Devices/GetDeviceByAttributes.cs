@@ -1,5 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Api.Tests.Helpers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using StockManagementSystem.Api.Controllers;
@@ -18,7 +23,7 @@ using StockManagementSystem.Services.Users;
 namespace Api.Tests.ControllersTests.Devices
 {
     [TestFixture]
-    public class GetDeviceById
+    public class GetDeviceByAttributes
     {
         private Mock<IJsonFieldsSerializer> _jsonFieldsSerializer;
         private Mock<IAclService> _aclService;
@@ -60,6 +65,70 @@ namespace Api.Tests.ControllersTests.Devices
                 _deviceApiService.Object);
         }
 
+
+        private static List<Device> GetTestDevices()
+        {
+            var devices = new List<Device>
+            {
+                new Device()
+                {
+                    Id = 1,
+                    SerialNo = "S12",
+                    ModelNo = "M12",
+                    Longitude = 1.23,
+                    Latitude = 4.45,
+                    TokenId = "123456",
+                    StoreId = 2,
+                    Status = "1"
+                },
+                new Device()
+                {
+                    Id = 2,
+                    SerialNo = "KO8",
+                    ModelNo = "T0",
+                    Longitude = 0,
+                    Latitude = 0,
+                    TokenId = "789101",
+                    StoreId = 3,
+                    Status = "3"
+                },
+                new Device()
+                {
+                    Id = 3,
+                    SerialNo = "TEY",
+                    ModelNo = "12A",
+                    Longitude = 678.12,
+                    Latitude = 194.65,
+                    TokenId = "121314",
+                    StoreId = 2,
+                    Status = "3"
+                }
+            };
+
+            return devices;
+        }
+
+        //TODO: recreate test-case. maybe some integration test?
+
+        [Test]
+        public void Should_return_id_context_when_invoke_id_query()
+        {
+            var testId = 3;
+
+            //Setup
+            _deviceApiService.Setup(x => x.GetDeviceById(testId)).Returns(GetTestDevices().Find(x => x.Id == testId));
+
+            _devicesController.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+            _devicesController.ControllerContext.HttpContext.Request.Headers["id"] = "1";
+
+            //Act
+            var result = _devicesController.GetDeviceByAttributes(testId, String.Empty).Result;
+
+            //Assert
+            var statusCode = ActionResultExecutor.ExecuteResult(result);
+            Assert.AreEqual(HttpStatusCode.OK, statusCode);
+        }
+
         [Test]
         [TestCase(0)]
         [TestCase(-20)]
@@ -70,7 +139,7 @@ namespace Api.Tests.ControllersTests.Devices
                 .Returns(string.Empty);
 
             //Act
-            var result = _devicesController.GetDeviceById(nonPositiveDeviceId).GetAwaiter().GetResult();
+            var result = _devicesController.GetDeviceByAttributes(nonPositiveDeviceId, String.Empty).GetAwaiter().GetResult();
 
             //Assert
             var statusCode = ActionResultExecutor.ExecuteResult(result);
@@ -86,7 +155,7 @@ namespace Api.Tests.ControllersTests.Devices
             _jsonFieldsSerializer.Setup(x => x.Serialize(null, null, null)).Returns(string.Empty);
 
             //Act
-            _devicesController.GetDeviceById(negativeDeviceId).GetAwaiter().GetResult();
+            _devicesController.GetDeviceByAttributes(negativeDeviceId, String.Empty).GetAwaiter().GetResult();
 
             //Assert
             _deviceApiService.Verify(x => x.GetDeviceById(negativeDeviceId), Times.Never);
@@ -104,7 +173,7 @@ namespace Api.Tests.ControllersTests.Devices
                 .Returns(string.Empty);
 
             //Act
-            var result = _devicesController.GetDeviceById(nonExistingDeviceId).GetAwaiter().GetResult();
+            var result = _devicesController.GetDeviceByAttributes(nonExistingDeviceId, String.Empty).GetAwaiter().GetResult();
 
             // Assert
             var statusCode = ActionResultExecutor.ExecuteResult(result);

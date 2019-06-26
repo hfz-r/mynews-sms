@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -76,7 +77,9 @@ namespace StockManagementSystem.Api.Controllers
                         parameters.Limit,
                         parameters.Page,
                         parameters.SinceId,
-                        parameters.StoreIds)
+                        parameters.StoreIds,
+                        parameters.StartTime,
+                        parameters.EndTime)
                     .Select(pn => pn.ToDto()).ToList();
 
             var rootObj = new PushNotificationRootObject {PushNotifications = pushNotificationDto};
@@ -106,31 +109,45 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve push notification by id
+        /// Retrieve push notification by attributes
         /// </summary>
-        /// <param name="id">Id of the push notification</param>
+        /// <param name="id">Push notification id on <see cref="NameValueCollection"/>format</param>
+        /// <param name="storeid">Push notification store@branch id <see cref="NameValueCollection"/>format</param>
         /// <param name="fields">Fields from the push notification you want your json to contain</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/push_notification/{id}")]
+        [Route("/api/push_notification/get")]
         [ProducesResponseType(typeof(PushNotificationRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetPushNotificationById(int id, string fields = "")
+        public async Task<IActionResult> GetPushNotificationById([FromQuery] int id, [FromQuery] int storeid, string fields = "")
         {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
+            PushNotificationRootObject rootObj;
 
-            var pn = _pushNotificationApiService.GetPushNotificationById(id);
-            if (pn == null)
-                return await Error(HttpStatusCode.NotFound, "push_notification", "not found");
+            if (id > 0)
+            {
+                var pn = _pushNotificationApiService.GetPushNotificationById(id);
+                if (pn == null)
+                    return await Error(HttpStatusCode.NotFound, "push_notification", "not found");
 
-            var rootObj = new PushNotificationRootObject();
-            rootObj.PushNotifications.Add(pn.ToDto());
+                rootObj = new PushNotificationRootObject();
+                rootObj.PushNotifications.Add(pn.ToDto());
+            }
+            else if (storeid > 0)
+            {
+                IList<PushNotificationDto> pns = _pushNotificationApiService.GetPushNotificationByStoreId(storeid)
+                    .Select(pn => pn.ToDto()).ToList();
+                if (!pns.Any())
+                    return await Error(HttpStatusCode.NotFound, "push_notification", "not found");
+
+                rootObj = new PushNotificationRootObject { PushNotifications = pns };
+            }
+            else
+                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or store_id");
 
             var json = JsonFieldsSerializer.Serialize(rootObj, fields);
 

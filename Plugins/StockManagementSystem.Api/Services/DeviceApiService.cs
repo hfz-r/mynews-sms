@@ -44,6 +44,16 @@ namespace StockManagementSystem.Api.Services
             return device;
         }
 
+        public Device GetDeviceBySerialNo(string serialNo)
+        {
+            var device =
+                from d in _deviceRepository.Table
+                where d.SerialNo == serialNo
+                select d;
+
+            return device.FirstOrDefault();
+        }
+
         public int GetDevicesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, string status = "")
         {
             var query = GetDevicesQuery(createdAtMin, createdAtMax, status);

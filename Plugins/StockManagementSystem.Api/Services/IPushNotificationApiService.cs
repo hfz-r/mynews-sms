@@ -8,8 +8,11 @@ namespace StockManagementSystem.Api.Services
     {
         PushNotification GetPushNotificationById(int id);
 
+        IList<PushNotification> GetPushNotificationByStoreId(int storeId);
+
         IList<PushNotification> GetPushNotifications(DateTime? createdAtMin = null, DateTime? createdAtMax = null,
-            int limit = 50, int page = 1, int sinceId = 0, IList<int> storeIds = null);
+            int limit = 50, int page = 1, int sinceId = 0, IList<int> storeIds = null, DateTime? startTime = null,
+            DateTime? endTime = null);
 
         int GetPushNotificationsCount();
     }

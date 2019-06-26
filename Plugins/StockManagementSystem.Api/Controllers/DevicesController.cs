@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -110,26 +111,32 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve device by id
+        /// Retrieve device by attributes
         /// </summary>
-        /// <param name="id">Id of the device</param>
+        /// <param name="id">Device id on <see cref="NameValueCollection"/>format</param>
+        /// <param name="serialno">Device serial no <see cref="NameValueCollection"/>format</param>
         /// <param name="fields">Fields from the device you want your json to contain</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/devices/{id}")]
-        [ProducesResponseType(typeof(DevicesRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        [Route("/api/devices/get")]
+        [ProducesResponseType(typeof(DevicesRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetDeviceById(int id, string fields = "")
+        public async Task<IActionResult> GetDeviceByAttributes([FromQuery] int id, [FromQuery] string serialno, string fields = "")
         {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
+            Device device;
 
-            var device = _deviceApiService.GetDeviceById(id);
+            if (id > 0)
+                device = _deviceApiService.GetDeviceById(id);
+            else if (!string.IsNullOrEmpty(serialno))
+                device = _deviceApiService.GetDeviceBySerialNo(serialno);
+            else
+                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or serial_no");
+
             if (device == null)
                 return await Error(HttpStatusCode.NotFound, "device", "not found");
 
@@ -178,21 +185,31 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Update device by id
+        /// Update device by attributes
         /// </summary>
+        /// <param name="id">Device id on <see cref="NameValueCollection"/>format</param>
+        /// <param name="serialno">Device serial no <see cref="NameValueCollection"/>format</param>
         [HttpPut]
-        [Route("/api/devices/{id}")]
+        [Route("/api/devices")]
         [ProducesResponseType(typeof(DevicesRootObject), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), 422)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> UpdateDevice([ModelBinder(typeof(JsonModelBinder<DeviceDto>))] Delta<DeviceDto> deviceDelta)
+        public async Task<IActionResult> UpdateDeviceByAttributes([FromQuery] int id, [FromQuery] string serialno, [ModelBinder(typeof(JsonModelBinder<DeviceDto>))] Delta<DeviceDto> deviceDelta)
         {
             if (!ModelState.IsValid)
                 return await Error();
 
-            var currentDevice = _deviceApiService.GetDeviceById(deviceDelta.Dto.Id);
+            Device currentDevice;
+
+            if (id > 0)
+                currentDevice = _deviceApiService.GetDeviceById(id);
+            else if (!string.IsNullOrEmpty(serialno))
+                currentDevice = _deviceApiService.GetDeviceBySerialNo(serialno);
+            else
+                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or serial_no");
+
             if (currentDevice == null)
                 return await Error(HttpStatusCode.NotFound, "device", "not found");
 
@@ -202,9 +219,8 @@ namespace StockManagementSystem.Api.Controllers
             _deviceService.UpdateDevice(currentDevice);
 
             await UpdateTenantMappings(currentDevice, deviceDelta.Dto.TenantIds);
-
-            //activity log
-            await UserActivityService.InsertActivityAsync("EditDevice", $"Edited a device (ID = {currentDevice.Id})", currentDevice);
+            await UserActivityService.InsertActivityAsync("EditDevice",
+                $"Edited a device (ID = {currentDevice.Id}, SN = {currentDevice.SerialNo})", currentDevice);
 
             var deviceDto = _dtoHelper.PrepareDeviceDto(currentDevice);
 
