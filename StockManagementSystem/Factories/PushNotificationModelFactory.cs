@@ -97,9 +97,9 @@ namespace StockManagementSystem.Factories
                     pushNotificationsModel.Title = pushNotification.Title;
                     pushNotificationsModel.Description = pushNotification.Desc;
                     pushNotificationsModel.StockTakeNo = pushNotification.StockTakeNo;
-                    pushNotificationsModel.CategoryName = pushNotification.NotificationCategory != null ? pushNotification.NotificationCategory.Name : null;
+                    pushNotificationsModel.CategoryName = pushNotification.NotificationCategory?.Name;
 
-                    if (!string.IsNullOrEmpty(pushNotificationsModel.StockTakeNo))
+                    if (pushNotificationsModel.StockTakeNo.HasValue)
                     {
                         pushNotificationsModel.StoreName = GetStockTakeStore(pushNotificationsModel.StockTakeNo);
                         pushNotificationsModel.CategoryName += " (" + pushNotificationsModel.StockTakeNo + ")";
@@ -136,7 +136,7 @@ namespace StockManagementSystem.Factories
             return model;
         }
 
-        private string GetStockTakeStore(string stockTakeNo)
+        private string GetStockTakeStore(int? stockTakeNo)
         {
             string conString = DataSettingsManager.LoadSettings().DataConnectionString;
 
@@ -151,7 +151,7 @@ namespace StockManagementSystem.Factories
                 sSQL += " INNER JOIN [dbo].[Store] S ON STCM.P_BranchNo = S.P_BranchNo";
                 sSQL += " WHERE STCM.P_EndDate >= GETDATE() AND STCM.P_BranchNo != 1";
 
-                if (!string.IsNullOrEmpty(stockTakeNo))
+                if (stockTakeNo.HasValue)
                 {
                     sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
                 }
@@ -162,7 +162,7 @@ namespace StockManagementSystem.Factories
                 sSQL += " INNER JOIN [dbo].[Store] S ON STCOM.P_BranchNo = S.P_BranchNo "; //--LEFT
                 sSQL += " WHERE STCM.P_EndDate >= GETDATE()";
 
-                if (!string.IsNullOrEmpty(stockTakeNo))
+                if (stockTakeNo.HasValue)
                 {
                     sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
                 }
@@ -263,7 +263,7 @@ namespace StockManagementSystem.Factories
                 model.Title = pushNotification.Title;
                 model.Description = pushNotification.Desc;
                 model.StockTakeNo = pushNotification.StockTakeNo;
-                model.CategoryName = pushNotification.NotificationCategory != null ? pushNotification.NotificationCategory.Name : null;
+                model.CategoryName = pushNotification.NotificationCategory?.Name;
 
                 model.RemindMe = pushNotification.RemindMe;
                 model.SelectedRepeat = pushNotification.Interval;

@@ -41,7 +41,7 @@ namespace StockManagementSystem.Models.PushNotifications
         public DateTime LastActivityDate { get; set; }
 
         [Display(Name = "ST#")]
-        public string StockTakeNo { get; set; }
+        public int? StockTakeNo { get; set; }
 
         [Display(Name = "ST#")]
         public List<StockTakeHeader> StockTakeList { get; set; }

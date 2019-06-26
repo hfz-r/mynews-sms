@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using StockManagementSystem.Core;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Core.Domain.PushNotifications;
 using StockManagementSystem.Core.Domain.Stores;
@@ -14,22 +13,18 @@ using StockManagementSystem.Services.Scheduler;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Services.Stores;
 using StockManagementSystem.Web.Controllers;
-using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using static StockManagementSystem.Models.PushNotifications.PushNotificationModel;
-using Newtonsoft.Json;
 using StockManagementSystem.Core.Data;
 using System.Reflection;
 using System.ComponentModel;
-using System.Globalization;
 using Quartz;
 using Quartz.Impl;
-using Quartz.Impl.Matchers;
+using static StockManagementSystem.Models.PushNotifications.PushNotificationModel;
 
 namespace StockManagementSystem.Controllers
 {
@@ -110,25 +105,25 @@ namespace StockManagementSystem.Controllers
                     newStores.Add(store);
             }
 
-            if (model.SelectedNotificationCategoryIds.Count() == 0)
+            if (!model.SelectedNotificationCategoryIds.Any())
             {
                 _notificationService.ErrorNotification("Category is required");
                 model = await _pushNotificationModelFactory.PreparePushNotificationModel(model, pushNotification);
-                model = getStore(model);
-                model = getRepeat(model);
+                model = GetStore(model);
+                model = GetRepeat(model);
                 model.SelectedNotificationCategoryIds = new List<int?>();
 
                 return View(model);
             }
             else if (model.SelectedNotificationCategoryIds.Count() == 1)
             {
-                var catID = model.SelectedNotificationCategoryIds.FirstOrDefault();
-                if (catID == null)
+                var catId = model.SelectedNotificationCategoryIds.FirstOrDefault();
+                if (catId == null)
                 {
                     _notificationService.ErrorNotification("Category is required");
                     model = await _pushNotificationModelFactory.PreparePushNotificationModel(model, pushNotification);
-                    model = getStore(model);
-                    model = getRepeat(model);
+                    model = GetStore(model);
+                    model = GetRepeat(model);
                     model.SelectedNotificationCategoryIds = new List<int?>();
 
                     return View(model);
@@ -141,9 +136,9 @@ namespace StockManagementSystem.Controllers
                 {
                     _notificationService.ErrorNotification("Stock Take # is required");
                     model = await _pushNotificationModelFactory.PreparePushNotificationModel(model, pushNotification);
-                    model = getStore(model);
-                    model = getRepeat(model);
-                    model.StockTakeNo = string.Empty;
+                    model = GetStore(model);
+                    model = GetRepeat(model);
+                    model.StockTakeNo = null;
 
                     return View(model);
                 }
@@ -153,25 +148,25 @@ namespace StockManagementSystem.Controllers
                     {
                         _notificationService.ErrorNotification("Stock Take # is required");
                         model = await _pushNotificationModelFactory.PreparePushNotificationModel(model, pushNotification);
-                        model = getStore(model);
-                        model = getRepeat(model);
-                        model.StockTakeNo = string.Empty;
+                        model = GetStore(model);
+                        model = GetRepeat(model);
+                        model.StockTakeNo = null;
 
                         return View(model);
                     }
                     else
                     {
-                        model.StockTakeNo = model.SelectedStockTake.FirstOrDefault().ToString();
+                        model.StockTakeNo = model.SelectedStockTake.FirstOrDefault();
                     }
                 }
                 else
                 {
-                    model.StockTakeNo = model.SelectedStockTake.FirstOrDefault().ToString();
+                    model.StockTakeNo = model.SelectedStockTake.FirstOrDefault();
                 }
             }
             else
             {
-                model.StockTakeNo = string.Empty;
+                model.StockTakeNo = null;
 
                 if (model.SelectedStoreIds.Count == 0)
                 {
@@ -193,8 +188,8 @@ namespace StockManagementSystem.Controllers
 
                     pushNotification.Title = model.Title;
                     pushNotification.Desc = model.Description;
-                    pushNotification.StockTakeNo = string.IsNullOrEmpty(model.StockTakeNo) ? string.Empty : model.StockTakeNo;
-                    pushNotification.NotificationCategoryId = (int)model.SelectedNotificationCategoryIds.FirstOrDefault();
+                    pushNotification.StockTakeNo = model.StockTakeNo;
+                    pushNotification.NotificationCategoryId = Convert.ToInt32(model.SelectedNotificationCategoryIds.FirstOrDefault());
                     pushNotification.JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmss") : null;
                     pushNotification.JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmss") : null;
                     pushNotification.Interval = model.RemindMe ? model.SelectedRepeat : null;
@@ -223,18 +218,24 @@ namespace StockManagementSystem.Controllers
                     {
                         if (allStores.Any(x => x.P_BranchNo == item))
                         {
-                            PushNotificationStore pushNotificationStore = new PushNotificationStore();
-                            pushNotificationStore.PushNotificationId = pushNotification.Id;
-                            pushNotificationStore.StoreId = item;
+                            PushNotificationStore pushNotificationStore =
+                                new PushNotificationStore
+                                {
+                                    PushNotificationId = pushNotification.Id,
+                                    StoreId = item
+                                };
                             pushNotification.PushNotificationStores.Add(pushNotificationStore);
                         }
                         else if (item == -99) //All stores
                         {
                             foreach(var store in allStores)
                             {
-                                PushNotificationStore pushNotificationStore = new PushNotificationStore();
-                                pushNotificationStore.PushNotificationId = pushNotification.Id;
-                                pushNotificationStore.StoreId = store.P_BranchNo;
+                                PushNotificationStore pushNotificationStore =
+                                    new PushNotificationStore
+                                    {
+                                        PushNotificationId = pushNotification.Id,
+                                        StoreId = store.P_BranchNo
+                                    };
                                 pushNotification.PushNotificationStores.Add(pushNotificationStore);
                             }
                         }
@@ -256,26 +257,24 @@ namespace StockManagementSystem.Controllers
                             {
                                 var result = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
 
-                                if (result.Result != null && result.Result.Devices != null)
+                                if (result.Result?.Devices?.Count > 0)
                                 {
-                                    if (result.Result.Devices.Count > 0)
+                                    foreach (var devices in result.Result.Devices)
                                     {
-                                        foreach (var devices in result.Result.Devices)
+                                        if (!string.IsNullOrEmpty(devices.TokenId))
                                         {
-                                            if (!string.IsNullOrEmpty(devices.TokenId))
-                                            {
-                                                Scheduler.Start(
-                                                    pushNotification.JobName,
-                                                    pushNotification.JobGroup,
-                                                    model.Title,
-                                                    model.Description,
-                                                    devices.TokenId,
-                                                    model.StartTime.Value,
-                                                    model.EndTime.Value.Add(new TimeSpan(23, 59, 59)),
-                                                    model.SelectedRepeat,
-                                                    _iconfiguration["APIKey"].ToString()
-                                                    /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
-                                            }
+                                            //why not use IScheduledTask? this is repetitive = performance.
+                                            Scheduler.Start(
+                                                pushNotification.JobName,
+                                                pushNotification.JobGroup,
+                                                model.Title,
+                                                model.Description,
+                                                devices.TokenId,
+                                                model.StartTime.Value,
+                                                model.EndTime.Value.Add(new TimeSpan(23, 59, 59)),
+                                                model.SelectedRepeat,
+                                                _iconfiguration["APIKey"].ToString()
+                                                /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
                                         }
                                     }
                                 }
@@ -296,9 +295,9 @@ namespace StockManagementSystem.Controllers
             return View(model);
         }
 
-        private PushNotificationModel getStore(PushNotificationModel model)
+        private PushNotificationModel GetStore(PushNotificationModel model)
         {
-            model.StockTakeList = GetStockTakeStore(string.Empty);
+            model.StockTakeList = GetStockTakeStore(null);
             model.AvailableStockTakeList = model.StockTakeList.Select(stList => new SelectListItem
             {
                 Text = stList.StockTakeNo,
@@ -310,7 +309,7 @@ namespace StockManagementSystem.Controllers
             return model;
         }
 
-        private PushNotificationModel getRepeat(PushNotificationModel model)
+        private PushNotificationModel GetRepeat(PushNotificationModel model)
         {
             Array arr = Enum.GetValues(typeof(RepeatEnum));
             List<string> lstDays = new List<string>(arr.Length);
@@ -334,7 +333,7 @@ namespace StockManagementSystem.Controllers
                 return AccessDeniedView();
 
             var model = await _pushNotificationModelFactory.PreparePushNotificationModel(null, null);
-            model.StockTakeList = GetStockTakeStore(string.Empty);
+            model.StockTakeList = GetStockTakeStore(null);
 
             model.AvailableStockTakeList = model.StockTakeList.Select(stList => new SelectListItem
             {
@@ -344,7 +343,7 @@ namespace StockManagementSystem.Controllers
 
             model.AvailableRepeatList = new List<SelectListItem>();
 
-            model = getRepeat(model);
+            model = GetRepeat(model);
 
             return View(model);
         }
@@ -387,9 +386,9 @@ namespace StockManagementSystem.Controllers
                 return RedirectToAction("Index");
 
             var model = await _pushNotificationModelFactory.PreparePushNotificationModel(null, pushNotification);
-            model.StockTakeList = GetStockTakeStore(string.Empty);
+            model.StockTakeList = GetStockTakeStore(null);
 
-            model = getRepeat(model);
+            model = GetRepeat(model);
             
             model.SelectedRepeat = pushNotification.Interval;
             model.StartTime = pushNotification.StartTime != null ? pushNotification.StartTime.Value : DateTime.Now;
@@ -401,10 +400,10 @@ namespace StockManagementSystem.Controllers
                 Value = stList.StockTakeNo
             }).ToList();
 
-            if (!string.IsNullOrEmpty(model.StockTakeNo))
+            if (model.StockTakeNo.HasValue)
             {
                 model.SelectedStockTake = new List<int?>();
-                model.SelectedStockTake.Add(Convert.ToInt32(model.StockTakeNo));
+                model.SelectedStockTake.Add(model.StockTakeNo);
             }
 
             return View(model);
@@ -444,7 +443,7 @@ namespace StockManagementSystem.Controllers
             {
                 if (model.SelectedNotificationCategoryIds.FirstOrDefault() == 1)
                 {
-                    model.StockTakeList = GetStockTakeStore(string.Empty);
+                    model.StockTakeList = GetStockTakeStore(null);
                     model.AvailableStockTakeList = model.StockTakeList.Select(stList => new SelectListItem
                     {
                         Text = stList.StockTakeNo,
@@ -455,18 +454,16 @@ namespace StockManagementSystem.Controllers
                     {
                         _notificationService.ErrorNotification("Stock Take # is required");
                         model = await _pushNotificationModelFactory.PreparePushNotificationModel(model, pushNotification);
-                        model.StockTakeNo = string.Empty;
+                        model.StockTakeNo = null;
 
                         return View(model);
                     }
-                    else
-                    {
-                        model.StockTakeNo = model.SelectedStockTake.FirstOrDefault().ToString();
-                    }
+
+                    model.StockTakeNo = model.SelectedStockTake.FirstOrDefault();
                 }
                 else
                 {
-                    model.StockTakeNo = string.Empty;
+                    model.StockTakeNo = null;
 
                     if (model.SelectedStoreIds.Count == 0)
                     {
@@ -497,7 +494,7 @@ namespace StockManagementSystem.Controllers
 
                     pushNotification.Title = model.Title;
                     pushNotification.Desc = model.Description;
-                    pushNotification.StockTakeNo = string.IsNullOrEmpty(model.StockTakeNo) ? string.Empty : model.StockTakeNo;
+                    pushNotification.StockTakeNo = model.StockTakeNo;
                     pushNotification.NotificationCategoryId = (int)model.SelectedNotificationCategoryIds.FirstOrDefault();
                     pushNotification.RemindMe = model.RemindMe;
                     pushNotification.JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmss") : null;
@@ -529,9 +526,12 @@ namespace StockManagementSystem.Controllers
                             //new store
                             if (pushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == item) == 0)
                             {
-                                PushNotificationStore pushNotificationStore = new PushNotificationStore();
-                                pushNotificationStore.PushNotificationId = pushNotification.Id;
-                                pushNotificationStore.StoreId = item;
+                                PushNotificationStore pushNotificationStore =
+                                    new PushNotificationStore
+                                    {
+                                        PushNotificationId = pushNotification.Id,
+                                        StoreId = item
+                                    };
 
                                 pushNotification.PushNotificationStores.Add(pushNotificationStore);
                             }
@@ -637,7 +637,7 @@ namespace StockManagementSystem.Controllers
             ModelState.AddModelError(string.Empty, result);
         }
 
-        private List<StockTakeHeader> GetStockTakeStore(string stockTakeNo)
+        private List<StockTakeHeader> GetStockTakeStore(int? stockTakeNo)
         {
             string conString = DataSettingsManager.LoadSettings().DataConnectionString;
 
@@ -654,7 +654,7 @@ namespace StockManagementSystem.Controllers
                 sSQL += " INNER JOIN [dbo].[Store] S ON STCM.P_BranchNo = S.P_BranchNo";
                 sSQL += " WHERE STCM.P_EndDate >= GETDATE() AND STCM.P_BranchNo != 1";
 
-                if (!string.IsNullOrEmpty(stockTakeNo))
+                if (stockTakeNo.HasValue)
                 {
                     sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
                 }
@@ -665,7 +665,7 @@ namespace StockManagementSystem.Controllers
                 sSQL += " INNER JOIN [dbo].[Store] S ON STCOM.P_BranchNo = S.P_BranchNo "; //--LEFT
                 sSQL += " WHERE STCM.P_EndDate >= GETDATE()";
 
-                if (!string.IsNullOrEmpty(stockTakeNo))
+                if (stockTakeNo.HasValue)
                 {
                     sSQL += "AND STCM.P_StockTakeNo = '" + stockTakeNo + "'";
                 }
@@ -679,7 +679,7 @@ namespace StockManagementSystem.Controllers
                         var storeNo = reader["P_BranchNo"].ToString();
                         var storeName = reader["P_Name"].ToString();
 
-                        if (stockTakeList != null & stockTakeList.Count > 0)
+                        if (stockTakeList.Any() & stockTakeList.Count > 0)
                         {
                             var item = stockTakeList.Any(x => x.StockTakeNo == stNo);
                             if (!item)
@@ -733,10 +733,10 @@ namespace StockManagementSystem.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetStockTakeStores(string StockTakeNo)
+        public ActionResult GetStockTakeStores(int? stockTakeNo)
         {
-            var StockTakeStores = new List<string>();
-            List<StockTakeHeader> stList = GetStockTakeStore(StockTakeNo);
+            var stockTakeStores = new List<string>();
+            List<StockTakeHeader> stList = GetStockTakeStore(stockTakeNo);
             string storeNames = string.Empty;
             foreach (var parent in stList)
             {
@@ -747,7 +747,7 @@ namespace StockManagementSystem.Controllers
                 }
             }
 
-            return Json(storeNames.Substring(0, storeNames.LastIndexOf(",")));
+            return Json(storeNames.Substring(0, storeNames.LastIndexOf(",", StringComparison.OrdinalIgnoreCase)));
         }
     }
 }

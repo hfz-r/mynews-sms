@@ -19,7 +19,7 @@ namespace StockManagementSystem.Api.DTOs.PushNotifications
         public string Desc { get; set; }
 
         [JsonProperty("stock_take_no")]
-        public string StockTakeNo { get; set; }
+        public int? StockTakeNo { get; set; }
 
         [JsonProperty("notification_category_id")]
         public int NotificationCategoryId { get; set; }

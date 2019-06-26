@@ -11,7 +11,7 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
 
         public string Desc { get; set; }
 
-        public string StockTakeNo { get; set; }
+        public int? StockTakeNo { get; set; }
 
         public int NotificationCategoryId { get; set; }
 

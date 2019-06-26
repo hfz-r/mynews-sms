@@ -59,7 +59,7 @@ namespace StockManagementSystem.Services.PushNotifications
                 query = query.Where(u => u.Desc.Contains(desc));
 
             if (!string.IsNullOrEmpty(stNo))
-                query = query.Where(u => u.StockTakeNo.Contains(stNo));
+                query = query.Where(u => u.StockTakeNo.Equals(Convert.ToInt32(stNo)));
 
             query = query.OrderByDescending(c => c.CreatedOnUtc);
 
