@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace StockManagementSystem.Api.DTOs.TransporterTransaction
 {
@@ -26,5 +27,8 @@ namespace StockManagementSystem.Api.DTOs.TransporterTransaction
 
         [JsonProperty("branch_no")]
         public int BranchNo { get; set; }
+
+        [JsonProperty("created_on_utc")]
+        public DateTime? CreatedOnUtc { get; set; }
     }
 }

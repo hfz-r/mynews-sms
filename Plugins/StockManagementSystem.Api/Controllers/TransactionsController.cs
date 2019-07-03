@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -100,33 +102,48 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve transaction by id
+        /// Retrieve transaction by query attributes
         /// </summary>
-        /// <param name="id">Id of the transaction</param>
-        /// <param name="fields">Fields from the transaction you want your json to contain</param>
+        /// <param name="id">Transaction id in <see cref="NameValueCollection"/></param>
+        /// <param name="branchno">Branch no in <see cref="NameValueCollection"/></param>
+        /// <param name="parameters">Additional filters to get specified result</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/transactions/{id}")]
+        [Route("/api/transactions/get")]
         [ProducesResponseType(typeof(TransactionsRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetTransactionById(int id, string fields = "")
+        public async Task<IActionResult> GetTransactionById([FromQuery] int id, [FromQuery] int branchno, TransactionsParametersModel parameters)
         {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
+            TransactionsRootObject rootObject;
 
-            var transaction = _transactionApiService.GetTransactionById(id);
-            if (transaction == null)
-                return await Error(HttpStatusCode.NotFound, "transaction", "not found");
+            if (id > 0)
+            {
+                var transaction = _transactionApiService.GetTransactionById(id);
+                if (transaction == null)
+                    return await Error(HttpStatusCode.NotFound, "transaction", "not found");
 
-            var rootObject = new TransactionsRootObject();
-            rootObject.Transactions.Add(transaction.ToDto());
+                rootObject = new TransactionsRootObject();
+                rootObject.Transactions.Add(transaction.ToDto());
+            }
+            else if (branchno > 0)
+            {
+                IList<TransactionDto> transactions = _transactionApiService
+                    .GetTransactionByBranchNo(branchno, parameters.CreatedAtMin, parameters.CreatedAtMax)
+                    .Select(txn => txn.ToDto()).ToList();
+                if (!transactions.Any())
+                    return await Error(HttpStatusCode.NotFound, "transaction", "not found");
 
-            var json = JsonFieldsSerializer.Serialize(rootObject, fields);
+                rootObject = new TransactionsRootObject {Transactions = transactions};
+            }
+            else
+                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or branch_no");
+
+            var json = JsonFieldsSerializer.Serialize(rootObject, parameters.Fields);
 
             return new RawJsonActionResult(json);
         }

@@ -40,6 +40,17 @@ namespace StockManagementSystem.Api.Services
             return shelfLocation;
         }
 
+        public IEnumerable<ShelfLocation> GetShelfLocationByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null)
+        {
+            var shelves = GetShelfLocationQuery(createdAtMin, createdAtMax);
+
+            var query = from t in shelves
+                where t.P_BranchNo == branchNo
+                select t;
+
+            return query.AsEnumerable();
+        }
+
         public int GetShelfLocationCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null)
         {
             var query = GetShelfLocationQuery(createdAtMin, createdAtMax);

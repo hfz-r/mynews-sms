@@ -10,6 +10,8 @@ namespace StockManagementSystem.Api.Services
 
         TransporterTransaction GetTransporterTransactionById(int id);
 
+        IEnumerable<TransporterTransaction> GetTransporterTransactionByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null);
+
         int GetTransporterTransactionCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null);
     }
 }

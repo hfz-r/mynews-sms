@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -100,33 +102,49 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve shelf location by id
+        /// Retrieve shelf location by query attributes
         /// </summary>
-        /// <param name="id">Id of the shelf location</param>
-        /// <param name="fields">Fields from the shelf location you want your json to contain</param>
+        /// <param name="id">Shelf location id in <see cref="NameValueCollection"/></param>
+        /// <param name="branchno">Branch no in <see cref="NameValueCollection"/></param>
+        /// <param name="parameters">Additional filters to get specified result</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/shelf_location/{id}")]
+        [Route("/api/shelf_location/get")]
         [ProducesResponseType(typeof(ShelfLocationRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetShelfLocationById(int id, string fields = "")
+        public async Task<IActionResult> GetShelfLocationById([FromQuery] int id, [FromQuery] int branchno, ShelfLocationParametersModel parameters)
         {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
+            ShelfLocationRootObject rootObject;
 
-            var shelfLocation = _shelfLocationApiService.GetShelfLocationById(id);
-            if (shelfLocation == null)
-                return await Error(HttpStatusCode.NotFound, "shelf_location", "not found");
+            if (id > 0)
+            {
+                var shelf = _shelfLocationApiService.GetShelfLocationById(id);
+                if (shelf == null)
+                    return await Error(HttpStatusCode.NotFound, "shelf_location", "not found");
 
-            var rootObject = new ShelfLocationRootObject();
-            rootObject.ShelfLocation.Add(shelfLocation.ToDto());
+                rootObject = new ShelfLocationRootObject();
+                rootObject.ShelfLocation.Add(shelf.ToDto());
 
-            var json = JsonFieldsSerializer.Serialize(rootObject, fields);
+            }
+            else if (branchno > 0)
+            {
+                IList<ShelfLocationDto> dtos = _shelfLocationApiService
+                    .GetShelfLocationByBranchNo(branchno, parameters.CreatedAtMin, parameters.CreatedAtMax)
+                    .Select(shelf => shelf.ToDto()).ToList();
+                if (!dtos.Any())
+                    return await Error(HttpStatusCode.NotFound, "shelf_location", "not found");
+
+                rootObject = new ShelfLocationRootObject {ShelfLocation = dtos};
+            }
+            else
+                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or branch_no");
+
+            var json = JsonFieldsSerializer.Serialize(rootObject, parameters.Fields);
 
             return new RawJsonActionResult(json);
         }

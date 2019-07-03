@@ -10,6 +10,8 @@ namespace StockManagementSystem.Api.Services
 
         ShelfLocation GetShelfLocationById(int id);
 
+        IEnumerable<ShelfLocation> GetShelfLocationByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null);
+
         int GetShelfLocationCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null);
     }
 }

@@ -111,5 +111,8 @@ namespace StockManagementSystem.Api.DTOs.Transactions
 
         [JsonProperty("log_no")]
         public string LogNo { get; set; }
+
+        [JsonProperty("created_on_utc")]
+        public DateTime? CreatedOnUtc { get; set; }
     }
 }

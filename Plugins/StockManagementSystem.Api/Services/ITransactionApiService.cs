@@ -8,6 +8,8 @@ namespace StockManagementSystem.Api.Services
     {
         Transaction GetTransactionById(int id);
 
+        IEnumerable<Transaction> GetTransactionByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null);
+
         IList<Transaction> GetTransactions(IList<int> ids = null, int limit = 50, int page = 1, int sinceId = 0, DateTime? createdAtMin = null, DateTime? createdAtMax = null);
 
         int GetTransactionsCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null);

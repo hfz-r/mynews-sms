@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -100,33 +102,48 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve transporter transaction by id
+        /// Retrieve transporter transaction by query attributes
         /// </summary>
-        /// <param name="id">Id of the transporter transaction</param>
-        /// <param name="fields">Fields from the transporter transaction you want your json to contain</param>
+        /// <param name="id">Transporter transaction id in <see cref="NameValueCollection"/></param>
+        /// <param name="branchno">Branch no in <see cref="NameValueCollection"/></param>
+        /// <param name="parameters">Additional filters to get specified result</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/transporter_transaction/{id}")]
+        [Route("/api/transporter_transaction/get")]
         [ProducesResponseType(typeof(TransporterTransactionRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetTransporterTransactionById(int id, string fields = "")
+        public async Task<IActionResult> GetTransporterTransactionById([FromQuery] int id, [FromQuery] int branchno, TransporterTransactionParametersModel parameters)
         {
-            if (id <= 0)
-                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
+            TransporterTransactionRootObject rootObject;
 
-            var transporterTransaction = _transporterTransactionApiService.GetTransporterTransactionById(id);
-            if (transporterTransaction == null)
-                return await Error(HttpStatusCode.NotFound, "transporter_transaction", "not found");
+            if (id > 0)
+            {
+                var txn = _transporterTransactionApiService.GetTransporterTransactionById(id);
+                if (txn == null)
+                    return await Error(HttpStatusCode.NotFound, "transporter_transaction", "not found");
 
-            var rootObject = new TransporterTransactionRootObject();
-            rootObject.TransporterTransaction.Add(transporterTransaction.ToDto());
+                rootObject = new TransporterTransactionRootObject();
+                rootObject.TransporterTransaction.Add(txn.ToDto());
+            }
+            else if (branchno > 0)
+            {
+                IList<TransporterTransactionDto> dtos = _transporterTransactionApiService
+                    .GetTransporterTransactionByBranchNo(branchno, parameters.CreatedAtMin, parameters.CreatedAtMax)
+                    .Select(txn => txn.ToDto()).ToList();
+                if (!dtos.Any())
+                    return await Error(HttpStatusCode.NotFound, "transporter_transaction", "not found");
 
-            var json = JsonFieldsSerializer.Serialize(rootObject, fields);
+                rootObject = new TransporterTransactionRootObject {TransporterTransaction = dtos};
+            }
+            else
+                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or branch_no");
+
+            var json = JsonFieldsSerializer.Serialize(rootObject, parameters.Fields);
 
             return new RawJsonActionResult(json);
         }

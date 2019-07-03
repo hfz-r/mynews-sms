@@ -40,6 +40,17 @@ namespace StockManagementSystem.Api.Services
             return transporterTransaction;
         }
 
+        public IEnumerable<TransporterTransaction> GetTransporterTransactionByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null)
+        {
+            var transactions = GetTransporterTransactionQuery(createdAtMin, createdAtMax);
+
+            var query = from t in transactions
+                where t.BranchNo == branchNo
+                select t;
+
+            return query.AsEnumerable();
+        }
+
         public int GetTransporterTransactionCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null)
         {
             var query = GetTransporterTransactionQuery(createdAtMin, createdAtMax);

@@ -54,6 +54,7 @@ namespace StockManagementSystem.Api.Infrastructure
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();
+            builder.RegisterType<StoreMappingHelper>().As<IStoreMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<JsonHelper>().As<IJsonHelper>().InstancePerLifetimeScope();
             builder.RegisterType<DtoHelper>().As<IDtoHelper>().InstancePerLifetimeScope();
             builder.RegisterType<ConfigManagerHelper>().As<IConfigManagerHelper>().InstancePerLifetimeScope();

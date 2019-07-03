@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using StockManagementSystem.Api.DTOs.Users;
 using StockManagementSystem.Api.Helpers;
 using System.Net.Http;
 using FluentValidation;
+using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Core.Domain.Users;
 
 namespace StockManagementSystem.Api.Validators
@@ -11,21 +13,22 @@ namespace StockManagementSystem.Api.Validators
     public class UserDtoValidator : BaseDtoValidator<UserDto>
     {
         private readonly IUserRolesHelper _userRolesHelper;
+        private readonly IStoreMappingHelper _storeHelper;
 
-        public UserDtoValidator(IHttpContextAccessor httpContextAccessor, IJsonHelper jsonHelper,
-            Dictionary<string, object> requestJsonDictionary, IUserRolesHelper userRolesHelper) : base(
-            httpContextAccessor, jsonHelper, requestJsonDictionary)
+        public UserDtoValidator(
+            IHttpContextAccessor httpContextAccessor,
+            IJsonHelper jsonHelper,
+            Dictionary<string, object> requestJsonDictionary,
+            IUserRolesHelper userRolesHelper,
+            IStoreMappingHelper storeHelper) : base(httpContextAccessor, jsonHelper, requestJsonDictionary)
         {
             _userRolesHelper = userRolesHelper;
+            _storeHelper = storeHelper;
 
             SetEmailRule();
             SetPasswordRule();
             SetRoleIdsRule();
             SetStoreIdsRule();
-
-            //TODO: role validation
-            //TODO: store validation
-            //SetRoleRule();
         }
 
         private void SetEmailRule()
@@ -37,28 +40,6 @@ namespace StockManagementSystem.Api.Validators
         {
             SetNotNullOrEmptyCreateOrUpdateRule(c => c.Password, "Invalid password.", "password");
         }
-
-        //private void SetRoleRule()
-        //{
-        //    var key = "roles";
-        //    if (RequestJsonDictionary.ContainsKey(key))
-        //    {
-        //        RuleForEach(u => u.Roles)
-        //            .Custom((roleDto, context) =>
-        //            {
-        //                var roleJsonDictionary = GetRequestJsonDictionaryCollectionItemDictionary(key, roleDto);
-
-        //                var validator = new RoleDtoValidator(HttpContextAccessor, JsonHelper, roleJsonDictionary);
-
-        //                if (roleDto.Id == 0)
-        //                    validator.HttpMethod = HttpMethod.Post;
-
-        //                var validationResult = validator.Validate(roleDto);
-
-        //                MergeValidationResult(context, validationResult);
-        //            });
-        //    }
-        //}
 
         private void SetRoleIdsRule()
         {
@@ -77,7 +58,8 @@ namespace StockManagementSystem.Api.Validators
                                 roles = _userRolesHelper.GetValidRoles(roleIds);
 
                             var isInGuestAndRegisterRoles =
-                                _userRolesHelper.IsInGuestsRole(roles) && _userRolesHelper.IsInRegisteredRole(roles);
+                                _userRolesHelper.IsInGuestsRole(roles) &&
+                                _userRolesHelper.IsInRegisteredRole(roles);
 
                             return !isInGuestAndRegisterRoles;
                         })
@@ -104,10 +86,22 @@ namespace StockManagementSystem.Api.Validators
         {
             if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("store_ids"))
             {
+                IList<Store> stores = null;
+
                 RuleFor(x => x.StoreIds)
                     .NotNull()
                     .Must(r => r.Count > 0)
-                    .WithMessage("store_ids required");
+                    .WithMessage("store_ids required")
+                    .DependentRules(() => RuleFor(dto => dto.StoreIds)
+                        .Must(storeIds =>
+                        {
+                            if (stores == null)
+                                stores = _storeHelper.GetValidStores(storeIds);
+
+                            return stores.Any();
+                        })
+                        .WithMessage("invalid store_ids")
+                    );
             }
         }
     }

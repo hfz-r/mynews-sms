@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace StockManagementSystem.Api.DTOs.ShelfLocation
 {
@@ -34,5 +35,8 @@ namespace StockManagementSystem.Api.DTOs.ShelfLocation
 
         [JsonProperty("issue_ref")]
         public string IssueRef { get; set; }
+
+        [JsonProperty("created_on_utc")]
+        public DateTime? CreatedOnUtc { get; set; }
     }
 }
