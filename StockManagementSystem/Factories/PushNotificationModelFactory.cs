@@ -53,6 +53,14 @@ namespace StockManagementSystem.Factories
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
+            
+            SelectListItem initialItem = new SelectListItem()
+            {
+                Text = "ALL",
+                Value = "-99"
+            };
+
+            searchModel.AvailableStores.Insert(0, initialItem);
 
             var notificationCategories = await _pushNotificationService.GetNotificationCategoriesAsync();
 
@@ -99,7 +107,7 @@ namespace StockManagementSystem.Factories
                     pushNotificationsModel.StockTakeNo = pushNotification.StockTakeNo;
                     pushNotificationsModel.CategoryName = pushNotification.NotificationCategory?.Name;
 
-                    if (pushNotificationsModel.StockTakeNo.HasValue)
+                    if (pushNotificationsModel.StockTakeNo != 0)
                     {
                         pushNotificationsModel.StoreName = GetStockTakeStore(pushNotificationsModel.StockTakeNo);
                         pushNotificationsModel.CategoryName += " (" + pushNotificationsModel.StockTakeNo + ")";
@@ -291,11 +299,20 @@ namespace StockManagementSystem.Factories
             }
 
             var stores = await _storeService.GetStores();
+
             model.AvailableStores = stores.Select(store => new SelectListItem
             {
                 Text = store.P_BranchNo.ToString() + " - " + store.P_Name,
                 Value = store.P_BranchNo.ToString()
             }).ToList();
+
+            SelectListItem initialItem = new SelectListItem()
+            {
+                Text = "ALL",
+                Value = "-99"
+            };
+
+            model.AvailableStores.Insert(0, initialItem);
 
             var categories = await _pushNotificationService.GetNotificationCategoriesAsync();
             model.AvailableNotificationCategories = categories.Select(category => new SelectListItem

@@ -305,18 +305,16 @@
                         }
                     }
 
-                    var today = kendo.date.today();
+                    var today = new Date();
                     var StartDate = today;
                     var EndDate = today;
 
-                    @if (@Model.StartTime.HasValue && @Model.EndTime.HasValue) {
                         var StartDate = @Model.StartTime.Value.Year + "-" + @Model.StartTime.Value.Month + "-" + @Model.StartTime.Value.Day + "T"
                             + @Model.StartTime.Value.Hour + ":" + @Model.StartTime.Value.Minute + ":" + @Model.StartTime.Value.Second + "Z";/*'2016-01-31T00:00:00Z'*/
                         var EndDate = @Model.EndTime.Value.Year + "-" + @Model.EndTime.Value.Month + "-" + @Model.EndTime.Value.Day;
-                    }
 
                     var start = $("#start").kendoDateTimePicker({
-                    parseFormats: ["yyyy-MM-ddThh:mm:ssZ"],
+                    parseFormats: ["yyyy-MM-ddTHH:mm:ssZ"],
                         format: "dd MMMM yyyy hh:mm tt", //format is used to format the value of the widget and to parse the input.
                         value: StartDate,
                         min: today,
