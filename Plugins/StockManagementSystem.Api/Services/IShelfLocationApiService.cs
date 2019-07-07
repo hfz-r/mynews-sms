@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using StockManagementSystem.Api.Constants;
+using StockManagementSystem.Api.DTOs.ShelfLocation;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Core.Domain.Settings;
 
 namespace StockManagementSystem.Api.Services
@@ -10,8 +13,14 @@ namespace StockManagementSystem.Api.Services
 
         ShelfLocation GetShelfLocationById(int id);
 
-        IEnumerable<ShelfLocation> GetShelfLocationByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null);
-
         int GetShelfLocationCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null);
+
+        Search<ShelfLocationDto> Search(
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false,
+            bool count = false);
     }
 }

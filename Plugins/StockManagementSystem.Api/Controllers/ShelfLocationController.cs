@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -14,6 +13,7 @@ using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Json.ActionResults;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Api.ModelBinders;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Api.Models.ShelfLocationParameters;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core.Data;
@@ -45,6 +45,26 @@ namespace StockManagementSystem.Api.Controllers
             _shelfLocationApiService = shelfLocationApiService;
             _shelfLocationRepository = shelfLocationRepository;
         }
+
+        #region Private methods
+
+        protected async Task<IActionResult> CountRootObjectResult(int count)
+        {
+            var countRootObject = new ShelfLocationCountRootObject { Count = count > 0 ? count : 0 };
+
+            return await Task.FromResult<IActionResult>(Ok(countRootObject));
+        }
+
+        protected async Task<IActionResult> RootObjectResult(IList<ShelfLocationDto> entities, string fields)
+        {
+            var rootObj = new ShelfLocationRootObject { ShelfLocation = entities };
+
+            var json = JsonFieldsSerializer.Serialize(rootObj, fields);
+
+            return await Task.FromResult<IActionResult>(new RawJsonActionResult(json));
+        }
+
+        #endregion
 
         /// <summary>
         /// Retrieve all shelf location
@@ -102,51 +122,67 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve shelf location by query attributes
+        /// Retrieve shelf location by id
         /// </summary>
-        /// <param name="id">Shelf location id in <see cref="NameValueCollection"/></param>
-        /// <param name="branchno">Branch no in <see cref="NameValueCollection"/></param>
-        /// <param name="parameters">Additional filters to get specified result</param>
+        /// <param name="id">Id of the shelf location</param>
+        /// <param name="fields">Fields from the shelf location you want your json to contain</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/shelf_location/get")]
+        [Route("/api/shelf_location/{id}")]
         [ProducesResponseType(typeof(ShelfLocationRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetShelfLocationById([FromQuery] int id, [FromQuery] int branchno, ShelfLocationParametersModel parameters)
+        public async Task<IActionResult> GetShelfLocationById(int id, string fields = "")
         {
-            ShelfLocationRootObject rootObject;
+            if (id <= 0)
+                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            if (id > 0)
-            {
-                var shelf = _shelfLocationApiService.GetShelfLocationById(id);
-                if (shelf == null)
-                    return await Error(HttpStatusCode.NotFound, "shelf_location", "not found");
+            var shelfLocation = _shelfLocationApiService.GetShelfLocationById(id);
+            if (shelfLocation == null)
+                return await Error(HttpStatusCode.NotFound, "shelf_location", "not found");
 
-                rootObject = new ShelfLocationRootObject();
-                rootObject.ShelfLocation.Add(shelf.ToDto());
+            var rootObject = new ShelfLocationRootObject();
+            rootObject.ShelfLocation.Add(shelfLocation.ToDto());
 
-            }
-            else if (branchno > 0)
-            {
-                IList<ShelfLocationDto> dtos = _shelfLocationApiService
-                    .GetShelfLocationByBranchNo(branchno, parameters.CreatedAtMin, parameters.CreatedAtMax)
-                    .Select(shelf => shelf.ToDto()).ToList();
-                if (!dtos.Any())
-                    return await Error(HttpStatusCode.NotFound, "shelf_location", "not found");
-
-                rootObject = new ShelfLocationRootObject {ShelfLocation = dtos};
-            }
-            else
-                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or branch_no");
-
-            var json = JsonFieldsSerializer.Serialize(rootObject, parameters.Fields);
+            var json = JsonFieldsSerializer.Serialize(rootObject, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        /// <summary>
+        /// Search for related shelf location matching supplied query
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet]
+        [Route("/api/shelf_location/search")]
+        [ProducesResponseType(typeof(ShelfLocationRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> Search(GenericSearchParametersModel parameters)
+        {
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+                return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
+
+            if (parameters.Page < Configurations.DefaultPageValue)
+                return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
+
+            var entities = _shelfLocationApiService.Search(
+                parameters.Query,
+                parameters.Limit,
+                parameters.Page,
+                parameters.SortColumn,
+                parameters.Descending,
+                parameters.Count);
+
+            return parameters.Count
+                ? await CountRootObjectResult(entities.Count)
+                : await RootObjectResult(entities.List, parameters.Fields);
         }
 
         /// <summary>

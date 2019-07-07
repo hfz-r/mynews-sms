@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.DataStructures;
+using StockManagementSystem.Api.DTOs.ShelfLocation;
+using StockManagementSystem.Api.Extensions;
+using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Settings;
+using static StockManagementSystem.Api.Extensions.ApiServiceExtension;
 
 namespace StockManagementSystem.Api.Services
 {
@@ -40,15 +45,29 @@ namespace StockManagementSystem.Api.Services
             return shelfLocation;
         }
 
-        public IEnumerable<ShelfLocation> GetShelfLocationByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null)
+        public Search<ShelfLocationDto> Search(
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false,
+            bool count = false)
         {
-            var shelves = GetShelfLocationQuery(createdAtMin, createdAtMax);
+            var query = _shelfLocationRepository.Table;
 
-            var query = from t in shelves
-                where t.P_BranchNo == branchNo
-                select t;
+            var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+            if (searchParams != null)
+            {
+                query = query.HandleSearchParams(searchParams);
+            }
 
-            return query.AsEnumerable();
+            query = query.GetQueryDynamic(sortColumn, @descending);
+
+            var _ = new SearchWrapper<ShelfLocationDto, ShelfLocation>();
+            return count
+                ? _.ToCount(query)
+                : _.ToList(query, page, limit,
+                    list => list.Select(entity => entity.ToDto()).ToList() as IList<ShelfLocationDto>);
         }
 
         public int GetShelfLocationCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null)

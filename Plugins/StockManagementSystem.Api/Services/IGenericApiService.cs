@@ -19,7 +19,7 @@ namespace StockManagementSystem.Api.Services
 
         int GetEntityCount();
 
-        SearchWrapper<T> Search(
+        Search<T> Search(
             string queryParams = "",
             int limit = Configurations.DefaultLimit,
             int page = Configurations.DefaultPageValue,

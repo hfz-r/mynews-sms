@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using StockManagementSystem.Api.Constants;
+using StockManagementSystem.Api.DTOs.TransporterTransaction;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Core.Domain.Transactions;
 
 namespace StockManagementSystem.Api.Services
@@ -10,8 +13,14 @@ namespace StockManagementSystem.Api.Services
 
         TransporterTransaction GetTransporterTransactionById(int id);
 
-        IEnumerable<TransporterTransaction> GetTransporterTransactionByBranchNo(int branchNo, DateTime? createdAtMin = null, DateTime? createdAtMax = null);
-
         int GetTransporterTransactionCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null);
+
+        Search<TransporterTransactionDto> Search(
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false,
+            bool count = false);
     }
 }

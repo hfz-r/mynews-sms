@@ -4,12 +4,17 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Api.Helpers;
+using StockManagementSystem.Core;
 
 namespace StockManagementSystem.Api.Extensions
 {
-    public static class GenericApiServiceExtension
+    public static class ApiServiceExtension
     {
+        #region Private methods
+
         private static MethodCallExpression GetSinceIdQuery<T>(IQueryable<T> query, ParameterExpression parameter, int sinceId = 0)
         {
             if (sinceId > 0)
@@ -31,6 +36,19 @@ namespace StockManagementSystem.Api.Extensions
 
             return null;
         }
+
+        private static List<string> SplitQueryAttributes(string query)
+        {
+            var queries = query
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Distinct()
+                .ToList();
+
+            return queries;
+        }
+
+        #endregion
 
         public static IQueryable<T> GetQueryDynamic<T>(this IQueryable<T> query, string sortColumn, bool descending, int sinceId = 0)
         {
@@ -94,6 +112,38 @@ namespace StockManagementSystem.Api.Extensions
             }
 
             return query;
+        }
+
+        public static Dictionary<string, string> EnsureSearchQueryIsValid(string query, Func<string, Dictionary<string, string>> resolveSearchQuery)
+        {
+            return !string.IsNullOrEmpty(query) ? resolveSearchQuery(query) : null;
+        }
+
+        public static Dictionary<string, string> ResolveSearchQuery(string query)
+        {
+            var searchQuery = new Dictionary<string, string>();
+
+            var queryList = SplitQueryAttributes(query);
+            if (queryList.Count == 0)
+                return searchQuery;
+
+            var fieldValueList = queryList.Select(q => Regex.Split(q, @"(\w+):").Where(s => !string.IsNullOrEmpty(s)).ToList()).ToList();
+            foreach (var fields in fieldValueList)
+            {
+                if (fields.Count < 2)
+                    continue;
+
+                for (var i = 0; i < fields.Count; i += 2)
+                {
+                    var field = fields[i];
+                    var value = fields[i + 1];
+
+                    if (!string.IsNullOrEmpty(field) && !string.IsNullOrEmpty(value))
+                        searchQuery.Add(field.Trim(), value.Trim());
+                }
+            }
+
+            return searchQuery;
         }
     }
 }

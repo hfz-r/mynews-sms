@@ -203,8 +203,8 @@ namespace StockManagementSystem.Api.Controllers.Generics
                 parameters.Count);
 
             return parameters.Count
-                ? await CountRootObjectResult(entities.CountResult)
-                : await RootObjectResult(entities.ListResult, parameters.Fields);
+                ? await CountRootObjectResult(entities.Count)
+                : await RootObjectResult(entities.List, parameters.Fields);
         }
     }
 }

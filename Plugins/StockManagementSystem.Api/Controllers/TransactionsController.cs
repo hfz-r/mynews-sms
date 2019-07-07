@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -14,6 +13,7 @@ using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Json.ActionResults;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Api.ModelBinders;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Api.Models.TransactionsParameters;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core.Data;
@@ -45,6 +45,26 @@ namespace StockManagementSystem.Api.Controllers
             _transactionApiService = transactionApiService;
             _transactionRepository = transactionRepository;
         }
+
+        #region Private methods
+
+        protected async Task<IActionResult> CountRootObjectResult(int count)
+        {
+            var countRootObject = new TransactionsCountRootObject { Count = count > 0 ? count : 0 };
+
+            return await Task.FromResult<IActionResult>(Ok(countRootObject));
+        }
+
+        protected async Task<IActionResult> RootObjectResult(IList<TransactionDto> entities, string fields)
+        {
+            var rootObj = new TransactionsRootObject { Transactions = entities };
+
+            var json = JsonFieldsSerializer.Serialize(rootObj, fields);
+
+            return await Task.FromResult<IActionResult>(new RawJsonActionResult(json));
+        }
+
+        #endregion
 
         /// <summary>
         /// Retrieve all transactions
@@ -102,50 +122,67 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve transaction by query attributes
+        /// Retrieve transaction by id
         /// </summary>
-        /// <param name="id">Transaction id in <see cref="NameValueCollection"/></param>
-        /// <param name="branchno">Branch no in <see cref="NameValueCollection"/></param>
-        /// <param name="parameters">Additional filters to get specified result</param>
+        /// <param name="id">Id of the transaction</param>
+        /// <param name="fields">Fields from the transaction you want your json to contain</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/transactions/get")]
+        [Route("/api/transactions/{id}")]
         [ProducesResponseType(typeof(TransactionsRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetTransactionById([FromQuery] int id, [FromQuery] int branchno, TransactionsParametersModel parameters)
+        public async Task<IActionResult> GetTransactionById(int id, string fields = "")
         {
-            TransactionsRootObject rootObject;
+            if (id <= 0)
+                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            if (id > 0)
-            {
-                var transaction = _transactionApiService.GetTransactionById(id);
-                if (transaction == null)
-                    return await Error(HttpStatusCode.NotFound, "transaction", "not found");
+            var transaction = _transactionApiService.GetTransactionById(id);
+            if (transaction == null)
+                return await Error(HttpStatusCode.NotFound, "transaction", "not found");
 
-                rootObject = new TransactionsRootObject();
-                rootObject.Transactions.Add(transaction.ToDto());
-            }
-            else if (branchno > 0)
-            {
-                IList<TransactionDto> transactions = _transactionApiService
-                    .GetTransactionByBranchNo(branchno, parameters.CreatedAtMin, parameters.CreatedAtMax)
-                    .Select(txn => txn.ToDto()).ToList();
-                if (!transactions.Any())
-                    return await Error(HttpStatusCode.NotFound, "transaction", "not found");
+            var rootObject = new TransactionsRootObject();
+            rootObject.Transactions.Add(transaction.ToDto());
 
-                rootObject = new TransactionsRootObject {Transactions = transactions};
-            }
-            else
-                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or branch_no");
-
-            var json = JsonFieldsSerializer.Serialize(rootObject, parameters.Fields);
+            var json = JsonFieldsSerializer.Serialize(rootObject, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        /// <summary>
+        /// Search for related transaction matching supplied query
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet]
+        [Route("/api/transactions/search")]
+        [ProducesResponseType(typeof(TransactionsRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> Search(GenericSearchParametersModel parameters)
+        {
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+                return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
+
+            if (parameters.Page < Configurations.DefaultPageValue)
+                return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
+
+            var entities = _transactionApiService.Search(
+                parameters.Query,
+                parameters.Limit,
+                parameters.Page,
+                parameters.SortColumn,
+                parameters.Descending,
+                parameters.Count);
+
+            return parameters.Count
+                ? await CountRootObjectResult(entities.Count)
+                : await RootObjectResult(entities.List, parameters.Fields);
         }
 
         /// <summary>
