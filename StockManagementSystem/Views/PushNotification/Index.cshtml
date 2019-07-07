@@ -224,7 +224,7 @@
                                     allowUnsort: false
                                 },
                                 filterable: true,
-                                resizable: true,
+                                resizable: false,
                                 columnMenu: { columns: false },
                                 pageable: {
                                     refresh: true,
@@ -250,7 +250,7 @@
                                     {
                                         field: "Description",
                                         title: "Description",
-                                        width: 500
+                                        width: 300
                                     },
                                     {
                                         field: "SelectedNotificationCategoryIds",
@@ -258,38 +258,38 @@
                                         template: "#=CategoryName#",
                                         type: "string",
                                         width: 150,
-                                        editor: function (container, option) { // use a dropdownlist as an editor
-                                            // create an input element with id and name set as the bound field (brandId)
-                                            var inputCategory = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
-                                            // append to the editor container
-                                            inputCategory.appendTo(container);
+                                        //editor: function (container, option) { // use a dropdownlist as an editor
+                                        //    // create an input element with id and name set as the bound field (brandId)
+                                        //    var inputCategory = $('<input data-text-field="Text" multiple="multiple" data-value-field="Value" data-bind="value:' + option.field + '"/>')
+                                        //    // append to the editor container
+                                        //    inputCategory.appendTo(container);
 
-                                            // initialize a dropdownlist
-                                            inputCategory.kendoDropDownList({
-                                                dataTextField: "Text",
-                                                dataValueField: "Value",
-                                                dataSource: datasourceCategory,
-                                                optionLabel: " ",
-                                                autoBind: "true",
-                                                valuePrimitive: "true",
-                                                change: function () {
-                                                    onSelectionChange();
-                                                }
-                                            }).appendTo(container)
+                                        //    // initialize a dropdownlist
+                                        //    inputCategory.kendoDropDownList({
+                                        //        dataTextField: "Text",
+                                        //        dataValueField: "Value",
+                                        //        dataSource: datasourceCategory,
+                                        //        optionLabel: " ",
+                                        //        autoBind: "true",
+                                        //        valuePrimitive: "true",
+                                        //        change: function () {
+                                        //            onSelectionChange();
+                                        //        }
+                                        //    }).appendTo(container)
 
-                                            function onSelectionChange(e) {
-                                                var selected = inputCategory.val();
-                                                if (selected == "1") //Stock Take
-                                                {
-                                                    $('input[name=StockTakeNo]').show();
-                                                    $("label[for='StockTakeNo']").show();
-                                                }
-                                                else {
-                                                    $('input[name=StockTakeNo]').hide();
-                                                    $("label[for='StockTakeNo']").hide();
-                                                }
-                                            }
-                                        }
+                                        //    function onSelectionChange(e) {
+                                        //        var selected = inputCategory.val();
+                                        //        if (selected == "1") //Stock Take
+                                        //        {
+                                        //            $('input[name=StockTakeNo]').show();
+                                        //            $("label[for='StockTakeNo']").show();
+                                        //        }
+                                        //        else {
+                                        //            $('input[name=StockTakeNo]').hide();
+                                        //            $("label[for='StockTakeNo']").hide();
+                                        //        }
+                                        //    }
+                                        //}
                                     },
                                     {
                                         field: "SelectedStoreIds",
@@ -335,25 +335,25 @@
                                 //        animation: false,
                                 //    }
                                 //},
-                                edit: function (e) {
-                                    // Change buttons visibility when the Grid enters edit mode.
-                                    var editRow = e.container;
-                                    editRow.find(".custom-button").toggleClass("hidden");
+                                //edit: function (e) {
+                                //    // Change buttons visibility when the Grid enters edit mode.
+                                //    var editRow = e.container;
+                                //    editRow.find(".custom-button").toggleClass("hidden");
 
-                                    //Rename button
-                                    var update = $(e.container).parent().find(".k-grid-update");
-                                    $(update).html('<span class="k-icon k-update"></span>Submit');
+                                //    //Rename button
+                                //    var update = $(e.container).parent().find(".k-grid-update");
+                                //    $(update).html('<span class="k-icon k-update"></span>Submit');
 
-                                    //Hide stock take label and input during first load
-                                    $('input[name=StockTakeNo]').hide();
-                                    $("label[for='StockTakeNo']").hide();
+                                //    //Hide stock take label and input during first load
+                                //    $('input[name=StockTakeNo]').hide();
+                                //    $("label[for='StockTakeNo']").hide();
 
-                                    $(e.container).parent().css({
-                                        width: '200px',
-                                        height: '300px'
-                                    });
+                                //    $(e.container).parent().css({
+                                //        width: '200px',
+                                //        height: '300px'
+                                //    });
 
-                                }
+                                //}
                                 }).data("kendoGrid");
 
                             $("#grid").on("click", ".custom-button", function (e) {

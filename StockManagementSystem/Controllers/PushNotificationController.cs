@@ -188,7 +188,7 @@ namespace StockManagementSystem.Controllers
 
                     pushNotification.Title = model.Title;
                     pushNotification.Desc = model.Description;
-                    pushNotification.StockTakeNo = model.StockTakeNo;
+                    pushNotification.StockTakeNo = model.StockTakeNo == null ? 0 : model.StockTakeNo;
                     pushNotification.NotificationCategoryId = Convert.ToInt32(model.SelectedNotificationCategoryIds.FirstOrDefault());
                     pushNotification.JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmss") : null;
                     pushNotification.JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmss") : null;
@@ -251,6 +251,16 @@ namespace StockManagementSystem.Controllers
                     //Others
                     if (model.RemindMe)
                     {
+                        string title = string.Empty;
+                        if (pushNotification.StockTakeNo != 0)
+                        {
+                            title = model.Title + "(Stock Take #" + pushNotification.StockTakeNo + ")";
+                        }
+                        else
+                        {
+                            title = model.Title;
+                        }
+
                         foreach (var item in model.SelectedStoreIds)
                         {
                             if (allStores.Any(x => x.P_BranchNo == item))
@@ -270,8 +280,34 @@ namespace StockManagementSystem.Controllers
                                                 model.Title,
                                                 model.Description,
                                                 devices.TokenId,
-                                                model.StartTime.Value,
-                                                model.EndTime.Value.Add(new TimeSpan(23, 59, 59)),
+                                                model.StartTime.GetValueOrDefault(),
+                                                model.EndTime.GetValueOrDefault().Add(new TimeSpan(23, 59, 59)),
+                                                model.SelectedRepeat,
+                                                _iconfiguration["APIKey"].ToString()
+                                                /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
+                                        }
+                                    }
+                                }
+                            }
+                            else if(item == -99)
+                            {
+                                var result = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
+
+                                if (result.Result?.Devices?.Count > 0)
+                                {
+                                    foreach (var devices in result.Result.Devices)
+                                    {
+                                        if (!string.IsNullOrEmpty(devices.TokenId))
+                                        {
+                                            //why not use IScheduledTask? this is repetitive = performance.
+                                            Scheduler.Start(
+                                                pushNotification.JobName,
+                                                pushNotification.JobGroup,
+                                                model.Title,
+                                                model.Description,
+                                                devices.TokenId,
+                                                model.StartTime.GetValueOrDefault(),
+                                                model.EndTime.GetValueOrDefault().Add(new TimeSpan(23, 59, 59)),
                                                 model.SelectedRepeat,
                                                 _iconfiguration["APIKey"].ToString()
                                                 /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
@@ -400,7 +436,7 @@ namespace StockManagementSystem.Controllers
                 Value = stList.StockTakeNo
             }).ToList();
 
-            if (model.StockTakeNo.HasValue)
+            if (model.StockTakeNo != 0)
             {
                 model.SelectedStockTake = new List<int?>();
                 model.SelectedStockTake.Add(model.StockTakeNo);
@@ -494,7 +530,7 @@ namespace StockManagementSystem.Controllers
 
                     pushNotification.Title = model.Title;
                     pushNotification.Desc = model.Description;
-                    pushNotification.StockTakeNo = model.StockTakeNo;
+                    pushNotification.StockTakeNo = model.StockTakeNo == null ? 0 : model.StockTakeNo;
                     pushNotification.NotificationCategoryId = (int)model.SelectedNotificationCategoryIds.FirstOrDefault();
                     pushNotification.RemindMe = model.RemindMe;
                     pushNotification.JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmss") : null;

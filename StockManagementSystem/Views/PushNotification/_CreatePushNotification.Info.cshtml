@@ -302,14 +302,14 @@
                         }
                     }
 
-                    var today = kendo.date.today();
+                    var today = new Date();
 
                     var start = $("#start").kendoDateTimePicker({
                         value: today,
                         min: today,
                         interval: 1,
                         change: startChange,
-                        parseFormats: ["yyyy-MM-ddThh:mm:ssZ"],
+                        parseFormats: ["yyyy-MM-ddTHH:mm:ssZ"],
                         format: "dd MMMM yyyy hh:mm tt", //format is used to format the value of the widget and to parse the input.
                     }).data("kendoDateTimePicker");
 
