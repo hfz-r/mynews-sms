@@ -1,6 +1,8 @@
 ﻿using StockManagementSystem.Core.Domain.Stores;
 using System;
 using StockManagementSystem.Core.Domain.Tenants;
+using StockManagementSystem.Core.Domain.PushNotifications;
+using System.Collections.Generic;
 
 namespace StockManagementSystem.Core.Domain.Devices
 {
@@ -31,6 +33,8 @@ namespace StockManagementSystem.Core.Domain.Devices
 
         //store mapping
         public bool LimitedToStores { get; set; }
+
+        public virtual ICollection<PushNotificationDevice> PushNotificationDevices { get; set; }
 
         #region IAppendTimestamps members
 

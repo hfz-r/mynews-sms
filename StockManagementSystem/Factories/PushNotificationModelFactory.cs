@@ -277,8 +277,6 @@ namespace StockManagementSystem.Factories
                 model.SelectedRepeat = pushNotification.Interval;
                 model.StartTime = pushNotification.StartTime;
                 model.EndTime = pushNotification.EndTime;
-                model.JobName = pushNotification.JobName;
-                model.JobGroup = pushNotification.JobGroup;
 
                 List<int?> catIds = new List<int?>
                 {
