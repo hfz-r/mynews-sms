@@ -7,6 +7,8 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
     {
         private ICollection<PushNotificationStore> _pushNotificationStores;
 
+        private ICollection<PushNotificationDevice> _pushNotificationDevices;
+
         public string Title { get; set; }
 
         public string Desc { get; set; }
@@ -14,10 +16,6 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
         public int? StockTakeNo { get; set; }
 
         public int NotificationCategoryId { get; set; }
-
-        public string JobName { get; set; }
-
-        public string JobGroup { get; set; }
 
         public int? Interval { get; set; }
 
@@ -33,6 +31,12 @@ namespace StockManagementSystem.Core.Domain.PushNotifications
         {
             get => _pushNotificationStores ?? (_pushNotificationStores = new List<PushNotificationStore>());
             set => _pushNotificationStores = value;
+        }
+
+        public virtual ICollection<PushNotificationDevice> PushNotificationDevices
+        {
+            get => _pushNotificationDevices ?? (_pushNotificationDevices = new List<PushNotificationDevice>());
+            set => _pushNotificationDevices = value;
         }
 
         #region IAppendTimestamps members
