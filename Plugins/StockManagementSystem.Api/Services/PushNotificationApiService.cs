@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.DataStructures;
+using StockManagementSystem.Api.DTOs.PushNotifications;
+using StockManagementSystem.Api.Extensions;
+using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.PushNotifications;
+using static StockManagementSystem.Api.Extensions.ApiServiceExtension;
 
 namespace StockManagementSystem.Api.Services
 {
@@ -63,6 +68,15 @@ namespace StockManagementSystem.Api.Services
             return query;
         }
 
+        private IQueryable<PushNotification> GetPushNotificationByStoreId(IQueryable<PushNotification> query, int storeId)
+        {
+            query = query.Join(_pushNotificationStoreRepository.Table, x => x.Id, y => y.PushNotificationId,
+                    (x, y) => new {PushNotification = x, PushNotificationStore = y})
+                .Where(z => z.PushNotificationStore.StoreId == storeId).Select(pn => pn.PushNotification);
+
+            return query;
+        }
+
         #endregion
 
         public IList<PushNotification> GetPushNotifications(
@@ -98,16 +112,33 @@ namespace StockManagementSystem.Api.Services
             return pushNotification;
         }
 
-        public IList<PushNotification> GetPushNotificationByStoreId(int storeId)
+        public Search<PushNotificationDto> Search(
+            int storeId = 0,
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false,
+            bool count = false)
         {
-            var pushNotifications = _pushNotificationRepository.Table;
+            var query = _pushNotificationRepository.Table;
 
-            var query = pushNotifications.Join(_pushNotificationStoreRepository.Table, x => x.Id,
-                    y => y.PushNotificationId, (x, y) => new {PushNotification = x, PushNotificationStore = y})
-                .Where(z => z.PushNotificationStore.StoreId == storeId)
-                .Select(pn => pn.PushNotification);
+            if (storeId > 0)
+                query = GetPushNotificationByStoreId(query, storeId);
 
-            return query.ToList();
+            var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+            if (searchParams != null)
+            {
+                query = query.HandleSearchParams(searchParams);
+            }
+
+            query = query.GetQueryDynamic(sortColumn, @descending);
+
+            var _ = new SearchWrapper<PushNotificationDto, PushNotification>();
+            return count
+                ? _.ToCount(query)
+                : _.ToList(query, page, limit,
+                    list => list.Select(entity => entity.ToDto()).ToList() as IList<PushNotificationDto>);
         }
     }
 }

@@ -87,7 +87,7 @@ namespace StockManagementSystem.Api.Extensions
                         expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
                             $"{searchParam.Key} = @0 || {searchParam.Key}.Contains(@0)", searchParam.Value);
                     }
-                    else if (pi.PropertyType == typeof(DateTime))
+                    else if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?))
                     {
                         var today = DateTime.Now;
                         var dateToCompare = today.AddDays(Convert.ToDouble(searchParam.Value));
