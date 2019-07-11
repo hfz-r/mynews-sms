@@ -190,8 +190,6 @@ namespace StockManagementSystem.Controllers
                     pushNotification.Desc = model.Description;
                     pushNotification.StockTakeNo = model.StockTakeNo == null ? 0 : model.StockTakeNo;
                     pushNotification.NotificationCategoryId = Convert.ToInt32(model.SelectedNotificationCategoryIds.FirstOrDefault());
-                    pushNotification.JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmss") : null;
-                    pushNotification.JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmss") : null;
                     pushNotification.Interval = model.RemindMe ? model.SelectedRepeat : null;
                     pushNotification.RemindMe = model.RemindMe;
                     pushNotification.StartTime = model.RemindMe ? model.StartTime : null;
@@ -214,10 +212,15 @@ namespace StockManagementSystem.Controllers
                     List<PushNotificationStore> pushNotificationStoreList = new List<PushNotificationStore>();
                     pushNotification.PushNotificationStores = new List<PushNotificationStore>();
 
+                    List<PushNotificationDevice> pushNotificationDeviceList = new List<PushNotificationDevice>();
+                    pushNotification.PushNotificationDevices = new List<PushNotificationDevice>();
+                    int i = 0;
+
                     foreach (var item in model.SelectedStoreIds)
                     {
                         if (allStores.Any(x => x.P_BranchNo == item))
                         {
+                            i = 0;
                             PushNotificationStore pushNotificationStore =
                                 new PushNotificationStore
                                 {
@@ -225,9 +228,30 @@ namespace StockManagementSystem.Controllers
                                     StoreId = item
                                 };
                             pushNotification.PushNotificationStores.Add(pushNotificationStore);
+
+                            //device
+                            var deviceResult = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
+
+                            if (deviceResult.Result?.Devices?.Count > 0)
+                            {
+                                foreach (var devices in deviceResult.Result.Devices)
+                                {
+                                    i++;
+                                    PushNotificationDevice pushNotificationDevice =
+                                        new PushNotificationDevice
+                                        {
+                                            PushNotificationId = pushNotification.Id,
+                                            JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmssfff") + i : null,
+                                            JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmssfff") + i : null,
+                                            DeviceId = devices.Id
+                                        };
+                                    pushNotification.PushNotificationDevices.Add(pushNotificationDevice);
+                                }
+                            }
                         }
                         else if (item == -99) //All stores
                         {
+                            i = 0;
                             foreach(var store in allStores)
                             {
                                 PushNotificationStore pushNotificationStore =
@@ -237,6 +261,25 @@ namespace StockManagementSystem.Controllers
                                         StoreId = store.P_BranchNo
                                     };
                                 pushNotification.PushNotificationStores.Add(pushNotificationStore);
+                            }
+                            //device
+                            var deviceResult = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
+
+                            if (deviceResult.Result?.Devices?.Count > 0)
+                            {
+                                foreach (var devices in deviceResult.Result.Devices)
+                                {
+                                    i++;
+                                    PushNotificationDevice pushNotificationDevice =
+                                        new PushNotificationDevice
+                                        {
+                                            PushNotificationId = pushNotification.Id,
+                                            JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmssfff") + i : null,
+                                            JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmssfff") + i : null,
+                                            DeviceId = devices.Id
+                                        };
+                                    pushNotification.PushNotificationDevices.Add(pushNotificationDevice);
+                                }
                             }
                         }
                     }
@@ -261,59 +304,22 @@ namespace StockManagementSystem.Controllers
                             title = model.Title;
                         }
 
-                        foreach (var item in model.SelectedStoreIds)
+                        foreach (var item in pushNotification.PushNotificationDevices)
                         {
-                            if (allStores.Any(x => x.P_BranchNo == item))
+                            if (item.Device != null && !string.IsNullOrEmpty(item.Device.TokenId))
                             {
-                                var result = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
-
-                                if (result.Result?.Devices?.Count > 0)
-                                {
-                                    foreach (var devices in result.Result.Devices)
-                                    {
-                                        if (!string.IsNullOrEmpty(devices.TokenId))
-                                        {
-                                            //why not use IScheduledTask? this is repetitive = performance.
-                                            Scheduler.Start(
-                                                pushNotification.JobName,
-                                                pushNotification.JobGroup,
-                                                model.Title,
-                                                model.Description,
-                                                devices.TokenId,
-                                                model.StartTime.GetValueOrDefault(),
-                                                model.EndTime.GetValueOrDefault().Add(new TimeSpan(23, 59, 59)),
-                                                model.SelectedRepeat,
-                                                _iconfiguration["APIKey"].ToString()
-                                                /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
-                                        }
-                                    }
-                                }
-                            }
-                            else if(item == -99)
-                            {
-                                var result = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
-
-                                if (result.Result?.Devices?.Count > 0)
-                                {
-                                    foreach (var devices in result.Result.Devices)
-                                    {
-                                        if (!string.IsNullOrEmpty(devices.TokenId))
-                                        {
-                                            //why not use IScheduledTask? this is repetitive = performance.
-                                            Scheduler.Start(
-                                                pushNotification.JobName,
-                                                pushNotification.JobGroup,
-                                                model.Title,
-                                                model.Description,
-                                                devices.TokenId,
-                                                model.StartTime.GetValueOrDefault(),
-                                                model.EndTime.GetValueOrDefault().Add(new TimeSpan(23, 59, 59)),
-                                                model.SelectedRepeat,
-                                                _iconfiguration["APIKey"].ToString()
-                                                /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
-                                        }
-                                    }
-                                }
+                                //why not use IScheduledTask? this is repetitive = performance.
+                                Scheduler.Start(
+                                    item.JobName,
+                                    item.JobGroup,
+                                    model.Title,
+                                    model.Description,
+                                    item.Device.TokenId,
+                                    model.StartTime.GetValueOrDefault(),
+                                    model.EndTime.GetValueOrDefault().Add(new TimeSpan(23, 59, 59)),
+                                    model.SelectedRepeat,
+                                    _iconfiguration["APIKey"].ToString()
+                                    /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
                             }
                         }
                     }
@@ -524,8 +530,15 @@ namespace StockManagementSystem.Controllers
                     IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
                     if (pushNotification.RemindMe)
                     {
-                        if(await scheduler.CheckExists(new JobKey(pushNotification.JobName, pushNotification.JobGroup)))// Validate that the job doesn't already exists
-                        await scheduler.DeleteJob(new JobKey(pushNotification.JobName, pushNotification.JobGroup));
+                        if (pushNotification.PushNotificationDevices != null)
+                        {
+                            foreach (var item in pushNotification.PushNotificationDevices)
+                            {
+                                if (await scheduler.CheckExists(new JobKey(item.JobName, item.JobGroup)))
+                                    await scheduler.DeleteJob(new JobKey(item.JobName, item.JobGroup));
+                            }
+                        }
+
                     }
 
                     pushNotification.Title = model.Title;
@@ -533,8 +546,6 @@ namespace StockManagementSystem.Controllers
                     pushNotification.StockTakeNo = model.StockTakeNo == null ? 0 : model.StockTakeNo;
                     pushNotification.NotificationCategoryId = (int)model.SelectedNotificationCategoryIds.FirstOrDefault();
                     pushNotification.RemindMe = model.RemindMe;
-                    pushNotification.JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmss") : null;
-                    pushNotification.JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmss") : null;
                     pushNotification.Interval = model.RemindMe ? model.SelectedRepeat : null;
                     pushNotification.StartTime = model.RemindMe ? model.StartTime : null;
                     pushNotification.EndTime = model.RemindMe ? model.EndTime : null;
@@ -554,6 +565,29 @@ namespace StockManagementSystem.Controllers
 
                     //stores
                     List<PushNotificationStore> pushNotificationStoreList = new List<PushNotificationStore>();
+                    List<PushNotificationDevice> pushNotificationDeviceList = new List<PushNotificationDevice>();
+                    List<Tuple<int, string>> deleteList = new List<Tuple<int, string>>();
+
+
+                    int i = 0;
+
+                    foreach (var item in pushNotification.PushNotificationStores)
+                    {
+                        if (!model.SelectedStoreIds.Any(x => x == item.StoreId))
+                        {
+
+                            // add an item
+                            deleteList.Add(new Tuple<int, string>(model.Id, item.StoreId.ToString()));
+                        }
+                    }
+                    if (deleteList != null && deleteList.Count > 0)
+                    {
+                        foreach (var deleteItem in deleteList)
+                        {
+                            //remove store
+                            _pushNotificationService.DeletePushNotificationStore(deleteItem.Item1, Convert.ToInt32(deleteItem.Item2));
+                        }
+                    }
 
                     foreach (var item in model.SelectedStoreIds)
                     {
@@ -562,6 +596,7 @@ namespace StockManagementSystem.Controllers
                             //new store
                             if (pushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == item) == 0)
                             {
+                                i = 0;
                                 PushNotificationStore pushNotificationStore =
                                     new PushNotificationStore
                                     {
@@ -570,13 +605,27 @@ namespace StockManagementSystem.Controllers
                                     };
 
                                 pushNotification.PushNotificationStores.Add(pushNotificationStore);
+
+                                //device
+                                var deviceResult = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
+
+                                if (deviceResult.Result?.Devices?.Count > 0)
+                                {
+                                    foreach (var devices in deviceResult.Result.Devices)
+                                    {
+                                        i++;
+                                        PushNotificationDevice pushNotificationDevice =
+                                            new PushNotificationDevice
+                                            {
+                                                PushNotificationId = pushNotification.Id,
+                                                JobName = model.RemindMe ? "Job" + currentTime.ToString("ddMMyyyyHHmmssfff") + i : null,
+                                                JobGroup = model.RemindMe ? "Group" + currentTime.ToString("ddMMyyyyHHmmssfff") + i : null,
+                                                DeviceId = devices.Id
+                                            };
+                                        pushNotification.PushNotificationDevices.Add(pushNotificationDevice);
+                                    }
+                                }
                             }
-                        }
-                        else
-                        {
-                            //remove store
-                            if (pushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == item) > 0)
-                                _pushNotificationService.DeletePushNotificationStore(model.Id, item);
                         }
                     }
 
@@ -590,35 +639,21 @@ namespace StockManagementSystem.Controllers
                     //Others
                     if (model.RemindMe)
                     {
-                        foreach (var item in model.SelectedStoreIds)
+                        foreach (var item in pushNotification.PushNotificationDevices)
                         {
-                            if (allStores.Any(x => x.P_BranchNo == item))
+                            if (item.Device != null && !string.IsNullOrEmpty(item.Device.TokenId))
                             {
-                                var result = _deviceModelFactory.PrepareDeviceListbyStoreModel(item);
-
-                                if (result.Result != null && result.Result.Devices != null)
-                                {
-                                    if (result.Result.Devices.Count > 0)
-                                    {
-                                        foreach (var devices in result.Result.Devices)
-                                        {
-                                            if (!string.IsNullOrEmpty(devices.TokenId))
-                                            {
-                                                Scheduler.Start(
-                                                    pushNotification.JobName,
-                                                    pushNotification.JobGroup,
-                                                    model.Title,
-                                                    model.Description,
-                                                    devices.TokenId,
-                                                    model.StartTime.Value,
-                                                    model.EndTime.Value.Add(new TimeSpan(23, 59, 59)),
-                                                    model.SelectedRepeat,
-                                                    _iconfiguration["APIKey"].ToString()
-                                                    /*,_iconfiguration["FirebaseSenderID"].ToString()*/); //not required
-                                            }
-                                        }
-                                    }
-                                }
+                                //why not use IScheduledTask? this is repetitive = performance.
+                                Scheduler.Start(
+                                    item.JobName,
+                                    item.JobGroup,
+                                    model.Title,
+                                    model.Description,
+                                    item.Device.TokenId,
+                                    model.StartTime.Value,
+                                    model.EndTime.Value.Add(new TimeSpan(23, 59, 59)),
+                                    model.SelectedRepeat,
+                                    _iconfiguration["APIKey"].ToString());
                             }
                         }
                     }
@@ -652,8 +687,17 @@ namespace StockManagementSystem.Controllers
             {
                 IScheduler scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
                 // Validate that the job doesn't already exists
-                if (await scheduler.CheckExists(new JobKey(pushNotification.JobName, pushNotification.JobGroup)))
-                    await scheduler.DeleteJob(new JobKey(pushNotification.JobName, pushNotification.JobGroup));
+                if (pushNotification.RemindMe)
+                {
+                    if (pushNotification.PushNotificationDevices != null)
+                    {
+                        foreach (var item in pushNotification.PushNotificationDevices)
+                        {
+                            if (await scheduler.CheckExists(new JobKey(item.JobName, item.JobGroup)))
+                                await scheduler.DeleteJob(new JobKey(item.JobName, item.JobGroup));
+                        }
+                    }
+                }
 
                 _pushNotificationService.DeletePushNotification(pushNotification);
 

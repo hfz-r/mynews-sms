@@ -14,6 +14,7 @@ using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Json.ActionResults;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Api.ModelBinders;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Api.Models.PushNotificationsParameters;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core.Domain.PushNotifications;
@@ -49,6 +50,44 @@ namespace StockManagementSystem.Api.Controllers
             _pushNotificationService = pushNotificationService;
             _storeService = storeService;
         }
+
+        #region Private methods
+
+        private async Task AddValidStores(Delta<PushNotificationDto> pushNotificationDelta, PushNotification currentPushNotification)
+        {
+            var stores = await _storeService.GetStores();
+            foreach (var store in stores)
+            {
+                if (pushNotificationDelta.Dto.StoreIds.Contains(store.P_BranchNo))
+                {
+                    if (currentPushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
+                        currentPushNotification.PushNotificationStores.Add(new PushNotificationStore { Store = store });
+                }
+                else
+                {
+                    if (currentPushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
+                        currentPushNotification.PushNotificationStores.Remove(currentPushNotification.PushNotificationStores.FirstOrDefault(mapping => mapping.StoreId == store.P_BranchNo));
+                }
+            }
+        }
+
+        protected async Task<IActionResult> CountRootObjectResult(int count)
+        {
+            var countRootObject = new PushNotificationCountRootObject { Count = count > 0 ? count : 0 };
+
+            return await Task.FromResult<IActionResult>(Ok(countRootObject));
+        }
+
+        protected async Task<IActionResult> RootObjectResult(IList<PushNotificationDto> entities, string fields)
+        {
+            var rootObj = new PushNotificationRootObject { PushNotifications = entities };
+
+            var json = JsonFieldsSerializer.Serialize(rootObj, fields);
+
+            return await Task.FromResult<IActionResult>(new RawJsonActionResult(json));
+        }
+
+        #endregion
 
         /// <summary>
         /// Retrieve all push notifications
@@ -109,49 +148,70 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve push notification by attributes
+        /// Retrieve push notification by id
         /// </summary>
-        /// <param name="id">Push notification id on <see cref="NameValueCollection"/>format</param>
-        /// <param name="storeid">Push notification store@branch id <see cref="NameValueCollection"/>format</param>
+        /// <param name="id">Id of the push notification</param>
         /// <param name="fields">Fields from the push notification you want your json to contain</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/push_notification/get")]
-        [ProducesResponseType(typeof(PushNotificationRootObject), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        [Route("/api/push_notification/{id}")]
+        [ProducesResponseType(typeof(PushNotificationRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetPushNotificationById([FromQuery] int id, [FromQuery] int storeid, string fields = "")
+        public async Task<IActionResult> GetPushNotificationById(int id, string fields = "")
         {
-            PushNotificationRootObject rootObj;
+            if (id <= 0)
+                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            if (id > 0)
-            {
-                var pn = _pushNotificationApiService.GetPushNotificationById(id);
-                if (pn == null)
-                    return await Error(HttpStatusCode.NotFound, "push_notification", "not found");
+            var pn = _pushNotificationApiService.GetPushNotificationById(id);
+            if (pn == null)
+                return await Error(HttpStatusCode.NotFound, "push_notification", "not found");
 
-                rootObj = new PushNotificationRootObject();
-                rootObj.PushNotifications.Add(pn.ToDto());
-            }
-            else if (storeid > 0)
-            {
-                IList<PushNotificationDto> pns = _pushNotificationApiService.GetPushNotificationByStoreId(storeid)
-                    .Select(pn => pn.ToDto()).ToList();
-                if (!pns.Any())
-                    return await Error(HttpStatusCode.NotFound, "push_notification", "not found");
-
-                rootObj = new PushNotificationRootObject { PushNotifications = pns };
-            }
-            else
-                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or store_id");
+            var rootObj = new PushNotificationRootObject();
+            rootObj.PushNotifications.Add(pn.ToDto());
 
             var json = JsonFieldsSerializer.Serialize(rootObj, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        /// <summary>
+        /// Search for related push notifications matching supplied query
+        /// </summary>
+        /// <param name="parameters">Search parameters <see cref="GenericSearchParametersModel"/></param>
+        /// <param name="storeid">Push notification store@branch id <see cref="NameValueCollection"/>format</param>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet]
+        [Route("/api/push_notification/search")]
+        [ProducesResponseType(typeof(PushNotificationRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> Search(GenericSearchParametersModel parameters, [FromQuery] int storeid = 0)
+        {
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+                return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
+
+            if (parameters.Page < Configurations.DefaultPageValue)
+                return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
+
+            var entities = _pushNotificationApiService.Search(
+                storeid,
+                parameters.Query,
+                parameters.Limit,
+                parameters.Page,
+                parameters.SortColumn,
+                parameters.Descending,
+                parameters.Count);
+
+            return parameters.Count
+                ? await CountRootObjectResult(entities.Count)
+                : await RootObjectResult(entities.List, parameters.Fields);
         }
 
         /// <summary>
@@ -252,27 +312,5 @@ namespace StockManagementSystem.Api.Controllers
 
             return new RawJsonActionResult("{}");
         }
-
-        #region Private methods
-
-        private async Task AddValidStores(Delta<PushNotificationDto> pushNotificationDelta, PushNotification currentPushNotification)
-        {
-            var stores = await _storeService.GetStores();
-            foreach (var store in stores)
-            {
-                if (pushNotificationDelta.Dto.StoreIds.Contains(store.P_BranchNo))
-                {
-                    if (currentPushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == store.P_BranchNo) == 0)
-                        currentPushNotification.PushNotificationStores.Add(new PushNotificationStore { Store = store });
-                }
-                else
-                {
-                    if (currentPushNotification.PushNotificationStores.Count(mapping => mapping.StoreId == store.P_BranchNo) > 0)
-                        currentPushNotification.PushNotificationStores.Remove(currentPushNotification.PushNotificationStores.FirstOrDefault(mapping => mapping.StoreId == store.P_BranchNo));
-                }
-            }
-        }
-
-        #endregion
     }
 }
