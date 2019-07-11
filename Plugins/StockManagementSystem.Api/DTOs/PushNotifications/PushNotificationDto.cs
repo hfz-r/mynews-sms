@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
 using StockManagementSystem.Api.DTOs.Stores;
+using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.PushNotifications
 {
     [JsonObject(Title = "push_notification")]
-    //TODO: PushNotificationDtoValidator
+    [Validator(typeof(PushNotificationDtoValidator))]
     public class PushNotificationDto : BaseDto
     {
         private List<int> _storeIds;

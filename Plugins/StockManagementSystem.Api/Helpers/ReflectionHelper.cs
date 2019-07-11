@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Newtonsoft.Json;
+using StockManagementSystem.Api.Constants;
 
 namespace StockManagementSystem.Api.Helpers
 {
@@ -11,9 +12,17 @@ namespace StockManagementSystem.Api.Helpers
             return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) != null;
         }
 
-        public static PropertyInfo GetPropertyInfo(string propertyName, Type type)
+        public static PropertyInfo GetPropertyInfo(ref string propertyName, Type type)
         {
-            return type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (propertyInfo == null)
+            {
+                propertyName = Configurations.NonCrudTableSuffix + propertyName;
+
+                propertyInfo = type.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            }
+
+            return propertyInfo;
         }
 
         public static JsonObjectAttribute GetJsonObjectAttribute(Type objectType)

@@ -15,20 +15,21 @@ using StockManagementSystem.Api.Json.Contracts;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Api.Services;
+using StockManagementSystem.Core;
 using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Api.Controllers.Generics
 {
     [Route("api/[controller]")]
     [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class BaseGenericController<T> : Controller where T : BaseDto
+    public class BaseGenericController<T, E> : Controller where T : BaseDto where E : BaseEntity
     {
-        protected readonly IGenericApiService<T> GenericApiService;
+        protected readonly IGenericApiService<T,E> GenericApiService;
         protected readonly IJsonFieldsSerializer JsonFieldsSerializer;
         protected readonly IUserActivityService UserActivityService;
 
         public BaseGenericController(
-            IGenericApiService<T> genericApiService, 
+            IGenericApiService<T,E> genericApiService, 
             IJsonFieldsSerializer jsonFieldsSerializer, 
             IUserActivityService userActivityService)
         {
@@ -110,13 +111,12 @@ namespace StockManagementSystem.Api.Controllers.Generics
             if (parameters.Page < Configurations.DefaultPageValue)
                 return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
-            var entities = 
-                GenericApiService.GetEntities(
-                    parameters.Limit,
-                    parameters.Page, 
-                    parameters.SinceId,
-                    parameters.SortColumn,
-                    parameters.Descending);
+            var entities = GenericApiService.GetAll(
+                parameters.Limit,
+                parameters.Page,
+                parameters.SinceId,
+                parameters.SortColumn,
+                parameters.Descending);
 
             var rootObj = new GenericRootObject<T> {Entities = entities};
 
@@ -145,7 +145,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
             if (id <= 0)
                 return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            var entity = GenericApiService.GetEntityById(id);
+            var entity = GenericApiService.GetById(id);
             if (entity == null)
                 return await Error(HttpStatusCode.NotFound, "entity", "not found");
 
@@ -169,7 +169,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetEntitiesCount()
         {
-            var count = GenericApiService.GetEntityCount();
+            var count = GenericApiService.Count();
 
             var rootObj = new GenericCountRootObject {Count = count};
 

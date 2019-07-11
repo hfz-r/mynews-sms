@@ -1,10 +1,12 @@
 ﻿using System;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
+using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.ShelfLocation
 {
     [JsonObject(Title = "shelf_location")]
-    //TODO: ShelfLocationDtoValidator
+    [Validator(typeof(ShelfLocationDtoValidator))]
     public class ShelfLocationDto : BaseDto
     {
         [JsonIgnore]

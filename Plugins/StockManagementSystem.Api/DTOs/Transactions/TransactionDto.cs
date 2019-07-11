@@ -1,10 +1,12 @@
 ﻿using System;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
+using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.Transactions
 {
     [JsonObject(Title = "transaction")]
-    //TODO: TransactionDtoValidator
+    [Validator(typeof(TransactionDtoValidator))]
     public class TransactionDto : BaseDto
     {
         [JsonProperty("module_id")]

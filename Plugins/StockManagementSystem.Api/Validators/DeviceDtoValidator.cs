@@ -22,7 +22,7 @@ namespace StockManagementSystem.Api.Validators
 
             SetSerialNoRule();
             SetModelNoRule();
-            SetStoreIdsRule();
+            SetStoreIdRule();
         }
 
         private void SetSerialNoRule()
@@ -35,7 +35,7 @@ namespace StockManagementSystem.Api.Validators
             SetNotNullOrEmptyCreateOrUpdateRule(d => d.ModelNo, "Invalid model no.", "model_no");
         }
 
-        private void SetStoreIdsRule()
+        private void SetStoreIdRule()
         {
             if (HttpMethod == HttpMethod.Post || RequestJsonDictionary.ContainsKey("store_id"))
             {

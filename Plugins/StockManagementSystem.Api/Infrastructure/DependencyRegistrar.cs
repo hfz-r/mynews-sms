@@ -50,7 +50,7 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<TransactionApiService>().As<ITransactionApiService>().InstancePerLifetimeScope();
             builder.RegisterType<TransporterTransactionApiService>().As<ITransporterTransactionApiService>().InstancePerLifetimeScope();
             builder.RegisterType<ShelfLocationApiService>().As<IShelfLocationApiService>().InstancePerLifetimeScope();
-            builder.RegisterGeneric(typeof(GenericApiService<>)).As(typeof(IGenericApiService<>)).InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(GenericApiService<,>)).As(typeof(IGenericApiService<,>)).InstancePerLifetimeScope();
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();

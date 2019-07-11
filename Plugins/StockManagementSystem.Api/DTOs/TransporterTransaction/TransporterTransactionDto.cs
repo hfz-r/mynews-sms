@@ -1,10 +1,12 @@
 ﻿using System;
+using FluentValidation.Attributes;
 using Newtonsoft.Json;
+using StockManagementSystem.Api.Validators;
 
 namespace StockManagementSystem.Api.DTOs.TransporterTransaction
 {
     [JsonObject(Title = "transporter_transaction")]
-    //TODO: TransporterDtoValidator
+    [Validator(typeof(TransporterDtoValidator))]
     public class TransporterTransactionDto : BaseDto
     {
         [JsonProperty("driver_name")]

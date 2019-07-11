@@ -5,9 +5,7 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Api.Helpers;
-using StockManagementSystem.Core;
 
 namespace StockManagementSystem.Api.Extensions
 {
@@ -50,7 +48,7 @@ namespace StockManagementSystem.Api.Extensions
 
         #endregion
 
-        public static IQueryable<T> GetQueryDynamic<T>(this IQueryable<T> query, string sortColumn, bool descending, int sinceId = 0)
+        public static IQueryable<T> GetQuery<T>(this IQueryable<T> query, string sortColumn, bool descending, int sinceId = 0)
         {
             var parameter = Expression.Parameter(typeof(T), "p");
 
@@ -59,9 +57,11 @@ namespace StockManagementSystem.Api.Extensions
             if (descending)
                 command = "OrderByDescending";
 
-            var property = typeof(T).GetProperty(sortColumn, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            //resolve snake_case
+            sortColumn = sortColumn.Replace("_", string.Empty);
 
+            var property = ReflectionHelper.GetPropertyInfo(ref sortColumn, typeof(T));
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderByExpression = Expression.Lambda(propertyAccess, parameter);
 
             MethodCallExpression orderByCallExpression = Expression.Call(
@@ -78,14 +78,15 @@ namespace StockManagementSystem.Api.Extensions
         {
             foreach (var searchParam in searchParams)
             {
-                if (ReflectionHelper.GetPropertyInfo(searchParam.Key, typeof(T)) is PropertyInfo pi)
+                var key = searchParam.Key;
+                if (ReflectionHelper.GetPropertyInfo(ref key, typeof(T)) is PropertyInfo pi)
                 {
                     LambdaExpression expression;
 
                     if (pi.PropertyType == typeof(string))
                     {
                         expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
-                            $"{searchParam.Key} = @0 || {searchParam.Key}.Contains(@0)", searchParam.Value);
+                            $"{key} = @0 || {key}.Contains(@0)", searchParam.Value);
                     }
                     else if (pi.PropertyType == typeof(DateTime))
                     {
@@ -99,12 +100,11 @@ namespace StockManagementSystem.Api.Extensions
                             expObj = new object[] {dateToCompare, today};
 
                         expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
-                            $"{searchParam.Key} >= @0 and {searchParam.Key} < @1", expObj);
+                            $"{key} >= @0 and {key} < @1", expObj);
                     }
                     else
                     {
-                        expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
-                            $"{searchParam.Key} = @0", searchParam.Value);
+                        expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool), $"{key} = @0", searchParam.Value);
                     }
 
                     query = query.Where("@0(it)", expression);
@@ -139,7 +139,10 @@ namespace StockManagementSystem.Api.Extensions
                     var value = fields[i + 1];
 
                     if (!string.IsNullOrEmpty(field) && !string.IsNullOrEmpty(value))
+                    {
+                        field = field.Replace("_", string.Empty);
                         searchQuery.Add(field.Trim(), value.Trim());
+                    }
                 }
             }
 

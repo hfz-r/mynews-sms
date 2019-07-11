@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.DataStructures;
+using StockManagementSystem.Api.DTOs.Devices;
+using StockManagementSystem.Api.Extensions;
+using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Services.Tenants;
+using static StockManagementSystem.Api.Extensions.ApiServiceExtension;
 
 namespace StockManagementSystem.Api.Services
 {
@@ -42,6 +47,31 @@ namespace StockManagementSystem.Api.Services
             var device = _deviceRepository.Table.FirstOrDefault(d => d.Id == id);
 
             return device;
+        }
+
+        public Search<DeviceDto> Search(
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false,
+            bool count = false)
+        {
+            var query = _deviceRepository.Table;
+
+            var searchParams = EnsureSearchQueryIsValid(queryParams, ResolveSearchQuery);
+            if (searchParams != null)
+            {
+                query = query.HandleSearchParams(searchParams);
+            }
+
+            query = query.GetQuery(sortColumn, @descending);
+
+            var _ = new SearchWrapper<DeviceDto, Device>();
+            return count
+                ? _.ToCount(query)
+                : _.ToList(query, page, limit,
+                    list => list.Select(entity => entity.ToDto()).ToList() as IList<DeviceDto>);
         }
 
         public Device GetDeviceBySerialNo(string serialNo)

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using StockManagementSystem.Api.Constants;
+using StockManagementSystem.Api.DTOs.Devices;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Core.Domain.Devices;
 
 namespace StockManagementSystem.Api.Services
@@ -14,5 +17,13 @@ namespace StockManagementSystem.Api.Services
         Device GetDeviceBySerialNo(string serialNo);
 
         int GetDevicesCount(DateTime? createdAtMin = null, DateTime? createdAtMax = null, string status = "");
+
+        Search<DeviceDto> Search(
+            string queryParams = "",
+            int limit = Configurations.DefaultLimit,
+            int page = Configurations.DefaultPageValue,
+            string sortColumn = Configurations.DefaultOrder,
+            bool descending = false,
+            bool count = false);
     }
 }

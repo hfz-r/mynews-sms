@@ -16,5 +16,6 @@
         public const string UnpublishedStatus = "unpublished";
         public const string AnyStatus = "any";
         public const string JsonTypeMapsPattern = "json.maps";
+        public const string NonCrudTableSuffix = "p_";
     }
 }

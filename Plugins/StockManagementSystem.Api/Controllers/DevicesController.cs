@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,6 +16,7 @@ using StockManagementSystem.Api.Json.ActionResults;
 using StockManagementSystem.Api.Json.Serializer;
 using StockManagementSystem.Api.ModelBinders;
 using StockManagementSystem.Api.Models.DevicesParameters;
+using StockManagementSystem.Api.Models.GenericsParameters;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core.Domain.Devices;
 using StockManagementSystem.Services.Devices;
@@ -53,6 +53,26 @@ namespace StockManagementSystem.Api.Controllers
             _deviceService = deviceService;
             _deviceApiService = deviceApiService;
         }
+
+        #region Private methods
+
+        protected async Task<IActionResult> CountRootObjectResult(int count)
+        {
+            var countRootObject = new DevicesCountRootObject { Count = count > 0 ? count : 0 };
+
+            return await Task.FromResult<IActionResult>(Ok(countRootObject));
+        }
+
+        protected async Task<IActionResult> RootObjectResult(IList<DeviceDto> entities, string fields)
+        {
+            var rootObj = new DevicesRootObject { Devices = entities };
+
+            var json = JsonFieldsSerializer.Serialize(rootObj, fields);
+
+            return await Task.FromResult<IActionResult>(new RawJsonActionResult(json));
+        }
+
+        #endregion
 
         /// <summary>
         /// Receive a list of all devices
@@ -111,32 +131,26 @@ namespace StockManagementSystem.Api.Controllers
         }
 
         /// <summary>
-        /// Retrieve device by attributes
+        /// Retrieve device by id
         /// </summary>
-        /// <param name="id">Device id on <see cref="NameValueCollection"/>format</param>
-        /// <param name="serialno">Device serial no <see cref="NameValueCollection"/>format</param>
+        /// <param name="id">Id of the device</param>
         /// <param name="fields">Fields from the device you want your json to contain</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [Route("/api/devices/get")]
+        [Route("/api/devices/{id}")]
         [ProducesResponseType(typeof(DevicesRootObject), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
-        public async Task<IActionResult> GetDeviceByAttributes([FromQuery] int id, [FromQuery] string serialno, string fields = "")
+        public async Task<IActionResult> GetDeviceById(int id, string fields = "")
         {
-            Device device;
+            if (id <= 0)
+                return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            if (id > 0)
-                device = _deviceApiService.GetDeviceById(id);
-            else if (!string.IsNullOrEmpty(serialno))
-                device = _deviceApiService.GetDeviceBySerialNo(serialno);
-            else
-                return await Error(HttpStatusCode.BadRequest, "invalid", "invalid id or serial_no");
-
+            var device = _deviceApiService.GetDeviceById(id);
             if (device == null)
                 return await Error(HttpStatusCode.NotFound, "device", "not found");
 
@@ -148,6 +162,38 @@ namespace StockManagementSystem.Api.Controllers
             var json = JsonFieldsSerializer.Serialize(devicesRootObject, fields);
 
             return new RawJsonActionResult(json);
+        }
+
+        /// <summary>
+        /// Search for related device matching supplied query
+        /// </summary>
+        /// <response code="200">OK</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpGet]
+        [Route("/api/devices/search")]
+        [ProducesResponseType(typeof(DevicesRootObject), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> Search(GenericSearchParametersModel parameters)
+        {
+            if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
+                return await Error(HttpStatusCode.BadRequest, "limit", "Invalid limit parameter");
+
+            if (parameters.Page < Configurations.DefaultPageValue)
+                return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
+
+            var entities = _deviceApiService.Search(
+                parameters.Query,
+                parameters.Limit,
+                parameters.Page,
+                parameters.SortColumn,
+                parameters.Descending,
+                parameters.Count);
+
+            return parameters.Count
+                ? await CountRootObjectResult(entities.Count)
+                : await RootObjectResult(entities.List, parameters.Fields);
         }
 
         /// <summary>

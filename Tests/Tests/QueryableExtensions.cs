@@ -7,7 +7,7 @@ namespace Tests
 {
     public static class QueryableExtensions
     {
-        public static Mock<DbSet<T>> BuildMockDbSet<T>(this IEnumerable<T> source) where T : class
+        public static Mock<DbSet<T>> BuildMockDbSet<T>(this IEnumerable<T> source) where T : class, new()
         {
             var data = source.AsQueryable();
 
