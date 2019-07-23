@@ -85,7 +85,7 @@ namespace StockManagementSystem.Api.Extensions
                     if (pi.PropertyType == typeof(string))
                     {
                         expression = DynamicExpressionParser.ParseLambda(typeof(T), typeof(bool),
-                            $"{searchParam.Key} = @0 || {searchParam.Key}.Contains(@0)", searchParam.Value);
+                            $"{searchParam.Key} = @0", searchParam.Value);
                     }
                     else if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?))
                     {
