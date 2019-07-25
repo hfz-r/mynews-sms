@@ -13,5 +13,7 @@ namespace StockManagementSystem.Core.Domain.Master
         public int P_SupplierNo { get; set; }
 
         public byte Status { get; set; }
+
+        public DateTime? ImportDateTime { get; set; } //for Edi purpose only
     }
 }
