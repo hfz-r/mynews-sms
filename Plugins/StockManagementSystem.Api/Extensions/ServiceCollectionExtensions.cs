@@ -11,6 +11,7 @@ using StockManagementSystem.Api.Authorization.Requirements;
 using StockManagementSystem.Api.Helpers;
 using StockManagementSystem.Api.IdentityServer.Endpoints;
 using StockManagementSystem.Api.IdentityServer.Generators;
+using StockManagementSystem.Api.IdentityServer.Middlewares;
 using StockManagementSystem.Core.Data;
 
 namespace StockManagementSystem.Api.Extensions
@@ -80,6 +81,8 @@ namespace StockManagementSystem.Api.Extensions
             services.AddSingleton<IAuthorizationHandler, ActiveApiAuthorizationPolicy>();
             services.AddSingleton<IAuthorizationHandler, ValidSchemeAuthorizationPolicy>();
             services.AddSingleton<IAuthorizationHandler, ActiveClientAuthorizationPolicy>();
+
+            services.AddTransient<ActivateApiUserMiddleware>();
         }
 
         #region Private methods

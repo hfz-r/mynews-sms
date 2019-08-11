@@ -23,6 +23,8 @@
         /// </summary>
         public static string BackgroundTaskUserName => "BackgroundTask";
 
+        public static string ApiUserName => "ApiUser";
+
         #endregion
 
         #region User attributes

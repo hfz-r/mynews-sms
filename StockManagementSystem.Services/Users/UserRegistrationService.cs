@@ -113,9 +113,9 @@ namespace StockManagementSystem.Services.Users
 
             var result = new UserRegistrationResult();
 
-            if (request.User.IsBackgroundTaskAccount())
+            if (request.User.IsBackgroundTaskAccount() || request.User.IsApiUser())
             {
-                result.AddError("Background task account can't be registered");
+                result.AddError("Built-in account can't be registered");
                 return result;
             }
 

@@ -79,6 +79,7 @@ namespace StockManagementSystem.Api.Extensions
 
             // use scope parameters middleware
             application.UseMiddleware<ScopeParametersMiddleware>();
+            application.UseMiddleware<ActivateApiUserMiddleware>();
 
             application.UseMiddleware<BaseUrlMiddleware>();
             application.ConfigureCors();

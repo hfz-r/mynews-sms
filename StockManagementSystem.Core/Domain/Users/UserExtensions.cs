@@ -35,6 +35,18 @@ namespace StockManagementSystem.Core.Domain.Users
             return result;
         }
 
+        public static bool IsApiUser(this User user)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (!user.IsSystemAccount || string.IsNullOrEmpty(user.SystemName))
+                return false;
+
+            var result = user.SystemName.Equals(UserDefaults.ApiUserName, StringComparison.InvariantCultureIgnoreCase);
+            return result;
+        }
+
         /// <summary>
         /// Gets a value indicating whether user is administrator
         /// </summary>
