@@ -18,6 +18,10 @@ namespace StockManagementSystem.Core.Domain.Transactions
 
         public int BranchNo { get; set; }
 
+        public string P_SysMod { get; set; }
+
+        public int? P_StaffNo { get; set; }
+
         #region IAppendTimestamps members
 
         public DateTime CreatedOnUtc { get; set; }
