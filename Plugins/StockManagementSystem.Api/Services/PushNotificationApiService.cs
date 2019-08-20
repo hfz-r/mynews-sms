@@ -132,7 +132,7 @@ namespace StockManagementSystem.Api.Services
                 query = query.HandleSearchParams(searchParams);
             }
 
-            query = query.GetQueryDynamic(sortColumn, @descending);
+            query = query.GetQuery(sortColumn, @descending);
 
             var _ = new SearchWrapper<PushNotificationDto, PushNotification>();
             return count
