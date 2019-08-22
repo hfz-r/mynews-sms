@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Autofac;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using StockManagementSystem.Api.Converters;
 using StockManagementSystem.Api.Delta;
@@ -26,6 +28,7 @@ namespace StockManagementSystem.Api.Infrastructure
         {
             builder.RegisterModelBinders();
             builder.RegisterServices();
+            builder.RegisterByContext(typeFinder);
         }
 
         public int Order => Int16.MaxValue;
@@ -46,11 +49,14 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<DeviceApiService>().As<IDeviceApiService>().InstancePerLifetimeScope();
             builder.RegisterType<ItemApiService>().As<IItemApiService>().InstancePerLifetimeScope();
             builder.RegisterType<RoleApiService>().As<IRoleApiService>().InstancePerLifetimeScope();
-            builder.RegisterType<PushNotificationApiService>().As<IPushNotificationApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<PushNotificationApiService>().As<IPushNotificationApiService>()
+                .InstancePerLifetimeScope();
             builder.RegisterType<TransactionApiService>().As<ITransactionApiService>().InstancePerLifetimeScope();
-            builder.RegisterType<TransporterTransactionApiService>().As<ITransporterTransactionApiService>().InstancePerLifetimeScope();
+            builder.RegisterType<TransporterTransactionApiService>().As<ITransporterTransactionApiService>()
+                .InstancePerLifetimeScope();
             builder.RegisterType<ShelfLocationApiService>().As<IShelfLocationApiService>().InstancePerLifetimeScope();
-            builder.RegisterGeneric(typeof(GenericApiService<,>)).As(typeof(IGenericApiService<,>)).InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(GenericApiService<,>)).As(typeof(IGenericApiService<,>))
+                .InstancePerLifetimeScope();
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();
@@ -78,6 +84,14 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<HttpContextAccessor>().As<IHttpContextAccessor>().SingleInstance();
 
             builder.RegisterType<Dictionary<string, object>>().SingleInstance();
+        }
+
+        public static void RegisterByContext(this ContainerBuilder builder, ITypeFinder typeFinder)
+        {
+            //register automapper resolvers
+            var resolvers = typeFinder.FindClassesOfType(typeof(IValueResolver<,,>)).ToList();
+            foreach (var resolver in resolvers)
+                builder.RegisterType(resolver).InstancePerLifetimeScope();
         }
     }
 }

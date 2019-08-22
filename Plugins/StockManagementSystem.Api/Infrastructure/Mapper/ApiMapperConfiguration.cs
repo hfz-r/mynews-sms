@@ -51,9 +51,6 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             //transaction
             CreateMap<Transaction, TransactionDto>();
 
-            //transporter transaction
-            CreateMap<TransporterTransaction, TransporterTransactionDto>();
-
             //shelf location
             CreateMap<ShelfLocation, ShelfLocationDto>();
 
@@ -92,6 +89,7 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
             CreateUserRoleMaps();
             CreatePermissionRolesMaps();
             CreatePushNotificationMaps();
+            CreateTransporterTransactionMaps();
         }
 
         private new static void CreateMap<TSource, TDestination>()
@@ -104,9 +102,12 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
         private static void CreateClientMaps()
         {
             AutoMapperApiConfiguration.MapperConfigurationExpression.CreateMap<Client, ClientModel>()
-                .ForMember(model => model.ClientSecret, x => x.MapFrom(entity => entity.ClientSecrets.FirstOrDefault().Description))
+                .IgnoreAllNonExisting()
+                .ForMember(model => model.ClientSecret,
+                    x => x.MapFrom(entity => entity.ClientSecrets.FirstOrDefault().Description))
                 .ForMember(model => model.AccessTokenLifetime, x => x.MapFrom(entity => entity.AccessTokenLifetime))
-                .ForMember(model => model.RefreshTokenLifetime, x => x.MapFrom(entity => entity.AbsoluteRefreshTokenLifetime));
+                .ForMember(model => model.RefreshTokenLifetime,
+                    x => x.MapFrom(entity => entity.AbsoluteRefreshTokenLifetime));
         }
 
         private static void CreateRedirectUrisMaps()
@@ -220,7 +221,8 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                 .ForMember(model => model.RoleDto,
                     y => y.MapFrom(entity => entity.Role.GetWithDefault(role => role, new Role()).ToDto()))
                 .ForMember(model => model.PermissionDto,
-                    y => y.MapFrom(entity => entity.Permission.GetWithDefault(permission => permission, new Permission()).ToDto()));
+                    y => y.MapFrom(entity =>
+                        entity.Permission.GetWithDefault(permission => permission, new Permission()).ToDto()));
         }
 
         private static void CreatePushNotificationMaps()
@@ -233,6 +235,13 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
                     y => y.MapFrom(entity =>
                         entity.PushNotificationStores.Select(x =>
                             x.Store.GetWithDefault(w => w, new Store()).ToDto())));
+        }
+
+        private static void CreateTransporterTransactionMaps()
+        {
+            AutoMapperApiConfiguration.MapperConfigurationExpression
+                .CreateMap<TransporterTransaction, TransporterTransactionDto>()
+                .ForMember(model => model.CreatedOnLocal, opt => opt.MapFrom<DateTimeResolver>());
         }
 
         public int Order => 0;

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration;
+using StockManagementSystem.Core.Infrastructure;
 
 namespace StockManagementSystem.Api.Infrastructure.Mapper
 {
@@ -38,7 +39,8 @@ namespace StockManagementSystem.Api.Infrastructure.Mapper
 
         public static TDestination MapTo<TSource, TDestination>(this TSource source)
         {
-            return Mapper.Map<TSource, TDestination>(source);
+            return Mapper.Map<TSource, TDestination>(source,
+                options => options.ConstructServicesUsing(t => EngineContext.Current.Resolve(t)));
         }
 
         public static TDestination MapTo<TSource, TDestination>(this TSource source, TDestination destination)

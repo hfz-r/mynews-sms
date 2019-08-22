@@ -33,6 +33,9 @@ namespace StockManagementSystem.Api.DTOs.TransporterTransaction
         [JsonProperty("created_on_utc")]
         public DateTime? CreatedOnUtc { get; set; }
 
+        [JsonProperty("created_on_local")]
+        public string CreatedOnLocal { get; set; }
+
         [JsonProperty("staff_no")]
         public int? P_StaffNo { get; set; }
 
