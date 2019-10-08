@@ -1,6 +1,8 @@
 ﻿@inject IWebHelper WebHelper
 @inject IWorkContext WorkContext
+@inject IEventPublisher eventPublisher
 @inject IGenericAttributeService GenericAttributeService
+@using StockManagementSystem.Web.Events
 @using StockManagementSystem.Web.UI
 @using Version = StockManagementSystem.Core.Version
 
@@ -42,6 +44,9 @@
     //sidebar
     const string hideSidebarAttributeName = "HideSidebar";
     var hideSidebar = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideSidebarAttributeName);
+
+    //event
+    eventPublisher.Publish(new PageRenderingEvent(this.Html));
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +97,7 @@
                 <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
                     <span class="sr-only">Toggle navigation</span>
                 </a>
-                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) {{ "returnUrl", returnUrl } }) 
+                @await Html.PartialAsync("_LoginPartial", null, new ViewDataDictionary(this.ViewData) { { "returnUrl", returnUrl } })
             </nav>
         </header>
         <aside class="main-sidebar">

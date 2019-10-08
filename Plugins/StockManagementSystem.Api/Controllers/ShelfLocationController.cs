@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Api.Attributes;
 using StockManagementSystem.Api.Constants;
@@ -25,7 +24,6 @@ using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ShelfLocationController : BaseApiController
     {
         private readonly IShelfLocationApiService _shelfLocationApiService;

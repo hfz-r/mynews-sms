@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Api.Attributes;
 using StockManagementSystem.Api.Constants;
@@ -27,7 +29,6 @@ using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DevicesController : BaseApiController
     {
         private readonly IFactory<Device> _factory;

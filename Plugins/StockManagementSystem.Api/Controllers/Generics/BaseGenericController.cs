@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using StockManagementSystem.Api.Attributes;
@@ -20,8 +21,8 @@ using StockManagementSystem.Services.Logging;
 
 namespace StockManagementSystem.Api.Controllers.Generics
 {
+    [Authorize(Policy = "ApiDefaultPolicy")]
     [Route("api/[controller]")]
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BaseGenericController<T, E> : Controller where T : BaseDto where E : BaseEntity
     {
         protected readonly IGenericApiService<T,E> GenericApiService;

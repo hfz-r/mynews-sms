@@ -57,3 +57,12 @@
 		- current: `/search?query=branch_no:123&fields=branch_no`
 	- added pre-validation on few attributes. 
 	- a little house keeping for the performance-wise
+
+##### **4-9-2019**
+
+- License Manager
+   - used .NET Core ported [Portable.Licensing](https://github.com/CoreCompat/Portable.Licensing) to create key pair for device serial no
+   - add common CRUD manager
+- API v1.2.2
+   - update associated API-related to handle license creation
+   - update middle-ware pipeline 

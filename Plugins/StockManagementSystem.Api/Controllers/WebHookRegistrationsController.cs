@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Security;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebHooks;
@@ -20,7 +19,6 @@ using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class WebHookRegistrationsController : BaseApiController
     {
         private const string ErrorPropertyKey = "webhook";

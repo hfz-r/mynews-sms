@@ -14,9 +14,15 @@ namespace StockManagementSystem.Data.Extensions
     public static class DbContextExtensions
     {
         private static string databaseName;
-        private static readonly ConcurrentDictionary<string, string> tableNames = new ConcurrentDictionary<string, string>();
-        private static readonly ConcurrentDictionary<string, IEnumerable<(string, int?)>> columnsMaxLength = new ConcurrentDictionary<string, IEnumerable<(string, int?)>>();
-        private static readonly ConcurrentDictionary<string, IEnumerable<(string, decimal?)>> decimalColumnsMaxValue = new ConcurrentDictionary<string, IEnumerable<(string, decimal?)>>();
+
+        private static readonly ConcurrentDictionary<string, string> tableNames =
+            new ConcurrentDictionary<string, string>();
+
+        private static readonly ConcurrentDictionary<string, IEnumerable<(string, int?)>> columnsMaxLength =
+            new ConcurrentDictionary<string, IEnumerable<(string, int?)>>();
+
+        private static readonly ConcurrentDictionary<string, IEnumerable<(string, decimal?)>> decimalColumnsMaxValue =
+            new ConcurrentDictionary<string, IEnumerable<(string, decimal?)>>();
 
         /// <summary>
         /// Get SQL commands from the script
@@ -29,11 +35,13 @@ namespace StockManagementSystem.Data.Extensions
 
             //origin from the Microsoft.EntityFrameworkCore.Migrations.SqlServerMigrationsSqlGenerator.Generate method
             sql = Regex.Replace(sql, @"\\\r?\n", string.Empty);
-            var batches = Regex.Split(sql, @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            var batches = Regex.Split(sql, @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
+                RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
             for (var i = 0; i < batches.Length; i++)
             {
-                if (string.IsNullOrWhiteSpace(batches[i]) || batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrWhiteSpace(batches[i]) ||
+                    batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 var count = 1;
@@ -58,6 +66,23 @@ namespace StockManagementSystem.Data.Extensions
             return commands;
         }
 
+        /// <summary>
+        /// Drop a plugin table
+        /// </summary>
+        /// <param name="context">Database context</param>
+        /// <param name="tableName">Table name</param>
+        public static void DropPluginTable(this IDbContext context, string tableName)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            if (string.IsNullOrEmpty(tableName))
+                throw new ArgumentNullException(nameof(tableName));
+
+            var script = $"IF OBJECT_ID('{tableName}', 'U') IS NOT NULL DROP TABLE [{tableName}]";
+            context.ExecuteSqlCommand(script);
+            context.SaveChanges();
+        }
 
         /// <summary>
         /// Get table name of entity
@@ -127,7 +152,8 @@ namespace StockManagementSystem.Data.Extensions
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="context">Database context</param>
         /// <returns>Collection of name - max decimal value pairs</returns>
-        public static IEnumerable<(string Name, decimal? MaxValue)> GetDecimalColumnsMaxValue<TEntity>(this IDbContext context)
+        public static IEnumerable<(string Name, decimal? MaxValue)> GetDecimalColumnsMaxValue<TEntity>(
+            this IDbContext context)
             where TEntity : BaseEntity
         {
             if (context == null)
@@ -153,7 +179,8 @@ namespace StockManagementSystem.Data.Extensions
                     if (!mapping.Precision.HasValue || !mapping.Scale.HasValue)
                         return (property.Name, null);
 
-                    return (property.Name, new decimal?((decimal)Math.Pow(10, mapping.Precision.Value - mapping.Scale.Value)));
+                    return (property.Name, new decimal?((decimal) Math.Pow(10,
+                        mapping.Precision.Value - mapping.Scale.Value)));
                 }));
             }
 

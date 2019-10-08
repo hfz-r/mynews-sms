@@ -1,0 +1,140 @@
+﻿@model StockManagementSystem.LicenseManager.Models.LicenseModel
+
+@if (Model.Id > 0)
+{
+    <div class="panel-body">
+        <p>
+            <em>Assign device to be include in the license. Serial no from assigned device will be encrypted amongst other attributes.</em>
+        </p>
+        <div id="device-grid"></div>
+        <style>
+            .custom-button {
+                color: #444444;
+                padding-right: 10px;
+                font-size: 1.5em;
+            }
+            a.disabled {
+                color: gray;
+                pointer-events: none;
+            }
+        </style>
+        <script>
+            $(document).ready(function() {
+                $("#device-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("DeviceLicenseList", "License"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function() {
+                                    var data = { licenseId: '@(Model.Id)' };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("DeviceLicenseDelete", "License"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: function () {
+                                    var data = { licenseId: '@(Model.Id)' };
+                                    addAntiForgeryToken(data);
+                                    return data;
+                                }
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: { id: "SerialNo" }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            this.cancelChanges();
+                        },
+                        pageSize: @(Model.DeviceLicenseSearchModel.PageSize),
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        pageSizes: [@(Model.DeviceLicenseSearchModel.AvailablePageSizes)],
+                        @await Html.PartialAsync("~/Views/Shared/_GridPagerMessages.cshtml")
+                    },
+                    toolbar: [
+                        {
+                            template: "<a class='k-button k-button-icontext k-grid-add @(Model.DownloadId == 0 ? "" : "disabled")' href='\\#' onclick='add();return false;'><span class='glyphicon btn-glyphicon glyphicon-plus img-circle text-danger k-add'></span>Add</a>"
+                        }
+                    ],
+                    scrollable: false,
+                    columns: [
+                        {
+                            field: "SerialNo",
+                            title: "Serial No"
+                        },
+                        {
+                            field: "ModelNo",
+                            title: "Model No"
+                        },
+                        {
+                            field: "StoreName",
+                            title: "Store"
+                        },
+                        {
+                            template: "<a href='javaScript:return false;' title='Remove device' class='custom-button destroy-button @(Model.DownloadId == 0 ? "" : "disabled")'><i class='glyphicon glyphicon-trash'></i></a>",
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            width: 50
+                        }
+                    ]
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function() {
+                var grid = $("#device-grid").data("kendoGrid");
+
+                $("#device-grid").on("click",
+                    ".custom-button",
+                    function(e) {
+                        var btn = $(this);
+                        var dataItem = grid.dataItem($(e.currentTarget).closest("tr"));
+                        e.preventDefault();
+                        if (btn.hasClass("destroy-button")) {
+                            if (confirm('Are you sure you want to delete this item?')) {
+                                grid.dataSource.remove(dataItem);
+                                grid.dataSource.sync();
+                                grid.refresh();
+                            }
+                        }
+                    });
+
+                $('#btnRefreshDevice').click(function() {
+                    var grid = $("#device-grid").data('kendoGrid');
+                    grid.dataSource.read();
+
+                    return false;
+                });
+            });
+
+            function add() {
+                OpenWindow(
+                    '@Html.Raw(Url.Action("AssignDevicePopup", "License", new {licenseId = Model.Id, btnId = "btnRefreshDevice", formId = "license-form"}))',
+                    800,
+                    800,
+                    true);
+            }
+        </script>
+        <input type="submit" id="btnRefreshDevice" style="display: none" />
+    </div>
+}
+else
+{
+    <div class="panel-body">
+        You need to save the license info before you can assign device for it.
+    </div>
+}

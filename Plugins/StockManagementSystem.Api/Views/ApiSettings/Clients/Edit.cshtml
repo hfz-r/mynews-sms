@@ -13,11 +13,8 @@
     @Html.AntiForgeryToken()
     <section class="content-header clearfix">
         <h1 class="pull-left">
-            @ViewBag.Title
-            <small>
-                <i class="fa fa-arrow-circle-left"></i>
-                <a asp-action="List">back to client list</a>
-            </small>
+            <a asp-action="List"><i class="fa fa-arrow-circle-left"></i></a>
+            @ViewBag.Title - @Model.ClientName
         </h1>
         <div class="pull-right">
             <div class="ui-group-buttons">

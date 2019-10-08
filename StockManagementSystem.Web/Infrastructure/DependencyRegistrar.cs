@@ -102,6 +102,7 @@ namespace StockManagementSystem.Web.Infrastructure
             builder.RegisterType<EventPublisher>().As<IEventPublisher>().SingleInstance();
             builder.RegisterType<PictureService>().As<IPictureService>().InstancePerLifetimeScope();
             builder.RegisterType<SettingService>().As<ISettingService>().InstancePerLifetimeScope();
+            builder.RegisterType<DownloadService>().As<IDownloadService>().InstancePerLifetimeScope();
 
             //register all settings
             builder.RegisterSource(new SettingsSource());

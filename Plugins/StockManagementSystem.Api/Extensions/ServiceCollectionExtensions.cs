@@ -31,6 +31,11 @@ namespace StockManagementSystem.Api.Extensions
             RedirectAssembly("Microsoft.AspNetCore.DataProtection.Abstractions", new Version(2, 0, 0, 0), "adb9793829ddae60");
         }
 
+        public static void AddDefaultServices(this IServiceCollection services)
+        {
+            services.AddTransient<ActivateApiUserMiddleware>();
+        }
+
         /// <summary>
         /// Token generator
         /// </summary>
@@ -68,12 +73,14 @@ namespace StockManagementSystem.Api.Extensions
         {
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(JwtBearerDefaults.AuthenticationScheme,
+                options.AddPolicy("ApiDefaultPolicy",
                     policy =>
                     {
+                        policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
                         policy.Requirements.Add(new ActiveApiRequirement());
                         policy.Requirements.Add(new AuthorizationSchemeRequirement());
                         policy.Requirements.Add(new ActiveClientRequirement());
+                        policy.Requirements.Add(new ActiveLicenseRequirement());
                         policy.RequireAuthenticatedUser();
                     });
             });
@@ -81,8 +88,7 @@ namespace StockManagementSystem.Api.Extensions
             services.AddSingleton<IAuthorizationHandler, ActiveApiAuthorizationPolicy>();
             services.AddSingleton<IAuthorizationHandler, ValidSchemeAuthorizationPolicy>();
             services.AddSingleton<IAuthorizationHandler, ActiveClientAuthorizationPolicy>();
-
-            services.AddTransient<ActivateApiUserMiddleware>();
+            services.AddSingleton<IAuthorizationHandler, LicenseAuthorizationPolicy>();
         }
 
         #region Private methods

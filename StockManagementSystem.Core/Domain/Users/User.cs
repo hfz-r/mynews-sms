@@ -8,6 +8,7 @@ namespace StockManagementSystem.Core.Domain.Users
     public class User : BaseEntity, IAppendTimestamps, IAppliedStoreSupported
     {
         private IList<Role> _roles;
+        private IList<Store> _appliedStores;
         private ICollection<UserRole> _userRoles;
         private ICollection<UserStore> _userStores;
 
@@ -81,7 +82,7 @@ namespace StockManagementSystem.Core.Domain.Users
             protected set => _userRoles = value;
         }
 
-        public virtual IList<Store> AppliedStores => UserStores.Select(mapping => mapping.Store).ToList();
+        public virtual IList<Store> AppliedStores => _appliedStores ?? (_appliedStores = UserStores.Select(mapping => mapping.Store).ToList());
 
         public virtual ICollection<UserStore> UserStores
         {

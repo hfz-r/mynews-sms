@@ -1,0 +1,202 @@
+﻿@model StockManagementSystem.LicenseManager.Models.AssignDeviceSearchModel
+
+@{
+    Layout = ViewNames.PopupLayout;
+
+    ViewBag.Title = "Assign device";
+}
+
+<form asp-controller="License" asp-action="AssignDevicePopup"
+      asp-route-licenseId="@Context.Request.Query["licenseId"]"
+      asp-route-btnId="@Context.Request.Query["btnId"]"
+      asp-route-formId="@Context.Request.Query["formId"]">
+    <section class="content-header clearfix">
+        <h1 class="pull-left">@ViewBag.Title</h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn icon-btn bg-blue-gradient">
+                <span class="glyphicon btn-glyphicon glyphicon-floppy-save img-circle text-primary"></span>&nbsp;Save
+            </button>
+        </div>
+    </section>
+
+    @if (ViewBag.RefreshPage == true)
+    {
+        <script>
+            try {window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click();}
+            catch (e){}
+            window.close();
+        </script>
+    }
+
+    <section class="content">
+        <div class="form-horizontal">
+            <div class="panel-group">
+                <div class="panel panel-default panel-search panel-popup">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <div class="form-group">
+                                    <div class="col-sm-4">
+                                        <_label asp-for="SearchSerialNo"/>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <_editor asp-for="SearchSerialNo"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-4">
+                                        <_label asp-for="SelectedStoreIds"/>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <select asp-for="SelectedStoreIds" asp-items="Model.AvailableStores" asp-multiple="true"></select>
+                                        <script>
+                                            $(document).ready(function() {
+                                                var storesIdsInput = $('#@Html.IdFor(model => model.SelectedStoreIds)')
+                                                    .kendoMultiSelect({
+                                                        autoClose: false,
+                                                        filter: "contains"
+                                                    }).data("kendoMultiSelect");
+
+                                                @if (Model.AvailableStores.Count == 0)
+                                                {
+                                                    <text>
+                                                        storesIdsInput.placeholder = "No stores available";
+                                                        storesIdsInput.enable = false;
+                                                    </text>
+                                                }
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-8 col-sm-offset-4">
+                                        <button type="button" id="search-devices" class="btn btn-primary btn-search">
+                                            <i class="fa fa-search"></i> Search
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div id="devices-grid"></div>
+                        <script>
+                            $(document).ready(function() {
+                                $("#devices-grid").kendoGrid({
+                                    dataSource: {
+                                        type: "json",
+                                        transport: {
+                                            read: {
+                                                url: "@Html.Raw(Url.Action("AssignDevicePopupList", "License"))",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: function() {
+                                                    var data = {
+                                                        SelectedStoreIds: $('#@Html.IdFor(model => model.SelectedStoreIds)').val(),
+                                                        SearchSerialNo: $('#@Html.IdFor(model => model.SearchSerialNo)').val()
+                                                    };
+                                                    addAntiForgeryToken(data);
+                                                    return data;
+                                                }
+                                            }
+                                        },
+                                        schema: {
+                                            data: "Data",
+                                            total: "Total",
+                                            errors: "Errors",
+                                            model: {id: "Id"}
+                                        },
+                                        error: function(e) {
+                                            display_kendoui_grid_error(e);
+                                            this.cancelChanges();
+                                        },
+                                        pageSize: @(Model.PageSize),
+                                        serverPaging: true,
+                                        serverFiltering: true,
+                                        serverSorting: true
+                                    },
+                                    sortable: {
+                                        mode: "single",
+                                        allowUnsort: false
+                                    },
+                                    filterable: true,
+                                    resizable: true,
+                                    columnMenu: { columns: false },
+                                    pageable: {
+                                        refresh: true,
+                                        pageSizes: [@(Model.AvailablePageSizes)],
+                                        @await Html.PartialAsync("~/Views/Shared/_GridPagerMessages.cshtml")
+                                    },
+                                    editable: "inline",
+                                    scrollable: false,
+                                    columns: [
+                                        {
+                                            field: "Id",
+                                            sortable: false,
+                                            filterable: false,
+                                            headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
+                                            headerAttributes: { style: "text-align:center" },
+                                            template: "<input type='checkbox' name='SelectedDeviceIds' value='#=Id#' class='checkboxGroups' />",
+                                            attributes: { style: "text-align:center" },
+                                            width: 50
+                                        },
+                                        {
+                                            field: "SerialNo",
+                                            title: "Serial No",
+                                            width: 230
+                                        },
+                                        {
+                                            field: "ModelNo",
+                                            title: "Model No",
+                                            width: 220
+                                        },
+                                        {
+                                            field: "SelectedStoreId",
+                                            title: "Store",
+                                            template: "#=StoreName#"
+                                        }
+                                    ]
+                                });
+                            });
+                        </script>
+
+                        <script>
+                            $(document).ready(function () {
+                                var grid = $("#devices-grid").data("kendoGrid");
+                                grid.thead.find("[data-field=Id]>.k-header-column-menu").remove();
+
+                                $('#search-devices').click(function() {
+                                    var grid = $('#devices-grid').data('kendoGrid');
+                                    grid.dataSource.page(1);
+                                    $('.checkboxGroups').attr('checked', false).change();
+                                    return false;
+                                });
+
+                                //wire up checkboxes
+                                $('#mastercheckbox').click(function() {
+                                    $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+                                });
+
+                                $('#devices-grid').on('change', 'input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]', function(e) {
+                                    updateMasterCheckbox();
+                                });
+                            });
+
+                            function updateMasterCheckbox() {
+                                var numChkBoxes = $('#devices-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]').length;
+                                var numChkBoxesChecked = $('#devices-grid input[type=checkbox][id!=mastercheckbox][class=checkboxGroups]:checked').length;
+                                $('#mastercheckbox').attr('checked', numChkBoxes === numChkBoxesChecked && numChkBoxes > 0);
+                            }
+
+                        </script>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</form>

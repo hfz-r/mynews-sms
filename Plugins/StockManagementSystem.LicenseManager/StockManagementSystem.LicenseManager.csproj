@@ -1,0 +1,75 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <Company>Toshiba Tec</Company>
+        <Authors>hfz-r</Authors>
+        <OutputPath>..\..\StockManagementSystem\Plugins\StockManagementSystem.LicenseManager</OutputPath>
+        <OutDir>$(OutputPath)</OutDir>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="plugin.json" />
+        <None Remove="Views\License\AssignDevicePopup.cshtml" />
+        <None Remove="Views\License\Configure.cshtml" />
+        <None Remove="Views\License\Create.cshtml" />
+        <None Remove="Views\License\Edit.cshtml" />
+        <None Remove="Views\License\_CreateOrUpdate.AssignDevice.cshtml" />
+        <None Remove="Views\License\_CreateOrUpdate.cshtml" />
+        <None Remove="Views\License\_CreateOrUpdate.Info.cshtml" />
+        <None Remove="Views\_ViewImports.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="plugin.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\AssignDevicePopup.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\Configure.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\Create.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\Edit.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\_CreateOrUpdate.AssignDevice.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\_CreateOrUpdate.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\License\_CreateOrUpdate.Info.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="Views\_ViewImports.cshtml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\StockManagementSystem.Core\StockManagementSystem.Core.csproj" />
+        <ProjectReference Include="..\..\StockManagementSystem.Services\StockManagementSystem.Services.csproj" />
+        <ProjectReference Include="..\..\StockManagementSystem.Web\StockManagementSystem.Web.csproj" />
+        <ProjectReference Include="..\..\StockManagementSystem\StockManagementSystem.csproj" />
+        <ClearPluginAssemblies Include="$(MSBuildProjectDirectory)\..\..\Build\ClearPluginAssemblies.proj" />
+    </ItemGroup>
+
+    <!-- This target execute after "Build" target -->
+    <Target Name="MyTarget" AfterTargets="Build">
+        <!-- Delete unnecessary libraries from plugins path -->
+        <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(MSBuildProjectDirectory)\$(OutDir)" Targets="MyClear" />
+    </Target>
+
+    <!--remove redundant libraries-->
+    <Target Name="FilterCopyLocalItems" AfterTargets="ResolveLockFileCopyLocalProjectDeps">
+        <ItemGroup>
+            <!--<ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="'%(Filename)' != 'CoreCompat.Portable.Licensing'" />-->
+        </ItemGroup>
+    </Target>
+
+</Project>

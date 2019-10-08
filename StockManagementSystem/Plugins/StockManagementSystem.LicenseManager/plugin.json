@@ -1,0 +1,8 @@
+﻿{
+  "FriendlyName": "License Manager",
+  "SystemName": "StockManagementSystem.LicenseManager",
+  "Version": "1.0.0",
+  "Author": "hfz-r",
+  "FileName": "StockManagementSystem.LicenseManager.dll",
+  "Description": "Manage license on devices"
+}

@@ -238,6 +238,13 @@ namespace StockManagementSystem.Services.Security
             Category = "Transaction Summary"
         };
 
+        public static readonly Permission ManageSetting = new Permission
+        {
+            Name = "(HHT) Manage Settings",
+            SystemName = "MNG_SET",
+            Category = "Configuration"
+        };
+
         #endregion
 
         /// <summary>
@@ -285,7 +292,8 @@ namespace StockManagementSystem.Services.Security
                 ManageLocationBarcodePrint,
                 ManagePlanogram,
                 ManageNotificationSummary,
-                ManageTransactionSummary
+                ManageTransactionSummary,
+                ManageSetting
             };
         }
 
@@ -340,7 +348,8 @@ namespace StockManagementSystem.Services.Security
                         ManageLocationBarcodePrint,
                         ManagePlanogram,
                         ManageNotificationSummary,
-                        ManageTransactionSummary
+                        ManageTransactionSummary,
+                        ManageSetting
                     }
                 },
                 new DefaultPermission
@@ -380,7 +389,8 @@ namespace StockManagementSystem.Services.Security
                         ManageLocationBarcodePrint,
                         ManagePlanogram,
                         ManageNotificationSummary,
-                        ManageTransactionSummary
+                        ManageTransactionSummary,
+                        ManageSetting
                     }
                 },
                 new DefaultPermission

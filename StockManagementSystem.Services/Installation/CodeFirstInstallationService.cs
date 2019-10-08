@@ -525,6 +525,36 @@ namespace StockManagementSystem.Services.Installation
                 },
                 new ActivityLogType
                 {
+                    SystemKeyword = "AddNewLicense",
+                    Enabled = true,
+                    Name = "Add a new license"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "EditLicense",
+                    Enabled = true,
+                    Name = "Edit license"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "DeleteLicense",
+                    Enabled = true,
+                    Name = "Delete license"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "GenerateLicense",
+                    Enabled = true,
+                    Name = "Generate license"
+                },
+                new ActivityLogType
+                {
+                    SystemKeyword = "ValidateLicense",
+                    Enabled = true,
+                    Name = "Validate license"
+                },
+                new ActivityLogType
+                {
                     SystemKeyword = "DownloadStore",
                     Enabled = true,
                     Name = "Master table download - [Store]"

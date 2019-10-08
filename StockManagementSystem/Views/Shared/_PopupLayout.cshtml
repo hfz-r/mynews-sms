@@ -1,5 +1,7 @@
-﻿@using StockManagementSystem.Web.UI
+﻿@using StockManagementSystem.Web.Events
+@using StockManagementSystem.Web.UI
 
+@inject IEventPublisher eventPublisher
 @{
     var kendoVersion = "2014.1.318";
 
@@ -29,13 +31,16 @@
     //page title
     string pageTitle = !string.IsNullOrWhiteSpace(ViewBag.Title) ? ViewBag.Title + " / " : "";
     pageTitle += "Stock Management System";
+
+    //event
+    eventPublisher.Publish(new PageRenderingEvent(this.Html));
 }
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>@pageTitle</title>
 
-    <meta http-equiv="Content-type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
     <link href="https://fonts.googleapis.com/css?family=Lato:400,400i,700,700i" rel="stylesheet">
     <script>
         var rootAppPath = '@(Url.Content("~/"))';
@@ -47,7 +52,7 @@
 <body class="hold-transition skin-blue sidebar-collapse">
     <div class="wrapper">
         <div class="content-wrapper">
-            @await Html.PartialAsync("Notifications")
+            @await Html.PartialAsync("~/Views/Shared/Notifications.cshtml")
             <div>
                 @RenderBody()
             </div>
@@ -57,7 +62,7 @@
     @Html.DefaultCssFiles(this.Url, ResourceLocation.Footer, false)
     @Html.DefaultScripts(this.Url, ResourceLocation.Footer, false)
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             //enable tooltips
             $('[data-toggle="tooltip"]').tooltip();
         });

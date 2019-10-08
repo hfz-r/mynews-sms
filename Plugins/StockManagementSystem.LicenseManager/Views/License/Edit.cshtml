@@ -1,0 +1,91 @@
+﻿@model StockManagementSystem.LicenseManager.Models.LicenseModel
+@{
+    Layout = ViewNames.Layout;
+
+    ViewBag.Title = "Edit license";
+    Html.SetActiveMenuItemSystemName("license.mgr");
+}
+
+<form asp-controller="License" asp-action="Edit" method="post" id="license-form">
+    @Html.HiddenFor(model => model.Id)
+    @Html.AntiForgeryToken()
+    <section class="content-header clearfix">
+        <h1 class="pull-left">
+            <a asp-action="Configure">
+                <i class="fa fa-arrow-circle-left"></i>
+            </a>
+            @ViewBag.Title - @Model.Name
+        </h1>
+        <div class="pull-right">
+            <div class="ui-group-buttons">
+                <button type="submit" name="save" class="btn bg-blue-gradient">
+                    <i class="glyphicon glyphicon-save"></i> Save
+                </button>
+                <div class="or"></div>
+                <button type="submit" name="save-continue" class="btn bg-yellow-gradient">
+                    <i class="glyphicon glyphicon-saved"></i> Save and Continue Edit
+                </button>
+            </div>
+
+            @if (Model.CountDevices > 0)
+            {
+                <div class="btn-group">
+                    <button type="button" class="btn bg-purple-gradient dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        License <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li @if (Model.DownloadId > 0)
+                            {
+                                <text> class="disabled" </text>
+                            }>
+
+                            <a href="#" @if (Model.DownloadId == 0)
+                                        {
+                                            <text>
+                                                id="generate-license"
+                                                name="generate-license"
+                                                role="button"
+                                            </text>
+                                        }
+                                        else
+                                        {
+                                            <text>
+                                                role="button"
+                                            </text>
+                                        }>
+                                <span class="glyphicon glyphicon-lock"></span> Generate
+                            </a>
+                        </li>
+                        <li @if (Model.DownloadId == 0)
+                            {
+                                <text> class="disabled" </text>
+                            }>
+                            <a href="@if (Model.DownloadId > 0)
+                                     {
+                                         <text> @(Url.Action("DownloadLicense", "License", new {downloadId = Model.DownloadId}))</text>
+                                     }
+                                     else
+                                     {
+                                         <text>#</text>
+                                     }">
+                                <span class="glyphicon glyphicon-download-alt"></span> Download
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <_action-confirmation asp-button-id="generate-license"/>
+            }
+
+            <a href="#" id="license-delete" class="btn bg-red-gradient" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete">
+                <span class="glyphicon glyphicon-trash"></span>
+            </a>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="form-horizontal">
+            @await Html.PartialAsync(ViewNames.CreateOrUpdate, Model)
+        </div>
+    </section>
+</form>
+<_delete-confirmation asp-model-id="@Model.Id" asp-action="Delete" asp-button-id="license-delete"/>

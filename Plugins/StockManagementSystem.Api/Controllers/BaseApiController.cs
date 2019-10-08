@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Api.DTOs.Errors;
 using StockManagementSystem.Api.Json.ActionResults;
@@ -16,6 +18,7 @@ using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
+    [Authorize(Policy = "ApiDefaultPolicy")]
     public class BaseApiController : Controller
     {
         protected readonly IJsonFieldsSerializer JsonFieldsSerializer;

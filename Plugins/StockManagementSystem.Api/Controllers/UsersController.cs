@@ -28,7 +28,6 @@ using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : BaseApiController
     {
         private readonly IUserApiService _userApiService;

@@ -85,6 +85,14 @@ namespace StockManagementSystem.Services.Devices
             _deviceRepository.Update(device);
         }
 
+        public async Task UpdateDeviceAsync(Device device)
+        {
+            if (device == null)
+                throw new ArgumentNullException(nameof(device));
+
+            await _deviceRepository.UpdateAsync(device);
+        }
+
         public virtual void DeleteDevice(Device device)
         {
             if (device == null)

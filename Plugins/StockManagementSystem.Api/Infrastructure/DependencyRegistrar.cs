@@ -31,7 +31,7 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterByContext(typeFinder);
         }
 
-        public int Order => Int16.MaxValue;
+        public int Order => 10;
     }
 
     internal static class DependencyHelper
@@ -57,6 +57,7 @@ namespace StockManagementSystem.Api.Infrastructure
             builder.RegisterType<ShelfLocationApiService>().As<IShelfLocationApiService>().InstancePerLifetimeScope();
             builder.RegisterGeneric(typeof(GenericApiService<,>)).As(typeof(IGenericApiService<,>))
                 .InstancePerLifetimeScope();
+            builder.RegisterType<LicenseApiService>().As<ILicenseApiService>().InstancePerLifetimeScope();
 
             builder.RegisterType<MappingHelper>().As<IMappingHelper>().InstancePerLifetimeScope();
             builder.RegisterType<UserRolesHelper>().As<IUserRolesHelper>().InstancePerLifetimeScope();

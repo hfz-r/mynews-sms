@@ -24,12 +24,12 @@ namespace StockManagementSystem.Services.Devices
 
         void UpdateDevice(Device device);
 
+        Task UpdateDeviceAsync(Device device);
+
         Task InsertDevice(Device device);
 
         Task<Device> GetDeviceByIdAsync(int deviceId);
 
         Task SetSerialNo(Device device, string newSerialNo);
-
-
     }
 }

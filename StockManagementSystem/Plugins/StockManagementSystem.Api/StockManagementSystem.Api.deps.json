@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "f925c37fa414f0af130ef6fa09c154f2495563b5"
+    "signature": "d411ebb9ea14ffdd256e9214624dba3077724722"
   },
   "compilationOptions": {},
   "targets": {
@@ -114,6 +114,18 @@
           "lib/netstandard1.3/Castle.Core.dll": {
             "assemblyVersion": "4.0.0.0",
             "fileVersion": "4.2.1.0"
+          }
+        }
+      },
+      "CoreCompat.Portable.Licensing/1.2.4": {
+        "dependencies": {
+          "Portable.BouncyCastle": "1.8.5",
+          "System.Security.Cryptography.Pkcs": "4.5.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/CoreCompat.Portable.Licensing.dll": {
+            "assemblyVersion": "1.2.0.0",
+            "fileVersion": "1.2.4.28110"
           }
         }
       },
@@ -2823,7 +2835,7 @@
       },
       "MimeKit/2.1.2": {
         "dependencies": {
-          "Portable.BouncyCastle": "1.8.2",
+          "Portable.BouncyCastle": "1.8.5",
           "System.Data.Common": "4.3.0",
           "System.Globalization.Extensions": "4.3.0",
           "System.Net.Http": "4.3.1",
@@ -2938,11 +2950,11 @@
           }
         }
       },
-      "Portable.BouncyCastle/1.8.2": {
+      "Portable.BouncyCastle/1.8.5": {
         "runtime": {
           "lib/netstandard2.0/BouncyCastle.Crypto.dll": {
-            "assemblyVersion": "1.8.2.0",
-            "fileVersion": "1.8.2.223"
+            "assemblyVersion": "1.8.5.0",
+            "fileVersion": "1.8.5.50"
           }
         }
       },
@@ -4653,6 +4665,7 @@
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "6.0.0",
           "Autofac": "4.6.1",
           "Autofac.Extensions.DependencyInjection": "4.3.1",
+          "CoreCompat.Portable.Licensing": "1.2.4",
           "IdentityServer4": "2.3.2",
           "Microsoft.AspNetCore.App": "2.2.0",
           "Microsoft.AspNetCore.Html.Abstractions": "2.2.0",
@@ -4789,6 +4802,13 @@
       "sha512": "sha512-XSNA0Gc1Zu33L+8+/3Tqt+aFu8QWS8UenVHZ7RenIP5wJfhoLrA4PnNscpxReeo5aBq8PDoGnV8rNaOzIOUo/w==",
       "path": "castle.core/4.2.1",
       "hashPath": "castle.core.4.2.1.nupkg.sha512"
+    },
+    "CoreCompat.Portable.Licensing/1.2.4": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eJNzgDvjH+9Wv7M50mxejPC9pOAAmpwHt8XKTPm7NZKC061WXLrIEc84g3zaV8RAYDjX5IZU2B+R3G2YdRHwWw==",
+      "path": "corecompat.portable.licensing/1.2.4",
+      "hashPath": "corecompat.portable.licensing.1.2.4.nupkg.sha512"
     },
     "EPPlus/4.5.3.1": {
       "type": "package",
@@ -6134,12 +6154,12 @@
       "path": "nuglify/1.5.11",
       "hashPath": "nuglify.1.5.11.nupkg.sha512"
     },
-    "Portable.BouncyCastle/1.8.2": {
+    "Portable.BouncyCastle/1.8.5": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-oVhFVbTNx02DA83ssNKLI1GGQGb2EJK/OazEqlJGaowtvAZhjxLjhgb9lVuyhzY1n5+PslBffTXHPe97TmNZvg==",
-      "path": "portable.bouncycastle/1.8.2",
-      "hashPath": "portable.bouncycastle.1.8.2.nupkg.sha512"
+      "sha512": "sha512-3/G1lF+m9HHqKFSjd/Hy1z3h00vzHQybiZHzK9gH2SxK6BOCQjOnjC97qt4kla7u5rrsf/kukWzUogywKp2ECg==",
+      "path": "portable.bouncycastle/1.8.5",
+      "hashPath": "portable.bouncycastle.1.8.5.nupkg.sha512"
     },
     "Quartz/3.0.7": {
       "type": "package",

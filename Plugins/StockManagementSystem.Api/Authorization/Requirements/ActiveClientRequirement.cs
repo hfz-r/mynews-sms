@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using IdentityModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Core.Infrastructure;
@@ -21,7 +22,7 @@ namespace StockManagementSystem.Api.Authorization.Requirements
         {
             var httpContextAccessor = EngineContext.Current.Resolve<IHttpContextAccessor>();
 
-            var clientId = httpContextAccessor.HttpContext.User.FindFirst("client_id")?.Value;
+            var clientId = httpContextAccessor.HttpContext.User.FindFirst(JwtClaimTypes.Subject)?.Value;
             if (clientId != null)
             {
                 var clientService = EngineContext.Current.Resolve<IClientService>();

@@ -25,7 +25,6 @@ using StockManagementSystem.Services.Users;
 
 namespace StockManagementSystem.Api.Controllers
 {
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TransporterTransactionController : BaseApiController
     {
         private readonly ITransporterTransactionApiService _transporterTransactionApiService;

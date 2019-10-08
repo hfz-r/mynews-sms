@@ -1,0 +1,37 @@
+﻿@model StockManagementSystem.LicenseManager.Models.LicenseModel
+@{
+    Layout = ViewNames.Layout;
+
+    ViewBag.Title = "Add new license";
+    Html.SetActiveMenuItemSystemName("license.mgr");
+}
+
+<form asp-controller="License" asp-action="Create" method="post" id="license-form">
+    @Html.AntiForgeryToken()
+    <section class="content-header clearfix">
+        <h1 class="pull-left">
+            @ViewBag.Title
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="Configure">back to license list</a>
+            </small>
+        </h1>
+        <div class="pull-right">
+            <div class="ui-group-buttons">
+                <button type="submit" name="save" class="btn bg-blue-gradient">
+                    <i class="glyphicon glyphicon-save"></i> Save
+                </button>
+                <div class="or"></div>
+                <button type="submit" name="save-continue" class="btn bg-yellow-gradient">
+                    <i class="glyphicon glyphicon-saved"></i> Save and Continue Edit
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="form-horizontal">
+            @await Html.PartialAsync(ViewNames.CreateOrUpdate, Model)
+        </div>
+    </section>
+</form>

@@ -8,6 +8,8 @@ namespace StockManagementSystem.Core.Domain.Devices
 {
     public class Device : BaseEntity, IAppendTimestamps, ITenantMappingSupported, IStoreMappingSupported
     {
+        private ICollection<DeviceLicense> _deviceLicenses;
+
         public string SerialNo { get; set; }
 
         public string ModelNo { get; set; }
@@ -35,6 +37,12 @@ namespace StockManagementSystem.Core.Domain.Devices
         public bool LimitedToStores { get; set; }
 
         public virtual ICollection<PushNotificationDevice> PushNotificationDevices { get; set; }
+
+        public virtual ICollection<DeviceLicense> DeviceLicenses
+        {
+            get => _deviceLicenses ?? (_deviceLicenses = new List<DeviceLicense>());
+            set => _deviceLicenses = value;
+        }
 
         #region IAppendTimestamps members
 

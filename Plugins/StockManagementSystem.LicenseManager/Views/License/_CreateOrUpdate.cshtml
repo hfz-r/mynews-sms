@@ -1,0 +1,23 @@
+﻿@inject IWorkContext WorkContext
+@inject IGenericAttributeService GenericAttributeService
+
+@model StockManagementSystem.LicenseManager.Models.LicenseModel
+@{
+    const string hideInfoBlockAttributeName = "License.HideInfoBlock";
+    var hideInfoBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideInfoBlockAttributeName);
+
+    const string hideAssignDeviceBlockAttributeName = "License.HideAssignDeviceBlock";
+    var hideAssignDeviceBlock = await GenericAttributeService.GetAttributeAsync<bool>(WorkContext.CurrentUser, hideAssignDeviceBlockAttributeName);
+}
+
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+
+<section class="content">
+    <div class="form-horizontal">
+        <my-panels id="license-panels">
+            <my-panel asp-name="license-info" asp-icon="fa fa-key" asp-title="License info" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock">@await Html.PartialAsync(ViewNames.CreateOrUpdateInfo, Model)</my-panel>
+            <my-panel asp-name="license-assign-device" asp-icon="fa fa-cart-plus" asp-title="Assign device" asp-hide-block-attribute-name="@hideAssignDeviceBlockAttributeName" asp-hide="@hideAssignDeviceBlock">@await Html.PartialAsync(ViewNames.CreateOrUpdateAssignDevice, Model)</my-panel>
+        </my-panels>
+    </div>
+</section>

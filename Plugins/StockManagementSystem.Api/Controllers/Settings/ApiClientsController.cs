@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.EntityFramework.Entities;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementSystem.Api.Constants;
 using StockManagementSystem.Api.Factories;
-using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Api.Models.ApiSettings.Clients;
 using StockManagementSystem.Api.Services;
 using StockManagementSystem.Services.Logging;
 using StockManagementSystem.Services.Messages;
 using StockManagementSystem.Services.Security;
 using StockManagementSystem.Web.Controllers;
-using StockManagementSystem.Web.Kendoui;
-using StockManagementSystem.Web.Kendoui.Extensions;
 using StockManagementSystem.Web.Mvc;
 using StockManagementSystem.Web.Mvc.Filters;
 

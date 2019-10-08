@@ -1,0 +1,39 @@
+﻿@model StockManagementSystem.LicenseManager.Models.LicenseModel
+
+<div class="panel-body">
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Name"/>
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Name" asp-required="true"/>
+            <span asp-validation-for="Name"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="Email"/>
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="Email" asp-required="true"/>
+            <span asp-validation-for="Email"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="ExpiryDate"/>
+        </div>
+        <div class="col-md-9">
+            <_editor asp-for="ExpiryDate"/>
+            <span asp-validation-for="ExpiryDate"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-3">
+            <_label asp-for="LicenseTypeId"/>
+        </div>
+        <div class="col-md-9">
+            <_select asp-for="LicenseTypeId" asp-items="Model.AvailableLicenseType"/>
+        </div>
+    </div>
+</div>

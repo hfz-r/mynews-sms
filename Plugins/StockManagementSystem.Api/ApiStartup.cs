@@ -8,6 +8,7 @@ using StockManagementSystem.Api.Extensions;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Web.Infrastructure;
+using StockManagementSystem.Web.Mvc.Formatters;
 
 namespace StockManagementSystem.Api
 {
@@ -22,9 +23,14 @@ namespace StockManagementSystem.Api
 
             services.AddTokenGenerationPipeline();
             services.AddAuthorizationPipeline();
+            services.AddDefaultServices();
 
             services
-                .AddMvc(options => options.Conventions.Add(new GenericControllerRouteConvention()))
+                .AddMvc(options =>
+                {
+                    options.InputFormatters.Add(new TextPlainInputFormatter());
+                    options.Conventions.Add(new GenericControllerRouteConvention());
+                })
                 .ConfigureApplicationPartManager(manager =>
                     manager.FeatureProviders.Add(new GenericTypeControllerFeatureProvider()));
         }
