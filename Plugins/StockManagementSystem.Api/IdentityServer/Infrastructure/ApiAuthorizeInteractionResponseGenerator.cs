@@ -11,13 +11,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace StockManagementSystem.Api.IdentityServer.Generators
+namespace StockManagementSystem.Api.IdentityServer.Infrastructure
 {
     public class ApiAuthorizeInteractionResponseGenerator : IAuthorizeInteractionResponseGenerator
     {
         protected readonly ILogger Logger;
         protected readonly IConsentService Consent;
-        protected readonly IProfileService Profile;
         protected readonly ISystemClock Clock;
 
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -29,13 +28,11 @@ namespace StockManagementSystem.Api.IdentityServer.Generators
             ISystemClock clock,
             ILogger<AuthorizeInteractionResponseGenerator> logger,
             IConsentService consent,
-            IProfileService profile,
             IHttpContextAccessor httpContextAccessor)
         {
             Clock = clock;
             Logger = logger;
             Consent = consent;
-            Profile = profile;
             _httpContextAccessor = httpContextAccessor;
         }
 

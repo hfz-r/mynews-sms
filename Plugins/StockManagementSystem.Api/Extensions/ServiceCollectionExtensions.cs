@@ -9,8 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using StockManagementSystem.Api.Authorization.Policies;
 using StockManagementSystem.Api.Authorization.Requirements;
 using StockManagementSystem.Api.Helpers;
-using StockManagementSystem.Api.IdentityServer.Endpoints;
-using StockManagementSystem.Api.IdentityServer.Generators;
+using StockManagementSystem.Api.IdentityServer.Infrastructure;
 using StockManagementSystem.Api.IdentityServer.Middlewares;
 using StockManagementSystem.Core.Data;
 
@@ -63,10 +62,7 @@ namespace StockManagementSystem.Api.Extensions
                         builder.UseSqlServer(dataSettings.DataConnectionString,
                             sql => sql.MigrationsAssembly(migrationsAssembly));
                 })
-                .AddAuthorizeInteractionResponseGenerator<ApiAuthorizeInteractionResponseGenerator>()
-                .AddEndpoint<AuthorizeCallbackEndpoint>("Authorize", "/oauth/authorize/callback")
-                .AddEndpoint<AuthorizeEndpoint>("Authorize", "/oauth/authorize")
-                .AddEndpoint<TokenEndpoint>("Token", "/oauth/token");
+                .AddAuthorizeInteractionResponseGenerator<ApiAuthorizeInteractionResponseGenerator>();
         }
 
         public static void AddAuthorizationPipeline(this IServiceCollection services)
