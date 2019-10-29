@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 
@@ -6,16 +7,11 @@ namespace StockManagementSystem.Api.Authorization.Requirements
 {
     public class AuthorizationSchemeRequirement : IAuthorizationRequirement
     {
-        public bool IsValid(IHeaderDictionary requestHeaders)
+        public async Task<bool> IsValid(IHeaderDictionary requestHeaders)
         {
-            if (requestHeaders != null &&
-                requestHeaders.ContainsKey("Authorization") &&
-                requestHeaders["Authorization"].ToString().Contains(JwtBearerDefaults.AuthenticationScheme))
-            {
-                return true;
-            }
-
-            return false;
+            return await Task.FromResult(requestHeaders != null && requestHeaders.ContainsKey("Authorization") &&
+                                         requestHeaders["Authorization"].ToString()
+                                             .Contains(JwtBearerDefaults.AuthenticationScheme));
         }
     }
 }

@@ -30,5 +30,11 @@ namespace StockManagementSystem.Services.Security
         void InsertPermission(Permission permission);
 
         void UpdatePermission(Permission permission);
+
+        #region Synchronous wrapper
+
+        bool Authorize(Permission permission);
+
+        #endregion
     }
 }

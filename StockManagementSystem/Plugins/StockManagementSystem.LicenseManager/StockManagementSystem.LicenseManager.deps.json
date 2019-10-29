@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "8dd6e036a3cf8f04154576af066528f2724633d6"
+    "signature": "11dde70a08af8fd94a49f20afe5ea52cf67a3485"
   },
   "compilationOptions": {},
   "targets": {
@@ -2786,68 +2786,6 @@
           }
         }
       },
-      "MiniProfiler.AspNetCore/4.0.138": {
-        "dependencies": {
-          "Microsoft.AspNetCore.Hosting.Abstractions": "2.2.0",
-          "Microsoft.AspNetCore.Html.Abstractions": "2.2.0",
-          "Microsoft.AspNetCore.Routing.Abstractions": "2.2.0",
-          "Microsoft.Extensions.Caching.Abstractions": "2.2.0",
-          "Microsoft.Extensions.Options": "2.2.0",
-          "MiniProfiler.Shared": "4.0.138"
-        },
-        "runtime": {
-          "lib/netstandard2.0/MiniProfiler.AspNetCore.dll": {
-            "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.0.138.37324"
-          }
-        }
-      },
-      "MiniProfiler.AspNetCore.Mvc/4.0.138": {
-        "dependencies": {
-          "Microsoft.AspNetCore.Mvc.Core": "2.2.0",
-          "Microsoft.AspNetCore.Mvc.Razor": "2.2.0",
-          "MiniProfiler.AspNetCore": "4.0.138"
-        },
-        "runtime": {
-          "lib/netstandard2.0/MiniProfiler.AspNetCore.Mvc.dll": {
-            "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.0.138.37324"
-          }
-        }
-      },
-      "MiniProfiler.EntityFrameworkCore/4.0.138": {
-        "dependencies": {
-          "Microsoft.EntityFrameworkCore.Relational": "2.2.0",
-          "MiniProfiler.Shared": "4.0.138"
-        },
-        "runtime": {
-          "lib/netstandard2.0/MiniProfiler.EntityFrameworkCore.dll": {
-            "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.0.138.37324"
-          }
-        }
-      },
-      "MiniProfiler.Shared/4.0.138": {
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "2.2.0",
-          "Newtonsoft.Json": "12.0.1",
-          "System.ComponentModel.Primitives": "4.3.0",
-          "System.Data.Common": "4.3.0",
-          "System.Diagnostics.DiagnosticSource": "4.5.0",
-          "System.Diagnostics.StackTrace": "4.3.0",
-          "System.Dynamic.Runtime": "4.3.0",
-          "System.Reflection.Emit.Lightweight": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Serialization.Primitives": "4.3.0",
-          "System.Threading.Tasks.Parallel": "4.3.0"
-        },
-        "runtime": {
-          "lib/netstandard2.0/MiniProfiler.Shared.dll": {
-            "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.0.138.37324"
-          }
-        }
-      },
       "Newtonsoft.Json/12.0.1": {
         "runtime": {
           "lib/netstandard2.0/Newtonsoft.Json.dll": {
@@ -4375,15 +4313,22 @@
           "Microsoft.AspNetCore.ResponseCompression": "2.2.0",
           "Microsoft.AspNetCore.Session": "2.2.0",
           "Microsoft.AspNetCore.StaticFiles": "2.2.0",
-          "MiniProfiler.AspNetCore.Mvc": "4.0.138",
-          "MiniProfiler.EntityFrameworkCore": "4.0.138",
           "StockManagementSystem.Core": "1.0.0",
           "StockManagementSystem.Data": "1.0.0",
           "StockManagementSystem.Services": "1.0.0",
-          "System.Linq.Dynamic.Core": "1.0.15"
+          "System.Linq.Dynamic.Core": "1.0.15",
+          "HibernatingRhinos.Profiler.Appender": "5.0.0.0"
         },
         "runtime": {
           "StockManagementSystem.Web.dll": {}
+        }
+      },
+      "HibernatingRhinos.Profiler.Appender.Reference/5.0.0.0": {
+        "runtime": {
+          "HibernatingRhinos.Profiler.Appender.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.0.5039.0"
+          }
         }
       }
     }
@@ -5710,34 +5655,6 @@
       "path": "mimekit/2.1.2",
       "hashPath": "mimekit.2.1.2.nupkg.sha512"
     },
-    "MiniProfiler.AspNetCore/4.0.138": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-IctgNNeqFsxI+OCjbXyCUQ5iiB2inA9WI/9qZQHVc3xh/+JlPFUUV/ni2iv90+6aNNCb8RSnBdrRCnRp9CuDHg==",
-      "path": "miniprofiler.aspnetcore/4.0.138",
-      "hashPath": "miniprofiler.aspnetcore.4.0.138.nupkg.sha512"
-    },
-    "MiniProfiler.AspNetCore.Mvc/4.0.138": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-0qEVCmecqQQQ8oCT0+x6pFHAGdrQ4Tqr98o0N/BDc0hSW2Hlqw9++k2UjJKZY4Q65M2clNXsTaybgKpsOrw7Mw==",
-      "path": "miniprofiler.aspnetcore.mvc/4.0.138",
-      "hashPath": "miniprofiler.aspnetcore.mvc.4.0.138.nupkg.sha512"
-    },
-    "MiniProfiler.EntityFrameworkCore/4.0.138": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-W+eh+l486nWUIEGby+OVs4CvqmSs3wd7nWYkMyBCmz7J0xqc54XBFc234bUzmnuzWy2A5yBY85A+1Y8k5qw/Gw==",
-      "path": "miniprofiler.entityframeworkcore/4.0.138",
-      "hashPath": "miniprofiler.entityframeworkcore.4.0.138.nupkg.sha512"
-    },
-    "MiniProfiler.Shared/4.0.138": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-0teQRMShRl8bldDILmgOgLh46oue7kadgyYPEh2ILlc/QyFDatDmPYndSbunMoNaOrsZEqFVH8/I1pLZ2sWQ5g==",
-      "path": "miniprofiler.shared/4.0.138",
-      "hashPath": "miniprofiler.shared.4.0.138.nupkg.sha512"
-    },
     "Newtonsoft.Json/12.0.1": {
       "type": "package",
       "serviceable": true,
@@ -6698,6 +6615,11 @@
     },
     "StockManagementSystem.Web/1.0.0": {
       "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "HibernatingRhinos.Profiler.Appender.Reference/5.0.0.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

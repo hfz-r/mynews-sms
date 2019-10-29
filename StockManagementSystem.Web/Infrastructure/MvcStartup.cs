@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Web.Infrastructure.Extensions;
+using HibernatingRhinos.Profiler.Appender.EntityFramework;
 
 namespace StockManagementSystem.Web.Infrastructure
 {
@@ -10,17 +11,14 @@ namespace StockManagementSystem.Web.Infrastructure
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            //add MiniProfiler services
-            services.AddDefaultMiniProfiler();
+            //hook-up HibernatingRhinos.Profiler
+            EntityFrameworkProfiler.Initialize();
 
             services.AddDefaultMvc();
         }
 
         public void Configure(IApplicationBuilder application)
         {
-            //add MiniProfiler
-            application.UseMiniProfiler();
-            
             application.UseDefaultMvc();
         }
 

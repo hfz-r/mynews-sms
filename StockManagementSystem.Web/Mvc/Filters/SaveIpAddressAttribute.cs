@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StockManagementSystem.Core;
@@ -15,7 +16,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
         {
         }
 
-        private class SaveIpAddressFilter : IActionFilter
+        private class SaveIpAddressFilter : IAsyncActionFilter
         {
             private readonly IUserService _userService;
             private readonly IWebHelper _webHelper;
@@ -23,9 +24,9 @@ namespace StockManagementSystem.Web.Mvc.Filters
             private readonly UserSettings _userSettings;
 
             public SaveIpAddressFilter(
-                IUserService userService, 
-                IWebHelper webHelper, 
-                IWorkContext workContext, 
+                IUserService userService,
+                IWebHelper webHelper,
+                IWorkContext workContext,
                 UserSettings userSettings)
             {
                 _userService = userService;
@@ -34,41 +35,55 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 _userSettings = userSettings;
             }
 
-            public void OnActionExecuting(ActionExecutingContext context)
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 if (context == null)
                     throw new ArgumentNullException(nameof(context));
 
                 if (context.HttpContext.Request == null)
+                {
+                    await next();
                     return;
+                }
 
                 //only in GET requests
-                if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get, StringComparison.InvariantCultureIgnoreCase))
+                if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get,
+                    StringComparison.InvariantCultureIgnoreCase))
+                {
+                    await next();
                     return;
+                }
 
                 if (!DataSettingsManager.DatabaseIsInstalled)
+                {
+                    await next();
                     return;
+                }
 
                 //check whether we store IP addresses
                 if (!_userSettings.StoreIpAddresses)
+                {
+                    await next();
                     return;
+                }
 
                 //get current IP address
                 var currentIpAddress = _webHelper.GetCurrentIpAddress();
                 if (string.IsNullOrEmpty(currentIpAddress))
-                    return;
-
-                //update user's IP address
-                if (!currentIpAddress.Equals(_workContext.CurrentUser.LastIpAddress, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    _workContext.CurrentUser.LastIpAddress = currentIpAddress;
-                    _userService.UpdateUserAsync(_workContext.CurrentUser).GetAwaiter().GetResult();
+                    await next();
+                    return;
                 }
 
-            }
+                //update user's IP address
+                if (!currentIpAddress.Equals(_workContext.CurrentUser.LastIpAddress,
+                    StringComparison.InvariantCultureIgnoreCase))
+                {
+                    _workContext.CurrentUser.LastIpAddress = currentIpAddress;
+                    await _userService.UpdateUserAsync(_workContext.CurrentUser);
+                }
 
-            public void OnActionExecuted(ActionExecutedContext context)
-            {
+                await next();
             }
         }
     }

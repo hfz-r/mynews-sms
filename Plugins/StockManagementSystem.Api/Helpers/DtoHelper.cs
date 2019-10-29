@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using StockManagementSystem.Api.DTOs.Devices;
 using StockManagementSystem.Api.Infrastructure.Mapper.Extensions;
 using StockManagementSystem.Core.Domain.Devices;
@@ -30,9 +31,8 @@ namespace StockManagementSystem.Api.Helpers
         {
             var deviceDto = device.ToDto();
 
-            deviceDto.TenantIds = _tenantMappingService.GetTenantMappings(device)
-                .GetAwaiter().GetResult()
-                .Select(mapping => mapping.TenantId).ToList();
+            var task = Task.Run(async () => await _tenantMappingService.GetTenantMappings(device));
+            deviceDto.TenantIds = task.Result.Select(mapping => mapping.TenantId).ToList();
 
             return deviceDto;
         }

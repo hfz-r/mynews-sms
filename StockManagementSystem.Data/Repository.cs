@@ -193,16 +193,7 @@ namespace StockManagementSystem.Data
         /// <summary>
         /// Gets an entity set
         /// </summary>
-        protected virtual DbSet<TEntity> Entities
-        {
-            get
-            {
-                if (_entities == null)
-                    _entities = _context.Set<TEntity>();
-
-                return _entities;
-            }
-        }
+        protected virtual DbSet<TEntity> Entities => _entities ?? (_entities = _context.Set<TEntity>());
 
         #endregion
 

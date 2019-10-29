@@ -23,9 +23,9 @@ namespace StockManagementSystem.Services.Tenants
         private readonly ITenantContext _tenantContext;
 
         public TenantMappingService(
-            RecordSettings recordSettings, 
-            IRepository<TenantMapping> tenantMappingRepository, 
-            IStaticCacheManager cacheManager, 
+            RecordSettings recordSettings,
+            IRepository<TenantMapping> tenantMappingRepository,
+            IStaticCacheManager cacheManager,
             ITenantContext tenantContext)
         {
             _recordSettings = recordSettings;
@@ -52,7 +52,8 @@ namespace StockManagementSystem.Services.Tenants
             return await _tenantMappingRepository.GetByIdAsync(tenantMappingId);
         }
 
-        public async Task<IList<TenantMapping>> GetTenantMappings<T>(T entity) where T : BaseEntity, ITenantMappingSupported
+        public async Task<IList<TenantMapping>> GetTenantMappings<T>(T entity)
+            where T : BaseEntity, ITenantMappingSupported
         {
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
@@ -60,11 +61,8 @@ namespace StockManagementSystem.Services.Tenants
             var entityId = entity.Id;
             var entityName = entity.GetUnproxiedEntityType().Name;
 
-            var query = from sm in _tenantMappingRepository.Table
-                where sm.EntityId == entityId && sm.EntityName == entityName
-                select sm;
-
-            var tenantMappings = await query.ToListAsync();
+            var tenantMappings = await _tenantMappingRepository.Table
+                .Where(sm => sm.EntityId == entityId && sm.EntityName == entityName).ToListAsync();
 
             return tenantMappings;
         }
@@ -117,11 +115,11 @@ namespace StockManagementSystem.Services.Tenants
             var key = string.Format(TenantDefaults.TenantMappingByEntityIdNameCacheKey, entityId, entityName);
             return _cacheManager.Get(key, () =>
             {
-                var query = from sm in _tenantMappingRepository.Table
-                    where sm.EntityId == entityId &&
-                          sm.EntityName == entityName
-                    select sm.TenantId;
-                return query.ToArray();
+                var query = _tenantMappingRepository.Table
+                    .Where(sm => sm.EntityId == entityId && sm.EntityName == entityName).Select(sm => sm.TenantId)
+                    .ToArray();
+
+                return query;
             });
         }
 

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using StockManagementSystem.Core.Infrastructure;
 
 namespace StockManagementSystem.Api.Authorization.Requirements
@@ -12,10 +13,10 @@ namespace StockManagementSystem.Api.Authorization.Requirements
         {
             if (requestHeaders != null && requestHeaders.TryGetValue("Device-SerialNo", out var val))
             {
-                var stateContext = SingletonList<string>.Instance;
-                var isMatch = stateContext.FirstOrDefault(lic => lic == val.FirstOrDefault()) != null;
+                var stateContext = SingletonList<string>.Instance.AsQueryable();
+                var isMatch = await stateContext.FirstOrDefaultAsync(lic => lic == val.FirstOrDefault()) != null;
 
-                return await Task.FromResult(isMatch);
+                return isMatch;
             }
 
             return false;

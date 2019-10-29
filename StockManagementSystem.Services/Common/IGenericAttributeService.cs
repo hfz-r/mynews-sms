@@ -20,5 +20,11 @@ namespace StockManagementSystem.Services.Common
         Task SaveAttributeAsync<T>(BaseEntity entity, string key, T value, int tenantId = 0);
 
         Task UpdateAttribute(GenericAttribute attribute);
+
+        #region Synchronous wrapper
+
+        T GetAttribute<T>(BaseEntity entity, string key, int tenantId = 0);
+
+        #endregion
     }
 }

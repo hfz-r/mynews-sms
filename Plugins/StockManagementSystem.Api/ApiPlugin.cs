@@ -47,7 +47,7 @@ namespace StockManagementSystem.Api
 
         public void ManageSiteMap(SiteMapNode rootNode)
         {
-            var canManagePlugin = _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins).GetAwaiter().GetResult();
+            var canManagePlugin = _permissionService.Authorize(StandardPermissionProvider.ManagePlugins);
 
             var pluginMainMenu = new SiteMapNode
             {

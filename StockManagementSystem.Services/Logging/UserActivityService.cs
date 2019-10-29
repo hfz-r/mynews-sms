@@ -56,12 +56,12 @@ namespace StockManagementSystem.Services.Logging
         /// <summary>
         /// Gets all activity log types (class for caching)
         /// </summary>
-        protected IList<ActivityLogTypeForCaching> GetAllActivityTypesCached()
+        protected async Task<IList<ActivityLogTypeForCaching>> GetAllActivityTypesCached()
         {
-            return _cacheManager.Get(LoggingDefaults.ActivityTypeAllCacheKey, () =>
+            return await _cacheManager.Get(LoggingDefaults.ActivityTypeAllCacheKey, async () =>
             {
                 var result = new List<ActivityLogTypeForCaching>();
-                var activityLogTypes = GetAllActivityTypesAsync().GetAwaiter().GetResult();
+                var activityLogTypes = await GetAllActivityTypesAsync();
                 foreach (var alt in activityLogTypes)
                 {
                     var altForCaching = new ActivityLogTypeForCaching
@@ -147,7 +147,7 @@ namespace StockManagementSystem.Services.Logging
                 return null;
 
             //try to get activity log type by passed system keyword
-            var activityLogType = GetAllActivityTypesCached().FirstOrDefault(type => type.SystemKeyword.Equals(systemKeyword));
+            var activityLogType = (await GetAllActivityTypesCached()).FirstOrDefault(type => type.SystemKeyword.Equals(systemKeyword));
             if (!activityLogType?.Enabled ?? true)
                 return null;
 

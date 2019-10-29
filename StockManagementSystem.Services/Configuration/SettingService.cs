@@ -93,7 +93,7 @@ namespace StockManagementSystem.Services.Configuration
         /// <summary>
         /// Set setting value
         /// </summary>
-        protected void SetSetting(Type type, string key, object value, int tenantId = 0, bool clearCache = true)
+        protected async Task SetSetting(Type type, string key, object value, int tenantId = 0, bool clearCache = true)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
@@ -102,14 +102,13 @@ namespace StockManagementSystem.Services.Configuration
             var valueStr = TypeDescriptor.GetConverter(type).ConvertToInvariantString(value);
 
             var allSettings = GetAllSettingsCached();
-            var settingForCaching = allSettings.ContainsKey(key)
-                ? allSettings[key].FirstOrDefault(x => x.TenantId == tenantId) : null;
+            var settingForCaching = allSettings.ContainsKey(key) ? allSettings[key].FirstOrDefault(x => x.TenantId == tenantId) : null;
             if (settingForCaching != null)
             {
                 //update
-                var setting = GetSettingByIdAsync(settingForCaching.Id).GetAwaiter().GetResult();
+                var setting = await GetSettingByIdAsync(settingForCaching.Id);
                 setting.Value = valueStr;
-                UpdateSettingAsync(setting, clearCache).GetAwaiter().GetResult();
+                await UpdateSettingAsync(setting, clearCache);
             }
             else
             {
@@ -120,7 +119,7 @@ namespace StockManagementSystem.Services.Configuration
                     Value = valueStr,
                     TenantId = tenantId,
                 };
-                InsertSettingAsync(setting, clearCache).GetAwaiter().GetResult();
+                await InsertSettingAsync(setting, clearCache);
             }
         }
 
@@ -237,7 +236,7 @@ namespace StockManagementSystem.Services.Configuration
         /// </summary>
         public virtual void SetSetting<T>(string key, T value, int tenantId = 0, bool clearCache = true)
         {
-            SetSetting(typeof(T), key, value, tenantId, clearCache);
+            Task.Run(async () => await SetSetting(typeof(T), key, value, tenantId, clearCache));
         }
 
         /// <summary>
@@ -331,7 +330,7 @@ namespace StockManagementSystem.Services.Configuration
                 var key = typeof(T).Name + "." + prop.Name;
                 var value = prop.GetValue(settings, null);
                 if (value != null)
-                    SetSetting(prop.PropertyType, key, value, tenantId, false);
+                    Task.Run(async () => await SetSetting(prop.PropertyType, key, value, tenantId, false));
                 else
                     SetSetting(key, string.Empty, tenantId, false);
             }

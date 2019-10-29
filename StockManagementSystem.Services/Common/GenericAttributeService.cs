@@ -169,5 +169,15 @@ namespace StockManagementSystem.Services.Common
 
             return CommonHelper.To<T>(prop.Value);
         }
+
+        #region Synchronous wrapper
+
+        public T GetAttribute<T>(BaseEntity entity, string key, int tenantId = 0)
+        {
+            var task = Task.Run(async () => await GetAttributeAsync<T>(entity, key, tenantId));
+            return task.Result;
+        }
+
+        #endregion
     }
 }

@@ -34,7 +34,7 @@ namespace StockManagementSystem.Services.Users
             string ipAddress = null, int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false);
 
         Task<IList<User>> GetUsersByIdsAsync(int[] userIds);
-        Task<User> InsertGuestUser();
+        Task<User> InsertGuestUserAsync();
         Task InsertRoleAsync(Role role);
         Task InsertUserAsync(User user);
         void InsertUserPassword(UserPassword userPassword);
@@ -44,5 +44,17 @@ namespace StockManagementSystem.Services.Users
         Task UpdateRoleAsync(Role role);
         Task UpdateUserAsync(User user);
         void UpdateUserPassword(UserPassword userPassword);
+
+        #region Synchronous wrapper
+
+        User GetUserBySystemName(string systemName);
+
+        User GetUserByGuid(Guid userGuid);
+
+        string GetUserFullName(User user);
+
+        User InsertGuestUser();
+
+        #endregion
     }
 }

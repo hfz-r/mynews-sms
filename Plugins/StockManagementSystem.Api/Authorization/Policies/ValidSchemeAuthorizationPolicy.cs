@@ -7,11 +7,11 @@ namespace StockManagementSystem.Api.Authorization.Policies
 {
     public class ValidSchemeAuthorizationPolicy : AuthorizationHandler<AuthorizationSchemeRequirement>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorizationSchemeRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, AuthorizationSchemeRequirement requirement)
         {
             var mvcContext = context.Resource as AuthorizationFilterContext;
 
-            if (requirement.IsValid(mvcContext?.HttpContext.Request.Headers))
+            if (await requirement.IsValid(mvcContext?.HttpContext.Request.Headers))
             {
                 context.Succeed(requirement);
             }
@@ -19,8 +19,6 @@ namespace StockManagementSystem.Api.Authorization.Policies
             {
                 context.Fail();
             }
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -15,8 +15,6 @@
     <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="MiniProfiler.AspNetCore.Mvc" Version="4.0.138" />
-    <PackageReference Include="MiniProfiler.EntityFrameworkCore" Version="4.0.138" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.15" />
   </ItemGroup>
 
@@ -24,6 +22,12 @@
     <ProjectReference Include="..\StockManagementSystem.Core\StockManagementSystem.Core.csproj" />
     <ProjectReference Include="..\StockManagementSystem.Data\StockManagementSystem.Data.csproj" />
     <ProjectReference Include="..\StockManagementSystem.Services\StockManagementSystem.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="HibernatingRhinos.Profiler.Appender">
+      <HintPath>D:\Program Files\Entity Framework Profiler v5.0-Build-5033\HibernatingRhinos.Profiler.Appender.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

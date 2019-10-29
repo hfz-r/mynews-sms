@@ -116,7 +116,7 @@ namespace StockManagementSystem.Services.Logging
             return sortedLogItems;
         }
 
-        public async Task<Log> InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null)
+        public async Task<Log> InsertLogAsync(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null)
         {
             var log = new Log
             {
@@ -142,9 +142,7 @@ namespace StockManagementSystem.Services.Logging
                 return;
 
             if (IsEnabled(LogLevel.Information))
-                InsertLog(LogLevel.Information, message, exception?.ToString() ?? string.Empty, user)
-                    .GetAwaiter()
-                    .GetResult();
+                InsertLog(LogLevel.Information, message, exception?.ToString() ?? string.Empty, user);
         }
 
         public void Warning(string message, Exception exception = null, User user = null)
@@ -154,9 +152,7 @@ namespace StockManagementSystem.Services.Logging
                 return;
 
             if (IsEnabled(LogLevel.Warning))
-                InsertLog(LogLevel.Warning, message, exception?.ToString() ?? string.Empty, user)
-                    .GetAwaiter()
-                    .GetResult();
+                InsertLog(LogLevel.Warning, message, exception?.ToString() ?? string.Empty, user);
         }
 
         public void Error(string message, Exception exception = null, User user = null)
@@ -166,9 +162,17 @@ namespace StockManagementSystem.Services.Logging
                 return;
 
             if (IsEnabled(LogLevel.Error))
-                InsertLog(LogLevel.Error, message, exception?.ToString() ?? string.Empty, user)
-                    .GetAwaiter()
-                    .GetResult();
+                InsertLog(LogLevel.Error, message, exception?.ToString() ?? string.Empty, user);
         }
+
+        #region Synchronous wrapper
+
+        public Log InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null)
+        {
+            var task = Task.Run(async () => await InsertLogAsync(logLevel, shortMessage, fullMessage, user));
+            return task.Result;
+        }
+
+        #endregion
     }
 }

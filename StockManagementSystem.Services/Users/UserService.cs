@@ -592,7 +592,7 @@ namespace StockManagementSystem.Services.Users
         /// <summary>
         /// Insert a guest user
         /// </summary>
-        public async Task<User> InsertGuestUser()
+        public async Task<User> InsertGuestUserAsync()
         {
             var user = new User
             {
@@ -638,6 +638,34 @@ namespace StockManagementSystem.Services.Users
 
             var totalRecordsDeleted = pTotalRecordsDeleted.Value != DBNull.Value ? Convert.ToInt32(pTotalRecordsDeleted.Value) : 0;
             return await Task.FromResult(totalRecordsDeleted) ;
+        }
+
+        #endregion
+
+        #region Synchronous wrapper
+
+        public User GetUserBySystemName(string systemName)
+        {
+            var task = Task.Run(async () => await GetUserBySystemNameAsync(systemName));
+            return task.Result;
+        }
+
+        public User GetUserByGuid(Guid userGuid)
+        {
+            var task = Task.Run(async () => await GetUserByGuidAsync(userGuid));
+            return task.Result;
+        }
+
+        public string GetUserFullName(User user)
+        {
+            var task = Task.Run(async () => await GetUserFullNameAsync(user));
+            return task.Result;
+        }
+
+        public User InsertGuestUser()
+        {
+            var task = Task.Run(async () => await InsertGuestUserAsync());
+            return task.Result;
         }
 
         #endregion

@@ -243,5 +243,15 @@ namespace StockManagementSystem.Services.Security
         }
 
         #endregion
+
+        #region Synchronous wrapper
+
+        public bool Authorize(Permission permission)
+        {
+            var task = Task.Run(async () => await AuthorizeAsync(permission));
+            return task.Result;
+        }
+
+        #endregion
     }
 }

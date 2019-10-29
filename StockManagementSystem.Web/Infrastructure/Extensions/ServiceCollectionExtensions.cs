@@ -3,10 +3,10 @@ using System.Linq;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
-using StackExchange.Profiling.Storage;
 using StockManagementSystem.Core.Configuration;
 using StockManagementSystem.Core.Data;
 using StockManagementSystem.Core.Domain.Security;
@@ -100,10 +100,19 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
         public static void AddObjectContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ObjectContext>(optionsBuilder =>
-            {
-                optionsBuilder.UseSqlServerWithLazyLoading(services);
-            });
+            services.AddDbContextPool<ObjectContext>(optionsBuilder =>
+                {
+                    optionsBuilder.UseSqlServerWithLazyLoading(services);
+                })
+                .AddUnitOfWork<ObjectContext>();
+        }
+
+        public static IServiceCollection AddUnitOfWork<TContext>(this IServiceCollection services)
+            where TContext : DbContext, IDbContext
+        {
+            services.AddScoped<IUnitOfWork, UnitOfWork<TContext>>();
+            services.AddScoped<IUnitOfWork<TContext>, UnitOfWork<TContext>>();
+            return services;
         }
 
         public static IMvcBuilder AddDefaultMvc(this IServiceCollection services)
@@ -145,17 +154,6 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
             });
 
             return mvcBuilder;
-        }
-
-        public static void AddDefaultMiniProfiler(this IServiceCollection services)
-        {
-            services.AddMiniProfiler(miniProfilerOptions =>
-            {
-                //use memory cache provider for storing each result
-                ((MemoryCacheStorage) miniProfilerOptions.Storage).CacheDuration = TimeSpan.FromMinutes(60);
-
-                //TODO: setup miniprofiler
-            }).AddEntityFramework();
         }
 
         public static void AddDefaultAuthentication(this IServiceCollection services)

@@ -21,7 +21,7 @@ namespace StockManagementSystem.Services.Logging
 
         Task<IList<Log>> GetLogByIds(int[] logIds);
 
-        Task<Log> InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null);
+        Task<Log> InsertLogAsync(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null);
 
         bool IsEnabled(LogLevel level);
 

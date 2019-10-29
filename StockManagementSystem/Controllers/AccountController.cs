@@ -271,7 +271,7 @@ namespace StockManagementSystem.Controllers
                 await _authenticationService.SignOutAsync();
 
                 //Save a new record
-                _workContext.CurrentUser = await _userService.InsertGuestUser();
+                _workContext.CurrentUser = await _userService.InsertGuestUserAsync();
             }
             var user = _workContext.CurrentUser;
             user.RegisteredInTenantId = _tenantContext.CurrentTenant.Id;

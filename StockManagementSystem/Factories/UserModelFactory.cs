@@ -128,15 +128,15 @@ namespace StockManagementSystem.Factories
                     var userModel = user.ToModel<UserModel>();
 
                     userModel.Email = user.Email;
-                    userModel.FullName = _userService.GetUserFullNameAsync(user).GetAwaiter().GetResult();
-                    userModel.Phone = _genericAttributeService.GetAttributeAsync<string>(user, UserDefaults.PhoneAttribute).GetAwaiter().GetResult();
+                    userModel.FullName = _userService.GetUserFullName(user);
+                    userModel.Phone = _genericAttributeService.GetAttribute<string>(user, UserDefaults.PhoneAttribute);
                     userModel.CreatedOn = _dateTimeHelper.ConvertToUserTime(user.CreatedOnUtc, DateTimeKind.Utc);
                     userModel.LastActivityDate = _dateTimeHelper.ConvertToUserTime(user.LastActivityDateUtc, DateTimeKind.Utc);
                     userModel.UserRolesName = String.Join(", ", user.UserRoles.Select(role => role.Role.Name));
 
                     if (_userSettings.AllowUsersToUploadAvatars)
                     {
-                        var avatarPictureId = _genericAttributeService.GetAttributeAsync<int>(user, UserDefaults.AvatarPictureIdAttribute).GetAwaiter().GetResult();
+                        var avatarPictureId = _genericAttributeService.GetAttribute<int>(user, UserDefaults.AvatarPictureIdAttribute);
                         userModel.AvatarUrl = _pictureService.GetPictureUrl(avatarPictureId,  _mediaSettings.AvatarPictureSize, _userSettings.DefaultAvatarEnabled, defaultPictureType: PictureType.Avatar);
                     }
 

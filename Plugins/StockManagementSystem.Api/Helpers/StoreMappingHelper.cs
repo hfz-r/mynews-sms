@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using StockManagementSystem.Core.Caching;
 using StockManagementSystem.Core.Domain.Stores;
 using StockManagementSystem.Services.Stores;
@@ -21,9 +22,9 @@ namespace StockManagementSystem.Api.Helpers
 
         public IList<Store> GetValidStores(List<int> storeIds)
         {
-            var stores = _storeService.GetStores().GetAwaiter().GetResult();
+            var task = Task.Run(async () => await _storeService.GetStores());
 
-            return stores.Where(store => storeIds != null && storeIds.Contains(store.P_BranchNo)).ToList();
+            return task.Result.Where(store => storeIds != null && storeIds.Contains(store.P_BranchNo)).ToList();
         }
 
         public Store GetValidStore(int id)

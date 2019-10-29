@@ -19,12 +19,12 @@ namespace StockManagementSystem.Web.Mvc.Filters
         public AuthorizeUserAttribute(bool ignore = false) : base(typeof(AuthorizeUserFilter))
         {
             IgnoreFilter = ignore;
-            Arguments = new object[] {ignore};
+            Arguments = new object[] { ignore };
         }
 
         public bool IgnoreFilter { get; }
 
-        private class AuthorizeUserFilter : IAuthorizationFilter
+        private class AuthorizeUserFilter : IAsyncAuthorizationFilter
         {
             private readonly bool _ignoreFilter;
             private readonly IPermissionService _permissionService;
@@ -35,7 +35,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 _permissionService = permissionService;
             }
 
-            public void OnAuthorization(AuthorizationFilterContext filterContext)
+            public async Task OnAuthorizationAsync(AuthorizationFilterContext filterContext)
             {
                 if (filterContext == null)
                     throw new ArgumentNullException(nameof(filterContext));
@@ -54,7 +54,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
 
                 if (filterContext.Filters.Any(filter => filter is AuthorizeUserFilter))
                 {
-                    if (!_permissionService.AuthorizeAsync(StandardPermissionProvider.AccessPanel).GetAwaiter().GetResult())
+                    if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.AccessPanel))
                         filterContext.Result = new ChallengeResult();
                 }
             }

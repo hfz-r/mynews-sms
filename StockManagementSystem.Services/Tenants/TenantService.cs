@@ -35,11 +35,12 @@ namespace StockManagementSystem.Services.Tenants
 
             if (loadCacheableCopy)
             {
-                return _cacheManager.Get(TenantDefaults.TenantsAllCacheKey, () =>
+                return await _cacheManager.Get(TenantDefaults.TenantsAllCacheKey, async () =>
                 {
                     var result = new List<Tenant>();
-                    foreach (var tenant in LoadTenantsFunc().GetAwaiter().GetResult())
+                    foreach (var tenant in await LoadTenantsFunc())
                         result.Add(new TenantForCaching(tenant));
+
                     return result;
                 });
             }
@@ -52,7 +53,7 @@ namespace StockManagementSystem.Services.Tenants
         /// </summary>
         /// <param name="tenantId">Tenant identifier</param>
         /// <param name="loadCacheableCopy">A value indicating whether to load a copy that could be cached</param>
-        public async Task<Tenant> GetTenantById(int tenantId, bool loadCacheableCopy = true)
+        public async Task<Tenant> GetTenantByIdAsync(int tenantId, bool loadCacheableCopy = true)
         {
             if (tenantId == 0)
                 return null;
@@ -66,11 +67,12 @@ namespace StockManagementSystem.Services.Tenants
                 return await LoadTenantFunc();
 
             var key = string.Format(TenantDefaults.TenantsByIdCacheKey, tenantId);
-            return _cacheManager.Get(key, () =>
+            return await _cacheManager.Get(key, async () =>
             {
-                var tenant = LoadTenantFunc().GetAwaiter().GetResult();
+                var tenant = await LoadTenantFunc();
                 if (tenant == null)
                     return null;
+
                 return new TenantForCaching(tenant);
             });
         }
@@ -118,5 +120,21 @@ namespace StockManagementSystem.Services.Tenants
 
             return contains;
         }
+
+        #region Synchronous wrapper
+
+        public IList<Tenant> GetTenants(bool loadCacheableCopy = true)
+        {
+            var task = Task.Run(async () => await GetTenantsAsync(loadCacheableCopy));
+            return task.Result;
+        }
+
+        public Tenant GetTenantById(int tenantId, bool loadCacheableCopy = true)
+        {
+            var task = Task.Run(async () => await GetTenantByIdAsync(tenantId, loadCacheableCopy));
+            return task.Result;
+        }
+
+        #endregion
     }
 }

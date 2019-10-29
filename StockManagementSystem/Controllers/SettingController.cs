@@ -320,7 +320,7 @@ namespace StockManagementSystem.Controllers
 
         public async Task<IActionResult> ChangeTenantScopeConfiguration(int tenantId, string returnUrl = "")
         {
-            var tenant = _tenantService.GetTenantById(tenantId);
+            var tenant = _tenantService.GetTenantByIdAsync(tenantId);
             if (tenant != null || tenantId == 0)
                 await _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser,
                     UserDefaults.TenantScopeConfigurationAttribute, tenantId);

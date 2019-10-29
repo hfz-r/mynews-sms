@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StockManagementSystem.Core;
@@ -18,7 +19,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
         {
         }
 
-        private class SaveLastVisitedPageFilter : IActionFilter
+        private class SaveLastVisitedPageFilter : IAsyncActionFilter
         {
             private readonly UserSettings _userSettings;
             private readonly IGenericAttributeService _genericAttributeService;
@@ -37,45 +38,56 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 _workContext = workContext;
             }
 
-            public void OnActionExecuting(ActionExecutingContext context)
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 if (context == null)
                     throw new ArgumentNullException(nameof(context));
 
                 if (context.HttpContext.Request == null)
+                {
+                    await next();
                     return;
+                }
 
                 //only in GET requests
-                if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get, StringComparison.InvariantCultureIgnoreCase))
+                if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get,
+                    StringComparison.InvariantCultureIgnoreCase))
+                {
+                    await next();
                     return;
+                }
 
                 if (!DataSettingsManager.DatabaseIsInstalled)
+                {
+                    await next();
                     return;
+                }
 
                 //check whether we store last visited page URL
                 if (!_userSettings.StoreLastVisitedPage)
+                {
+                    await next();
                     return;
+                }
 
                 //get current page
                 var pageUrl = _webHelper.GetThisPageUrl(true);
                 if (string.IsNullOrEmpty(pageUrl))
+                {
+                    await next();
                     return;
+                }
 
                 //get previous last page
-                var previousPageUrl = _genericAttributeService
-                    .GetAttributeAsync<string>(_workContext.CurrentUser, UserDefaults.LastVisitedPageAttribute)
-                    .GetAwaiter().GetResult();
+                var previousPageUrl = await _genericAttributeService.GetAttributeAsync<string>(_workContext.CurrentUser,
+                    UserDefaults.LastVisitedPageAttribute);
 
                 //save new one if don't match
                 if (!pageUrl.Equals(previousPageUrl, StringComparison.InvariantCultureIgnoreCase))
-                    _genericAttributeService
-                        .SaveAttributeAsync(_workContext.CurrentUser, UserDefaults.LastVisitedPageAttribute, pageUrl)
-                        .GetAwaiter().GetResult();
+                    await _genericAttributeService.SaveAttributeAsync(_workContext.CurrentUser,
+                        UserDefaults.LastVisitedPageAttribute, pageUrl);
 
-            }
-
-            public void OnActionExecuted(ActionExecutedContext context)
-            {
+                await next();
             }
         }
     }

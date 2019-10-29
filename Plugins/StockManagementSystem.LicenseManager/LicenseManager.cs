@@ -54,7 +54,7 @@ namespace StockManagementSystem.LicenseManager
         /// <param name="rootNode">Current menu node</param>
         public void ManageSiteMap(SiteMapNode rootNode)
         {
-            var isPermit = _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins).GetAwaiter().GetResult();
+            var isPermit = _permissionService.Authorize(StandardPermissionProvider.ManagePlugins);
 
             var pluginMainMenu = new SiteMapNode
             {

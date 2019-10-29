@@ -47,7 +47,7 @@ namespace StockManagementSystem.Services.Logging
         {
         }
 
-        public Task<Log> InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null)
+        public Task<Log> InsertLogAsync(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null)
         {
             return null;
         }

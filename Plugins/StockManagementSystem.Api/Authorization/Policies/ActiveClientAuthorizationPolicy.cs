@@ -6,9 +6,9 @@ namespace StockManagementSystem.Api.Authorization.Policies
 {
     public class ActiveClientAuthorizationPolicy : AuthorizationHandler<ActiveClientRequirement>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ActiveClientRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, ActiveClientRequirement requirement)
         {
-            if (requirement.IsClientActive())
+            if (await requirement.IsClientActive())
             {
                 context.Succeed(requirement);
             }
@@ -16,8 +16,6 @@ namespace StockManagementSystem.Api.Authorization.Policies
             {
                 context.Fail();
             }
-
-            return Task.CompletedTask;
         }
     }
 }

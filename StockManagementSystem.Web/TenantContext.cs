@@ -40,7 +40,7 @@ namespace StockManagementSystem.Web
                 //try to determine the current tenant by HOST header
                 string host = _httpContextAccessor.HttpContext?.Request?.Headers[HeaderNames.Host];
 
-                var allTenants = _tenantService.GetTenantsAsync().GetAwaiter().GetResult();
+                var allTenants = _tenantService.GetTenants();
                 var tenant = allTenants.FirstOrDefault(s => _tenantService.ContainsHostValue(s, host)) ?? allTenants.FirstOrDefault();
 
                 _cachedTenant = tenant ?? throw new Exception("No tenant could be loaded");
@@ -57,16 +57,15 @@ namespace StockManagementSystem.Web
                     return _cachedActiveTenantScopeConfiguration.Value;
 
                 //ensure that we have 2 (or more) tenants
-                if (_tenantService.GetTenantsAsync().GetAwaiter().GetResult().Count > 1)
+                if (_tenantService.GetTenants().Count > 1)
                 {
                     var currentUser = EngineContext.Current.Resolve<IWorkContext>().CurrentUser;
 
                     //try to get tenant identifier from attributes
-                    var tenantId = _genericAttributeService
-                        .GetAttributeAsync<int>(currentUser, UserDefaults.TenantScopeConfigurationAttribute)
-                        .GetAwaiter().GetResult();
+                    var tenantId = _genericAttributeService.GetAttribute<int>(currentUser,
+                        UserDefaults.TenantScopeConfigurationAttribute);
 
-                    _cachedActiveTenantScopeConfiguration = _tenantService.GetTenantById(tenantId).GetAwaiter().GetResult()?.Id ?? 0;
+                    _cachedActiveTenantScopeConfiguration = _tenantService.GetTenantById(tenantId)?.Id ?? 0;
                 }
                 else
                     _cachedActiveTenantScopeConfiguration = 0;

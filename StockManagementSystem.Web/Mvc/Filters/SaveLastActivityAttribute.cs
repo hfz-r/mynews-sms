@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using StockManagementSystem.Core;
@@ -14,7 +15,7 @@ namespace StockManagementSystem.Web.Mvc.Filters
         {
         }
 
-        private class SaveLastActivityFilter : IActionFilter
+        private class SaveLastActivityFilter : IAsyncActionFilter
         {
             private readonly IUserService _userService;
             private readonly IWorkContext _workContext;
@@ -25,31 +26,38 @@ namespace StockManagementSystem.Web.Mvc.Filters
                 _workContext = workContext;
             }
 
-            public void OnActionExecuting(ActionExecutingContext context)
+            public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 if (context == null)
                     throw new ArgumentNullException(nameof(context));
 
                 if (context.HttpContext.Request == null)
+                {
+                    await next();
                     return;
+                }
 
                 if (!context.HttpContext.Request.Method.Equals(WebRequestMethods.Http.Get,
                     StringComparison.InvariantCultureIgnoreCase))
+                {
+                    await next();
                     return;
+                }
 
                 if (!DataSettingsManager.DatabaseIsInstalled)
+                {
+                    await next();
                     return;
+                }
 
                 //update last activity date
                 if (_workContext.CurrentUser.LastActivityDateUtc.AddMinutes(1.0) < DateTime.UtcNow)
                 {
                     _workContext.CurrentUser.LastActivityDateUtc = DateTime.UtcNow;
-                    _userService.UpdateUserAsync(_workContext.CurrentUser).GetAwaiter().GetResult();
+                    await _userService.UpdateUserAsync(_workContext.CurrentUser);
                 }
-            }
 
-            public void OnActionExecuted(ActionExecutedContext context)
-            {
+                await next();
             }
         }
     }

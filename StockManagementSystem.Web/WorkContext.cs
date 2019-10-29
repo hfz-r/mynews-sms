@@ -81,7 +81,7 @@ namespace StockManagementSystem.Web
                 if (_httpContextAccessor.HttpContext == null)
                 {
                     //in this case return built-in user record for background task
-                    user = _userService.GetUserBySystemNameAsync(UserDefaults.BackgroundTaskUserName).GetAwaiter().GetResult();
+                    user = _userService.GetUserBySystemName(UserDefaults.BackgroundTaskUserName);
                 }
 
                 if (user == null || user.Deleted || !user.Active)
@@ -99,7 +99,7 @@ namespace StockManagementSystem.Web
                         if (Guid.TryParse(userCookie, out Guid userGuid))
                         {
                             //get user from cookie (should not be registered)
-                            var userByCookie = _userService.GetUserByGuidAsync(userGuid).GetAwaiter().GetResult();
+                            var userByCookie = _userService.GetUserByGuid(userGuid);
                             if (userByCookie != null && !userByCookie.IsRegistered())
                                 user = userByCookie;
                         }
@@ -109,7 +109,7 @@ namespace StockManagementSystem.Web
                 if (user == null || user.Deleted || !user.Active)
                 {
                     //create guest if not exists
-                    user = _userService.InsertGuestUser().GetAwaiter().GetResult();
+                    user = _userService.InsertGuestUser();
                 }
 
                 if (!user.Deleted && user.Active)

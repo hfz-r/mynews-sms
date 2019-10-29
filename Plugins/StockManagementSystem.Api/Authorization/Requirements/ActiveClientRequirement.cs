@@ -1,4 +1,5 @@
-﻿using IdentityModel;
+﻿using System.Threading.Tasks;
+using IdentityModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using StockManagementSystem.Api.Services;
@@ -8,17 +9,12 @@ namespace StockManagementSystem.Api.Authorization.Requirements
 {
     public class ActiveClientRequirement : IAuthorizationRequirement
     {
-        public bool IsClientActive()
+        public async Task<bool> IsClientActive()
         {
-            if (!ClientExistsAndActive())
-            {
-                return false;
-            }
-
-            return true;
+            return await ClientExistsAndActive();
         }
 
-        private bool ClientExistsAndActive()
+        private static async Task<bool> ClientExistsAndActive()
         {
             var httpContextAccessor = EngineContext.Current.Resolve<IHttpContextAccessor>();
 
@@ -26,7 +22,7 @@ namespace StockManagementSystem.Api.Authorization.Requirements
             if (clientId != null)
             {
                 var clientService = EngineContext.Current.Resolve<IClientService>();
-                var client = clientService.FindClientByClientIdAsync(clientId).GetAwaiter().GetResult();
+                var client = await clientService.FindClientByClientIdAsync(clientId);
                 if (client != null && client.Enabled)
                 {
                     return true;
