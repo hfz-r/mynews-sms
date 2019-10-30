@@ -66,3 +66,13 @@
 - API v1.2.2
    - update associated API-related to handle license creation
    - update middle-ware pipeline 
+
+##### **30-10-2019**
+
+-  refactor few code block possible lead to pooling starvation
+-  implemented new repository with unit of work to handle new DbContextPool
+    - beta (applied to API Non-CRUD only)
+-  replace MiniProfiler with NHibernate EF Profiler
+- API v1.2.2
+   - update authorization pipeline to handle async
+   - minimized generic services workload with new repository

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -25,13 +24,13 @@ namespace StockManagementSystem.Api.Controllers.Generics
     [Route("api/[controller]")]
     public class BaseGenericController<T, E> : Controller where T : BaseDto where E : BaseEntity
     {
-        protected readonly IGenericApiService<T,E> GenericApiService;
+        protected readonly IGenericApiService<T, E> GenericApiService;
         protected readonly IJsonFieldsSerializer JsonFieldsSerializer;
         protected readonly IUserActivityService UserActivityService;
 
         public BaseGenericController(
-            IGenericApiService<T,E> genericApiService, 
-            IJsonFieldsSerializer jsonFieldsSerializer, 
+            IGenericApiService<T, E> genericApiService,
+            IJsonFieldsSerializer jsonFieldsSerializer,
             IUserActivityService userActivityService)
         {
             JsonFieldsSerializer = jsonFieldsSerializer;
@@ -41,13 +40,14 @@ namespace StockManagementSystem.Api.Controllers.Generics
 
         #region Protected methods
 
-        protected async Task<IActionResult> Error(HttpStatusCode statusCode = (HttpStatusCode)422, string propertyKey = "", string errorMessage = "")
+        protected async Task<IActionResult> Error(HttpStatusCode statusCode = (HttpStatusCode) 422,
+            string propertyKey = "", string errorMessage = "")
         {
             var errors = new Dictionary<string, List<string>>();
 
             if (!string.IsNullOrEmpty(errorMessage) && !string.IsNullOrEmpty(propertyKey))
             {
-                var errorsList = new List<string> { errorMessage };
+                var errorsList = new List<string> {errorMessage};
                 errors.Add(propertyKey, errorsList);
             }
 
@@ -67,7 +67,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
                 }
             }
 
-            var errorsRootObject = new ErrorsRootObject { Errors = errors };
+            var errorsRootObject = new ErrorsRootObject {Errors = errors};
 
             var errorsJson = JsonFieldsSerializer.Serialize(errorsRootObject, null);
 
@@ -100,9 +100,9 @@ namespace StockManagementSystem.Api.Controllers.Generics
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
         [HttpGet]
-        [ProducesResponseType(typeof(GenericRootObject<>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ErrorsRootObject), (int)HttpStatusCode.BadRequest)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(GenericRootObject<>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
         [GetRequestsErrorInterceptorActionFilter]
         public async Task<IActionResult> Get(GenericsParametersModel parameters)
         {
@@ -112,26 +112,20 @@ namespace StockManagementSystem.Api.Controllers.Generics
             if (parameters.Page < Configurations.DefaultPageValue)
                 return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
-            var entities = GenericApiService.GetAll(
-                parameters.Limit,
-                parameters.Page,
-                parameters.SinceId,
-                parameters.SortColumn,
-                parameters.Descending);
+            var entities = await GenericApiService.GetAll(parameters.Limit, parameters.Page, parameters.SinceId,
+                parameters.SortColumn, parameters.Descending);
 
-            var rootObj = new GenericRootObject<T> {Entities = entities};
-
-            var json = JsonFieldsSerializer.Serialize(rootObj, parameters.Fields,
+            var json = JsonFieldsSerializer.Serialize(new GenericRootObject<T> {Entities = entities}, parameters.Fields,
                 new JsonSerializer {ContractResolver = new GenericTypeNameContractResolver()});
 
             return new RawJsonActionResult(json);
         }
 
         /// <summary>
-        /// Retrieve related entity by id
+        /// Retrieve entity by id
         /// </summary>
-        /// <param name="id">Id of the entity</param>
-        /// <param name="fields">Fields from the user you want your json to contain</param>
+        /// <param name="id">Entity id</param>
+        /// <param name="fields">Specific from the entity to include in response</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
         /// <response code="401">Unauthorized</response>
@@ -146,7 +140,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
             if (id <= 0)
                 return await Error(HttpStatusCode.BadRequest, "id", "invalid id");
 
-            var entity = GenericApiService.GetById(id);
+            var entity = await GenericApiService.GetById(id);
             if (entity == null)
                 return await Error(HttpStatusCode.NotFound, "entity", "not found");
 
@@ -154,13 +148,13 @@ namespace StockManagementSystem.Api.Controllers.Generics
             rootObj.Entities.Add(entity);
 
             var json = JsonFieldsSerializer.Serialize(rootObj, fields,
-                new JsonSerializer { ContractResolver = new GenericTypeNameContractResolver() });
+                new JsonSerializer {ContractResolver = new GenericTypeNameContractResolver()});
 
             return new RawJsonActionResult(json);
         }
 
         /// <summary>
-        /// Get a count of all related entities
+        /// Count entities
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="401">Unauthorized</response>
@@ -170,15 +164,13 @@ namespace StockManagementSystem.Api.Controllers.Generics
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetEntitiesCount()
         {
-            var count = GenericApiService.Count();
+            var count = await GenericApiService.Count();
 
-            var rootObj = new GenericCountRootObject {Count = count};
-
-            return await Task.FromResult<IActionResult>(Ok(rootObj));
+            return Ok(new GenericCountRootObject { Count = count });
         }
 
         /// <summary>
-        /// Search for related matching supplied query
+        /// Search entity
         /// </summary>
         /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
@@ -187,6 +179,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
         [ProducesResponseType(typeof(GenericRootObject<>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorsRootObject), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.Unauthorized)]
+        [GetRequestsErrorInterceptorActionFilter]
         public async Task<IActionResult> Search(GenericSearchParametersModel parameters)
         {
             if (parameters.Limit < Configurations.MinLimit || parameters.Limit > Configurations.MaxLimit)
@@ -195,7 +188,7 @@ namespace StockManagementSystem.Api.Controllers.Generics
             if (parameters.Page < Configurations.DefaultPageValue)
                 return await Error(HttpStatusCode.BadRequest, "page", "Invalid request parameters");
 
-            var entities = GenericApiService.Search(
+            var entities = await GenericApiService.Search(
                 parameters.Query,
                 parameters.Limit,
                 parameters.Page,

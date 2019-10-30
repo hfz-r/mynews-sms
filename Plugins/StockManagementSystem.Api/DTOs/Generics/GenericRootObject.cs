@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using StockManagementSystem.Api.Attributes;
 using StockManagementSystem.Api.Helpers;
+using StockManagementSystem.Api.Json.Extensions;
 
 namespace StockManagementSystem.Api.DTOs.Generics
 {
@@ -21,7 +22,7 @@ namespace StockManagementSystem.Api.DTOs.Generics
             var normalizedName = GenericPropertyHelper.GetGenericProperty(typeName);
 
             return !string.IsNullOrEmpty(normalizedName)
-                ? string.Concat(normalizedName, "s").ToLowerInvariant()
+                ? normalizedName.GetNormalizedPropertyName()
                 : throw new InvalidOperationException($"{typeName} is not a valid context.");
         }
 

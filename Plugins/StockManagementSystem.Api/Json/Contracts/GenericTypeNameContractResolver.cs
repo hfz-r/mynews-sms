@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using StockManagementSystem.Api.Attributes;
 using StockManagementSystem.Api.Helpers;
+using StockManagementSystem.Api.Json.Extensions;
 
 namespace StockManagementSystem.Api.Json.Contracts
 {
@@ -16,20 +17,22 @@ namespace StockManagementSystem.Api.Json.Contracts
             if (attr != null)
             {
                 var type = member.DeclaringType;
-                if (!type.IsGenericType)
+                if (type != null && !type.IsGenericType)
                     throw new InvalidOperationException($"{type} is not a generic type");
-                if (type.IsGenericTypeDefinition)
-                    throw new InvalidOperationException($"{type} is a generic type definition, it must be a constructed generic type");
+                if (type != null && type.IsGenericTypeDefinition)
+                    throw new InvalidOperationException(
+                        $"{type} is a generic type definition, it must be a constructed generic type");
 
-                var typeArgs = type.GetGenericArguments();
-                if (attr.TypeParameterPosition >= typeArgs.Length)
-                    throw new ArgumentException($"Can't get type argument at position {attr.TypeParameterPosition}; {type} has only {typeArgs.Length} type arguments");
+                var typeArgs = type?.GetGenericArguments();
+                if (attr.TypeParameterPosition >= typeArgs?.Length)
+                    throw new ArgumentException(
+                        $"Can't get type argument at position {attr.TypeParameterPosition}; {type} has only {typeArgs.Length} type arguments");
 
-                var typeName = typeArgs[attr.TypeParameterPosition].Name;
-                string normalizedName = GenericPropertyHelper.GetGenericProperty(typeName);
+                var typeName = typeArgs?[attr.TypeParameterPosition].Name;
+                var normalizedName = GenericPropertyHelper.GetGenericProperty(typeName);
 
                 prop.PropertyName = !string.IsNullOrEmpty(normalizedName)
-                    ? string.Concat(normalizedName, "s").ToLowerInvariant()
+                    ? normalizedName.GetNormalizedPropertyName()
                     : throw new InvalidOperationException($"{typeName} is not a valid context.");
             }
 
