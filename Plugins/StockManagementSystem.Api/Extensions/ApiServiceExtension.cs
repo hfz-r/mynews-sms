@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using StockManagementSystem.Api.Helpers;
+using StockManagementSystem.Api.Json.Extensions;
 
 namespace StockManagementSystem.Api.Extensions
 {
@@ -57,8 +58,7 @@ namespace StockManagementSystem.Api.Extensions
             if (descending)
                 command = "OrderByDescending";
 
-            //resolve snake_case
-            sortColumn = sortColumn.Replace("_", string.Empty);
+            sortColumn = sortColumn.ResolvePropertyNamingConvention();
 
             var property = ReflectionHelper.GetPropertyInfo(ref sortColumn, typeof(T));
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
@@ -140,7 +140,7 @@ namespace StockManagementSystem.Api.Extensions
 
                     if (!string.IsNullOrEmpty(field) && !string.IsNullOrEmpty(value))
                     {
-                        field = field.Replace("_", string.Empty);
+                        field = field.ResolvePropertyNamingConvention();
                         searchQuery.Add(field.Trim(), value.Trim());
                     }
                 }

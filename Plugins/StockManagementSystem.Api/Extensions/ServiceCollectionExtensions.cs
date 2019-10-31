@@ -76,7 +76,7 @@ namespace StockManagementSystem.Api.Extensions
                         policy.Requirements.Add(new ActiveApiRequirement());
                         policy.Requirements.Add(new AuthorizationSchemeRequirement());
                         policy.Requirements.Add(new ActiveClientRequirement());
-                        policy.Requirements.Add(new ActiveLicenseRequirement());
+                        //policy.Requirements.Add(new ActiveLicenseRequirement());
                         policy.RequireAuthenticatedUser();
                     });
             });
@@ -84,7 +84,7 @@ namespace StockManagementSystem.Api.Extensions
             services.AddSingleton<IAuthorizationHandler, ActiveApiAuthorizationPolicy>();
             services.AddSingleton<IAuthorizationHandler, ValidSchemeAuthorizationPolicy>();
             services.AddSingleton<IAuthorizationHandler, ActiveClientAuthorizationPolicy>();
-            services.AddSingleton<IAuthorizationHandler, LicenseAuthorizationPolicy>();
+            //services.AddSingleton<IAuthorizationHandler, LicenseAuthorizationPolicy>();
         }
 
         #region Private methods

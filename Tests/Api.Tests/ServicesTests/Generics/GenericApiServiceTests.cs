@@ -97,6 +97,13 @@ namespace Api.Tests.ServicesTests.Generics
         {
             var apiService = new GenericApiService<StoreDto, Store>(_worker.Object);
 
+            var query = "p_branchno:246";
+            var sortColumn = "name";
+            var search = apiService.Search(query, sortColumn: sortColumn).GetAwaiter().GetResult();
+
+            search.List.Count.ShouldEqual(2);
+            search.List.First().Id.ShouldEqual(2);
+
             var no_query = "";
             var search1 = apiService.Search(no_query).GetAwaiter().GetResult();
 

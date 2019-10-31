@@ -32,7 +32,8 @@ namespace StockManagementSystem.Api.Json.Contracts
                 var normalizedName = GenericPropertyHelper.GetGenericProperty(typeName);
 
                 prop.PropertyName = !string.IsNullOrEmpty(normalizedName)
-                    ? normalizedName.GetNormalizedPropertyName()
+                    //? normalizedName.GetNormalizedPropertyName()
+                    ? string.Concat(normalizedName, "s").ToLowerInvariant()
                     : throw new InvalidOperationException($"{typeName} is not a valid context.");
             }
 

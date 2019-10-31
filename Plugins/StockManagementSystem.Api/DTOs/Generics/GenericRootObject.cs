@@ -22,7 +22,8 @@ namespace StockManagementSystem.Api.DTOs.Generics
             var normalizedName = GenericPropertyHelper.GetGenericProperty(typeName);
 
             return !string.IsNullOrEmpty(normalizedName)
-                ? normalizedName.GetNormalizedPropertyName()
+                //? normalizedName.GetNormalizedPropertyName()
+                ? string.Concat(normalizedName, "s").ToLowerInvariant()
                 : throw new InvalidOperationException($"{typeName} is not a valid context.");
         }
 
