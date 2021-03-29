@@ -125,14 +125,12 @@ namespace StockManagementSystem.Services.Tenants
 
         public IList<Tenant> GetTenants(bool loadCacheableCopy = true)
         {
-            var task = Task.Run(async () => await GetTenantsAsync(loadCacheableCopy));
-            return task.Result;
+            return GetTenantsAsync(loadCacheableCopy).GetAwaiter().GetResult();
         }
 
         public Tenant GetTenantById(int tenantId, bool loadCacheableCopy = true)
         {
-            var task = Task.Run(async () => await GetTenantByIdAsync(tenantId, loadCacheableCopy));
-            return task.Result;
+            return GetTenantByIdAsync(tenantId, loadCacheableCopy).GetAwaiter().GetResult();
         }
 
         #endregion

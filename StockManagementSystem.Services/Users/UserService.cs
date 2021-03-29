@@ -646,26 +646,22 @@ namespace StockManagementSystem.Services.Users
 
         public User GetUserBySystemName(string systemName)
         {
-            var task = Task.Run(async () => await GetUserBySystemNameAsync(systemName));
-            return task.Result;
+            return GetUserBySystemNameAsync(systemName).GetAwaiter().GetResult();
         }
 
         public User GetUserByGuid(Guid userGuid)
         {
-            var task = Task.Run(async () => await GetUserByGuidAsync(userGuid));
-            return task.Result;
+            return GetUserByGuidAsync(userGuid).GetAwaiter().GetResult();
         }
 
         public string GetUserFullName(User user)
         {
-            var task = Task.Run(async () => await GetUserFullNameAsync(user));
-            return task.Result;
+            return GetUserFullNameAsync(user).GetAwaiter().GetResult();
         }
 
         public User InsertGuestUser()
         {
-            var task = Task.Run(async () => await InsertGuestUserAsync());
-            return task.Result;
+            return InsertGuestUserAsync().GetAwaiter().GetResult();
         }
 
         #endregion

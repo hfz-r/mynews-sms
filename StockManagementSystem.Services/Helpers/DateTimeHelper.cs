@@ -182,7 +182,7 @@ namespace StockManagementSystem.Services.Helpers
         /// </summary>
         public virtual TimeZoneInfo CurrentTimeZone
         {
-            get => Task.Run(async () => await GetUserTimeZone(_workContext.CurrentUser)).Result;
+            get => GetUserTimeZone(_workContext.CurrentUser).GetAwaiter().GetResult();
             set
             {
                 if (!_dateTimeSettings.AllowUsersToSetTimeZone)

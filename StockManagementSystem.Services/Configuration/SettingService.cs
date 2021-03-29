@@ -236,7 +236,7 @@ namespace StockManagementSystem.Services.Configuration
         /// </summary>
         public virtual void SetSetting<T>(string key, T value, int tenantId = 0, bool clearCache = true)
         {
-            Task.Run(async () => await SetSetting(typeof(T), key, value, tenantId, clearCache));
+            SetSetting(typeof(T), key, value, tenantId, clearCache).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace StockManagementSystem.Services.Configuration
                 var key = typeof(T).Name + "." + prop.Name;
                 var value = prop.GetValue(settings, null);
                 if (value != null)
-                    Task.Run(async () => await SetSetting(prop.PropertyType, key, value, tenantId, false));
+                    SetSetting(prop.PropertyType, key, value, tenantId, false).GetAwaiter().GetResult();
                 else
                     SetSetting(key, string.Empty, tenantId, false);
             }

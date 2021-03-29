@@ -174,8 +174,7 @@ namespace StockManagementSystem.Services.Common
 
         public T GetAttribute<T>(BaseEntity entity, string key, int tenantId = 0)
         {
-            var task = Task.Run(async () => await GetAttributeAsync<T>(entity, key, tenantId));
-            return task.Result;
+            return GetAttributeAsync<T>(entity, key, tenantId).GetAwaiter().GetResult();
         }
 
         #endregion

@@ -32,6 +32,6 @@ namespace StockManagementSystem.Services.Users
 
         public string Schedule => "*/10 * * * *";
 
-        public bool Enabled => true;
+        public bool Enabled => false;
     }
 }

@@ -100,7 +100,7 @@ namespace StockManagementSystem.Web.Infrastructure.Extensions
 
         public static void AddObjectContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContextPool<ObjectContext>(optionsBuilder =>
+            services.AddDbContext<ObjectContext>(optionsBuilder =>
                 {
                     optionsBuilder.UseSqlServerWithLazyLoading(services);
                 })

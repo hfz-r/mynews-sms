@@ -248,8 +248,7 @@ namespace StockManagementSystem.Services.Security
 
         public bool Authorize(Permission permission)
         {
-            var task = Task.Run(async () => await AuthorizeAsync(permission));
-            return task.Result;
+            return AuthorizeAsync(permission).GetAwaiter().GetResult();
         }
 
         #endregion

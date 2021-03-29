@@ -169,8 +169,7 @@ namespace StockManagementSystem.Services.Logging
 
         public Log InsertLog(LogLevel logLevel, string shortMessage, string fullMessage = "", User user = null)
         {
-            var task = Task.Run(async () => await InsertLogAsync(logLevel, shortMessage, fullMessage, user));
-            return task.Result;
+            return InsertLogAsync(logLevel, shortMessage, fullMessage, user).GetAwaiter().GetResult();
         }
 
         #endregion

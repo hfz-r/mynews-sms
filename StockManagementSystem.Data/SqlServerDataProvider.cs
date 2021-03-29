@@ -34,7 +34,7 @@ namespace StockManagementSystem.Data
             context.ExecuteSqlScriptFromFile(fileProvider.MapPath(DataDefaults.SqlServerIndexesFilePath));
 
             //create stored procedures 
-            context.ExecuteSqlScriptFromFile(fileProvider.MapPath(DataDefaults.SqlServerStoredProceduresFilePath));
+            //context.ExecuteSqlScriptFromFile(fileProvider.MapPath(DataDefaults.SqlServerStoredProceduresFilePath));
         }
 
         public DbParameter GetParameter()

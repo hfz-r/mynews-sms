@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StockManagementSystem.Core.Infrastructure;
 using StockManagementSystem.Web.Infrastructure.Extensions;
-using HibernatingRhinos.Profiler.Appender.EntityFramework;
+//using HibernatingRhinos.Profiler.Appender.EntityFramework;
 
 namespace StockManagementSystem.Web.Infrastructure
 {
@@ -12,7 +12,7 @@ namespace StockManagementSystem.Web.Infrastructure
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             //hook-up HibernatingRhinos.Profiler
-            EntityFrameworkProfiler.Initialize();
+            //EntityFrameworkProfiler.Initialize();
 
             services.AddDefaultMvc();
         }
